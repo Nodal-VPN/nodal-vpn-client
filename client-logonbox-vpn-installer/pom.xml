@@ -124,6 +124,15 @@
 			<id>build-install4j-logonbox-vpn-client</id>
 			<build>
 				<plugins>
+				    <!-- We don't actually need to deploy the .sh, .deb. .exe etc to Artifactory,
+				    they are copied to S3 -->
+	                <plugin>
+	                    <groupId>org.apache.maven.plugins</groupId>
+	                    <artifactId>maven-deploy-plugin</artifactId>
+	                    <configuration>
+	                       <skip>true</skip>
+	                    </configuration>
+	                </plugin>
 
 					<!-- Clean target/extensions / target/bootstrap -->
 					<plugin>
