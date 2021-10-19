@@ -21,143 +21,22 @@
 	<build>
 		<plugins>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <version>1.0.0</version>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>read-project-properties</goal>
-                        </goals>
-                        <configuration>
-                            <quiet>true</quiet>
-                            <files>
-                                <file>${basedir}/hypersocket.build.properties</file>
-                                <file>${user.home}/.hypersocket.build.properties</file>
-                            </files>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            
-			<!-- Clean target/extensions / target/bootstrap -->
 			<plugin>
-				<artifactId>maven-clean-plugin</artifactId>
-				<version>3.1.0</version>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<version>1.0.0</version>
 				<executions>
 					<execution>
-						<id>clean-extensions</id>
-						<phase>clean</phase>
+						<phase>initialize</phase>
 						<goals>
-							<goal>clean</goal>
+							<goal>read-project-properties</goal>
 						</goals>
 						<configuration>
-							<filesets>
-								<fileset>
-									<directory>target/cli</directory>
-								</fileset>
-								<fileset>
-									<directory>target/service</directory>
-								</fileset>
-								>
-								<fileset>
-									<directory>target/gui</directory>
-								</fileset>
-								<fileset>
-									<directory>target/bootstrap</directory>
-								</fileset>
-							</filesets>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- Generate target/extensions / target/bootstrap -->
-			<plugin>
-				<groupId>com.logonbox</groupId>
-				<artifactId>logonbox-plugin-generator</artifactId>
-				<executions>
-					<execution>
-						<id>copy-bootstrap</id>
-						<phase>package</phase>
-						<goals>
-							<goal>get-artifacts</goal>
-						</goals>
-						<configuration>
-							<output>${project.build.directory}/bootstrap</output>
-							<artifacts>
-								<artifact>com.sshtools:forker-wrapper:1.7-SNAPSHOT</artifact>
-							</artifacts>
-						</configuration>
-					</execution>
-					<execution>
-						<id>copy-cli</id>
-						<phase>package</phase>
-						<goals>
-							<goal>get-artifacts</goal>
-						</goals>
-						<configuration>
-							<output>${project.build.directory}/cli</output>
-							<artifacts>
-								<artifact>com.logonbox:client-logonbox-vpn-cli:${project.version}</artifact>
-							</artifacts>
-						</configuration>
-					</execution>
-					<execution>
-						<id>copy-gui</id>
-						<phase>package</phase>
-						<goals>
-							<goal>get-artifacts</goal>
-						</goals>
-						<configuration>
-							<output>${project.build.directory}/gui</output>
-							<artifacts>
-								<artifact>com.logonbox:client-logonbox-vpn-gui-jfx:${project.version}</artifact>
-							</artifacts>
-						</configuration>
-					</execution>
-					<execution>
-						<id>copy-service</id>
-						<phase>package</phase>
-						<goals>
-							<goal>get-artifacts</goal>
-						</goals>
-						<configuration>
-							<output>${project.build.directory}/service</output>
-							<artifacts>
-								<artifact>com.logonbox:client-logonbox-vpn-service:${project.version}</artifact>
-							</artifacts>
-						</configuration>
-					</execution>
-					<execution>
-						<id>deploy-deb-packages</id>
-						<phase>deploy</phase>
-						<goals>
-							<goal>upload-packages</goal>
-						</goals>
-						<configuration>
-							<bucketName>logonbox-packages</bucketName>
-							<keyPrefix>logonbox-vpn-client/${product.version}-${build.number}</keyPrefix>
+							<quiet>true</quiet>
 							<files>
-								<directory>${project.basedir}/target/media</directory>
-								<includes>
-									<include>*</include>
-								</includes>
+								<file>${basedir}/hypersocket.build.properties</file>
+								<file>${user.home}/.hypersocket.build.properties</file>
 							</files>
-						</configuration>
-					</execution>
-					<execution>
-						<id>deploy-updates-xml</id>
-						<phase>deploy</phase>
-						<goals>
-							<goal>copy-s3-objects</goal>
-						</goals>
-						<configuration>
-							<sourceBucketName>logonbox-packages</sourceBucketName>
-							<sourceKey>logonbox-vpn-client/${product.version}-${build.number}/updates.xml</sourceKey>
-							<destinationKey>logonbox-vpn-client/${build.phase}/updates.xml</destinationKey>
 						</configuration>
 					</execution>
 				</executions>
@@ -195,30 +74,154 @@
 			<id>build-install4j-logonbox-vpn-client</id>
 			<build>
 				<plugins>
-					<!-- Create Installers -->
+
+
+
+					<!-- Clean target/extensions / target/bootstrap -->
 					<plugin>
-						<groupId>org.sonatype.install4j</groupId>
-						<artifactId>install4j-maven-plugin</artifactId>
-						<version>1.1.2</version>
+						<artifactId>maven-clean-plugin</artifactId>
+						<version>3.1.0</version>
 						<executions>
 							<execution>
-								<id>compile-client-installer</id>
-								<phase>package</phase>
+								<id>clean-extensions</id>
+								<phase>clean</phase>
 								<goals>
-									<goal>compile</goal>
+									<goal>clean</goal>
 								</goals>
 								<configuration>
-									<projectFile>${project.basedir}/client.install4j</projectFile>
-									<attach>true</attach>
-									<release>${product.version}-${build.number}</release>
-									<mediaTypes>${build.mediaTypes}</mediaTypes>
-									<variables>
-									   <build.phase>${build.phase}</build.phase>
-									</variables>
+									<filesets>
+										<fileset>
+											<directory>target/cli</directory>
+										</fileset>
+										<fileset>
+											<directory>target/service</directory>
+										</fileset>
+										>
+										<fileset>
+											<directory>target/gui</directory>
+										</fileset>
+										<fileset>
+											<directory>target/bootstrap</directory>
+										</fileset>
+									</filesets>
 								</configuration>
 							</execution>
 						</executions>
 					</plugin>
+
+					<!-- Generate target/extensions / target/bootstrap -->
+					<plugin>
+						<groupId>com.logonbox</groupId>
+						<artifactId>logonbox-plugin-generator</artifactId>
+						<executions>
+							<execution>
+								<id>copy-bootstrap</id>
+								<phase>package</phase>
+								<goals>
+									<goal>get-artifacts</goal>
+								</goals>
+								<configuration>
+									<output>${project.build.directory}/bootstrap</output>
+									<artifacts>
+										<artifact>com.sshtools:forker-wrapper:1.7-SNAPSHOT</artifact>
+									</artifacts>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-cli</id>
+								<phase>package</phase>
+								<goals>
+									<goal>get-artifacts</goal>
+								</goals>
+								<configuration>
+									<output>${project.build.directory}/cli</output>
+									<artifacts>
+										<artifact>com.logonbox:client-logonbox-vpn-cli:${project.version}</artifact>
+									</artifacts>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-gui</id>
+								<phase>package</phase>
+								<goals>
+									<goal>get-artifacts</goal>
+								</goals>
+								<configuration>
+									<output>${project.build.directory}/gui</output>
+									<artifacts>
+										<artifact>com.logonbox:client-logonbox-vpn-gui-jfx:${project.version}</artifact>
+									</artifacts>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-service</id>
+								<phase>package</phase>
+								<goals>
+									<goal>get-artifacts</goal>
+								</goals>
+								<configuration>
+									<output>${project.build.directory}/service</output>
+									<artifacts>
+										<artifact>com.logonbox:client-logonbox-vpn-service:${project.version}</artifact>
+									</artifacts>
+								</configuration>
+							</execution>
+							<execution>
+								<id>deploy-deb-packages</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>upload-packages</goal>
+								</goals>
+								<configuration>
+									<bucketName>logonbox-packages</bucketName>
+									<keyPrefix>logonbox-vpn-client/${product.version}-${build.number}</keyPrefix>
+									<files>
+										<directory>${project.basedir}/target/media</directory>
+										<includes>
+											<include>*</include>
+										</includes>
+									</files>
+								</configuration>
+							</execution>
+							<execution>
+								<id>deploy-updates-xml</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>copy-s3-objects</goal>
+								</goals>
+								<configuration>
+									<sourceBucketName>logonbox-packages</sourceBucketName>
+									<sourceKey>logonbox-vpn-client/${product.version}-${build.number}/updates.xml</sourceKey>
+									<destinationKey>logonbox-vpn-client/${build.phase}/updates.xml</destinationKey>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					
+                    <!-- Create Installers -->
+                    <plugin>
+                        <groupId>org.sonatype.install4j</groupId>
+                        <artifactId>install4j-maven-plugin</artifactId>
+                        <version>1.1.2</version>
+                        <executions>
+                            <execution>
+                                <id>compile-client-installer</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>compile</goal>
+                                </goals>
+                                <configuration>
+                                    <projectFile>${project.basedir}/client.install4j</projectFile>
+                                    <attach>true</attach>
+                                    <release>${product.version}-${build.number}</release>
+                                    <mediaTypes>${build.mediaTypes}</mediaTypes>
+                                    <variables>
+                                        <build.phase>${build.phase}</build.phase>
+                                    </variables>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
 				</plugins>
 			</build>
 		</profile>
