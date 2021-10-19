@@ -95,7 +95,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 			updateService = new Install4JUpdateServiceImpl(this);
 		}
 		catch(Throwable t) {
-			updateService = new DummyUpdateService();
+			updateService = new DummyUpdateService(this);
 		}
 		
 	}
@@ -163,8 +163,9 @@ public abstract class AbstractDBusClient implements DBusClient {
 		return scheduler;
 	}
 
-	protected void exit() {
+	public void exit() {
 		scheduler.shutdown();
+		updateService.shutdown();
 	}
 
 	protected void disconnectFromBus() {

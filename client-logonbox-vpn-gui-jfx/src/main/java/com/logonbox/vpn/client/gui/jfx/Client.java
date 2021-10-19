@@ -579,6 +579,7 @@ public class Client extends Application {
 	}
 
 	protected void exitApp() {
+		Main.getInstance().exit();
 		opQueue.shutdown();
 		Platform.exit();
 	}

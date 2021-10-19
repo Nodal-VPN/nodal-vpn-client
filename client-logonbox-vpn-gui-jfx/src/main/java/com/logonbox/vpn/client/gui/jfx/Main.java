@@ -211,10 +211,12 @@ public class Main extends AbstractDBusClient implements Callable<Integer> {
 	}
 
 	public void restart() {
+		exit();
 		System.exit(99);
 	}
 
 	public void shutdown() {
+		exit();
 		System.exit(0);
 	}
 

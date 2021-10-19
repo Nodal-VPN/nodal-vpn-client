@@ -1190,6 +1190,11 @@ public class UI extends AbstractController implements BusLifecycleListener {
 
 		/* Configure engine */
 		configureWebEngine();
+		
+		/* Watch for update check state changing */
+		Main.getInstance().getUpdateService().addListener(() -> {
+			maybeRunLater(() -> selectPageForState(false, false));
+		});
 
 		// TEMP
 //		webView.visibleProperty().set(false);
@@ -1203,10 +1208,11 @@ public class UI extends AbstractController implements BusLifecycleListener {
 		sidebar.managedProperty().bind(sidebar.visibleProperty());
 
 		/* Initial page */
-		setHtmlPage("index.html");
+//		setHtmlPage("index.html");
 		try {
 			context.getDBus().addBusLifecycleListener(this);
 			context.getDBus().getVPN().ping();
+			selectPageForState(false, false);
 		} catch (Exception e) {
 			setHtmlPage("index.html");
 		}

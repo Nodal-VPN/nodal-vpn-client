@@ -3,6 +3,14 @@ package com.logonbox.vpn.common.client;
 import java.io.IOException;
 
 public interface UpdateService {
+	
+	public interface Listener {
+		void stateChanged();
+	}
+	
+	void addListener(Listener listener);
+	
+	void removeListener(Listener listener);
 
 	boolean isNeedsUpdating();
 
@@ -19,4 +27,6 @@ public interface UpdateService {
 	void checkForUpdate() throws IOException;
 
 	void update() throws IOException;
+	
+	void shutdown();
 }
