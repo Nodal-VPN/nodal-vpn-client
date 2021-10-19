@@ -29,6 +29,7 @@
       <dirEntry mountPoint="859" file="./target/gui" subDirectory="gui">
         <exclude>
           <entry location="javafx-controls-17.jar" />
+          <entry location="javafx-base-17.jar" />
           <entry location="javafx-graphics-17.jar" />
           <entry location="javafx-web-17.jar" />
           <entry location="javafx-media-17.jar" />
