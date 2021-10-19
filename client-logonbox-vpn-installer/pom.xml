@@ -21,6 +21,27 @@
 	<build>
 		<plugins>
 
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <quiet>true</quiet>
+                            <files>
+                                <file>${basedir}/hypersocket.build.properties</file>
+                                <file>${user.home}/.hypersocket.build.properties</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
 			<!-- Clean target/extensions / target/bootstrap -->
 			<plugin>
 				<artifactId>maven-clean-plugin</artifactId>
