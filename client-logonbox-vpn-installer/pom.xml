@@ -215,6 +215,8 @@
                                        <excludeClassifier>win</excludeClassifier>
                                        <excludeClassifier>mac</excludeClassifier>
 									</excludeClassifiers>
+									
+									
 								</configuration>
 							</execution>
                             <execution>
