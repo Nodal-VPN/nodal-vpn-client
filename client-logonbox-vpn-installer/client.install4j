@@ -26,7 +26,15 @@
       <dirEntry mountPoint="82" file="./conf" subDirectory="conf" excludeSuffixes=".svn" />
       <dirEntry mountPoint="2024" file="./target/bootstrap" subDirectory="bootstrap" />
       <dirEntry mountPoint="858" file="./target/service" subDirectory="service" />
-      <dirEntry mountPoint="859" file="./target/gui" subDirectory="gui" />
+      <dirEntry mountPoint="859" file="./target/gui" subDirectory="gui">
+        <exclude>
+          <entry location="javafx-controls-17.jar" />
+          <entry location="javafx-graphics-17.jar" />
+          <entry location="javafx-web-17.jar" />
+          <entry location="javafx-media-17.jar" />
+          <entry location="javafx-fxml-17.jar" />
+        </exclude>
+      </dirEntry>
       <dirEntry mountPoint="1487" file="./target/cli" subDirectory="cli" />
       <fileEntry mountPoint="2041" file="./images/splash.png" />
       <fileEntry mountPoint="2032" file="./scripts/cleanup.bat" />
@@ -1636,6 +1644,8 @@ return true;</property>
   <mediaSets>
     <macosFolder name="Mac OS X Folder" id="1553">
       <exclude>
+        <entry location="gui/linux" />
+        <entry location="gui/win" />
         <entry location="cleanup.bat" />
         <entry rootId="2027" />
         <entry rootId="2036" />
@@ -1644,30 +1654,40 @@ return true;</property>
     </macosFolder>
     <windows name="Windows x64" id="1554" installDir="LogonBox\VPN Client">
       <exclude>
+        <entry location="gui/linux" />
+        <entry location="gui/mac" />
         <entry rootId="2036" />
       </exclude>
       <jreBundle includedJre="windows-amd64-1.8.0_121" />
     </windows>
     <unixInstaller name="Unix Installer" id="1555">
       <exclude>
+        <entry location="gui/win" />
+        <entry location="gui/mac" />
         <entry location="cleanup.bat" />
         <entry rootId="2027" />
       </exclude>
     </unixInstaller>
     <linuxRPM name="Linux RPM" id="1560">
       <exclude>
+        <entry location="gui/win" />
+        <entry location="gui/mac" />
         <entry location="cleanup.bat" />
         <entry rootId="2027" />
       </exclude>
     </linuxRPM>
     <linuxDeb name="Linux Deb Archive" id="1561">
       <exclude>
+        <entry location="gui/win" />
+        <entry location="gui/mac" />
         <entry location="cleanup.bat" />
         <entry rootId="2027" />
       </exclude>
     </linuxDeb>
     <windows name="MSI Windows x64" id="2047" installDir="LogonBox\VPN Client" msi="true">
       <exclude>
+        <entry location="gui/linux" />
+        <entry location="gui/mac" />
         <entry rootId="2036" />
       </exclude>
       <jreBundle includedJre="windows-amd64-1.8.0_121" />

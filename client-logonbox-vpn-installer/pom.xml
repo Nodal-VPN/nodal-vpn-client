@@ -208,8 +208,69 @@
 									<artifacts>
 										<artifact>com.logonbox:client-logonbox-vpn-gui-jfx:${project.version}</artifact>
 									</artifacts>
+									
+									<!-- Copy these to separate directories -->
+									<excludeClassifiers>
+									   <excludeClassifier>linux</excludeClassifier>
+                                       <excludeClassifier>win</excludeClassifier>
+                                       <excludeClassifier>mac</excludeClassifier>
+									</excludeClassifiers>
 								</configuration>
 							</execution>
+                            <execution>
+                                <id>copy-gui-jfx-win</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>get-artifacts</goal>
+                                </goals>
+                                <configuration>
+                                    <output>${project.build.directory}/gui/win</output>
+                                    <artifacts>
+		                                <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:win</artifact>
+		                                <artifact>org.openjfx:javafx-base:${javafx.version}:jar:win</artifact>
+		                                <artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:win</artifact>
+		                                <artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:win</artifact>
+		                                <artifact>org.openjfx:javafx-media:${javafx.version}:jar:win</artifact>
+		                                <artifact>org.openjfx:javafx-web:${javafx.version}:jar:win</artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copy-gui-jfx-linux</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>get-artifacts</goal>
+                                </goals>
+                                <configuration>
+                                    <output>${project.build.directory}/gui/linux</output>
+                                    <artifacts>
+                                        <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:linux</artifact>
+                                        <artifact>org.openjfx:javafx-base:${javafx.version}:jar:linux</artifact>
+                                        <artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:linux</artifact>
+                                        <artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:linux</artifact>
+                                        <artifact>org.openjfx:javafx-media:${javafx.version}:jar:linux</artifact>
+                                        <artifact>org.openjfx:javafx-web:${javafx.version}:jar:linux</artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copy-gui-jfx-mac</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>get-artifacts</goal>
+                                </goals>
+                                <configuration>
+                                    <output>${project.build.directory}/gui/mac</output>
+                                    <artifacts>
+                                        <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:mac</artifact>
+                                        <artifact>org.openjfx:javafx-base:${javafx.version}:jar:mac</artifact>
+                                        <artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:mac</artifact>
+                                        <artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:mac</artifact>
+                                        <artifact>org.openjfx:javafx-media:${javafx.version}:jar:mac</artifact>
+                                        <artifact>org.openjfx:javafx-web:${javafx.version}:jar:mac</artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
 							<execution>
 								<id>copy-service</id>
 								<phase>package</phase>
