@@ -14,7 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.fusesource.jansi.internal.JansiLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,6 @@ public class NativeConsoleDevice implements ConsoleProvider {
 		if (console == null)
 			throw new IllegalArgumentException("No console.");
 		this.console = console;
-		ansi = JansiLoader.initialize();
 	}
 
 	@Override
