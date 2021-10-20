@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.URL;
+import java.util.Arrays;
 
 import org.apache.commons.io.output.NullOutputStream;
 import org.slf4j.Logger;
@@ -88,7 +89,7 @@ public class Install4JUpdateServiceImpl extends AbstractUpdateService {
 			else {
 				if (!isNeedsUpdating())
 					throw new IOException("Update not needed.");
-				ApplicationLauncher.launchApplicationInProcess("2103", null, new ApplicationLauncher.Callback() {
+				ApplicationLauncher.launchApplicationInProcess("2103", new String[] { "-q" }, new ApplicationLauncher.Callback() {
 					public void exited(int exitValue) {
 						context.exit();
 					}
