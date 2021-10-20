@@ -89,7 +89,7 @@
           <entry location="cli" />
           <entry location="EULA.txt" />
           <entry location="WIREGUARD-LICENSE.txt" />
-          <entry location="logonbox-vpn" fileType="launcher" />
+          <entry location="logonbox-vpn-cli" fileType="launcher" />
         </include>
         <dependencies>
           <component id="1676" />
