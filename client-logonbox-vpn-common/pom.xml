@@ -76,6 +76,32 @@
             </snapshots>
         </repository>
         
+        <!-- For hypersocket-common -->
+        <repository>
+            <id>opensource-releases</id>
+            <url>https://artifactory.jadaptive.com/opensource-releases</url>
+            <releases />
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>opensource-snapshots</id>
+            <url>https://artifactory.jadaptive.com/opensource-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots />
+        </repository>
+        <repository>
+            <id>ossrh-sshtools</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+
+        
         <!-- For SNAPSHOT dbus-java -->
 		<repository>
 			<id>ext-snapshots-local</id>
