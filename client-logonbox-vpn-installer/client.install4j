@@ -124,8 +124,8 @@
       </iconImageFiles>
     </launcher>
     <launcher name="logonbox-vpn-cli" id="1488" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientCLI">
-      <executable name="logonbox-vpn" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" singleInstance="true" dpiAware="false" />
-      <java mainClass="com.sshtools.forker.wrapper.ForkerWrapper" vmParameters="-Xmx10m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true" arguments="-c conf/cli-forker.cfg --">
+      <executable name="logonbox-vpn-cli" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false" />
+      <java mainClass="com.sshtools.forker.wrapper.ForkerWrapper" vmParameters="-Xmx20m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true" arguments="-c conf/cli-forker.cfg --">
         <classPath>
           <scanDirectory location="bootstrap" failOnError="false" />
         </classPath>
