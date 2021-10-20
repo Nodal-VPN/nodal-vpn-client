@@ -227,6 +227,7 @@
                                 </goals>
                                 <configuration>
                                     <output>${project.build.directory}/gui/win</output>
+                                    <transitive>false</transitive>
                                     <artifacts>
 		                                <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:win</artifact>
 		                                <artifact>org.openjfx:javafx-base:${javafx.version}:jar:win</artifact>
@@ -245,6 +246,7 @@
                                 </goals>
                                 <configuration>
                                     <output>${project.build.directory}/gui/linux</output>
+                                    <transitive>false</transitive>
                                     <artifacts>
                                         <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:linux</artifact>
                                         <artifact>org.openjfx:javafx-base:${javafx.version}:jar:linux</artifact>
@@ -263,6 +265,7 @@
                                 </goals>
                                 <configuration>
                                     <output>${project.build.directory}/gui/mac</output>
+                                    <transitive>false</transitive>
                                     <artifacts>
                                         <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:mac</artifact>
                                         <artifact>org.openjfx:javafx-base:${javafx.version}:jar:mac</artifact>
