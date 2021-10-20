@@ -22,10 +22,10 @@ public abstract class AbstractUpdateService implements UpdateService {
 	private long deferUpdatesUntil;
 	private boolean updating;
 	private String availableVersion;
-	private ScheduledExecutorService scheduler;
 	private ScheduledFuture<?> checkTask;
 
 	protected AbstractDBusClient context;
+	protected ScheduledExecutorService scheduler;
 
 	protected AbstractUpdateService(AbstractDBusClient context) {
 		this.context = context;

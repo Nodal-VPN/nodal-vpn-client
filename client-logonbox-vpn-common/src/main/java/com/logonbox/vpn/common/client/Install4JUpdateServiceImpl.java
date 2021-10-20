@@ -1,11 +1,15 @@
 package com.logonbox.vpn.common.client;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.net.URL;
 
+import org.apache.commons.io.output.NullOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hypersocket.json.version.HypersocketVersion;
 import com.install4j.api.context.UserCanceledException;
 import com.install4j.api.launcher.ApplicationLauncher;
 import com.install4j.api.update.ApplicationDisplayMode;
@@ -29,6 +33,33 @@ public class Install4JUpdateServiceImpl extends AbstractUpdateService {
 
 	@Override
 	protected String doUpdate(boolean checkOnly) throws IOException {
+		
+		/* Ping the Hypersocket extension store. This is only used for statistics, updates 
+		 * are calculated and obtained directly from S3.
+		 * 
+		 * Do this in the background
+		 */
+		scheduler.execute(() -> {
+			try {
+				// https://updates2.hypersocket.com/hypersocket/api/store/repos2/2.4.0-456/logonbox-vpn-client/265f97ff-3d65-454d-aadc-a427385b20e2/CLIENT_SERVICE
+				URL url = new URL(String.format("%s/api/store/repos2/%s/logonbox-vpn-client/%s/CLIENT_SERVICE", 
+						System.getProperty("hypersocket.archivesURL", "https://updates2.hypersocket.com/hypersocket"),
+						context.getVersion(),
+						HypersocketVersion.getSerial()));
+				try(InputStream in = url.openStream()) {
+					in.transferTo(new NullOutputStream());
+				}
+				log.debug("Pinged " + url);
+			}
+			catch(Exception e) {
+				if(log.isDebugEnabled()) {
+					log.error("Failed to ping extension store.", e);
+				}
+			}
+		});
+		
+		 
+		
 		String uurl = buildUpdateUrl();
 		log.info("Check for updates in " + context.getVersion() + " from " + uurl);
 		UpdateDescriptor update;
