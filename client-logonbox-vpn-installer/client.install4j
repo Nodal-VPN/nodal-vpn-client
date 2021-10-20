@@ -1694,7 +1694,7 @@ return true;</property>
       </exclude>
       <jreBundle includedJre="windows-amd64-1.8.0_121" />
     </windows>
-    <unixInstaller name="Arm64 Unix Installer" id="2166">
+    <unixInstaller name="Arm64 Unix Installer" id="2166" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.jreBundleArch}-${compiler:sys.version}">
       <exclude>
         <entry location="gui/win" />
         <entry location="gui/mac" />
