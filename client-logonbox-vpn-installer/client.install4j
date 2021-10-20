@@ -1694,6 +1694,15 @@ return true;</property>
       </exclude>
       <jreBundle includedJre="windows-amd64-1.8.0_121" />
     </windows>
+    <unixInstaller name="Arm64 Unix Installer" id="2166">
+      <exclude>
+        <entry location="gui/win" />
+        <entry location="gui/mac" />
+        <entry location="cleanup.bat" />
+        <entry rootId="2027" />
+      </exclude>
+      <jreBundle platform="linux-aarch64" />
+    </unixInstaller>
   </mediaSets>
   <buildOptions debug="true" />
 </install4j>
