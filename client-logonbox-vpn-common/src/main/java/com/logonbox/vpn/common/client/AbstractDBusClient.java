@@ -340,5 +340,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 
 	protected abstract PromptingCertManager createCertManager();
 	
-	protected abstract String getVersion(); 
+	protected abstract String getVersion();
+
+	protected abstract boolean isConsole(); 
 }

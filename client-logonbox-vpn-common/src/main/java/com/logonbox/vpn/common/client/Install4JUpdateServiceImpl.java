@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.URL;
-import java.util.Arrays;
 
 import org.apache.commons.io.output.NullOutputStream;
 import org.slf4j.Logger;
@@ -65,7 +64,7 @@ public class Install4JUpdateServiceImpl extends AbstractUpdateService {
 		log.info("Check for updates in " + context.getVersion() + " from " + uurl);
 		UpdateDescriptor update;
 		try {
-			update = UpdateChecker.getUpdateDescriptor(uurl, ApplicationDisplayMode.GUI);
+			update = UpdateChecker.getUpdateDescriptor(uurl, context.isConsole() ? ApplicationDisplayMode.CONSOLE : ApplicationDisplayMode.GUI);
 			UpdateDescriptorEntry best = update.getPossibleUpdateEntry();
 			if (best == null) {
 				log.info("No version available.");
@@ -89,7 +88,8 @@ public class Install4JUpdateServiceImpl extends AbstractUpdateService {
 			else {
 				if (!isNeedsUpdating())
 					throw new IOException("Update not needed.");
-				ApplicationLauncher.launchApplicationInProcess("2103", new String[] { "-q" }, new ApplicationLauncher.Callback() {
+				ApplicationLauncher.launchApplicationInProcess("2103",
+						new String[] { /* "-q" */ }, new ApplicationLauncher.Callback() {
 					public void exited(int exitValue) {
 						context.exit();
 					}

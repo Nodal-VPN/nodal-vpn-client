@@ -388,4 +388,9 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 	protected String getVersion() {
 		return HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-cli");
 	}
+
+	@Override
+	protected boolean isConsole() {
+		return true;
+	}
 }

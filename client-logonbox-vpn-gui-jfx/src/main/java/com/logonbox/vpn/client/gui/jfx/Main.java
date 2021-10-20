@@ -268,4 +268,9 @@ public class Main extends AbstractDBusClient implements Callable<Integer> {
 	protected String getVersion() {
 		return HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx");
 	}
+
+	@Override
+	protected boolean isConsole() {
+		return false;
+	}
 }
