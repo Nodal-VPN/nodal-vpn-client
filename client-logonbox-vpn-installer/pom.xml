@@ -350,8 +350,24 @@
 		</profile>
 	</profiles>
 
-	<repositories>
-		<!-- For SNAPSHOT dbus-java -->
+    <repositories>
+        <!-- For Forker -->
+        <repository>
+            <id>opensource-releases</id>
+            <url>https://artifactory.jadaptive.com/opensource-releases</url>
+            <releases />
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>opensource-snapshots</id>
+            <url>https://artifactory.jadaptive.com/opensource-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots />
+        </repository>
 		<repository>
 			<id>ext-snapshots-local</id>
 			<name>ext-snapshots-local</name>
