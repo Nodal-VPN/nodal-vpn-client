@@ -2,6 +2,9 @@
 <install4j version="9.0.5" transformSequenceNumber="9">
   <directoryPresets config="./target" />
   <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" pack200Compression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="11" jdkMode="jdk">
+    <variables>
+      <variable name="build.phase" value="nightly" />
+    </variables>
     <codeSigning macEnabled="true" macPkcs12File="logonbox-developer-id.p12" windowsEnabled="true" windowsPkcs12File="logonbox.p12" macNotarize="true" appleId="brett@logonbox.com" />
     <jreBundles jdkProviderId="AdoptOpenJDK-OpenJ9" release="16/jdk-16+36_openj9-0.25.0" />
   </application>
@@ -1694,7 +1697,7 @@ return true;</property>
       </exclude>
       <jreBundle includedJre="windows-amd64-1.8.0_121" />
     </windows>
-    <unixInstaller name="Arm64 Unix Installer" id="2166" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.jreBundleArch}-${compiler:sys.version}">
+    <unixInstaller name="Arm64 Unix Installer" id="2166" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}">
       <exclude>
         <entry location="gui/win" />
         <entry location="gui/mac" />
@@ -1704,5 +1707,5 @@ return true;</property>
       <jreBundle platform="linux-aarch64" />
     </unixInstaller>
   </mediaSets>
-  <buildOptions debug="true" />
+  <buildOptions verbose="true" debug="true" />
 </install4j>
