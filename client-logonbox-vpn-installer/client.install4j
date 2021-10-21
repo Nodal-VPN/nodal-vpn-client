@@ -1706,6 +1706,9 @@ return true;</property>
       </exclude>
       <jreBundle platform="linux-aarch64" />
     </unixInstaller>
+    <unixArchive name="Unix Archive" id="2167">
+      <jreBundle jreBundleSource="none" />
+    </unixArchive>
   </mediaSets>
   <buildOptions verbose="true" debug="true" />
 </install4j>
