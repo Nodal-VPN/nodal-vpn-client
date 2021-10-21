@@ -117,6 +117,8 @@ public abstract class AbstractUpdateService implements UpdateService {
 			update(true);
 		} catch (Exception e) {
 			log.error("Failed to automatically check for updates.", e);
+		} finally {
+			rescheduleCheck(0);
 		}
 	}
 
