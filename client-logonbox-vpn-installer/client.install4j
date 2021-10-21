@@ -1709,7 +1709,7 @@ return true;</property>
     <unixArchive name="Unix Archive" id="2167">
       <jreBundle jreBundleSource="none" />
     </unixArchive>
-    <unixInstaller name="Arm32 Unix Installer" id="2170" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}">
+    <unixInstaller name="Arm32 Unix Installer" id="2170" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-arm32-${compiler:sys.version}">
       <exclude>
         <entry location="gui/win" />
         <entry location="gui/mac" />
