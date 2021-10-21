@@ -7,7 +7,7 @@ public interface ConfigurationRepository {
 	public final static String DNS_INTEGRATION_METHOD = "dnsIntegrationMethod";
 	public final static String AUTOMATIC_UPDATES = "automaticUpdates";
 	public final static String PHASE = "phase";
-	public final static String DEFER_UPDATES_UNTIL = "deferUpdatesUntil";
+	public final static String DEFER_UPDATE_UNTIL = "deferUpdatesUntil";
 	public final static boolean AUTOMATIC_UPDATES_DEFAULT = false;
 
 	String getValue(String key, String defaultValue);

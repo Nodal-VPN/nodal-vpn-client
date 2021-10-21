@@ -10,16 +10,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.prefs.Preferences;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractUpdateService implements UpdateService {
+	final static Preferences PREFS = Preferences.userNodeForPackage(AbstractUpdateService.class);
 
 	static Logger log = LoggerFactory.getLogger(AbstractUpdateService.class);
 
 	private List<Listener> listeners = new ArrayList<>();
-	private long deferUpdatesUntil;
 	private boolean updating;
 	private String availableVersion;
 	private ScheduledFuture<?> checkTask;
@@ -30,7 +31,7 @@ public abstract class AbstractUpdateService implements UpdateService {
 	protected AbstractUpdateService(AbstractDBusClient context) {
 		this.context = context;
 		scheduler = Executors.newScheduledThreadPool(1);
-		rescheduleCheck(TimeUnit.SECONDS.toMillis(10));
+		rescheduleCheck(0);
 	}
 
 	@Override
@@ -78,13 +79,20 @@ public abstract class AbstractUpdateService implements UpdateService {
 
 	@Override
 	public final void deferUpdate() {
-		long dayMs = TimeUnit.DAYS.toMillis(1);
-		deferUpdatesUntil = ((System.currentTimeMillis() / dayMs) * dayMs) + dayMs;
+		long day = TimeUnit.DAYS.toMillis(1);
+		long nowDay = ( System.currentTimeMillis() / day ) * day;
+		long when = nowDay + day + TimeUnit.HOURS.toMillis(12)
+				+ (long) (Math.random() * 3.0d * (double) TimeUnit.HOURS.toMillis(3));
+		setDeferUntil(when);;
+		availableVersion = null;
+		log.info("Deferring update for " + DateFormat.getDateTimeInstance().format(new Date(when)) + " days");
+		rescheduleCheck(0);
 	}
 
 	@Override
 	public final void checkForUpdate() throws IOException {
-		deferUpdatesUntil = 0;
+		setDeferUntil(0);
+		log.info("Checking for updates ...");
 		update(true);
 	}
 
@@ -92,24 +100,24 @@ public abstract class AbstractUpdateService implements UpdateService {
 		if (checkTask != null) {
 			checkTask.cancel(false);
 		}
-		if (deferUpdatesUntil == 0) {
-			if (nonDeferredDelay == 0) {
-				/* Ordinary schedule, check at noon + some random minutes */
-				long day = TimeUnit.DAYS.toMillis(1);
-				long nowDay = System.currentTimeMillis() / day;
-				checkTask = scheduler.schedule(() -> timedCheck(),
-						nowDay + day + TimeUnit.HOURS.toMillis(12)
-								+ (long) (Math.random() * 3.0d * (double) TimeUnit.HOURS.toMillis(3)),
-						TimeUnit.MILLISECONDS);
-			} else {
-				checkTask = scheduler.schedule(() -> timedCheck(), nonDeferredDelay, TimeUnit.MILLISECONDS);
-			}
-
+		long defer = getDeferUntil();
+		long when = defer == 0 ? 0 : defer - System.currentTimeMillis();
+		if (when > 0) {
+			checkTask = scheduler.schedule(() -> timedCheck(), when, TimeUnit.MILLISECONDS);
 		} else {
-			/* Deferred until fixed time */
-			checkTask = scheduler.schedule(() -> timedCheck(),
-					Math.max(1, deferUpdatesUntil - System.currentTimeMillis()), TimeUnit.MILLISECONDS);
+			if(nonDeferredDelay == 0) 
+				deferUpdate();
+			else
+				checkTask = scheduler.schedule(() -> timedCheck(), nonDeferredDelay, TimeUnit.MILLISECONDS);
 		}
+	}
+
+	protected long getDeferUntil() {
+		return PREFS.getLong(ConfigurationRepository.DEFER_UPDATE_UNTIL, 0);
+	}
+
+	protected void setDeferUntil(long deferUntil) {
+		PREFS.putLong(ConfigurationRepository.DEFER_UPDATE_UNTIL, deferUntil);
 	}
 
 	protected void timedCheck() {
@@ -127,8 +135,9 @@ public abstract class AbstractUpdateService implements UpdateService {
 			log.info("Updates disabled.");
 			setAvailableVersion(null);
 		} else {
-			if (deferUpdatesUntil == 0 || System.currentTimeMillis() >= deferUpdatesUntil) {
-				deferUpdatesUntil = 0;
+			long defer = getDeferUntil();
+			if (defer == 0 || System.currentTimeMillis() >= defer) {
+				setDeferUntil(0);
 				updating = true;
 				try {
 					setAvailableVersion(doUpdate(check));
@@ -137,7 +146,7 @@ public abstract class AbstractUpdateService implements UpdateService {
 				}
 			} else {
 				log.info(String.format("Updates deferred until %s",
-						DateFormat.getDateTimeInstance().format(new Date(deferUpdatesUntil))));
+						DateFormat.getDateTimeInstance().format(new Date(defer))));
 			}
 		}
 	}
