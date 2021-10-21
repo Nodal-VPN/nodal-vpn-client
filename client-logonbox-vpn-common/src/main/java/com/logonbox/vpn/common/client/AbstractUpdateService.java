@@ -80,10 +80,11 @@ public abstract class AbstractUpdateService implements UpdateService {
 	@Override
 	public final void deferUpdate() {
 		long day = TimeUnit.DAYS.toMillis(1);
-		long nowDay = ( System.currentTimeMillis() / day ) * day;
+		long nowDay = (System.currentTimeMillis() / day) * day;
 		long when = nowDay + day + TimeUnit.HOURS.toMillis(12)
 				+ (long) (Math.random() * 3.0d * (double) TimeUnit.HOURS.toMillis(3));
-		setDeferUntil(when);;
+		setDeferUntil(when);
+		;
 		availableVersion = null;
 		log.info("Deferring update for " + DateFormat.getDateTimeInstance().format(new Date(when)) + " days");
 		rescheduleCheck(0);
@@ -103,9 +104,11 @@ public abstract class AbstractUpdateService implements UpdateService {
 		long defer = getDeferUntil();
 		long when = defer == 0 ? 0 : defer - System.currentTimeMillis();
 		if (when > 0) {
+			log.info(String.format("Scheduling next check for",
+					DateFormat.getDateTimeInstance().format(new Date(defer))));
 			checkTask = scheduler.schedule(() -> timedCheck(), when, TimeUnit.MILLISECONDS);
 		} else {
-			if(nonDeferredDelay == 0) 
+			if (nonDeferredDelay == 0)
 				deferUpdate();
 			else
 				checkTask = scheduler.schedule(() -> timedCheck(), nonDeferredDelay, TimeUnit.MILLISECONDS);
@@ -143,6 +146,9 @@ public abstract class AbstractUpdateService implements UpdateService {
 					setAvailableVersion(doUpdate(check));
 				} finally {
 					updating = false;
+					if (check) {
+						rescheduleCheck(0);
+					}
 				}
 			} else {
 				log.info(String.format("Updates deferred until %s",
