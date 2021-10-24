@@ -10,13 +10,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.prefs.Preferences;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractUpdateService implements UpdateService {
-	final static Preferences PREFS = Preferences.userNodeForPackage(AbstractUpdateService.class);
 
 	static Logger log = LoggerFactory.getLogger(AbstractUpdateService.class);
 
@@ -24,6 +22,7 @@ public abstract class AbstractUpdateService implements UpdateService {
 	private boolean updating;
 	private String availableVersion;
 	private ScheduledFuture<?> checkTask;
+	private long deferUntil;
 
 	protected AbstractDBusClient context;
 	protected ScheduledExecutorService scheduler;
@@ -31,7 +30,17 @@ public abstract class AbstractUpdateService implements UpdateService {
 	protected AbstractUpdateService(AbstractDBusClient context) {
 		this.context = context;
 		scheduler = Executors.newScheduledThreadPool(1);
-		rescheduleCheck(0);
+		checkIfBusAvailable();
+	}
+
+	@Override
+	public void checkIfBusAvailable() {
+		cancelTask();
+		if (context.isBusAvailable()) {
+			deferUntil = Long.parseLong(context.getVPN().getValue(ConfigurationRepository.DEFER_UPDATE_UNTIL, "0"));
+			rescheduleCheck(TimeUnit.SECONDS.toMillis(12));
+		} else
+			deferUntil = 0;
 	}
 
 	@Override
@@ -79,15 +88,13 @@ public abstract class AbstractUpdateService implements UpdateService {
 
 	@Override
 	public final void deferUpdate() {
-		long day = TimeUnit.DAYS.toMillis(1);
-		long nowDay = (System.currentTimeMillis() / day) * day;
-		long when = nowDay + day + TimeUnit.HOURS.toMillis(12)
-				+ (long) (Math.random() * 3.0d * (double) TimeUnit.HOURS.toMillis(3));
-		setDeferUntil(when);
-		;
-		availableVersion = null;
-		log.info("Deferring update for " + DateFormat.getDateTimeInstance().format(new Date(when)) + " days");
-		rescheduleCheck(0);
+		setAvailableVersion(null);
+		configDeferUpdate();
+		if (context.isBusAvailable()) {
+			context.getVPN().setValue(ConfigurationRepository.DEFER_UPDATE_UNTIL, String.valueOf(deferUntil));
+		} else {
+			log.warn("Failed to set defer time, not connected to bus.");
+		}
 	}
 
 	@Override
@@ -97,30 +104,44 @@ public abstract class AbstractUpdateService implements UpdateService {
 		update(true);
 	}
 
+	protected final void configDeferUpdate() {
+		long day = TimeUnit.DAYS.toMillis(1);
+		long nowDay = (System.currentTimeMillis() / day) * day;
+		long when = nowDay + day + TimeUnit.HOURS.toMillis(12)
+				+ (long) (Math.random() * 3.0d * (double) TimeUnit.HOURS.toMillis(3));
+		setDeferUntil(when);
+		log.info("Deferring update for " + DateFormat.getDateTimeInstance().format(new Date(when)) + " days");
+		rescheduleCheck(0);
+	}
+
 	protected void rescheduleCheck(long nonDeferredDelay) {
-		if (checkTask != null) {
-			checkTask.cancel(false);
-		}
+		cancelTask();
 		long defer = getDeferUntil();
 		long when = defer == 0 ? 0 : defer - System.currentTimeMillis();
 		if (when > 0) {
-			log.info(String.format("Scheduling next check for",
+			log.info(String.format("Scheduling next check for %s",
 					DateFormat.getDateTimeInstance().format(new Date(defer))));
 			checkTask = scheduler.schedule(() -> timedCheck(), when, TimeUnit.MILLISECONDS);
 		} else {
-			if (nonDeferredDelay == 0)
-				deferUpdate();
-			else
+			if (nonDeferredDelay == 0) {
+				configDeferUpdate();
+			} else
 				checkTask = scheduler.schedule(() -> timedCheck(), nonDeferredDelay, TimeUnit.MILLISECONDS);
 		}
 	}
 
+	protected void cancelTask() {
+		if (checkTask != null) {
+			checkTask.cancel(false);
+		}
+	}
+
 	protected long getDeferUntil() {
-		return PREFS.getLong(ConfigurationRepository.DEFER_UPDATE_UNTIL, 0);
+		return deferUntil;
 	}
 
 	protected void setDeferUntil(long deferUntil) {
-		PREFS.putLong(ConfigurationRepository.DEFER_UPDATE_UNTIL, deferUntil);
+		this.deferUntil = deferUntil;
 	}
 
 	protected void timedCheck() {
@@ -139,7 +160,7 @@ public abstract class AbstractUpdateService implements UpdateService {
 			setAvailableVersion(null);
 		} else {
 			long defer = getDeferUntil();
-			if (defer == 0 || System.currentTimeMillis() >= defer) {
+			if (!check || defer == 0 || System.currentTimeMillis() >= defer) {
 				setDeferUntil(0);
 				updating = true;
 				try {

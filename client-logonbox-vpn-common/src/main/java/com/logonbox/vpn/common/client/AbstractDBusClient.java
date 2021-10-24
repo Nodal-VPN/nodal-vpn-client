@@ -216,6 +216,8 @@ public abstract class AbstractDBusClient implements DBusClient {
 
 		/* Load the VPN object */
 		loadRemote();
+		
+		updateService.checkIfBusAvailable();
 
 		for (BusLifecycleListener i : busLifecycleListeners)
 			i.busInitializer(conn);
@@ -311,6 +313,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 					conn.disconnect();
 					conn = null;
 				}
+				updateService.checkIfBusAvailable();
 				for (BusLifecycleListener b : busLifecycleListeners) {
 					b.busGone();
 				}

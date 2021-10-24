@@ -29,4 +29,6 @@ public interface UpdateService {
 	void update() throws IOException;
 	
 	void shutdown();
+
+	void checkIfBusAvailable();
 }
