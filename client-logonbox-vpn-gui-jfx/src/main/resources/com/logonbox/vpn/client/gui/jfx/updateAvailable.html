@@ -39,21 +39,43 @@
 
 
     <script type="text/javascript">
+    
+	    function startUpdate() {
+            try {
+                $('#startUpdate').buttonLoader('start');
+                $('#alerts').empty();
+                bridge.update();
+            } catch (e) {
+                $('#startUpdate').buttonLoader('stop');
+                $('#alerts').append($('<div class="alert alert-danger">' + e.getMessage() + '</div>'));
+            }    	
+	    }
+    
+        function setTimer(t) {
+        	if(t < 0) {
+                $('#startUpdate').html(pageBundle.getString('update'));
+        	    startUpdate();        		
+        	}
+        	else {
+	        	$('#startUpdate').html(pageBundle.getString('update') + ' ' + t);
+	        	window.setTimeout(function() {
+	        	    setTimer(t - 1);        		
+	        	}, 1000);
+        	}
+        }
+    
         function uiReady() {
             $('#deferUpdate').off('click').on('click', function(event) {
             	bridge.deferUpdate();
             });
             $('#startUpdate').off('click').on('click', function(event) {
-                try {
-                    $('#startUpdate').buttonLoader('start');
-                    $('#alerts').empty();
-                    bridge.update();
-                } catch (e) {
-                    $('#startUpdate').buttonLoader('stop');
-                    $('#alerts').append($('<div class="alert alert-danger">' + e.getMessage() + '</div>'));
-                }
+            	startUpdate();
                 event.preventDefault();
             });
+
+            if(vpn.getValue('automaticUpdates', 'false') === 'true') {
+            	setTimer(10);
+            }
         };
     </script>
 </body>

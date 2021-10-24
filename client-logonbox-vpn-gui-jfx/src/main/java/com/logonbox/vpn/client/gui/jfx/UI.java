@@ -1427,6 +1427,7 @@ public class UI extends AbstractController implements BusLifecycleListener {
 		WebEngine engine = webView.getEngine();
 		JSObject jsobj = (JSObject) engine.executeScript("window");
 		jsobj.setMember("bridge", bridge);
+		jsobj.setMember("vpn", Main.getInstance().getVPN());
 		VPNConnection selectedConnection = getSelectedConnection();
 		jsobj.setMember("connection", selectedConnection);
 		jsobj.setMember("pageBundle", pageBundle);
@@ -1811,11 +1812,7 @@ public class UI extends AbstractController implements BusLifecycleListener {
 			if (busAvailable && updateService.isUpdatesEnabled() && updateService.isNeedsUpdating()) {
 				// An update is available
 				log.warn(String.format("Update is available"));
-				if (Boolean.valueOf(context.getDBus().getVPN().getValue(ConfigurationRepository.AUTOMATIC_UPDATES,
-						String.valueOf(ConfigurationRepository.AUTOMATIC_UPDATES_DEFAULT)))) {
-					update();
-				} else
-					setHtmlPage("updateAvailable.html");
+				setHtmlPage("updateAvailable.html");
 			} else {
 				if (busAvailable && bridge.getVPN().getMissingPackages().length > 0) {
 					log.warn(String.format("Missing software packages"));

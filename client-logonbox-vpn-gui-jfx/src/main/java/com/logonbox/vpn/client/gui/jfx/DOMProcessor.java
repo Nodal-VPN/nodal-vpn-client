@@ -1,6 +1,5 @@
 package com.logonbox.vpn.client.gui.jfx;
 
-
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -23,6 +22,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.hypersocket.json.version.HypersocketVersion;
+import com.logonbox.vpn.common.client.ConfigurationRepository;
 import com.logonbox.vpn.common.client.ConnectionStatus;
 import com.logonbox.vpn.common.client.UpdateService;
 import com.logonbox.vpn.common.client.Util;
@@ -32,7 +32,7 @@ import com.logonbox.vpn.common.client.dbus.VPNConnection;
 
 public class DOMProcessor {
 	final static Logger log = LoggerFactory.getLogger(UI.class);
-	
+
 	private Map<String, String> replacements = new HashMap<>();
 	private Map<Node, Collection<Node>> newNodes = new HashMap<>();
 	private Set<Node> removeNodes = new HashSet<>();
@@ -41,92 +41,107 @@ public class DOMProcessor {
 	private ResourceBundle resources;
 	private Map<String, Collection<String>> collections;
 
-	public DOMProcessor(VPN vpn, VPNConnection connection, Map<String, Collection<String>> collections, String lastErrorMessage, String lastErrorCause, String lastException, Branding branding, ResourceBundle pageBundle, ResourceBundle resources, Element documentElement, String disconnectionReason) {
+	public DOMProcessor(VPN vpn, VPNConnection connection, Map<String, Collection<String>> collections,
+			String lastErrorMessage, String lastErrorCause, String lastException, Branding branding,
+			ResourceBundle pageBundle, ResourceBundle resources, Element documentElement, String disconnectionReason) {
 
 		UpdateService updateService = Main.getInstance().getUpdateService();
-		
+
 		String errorText = "";
 		String exceptionText = "";
 		String errorCauseText = lastErrorCause == null ? "" : lastErrorCause;
 
 		if (lastException != null) {
 			exceptionText = lastException;
-		} 
+		}
 		if (lastErrorMessage != null) {
 			errorText = lastErrorMessage;
 		}
 
 		/* VPN service */
+
+		replacements.put("automaticUpdates",
+				vpn == null ? "true"
+						: String.valueOf(vpn.getValue(ConfigurationRepository.AUTOMATIC_UPDATES,
+								String.valueOf(ConfigurationRepository.AUTOMATIC_UPDATES_DEFAULT))));
 		replacements.put("updatesEnabled", String.valueOf(updateService.isUpdatesEnabled()));
 		replacements.put("needsUpdating", String.valueOf(updateService.isNeedsUpdating()));
 		long vpnFreeMemory = vpn == null ? 0 : vpn.getFreeMemory();
 		long vpnMaxMemory = vpn == null ? 0 : vpn.getMaxMemory();
-		replacements.put("serviceFreeMemory",  Util.toHumanSize(vpnFreeMemory));
-		replacements.put("serviceMaxMemory",  Util.toHumanSize(vpnMaxMemory));
-		replacements.put("serviceUsedMemory",  Util.toHumanSize(vpnMaxMemory - vpnFreeMemory));
-		replacements.put("availableVersion",  vpn == null ? "" : MessageFormat.format(resources.getString("availableVersion"),  updateService.getAvailableVersion()));
-		replacements.put("installingVersion",  vpn == null ? "" : MessageFormat.format(resources.getString("installingVersion"),  updateService.getAvailableVersion()));
-		
+		replacements.put("serviceFreeMemory", Util.toHumanSize(vpnFreeMemory));
+		replacements.put("serviceMaxMemory", Util.toHumanSize(vpnMaxMemory));
+		replacements.put("serviceUsedMemory", Util.toHumanSize(vpnMaxMemory - vpnFreeMemory));
+		replacements.put("availableVersion", vpn == null ? ""
+				: MessageFormat.format(resources.getString("availableVersion"), updateService.getAvailableVersion()));
+		replacements.put("installingVersion", vpn == null ? ""
+				: MessageFormat.format(resources.getString("installingVersion"), updateService.getAvailableVersion()));
+
 		/* General */
 		long freeMemory = Runtime.getRuntime().freeMemory();
-		replacements.put("freeMemory",  Util.toHumanSize(freeMemory));
+		replacements.put("freeMemory", Util.toHumanSize(freeMemory));
 		long maxMemory = Runtime.getRuntime().maxMemory();
-		replacements.put("maxMemory",  Util.toHumanSize(maxMemory));
-		replacements.put("usedMemory",  Util.toHumanSize(maxMemory - freeMemory));
+		replacements.put("maxMemory", Util.toHumanSize(maxMemory));
+		replacements.put("usedMemory", Util.toHumanSize(maxMemory - freeMemory));
 		replacements.put("errorMessage", errorText);
 		replacements.put("errorCauseMessage", errorCauseText);
 		replacements.put("exception", exceptionText);
 		String version = HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx");
-		replacements.put("clientVersion",  version);
-		replacements.put("snapshot",  String.valueOf(version.indexOf("-SNAPSHOT") != -1));
-		replacements.put("brand", MessageFormat.format(resources.getString("brand"),
-			(branding == null || branding.getResource() == null
-						|| StringUtils.isBlank(branding.getResource().getName()) ? "LogonBox"
-								: branding.getResource().getName())));
+		replacements.put("clientVersion", version);
+		replacements.put("snapshot", String.valueOf(version.indexOf("-SNAPSHOT") != -1));
+		replacements.put("brand",
+				MessageFormat.format(resources.getString("brand"),
+						(branding == null || branding.getResource() == null
+								|| StringUtils.isBlank(branding.getResource().getName()) ? "LogonBox"
+										: branding.getResource().getName())));
 		replacements.put("trayConfigurable", String.valueOf(Client.get().isTrayConfigurable()));
-		
+
 		/* Connection */
 		replacements.put("displayName", connection == null ? "" : connection.getDisplayName());
 		replacements.put("name", connection == null || connection.getName() == null ? "" : connection.getName());
-		replacements.put("interfaceName", connection == null || connection.getInterfaceName() == null ? "" : connection.getInterfaceName());
+		replacements.put("interfaceName",
+				connection == null || connection.getInterfaceName() == null ? "" : connection.getInterfaceName());
 		replacements.put("server", connection == null ? "" : connection.getHostname());
 		replacements.put("serverUrl", connection == null ? "" : connection.getUri(false));
 		replacements.put("port", connection == null ? "" : String.valueOf(connection.getPort()));
-		replacements.put("endpoint", connection == null ? ""
-				: connection.getEndpointAddress() + ":" + connection.getEndpointPort());
-		replacements.put("publicKey",  connection == null ? "" : connection.getPublicKey());
+		replacements.put("endpoint",
+				connection == null ? "" : connection.getEndpointAddress() + ":" + connection.getEndpointPort());
+		replacements.put("publicKey", connection == null ? "" : connection.getPublicKey());
 		replacements.put("userPublicKey", connection == null ? "" : connection.getUserPublicKey());
 		replacements.put("address", connection == null ? "" : connection.getAddress());
 		replacements.put("usernameHint", connection == null ? "" : connection.getUsernameHint());
-		replacements.put("connectAtStartup", connection == null ? "false" : String.valueOf(connection.isConnectAtStartup()));
+		replacements.put("connectAtStartup",
+				connection == null ? "false" : String.valueOf(connection.isConnectAtStartup()));
 		replacements.put("stayConnected", connection == null ? "false" : String.valueOf(connection.isStayConnected()));
 		replacements.put("allowedIps", connection == null ? "" : String.join(", ", connection.getAllowedIps()));
 		replacements.put("dns", connection == null ? "" : String.join(", ", connection.getDns()));
-		replacements.put("persistentKeepalive", connection == null ? "" : String.valueOf(connection.getPersistentKeepalive()));
+		replacements.put("persistentKeepalive",
+				connection == null ? "" : String.valueOf(connection.getPersistentKeepalive()));
 		replacements.put("disconnectionReason", disconnectionReason == null ? "" : disconnectionReason);
 		String statusType = connection == null ? "" : connection.getStatus();
 		replacements.put("status", statusType);
 		replacements.put("connected", String.valueOf(statusType.equals(ConnectionStatus.Type.CONNECTED.name())));
 		replacements.put("connecting", String.valueOf(statusType.equals(ConnectionStatus.Type.CONNECTING.name())));
 		replacements.put("disconnected", String.valueOf(statusType.equals(ConnectionStatus.Type.DISCONNECTED.name())));
-		replacements.put("disconnecting", String.valueOf(statusType.equals(ConnectionStatus.Type.DISCONNECTING.name())));
-		if(connection == null || !statusType.equals(ConnectionStatus.Type.CONNECTED.name())) {
-			replacements.put("lastHandshake",  "");			
-			replacements.put("usage",  "");
-		}
-		else {
-			replacements.put("lastHandshake",  DateFormat.getDateTimeInstance().format(new Date(connection.getLastHandshake())));			
-			replacements.put("usage",  MessageFormat.format(resources.getString("usageDetail"), Util.toHumanSize(connection.getRx()), Util.toHumanSize(connection.getTx())));
+		replacements.put("disconnecting",
+				String.valueOf(statusType.equals(ConnectionStatus.Type.DISCONNECTING.name())));
+		if (connection == null || !statusType.equals(ConnectionStatus.Type.CONNECTED.name())) {
+			replacements.put("lastHandshake", "");
+			replacements.put("usage", "");
+		} else {
+			replacements.put("lastHandshake",
+					DateFormat.getDateTimeInstance().format(new Date(connection.getLastHandshake())));
+			replacements.put("usage", MessageFormat.format(resources.getString("usageDetail"),
+					Util.toHumanSize(connection.getRx()), Util.toHumanSize(connection.getTx())));
 		}
 
 		this.documentElement = documentElement;
 		this.pageBundle = pageBundle;
 		this.resources = resources;
-		this.collections = collections; 
+		this.collections = collections;
 	}
-	
+
 	public void process() {
-		dataAttributes(documentElement,  newNodes, removeNodes);
+		dataAttributes(documentElement, newNodes, removeNodes);
 		for (Map.Entry<Node, Collection<Node>> en : newNodes.entrySet()) {
 			for (Node n : en.getValue())
 				en.getKey().appendChild(n);
@@ -135,8 +150,7 @@ public class DOMProcessor {
 			n.getParentNode().removeChild(n);
 	}
 
-	protected void dataAttributes(Element node, Map<Node, Collection<Node>> newNodes,
-			Set<Node> removeNodes) {
+	protected void dataAttributes(Element node, Map<Node, Collection<Node>> newNodes, Set<Node> removeNodes) {
 
 		NamedNodeMap attrs = node.getAttributes();
 		for (int i = 0; i < attrs.getLength(); i++) {
@@ -144,31 +158,27 @@ public class DOMProcessor {
 			String val = attr.getNodeValue();
 			if (attr.getNodeName().equals("data-conditional")) {
 				boolean not = false;
-				if(val != null && val.startsWith("!")) {
+				if (val != null && val.startsWith("!")) {
 					not = true;
 					val = val.substring(1);
 				}
 				String valVal = replacements.get(val);
-				if(not) {
-					if(valVal == null || valVal.length() == 0 || valVal.equals("false") || valVal.equals("0")) {
+				if (not) {
+					if (valVal == null || valVal.length() == 0 || valVal.equals("false") || valVal.equals("0")) {
 						// Leave
-					}
-					else {
+					} else {
 						node.getParentNode().removeChild(node);
-						return;		
+						return;
 					}
-				}
-				else {
-					if(valVal != null && valVal.length() > 0 && !valVal.equals("false") && !valVal.equals("0")) {
+				} else {
+					if (valVal != null && valVal.length() > 0 && !valVal.equals("false") && !valVal.equals("0")) {
 						// Leave
-					}
-					else {
+					} else {
 						node.getParentNode().removeChild(node);
 						return;
 					}
 				}
-			}
-			else if (attr.getNodeName().startsWith("data-attr-i18n-")) {
+			} else if (attr.getNodeName().startsWith("data-attr-i18n-")) {
 				String attrVal = pageBundle == null ? "?" : pageBundle.getString(val);
 				String attrName = attr.getNodeName().substring(15);
 				node.setAttribute(attrName, attrVal);

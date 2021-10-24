@@ -3,6 +3,7 @@
 		var self = $(this);
 		//start loading animation
 		if (action == 'start') {
+            console.log('Starting spinner om ' + self);
 			if ($(self).attr("disabled") == "disabled") {
 				//e.preventDefault();
                 // TODO what what this supposed to do!?
@@ -17,6 +18,7 @@
 		}
 		//stop loading animation
 		if (action == 'stop') {
+            console.log('Stopping spinner om ' + self);
 			$(self).html($(self).attr('data-btn-text'));
 			$(self).removeClass('active');
 			//enable buttons after finish loading
