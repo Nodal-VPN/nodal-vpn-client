@@ -57,6 +57,7 @@
 					$('#alerts').empty();
 					bridge.checkForUpdate();
 					$('#alerts').append($('<div class="alert alert-info">' + pageBundle.getString('noUpdates') + '</div>'));
+                    $('#checkForUpdates').buttonLoader('stop');
 
 				} catch (e) {
 					$('#checkForUpdates').buttonLoader('stop');
