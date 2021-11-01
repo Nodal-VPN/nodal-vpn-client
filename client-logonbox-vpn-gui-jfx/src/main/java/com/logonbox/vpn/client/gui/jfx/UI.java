@@ -1190,7 +1190,7 @@ public class UI extends AbstractController implements BusLifecycleListener {
 
 		/* Configure engine */
 		configureWebEngine();
-		
+
 		/* Watch for update check state changing */
 		Main.getInstance().getUpdateService().addListener(() -> {
 			maybeRunLater(() -> selectPageForState(false, false));
@@ -1364,15 +1364,10 @@ public class UI extends AbstractController implements BusLifecycleListener {
 
 					setupPage();
 					String loc = htmlPage;
-					if (Client.useLocalHTTPService) {
-						// webView.getEngine().load("app://" + htmlPage);
-						loc = DEFAULT_LOCALHOST_ADDR + htmlPage;
-					} else {
-						URL resource = UI.class.getResource(htmlPage);
-						if (resource == null)
-							throw new FileNotFoundException(String.format("No page named %s.", htmlPage));
-						loc = resource.toExternalForm();
-					}
+					URL resource = UI.class.getResource(htmlPage);
+					if (resource == null)
+						throw new FileNotFoundException(String.format("No page named %s.", htmlPage));
+					loc = resource.toExternalForm();
 
 					URI uri = new URI(loc);
 					Map<String, List<String>> headers = new LinkedHashMap<String, List<String>>();

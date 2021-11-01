@@ -3,7 +3,6 @@ package com.logonbox.vpn.client.gui.jfx;
 import java.awt.SplashScreen;
 import java.awt.Taskbar;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -15,10 +14,7 @@ import java.net.CookiePolicy;
 import java.net.CookieStore;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.text.MessageFormat;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.UUID;
@@ -38,8 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import com.goxr3plus.fxborderlessscene.borderless.BorderlessScene;
 import com.jthemedetecor.OsThemeDetector;
-import com.logonbox.vpn.client.gui.jfx.MiniHttpServer.DynamicContent;
-import com.logonbox.vpn.client.gui.jfx.MiniHttpServer.DynamicContentFactory;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.api.Branding;
 import com.logonbox.vpn.common.client.api.BrandingInfo;
@@ -82,26 +76,6 @@ public class Client extends Application {
 
 	static final String LOCBCOOKIE = "LOCBCKIE";
 	static Logger log = LoggerFactory.getLogger(Client.class);
-
-	/* Security can be turned off for this, useful for debugging */
-	static final boolean secureLocalHTTPService = System.getProperty("logonbox.vpn.secureLocalHTTPService", "true")
-			.equals("true");
-	/**
-	 * There seems to be some problem with runtimes later than 11 and loading
-	 * resources in the embedded browser from the classpath.
-	 * 
-	 * This switch activates a work around that opens a local HTTP server and
-	 * directs the browser to that instead.
-	 * 
-	 * Attempts are made to secure this with the use of a private cookie, but this
-	 * doesn't always work (not sure why!)
-	 * 
-	 * NOTE: This is now OFF by default as we are using Java 11. When we switch back
-	 * to Java 15 or higher this may need to be revisited unless the underlying bug
-	 * has been fixed.
-	 */
-	static final boolean useLocalHTTPService = System.getProperty("logonbox.vpn.useLocalHTTPService", "false")
-			.equals("true");
 
 	private CookieHandler originalCookieHander;
 	private static Client instance;
@@ -164,8 +138,6 @@ public class Client extends Application {
 	private Branding branding;
 
 	private OsThemeDetector detector;
-
-	private MiniHttpServer miniHttp;
 
 	private ExecutorService opQueue = Executors.newSingleThreadExecutor();
 
@@ -339,66 +311,7 @@ public class Client extends Application {
 		this.primaryStage = primaryStage;
 		detector = OsThemeDetector.getDetector();
 
-		if (useLocalHTTPService) {
-			miniHttp = new MiniHttpServer(59999, 0, null);
-			miniHttp.addContent(new DynamicContentFactory() {
-				@Override
-				public DynamicContent get(String path, Map<String, List<String>> headers) throws IOException {
-					List<String> localCookie = headers.get("Cookie");
-					boolean allowed = !secureLocalHTTPService;
-					if (!allowed && localCookie != null) {
-						for (String ck : localCookie) {
-							int idx = ck.indexOf('=');
-							String name = ck.substring(0, idx);
-							if (name.equals(LOCBCOOKIE)
-									&& ck.substring(idx + 1).equals(localWebServerCookie.toString())) {
-								allowed = true;
-								break;
-							}
-						}
-					}
-					if (!allowed)
-						throw new IOException("Access denied to " + path);
-
-					String pathNoParms = path;
-					int idx = pathNoParms.indexOf('?');
-					if (idx != -1) {
-						pathNoParms = pathNoParms.substring(0, idx);
-					}
-					URL res = Client.class.getResource(pathNoParms.substring(1));
-					if (res == null) {
-						System.out.println("404 " + path);
-						throw new FileNotFoundException(path);
-					}
-					URLConnection conx = res.openConnection();
-					String contentType = conx.getContentType();
-					if (pathNoParms.endsWith(".js")) {
-						contentType = "text/javascript";
-					} else if (pathNoParms.endsWith(".css")) {
-						contentType = "text/css";
-					} else if (pathNoParms.endsWith(".html")) {
-						contentType = "text/html";
-					} else if (pathNoParms.endsWith(".woff")) {
-						contentType = "font/woff";
-					} else if (pathNoParms.endsWith(".ttf")) {
-						contentType = "font/ttf";
-					} else if (pathNoParms.endsWith(".svg")) {
-						contentType = "image/svg+xml";
-					} else if (pathNoParms.endsWith(".bmp")) {
-						contentType = "image/bmp";
-					} else if (pathNoParms.endsWith(".png")) {
-						contentType = "image/png";
-					} else if (pathNoParms.endsWith(".gif")) {
-						contentType = "image/gif";
-					} else if (pathNoParms.endsWith(".jpeg") || pathNoParms.endsWith(".jpe")) {
-						contentType = "image/jpg";
-					}
-					return new DynamicContent(contentType, conx.getContentLengthLong(), conx.getInputStream(),
-							"Set-Cookie", LOCBCOOKIE + "=" + localWebServerCookie + "; Path=/");
-				}
-			});
-			miniHttp.start();
-		}
+		
 
 		// Setup the window
 //		if (Platform.isSupported(ConditionalFeature.TRANSPARENT_WINDOW)) {
@@ -568,12 +481,6 @@ public class Client extends Application {
 			try {
 				tray.close();
 			} catch (Exception e) {
-			}
-		}
-		if (miniHttp != null) {
-			try {
-				miniHttp.close();
-			} catch (IOException e) {
 			}
 		}
 	}

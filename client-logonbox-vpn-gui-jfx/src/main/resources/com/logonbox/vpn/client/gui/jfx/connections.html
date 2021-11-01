@@ -109,9 +109,10 @@
 					iconEl.appendTo(connectionEl.find('.status-icon')[0]);
 
 					/* Connected switch */
-					var cbEl = $(connectionEl.find('.connected')[0]);
+					var cbEl = connectionEl.find('.toggle-connection');
 		            var status = connection.getStatus();
-					cbEl.prop('checked', status === 'CONNECTED' || status === 'CONNECTING');
+		            var cbChk = status === 'CONNECTED' || status === 'CONNECTING';
+					cbEl.prop('checked', cbChk);
 
 					/* Status text */
 					var statusEl = $(connectionEl.find('.status')[0]);
@@ -155,7 +156,7 @@
 			}
 			template.hide();
             $('.toggle-connection').off('change').on('change', function(e) {
-                alert('c ' + this.checked);
+                alert('c ' + this);
                 if (this.checked) {
                     bridge.connectTo(parseInt($($(this).parents('.connection')).attr('data-connection')));
                     rebuildConnections();
