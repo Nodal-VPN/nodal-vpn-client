@@ -6,7 +6,7 @@
       <variable name="build.phase" value="nightly" />
     </variables>
     <codeSigning macEnabled="true" macPkcs12File="logonbox-developer-id.p12" windowsEnabled="true" windowsPkcs12File="logonbox.p12" macNotarize="true" appleId="brett@logonbox.com" />
-    <jreBundles jdkProviderId="AdoptOpenJDK-OpenJ9" release="16/jdk-16.0.2+7" />
+    <jreBundles jdkProviderId="AdoptOpenJDK-OpenJ9" release="16/jdk-16+36_openj9-0.25.0" />
   </application>
   <files keepModificationTimes="true" globalExcludeSuffixes="*.ser" defaultOverwriteMode="1" defaultUninstallMode="2" preserveSymlinks="false">
     <roots>
@@ -1655,7 +1655,7 @@ return true;</property>
         <entry rootId="2027" />
         <entry rootId="2036" />
       </exclude>
-      <jreBundle jdkProviderId="Corretto" release="16/16.0.2.7.1" overrideJdkRelease="true" includedJre="macosx-amd64-1.8.0_121" />
+      <jreBundle jdkProviderId="Adoptium" release="16/jdk-16.0.2+7" overrideJdkRelease="true" includedJre="macosx-amd64-1.8.0_121" />
     </macosFolder>
     <windows name="Windows x64" id="1554" installDir="LogonBox\VPN Client">
       <exclude>
