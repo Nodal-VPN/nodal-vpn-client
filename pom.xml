@@ -49,7 +49,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
-		<javafx.version>17</javafx.version>
+		<javafx.version>17.0.1</javafx.version>
 		
 		<!-- When you change this, remember to also change hypersocket-framework, hypersocket-enterprise, hypersocket-ui  -->
 		<hypersocket.languages>da,nl,fi,fr,de,it,no,pl,ru,sv,es,ja,he,pt</hypersocket.languages>
