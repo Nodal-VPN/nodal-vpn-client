@@ -9,7 +9,7 @@
       <variable name="build.phase" value="nightly" />
     </variables>
     <codeSigning macEnabled="true" macPkcs12File="logonbox-developer-id.p12" windowsEnabled="true" windowsPkcs12File="logonbox.p12" macNotarize="true" appleId="brett@logonbox.com" />
-    <jreBundles jdkProviderId="AdoptOpenJDK-OpenJ9" release="16/jdk-16.0.2+7_openj9-0.27.0" />
+    <jreBundles jdkProviderId="AdoptOpenJDK-OpenJ9" release="16/jdk-16+36_openj9-0.25.0" />
   </application>
   <files keepModificationTimes="true" globalExcludeSuffixes="*.ser" defaultOverwriteMode="1" defaultUninstallMode="2" preserveSymlinks="false">
     <roots>
