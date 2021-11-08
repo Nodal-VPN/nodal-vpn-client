@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="9.0.5" transformSequenceNumber="9">
   <directoryPresets config="./target" />
-  <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" pack200Compression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="11" jdkMode="jdk">
+  <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" pack200Compression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="16" jdkMode="jdk">
+    <searchSequence>
+      <directory location=".install4j/jre.bundle" />
+    </searchSequence>
     <variables>
       <variable name="build.phase" value="nightly" />
     </variables>
     <codeSigning macEnabled="true" macPkcs12File="logonbox-developer-id.p12" windowsEnabled="true" windowsPkcs12File="logonbox.p12" macNotarize="true" appleId="brett@logonbox.com" />
-    <jreBundles jdkProviderId="AdoptOpenJDK" release="16/jdk-16.0.2+7" />
+    <jreBundles jdkProviderId="AdoptOpenJDK-OpenJ9" release="16/jdk-16.0.2+7_openj9-0.27.0" />
   </application>
   <files keepModificationTimes="true" globalExcludeSuffixes="*.ser" defaultOverwriteMode="1" defaultUninstallMode="2" preserveSymlinks="false">
     <roots>
