@@ -22,7 +22,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.hypersocket.json.version.HypersocketVersion;
-import com.logonbox.vpn.common.client.ConfigurationRepository;
+import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.ConnectionStatus;
 import com.logonbox.vpn.common.client.UpdateService;
 import com.logonbox.vpn.common.client.Util;
@@ -31,7 +31,7 @@ import com.logonbox.vpn.common.client.dbus.VPN;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
 
 public class DOMProcessor {
-	final static Logger log = LoggerFactory.getLogger(UI.class);
+	final static Logger log = LoggerFactory.getLogger(DOMProcessor.class);
 
 	private Map<String, String> replacements = new HashMap<>();
 	private Map<Node, Collection<Node>> newNodes = new HashMap<>();
@@ -62,8 +62,7 @@ public class DOMProcessor {
 
 		replacements.put("automaticUpdates",
 				vpn == null ? "true"
-						: String.valueOf(vpn.getValue(ConfigurationRepository.AUTOMATIC_UPDATES,
-								String.valueOf(ConfigurationRepository.AUTOMATIC_UPDATES_DEFAULT))));
+						: vpn.getValue(ConfigurationItem.AUTOMATIC_UPDATES.getKey()));
 		replacements.put("updatesEnabled", String.valueOf(updateService.isUpdatesEnabled()));
 		replacements.put("needsUpdating", String.valueOf(updateService.isNeedsUpdating()));
 		long vpnFreeMemory = vpn == null ? 0 : vpn.getFreeMemory();
@@ -87,6 +86,7 @@ public class DOMProcessor {
 		replacements.put("exception", exceptionText);
 		String version = HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx");
 		replacements.put("clientVersion", version);
+		replacements.put("newUI", String.valueOf(UI.isNewUI()));
 		replacements.put("snapshot", String.valueOf(version.indexOf("-SNAPSHOT") != -1));
 		replacements.put("brand",
 				MessageFormat.format(resources.getString("brand"),

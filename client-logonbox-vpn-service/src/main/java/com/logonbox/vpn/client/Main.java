@@ -66,6 +66,7 @@ import com.hypersocket.json.version.HypersocketVersion;
 import com.logonbox.vpn.client.dbus.VPNConnectionImpl;
 import com.logonbox.vpn.client.dbus.VPNImpl;
 import com.logonbox.vpn.client.service.ClientService;
+import com.logonbox.vpn.client.service.ClientService.Listener;
 import com.logonbox.vpn.client.service.ClientServiceImpl;
 import com.logonbox.vpn.client.service.ConfigurationRepositoryImpl;
 import com.logonbox.vpn.client.service.vpn.ConnectionRepositoryImpl;
@@ -74,7 +75,7 @@ import com.logonbox.vpn.client.wireguard.linux.LinuxPlatformServiceImpl;
 import com.logonbox.vpn.client.wireguard.osx.BrewOSXPlatformServiceImpl;
 import com.logonbox.vpn.client.wireguard.windows.WindowsPlatformServiceImpl;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
-import com.logonbox.vpn.common.client.ConfigurationRepository;
+import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.ConnectionRepository;
 import com.logonbox.vpn.common.client.ConnectionStatus;
@@ -88,11 +89,9 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "logonbox-vpn-server", mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.")
-public class Main implements Callable<Integer>, LocalContext, X509TrustManager {
+public class Main implements Callable<Integer>, LocalContext, X509TrustManager, Listener {
 
 	final static int DEFAULT_TIMEOUT = 10000;
-
-	private static final long MAX_WAIT = TimeUnit.SECONDS.toMillis(10);
 
 	static Logger log = LoggerFactory.getLogger(Main.class);
 
@@ -218,10 +217,10 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager {
 			 * Have database, so enough to get configuration for log level, we can start
 			 * logging now
 			 */
-			String cfgLevel = configurationRepository.getValue(ConfigurationRepository.LOG_LEVEL, "");
+			Level cfgLevel = configurationRepository.getValue(ConfigurationItem.LOG_LEVEL);
 			defaultLogLevel = org.apache.log4j.Logger.getRootLogger().getLevel();
-			if (StringUtils.isNotBlank(cfgLevel)) {
-				org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.toLevel(cfgLevel));
+			if (cfgLevel != null) {
+				org.apache.log4j.Logger.getRootLogger().setLevel(cfgLevel);
 			}
 			log.info(String.format("LogonBox VPN Client, version %s",
 					HypersocketVersion.getVersion(Main.ARTIFACT_COORDS)));
@@ -566,8 +565,9 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager {
 
 		ConnectionRepository connectionRepository = new ConnectionRepositoryImpl();
 
-		configurationRepository = new ConfigurationRepositoryImpl(this);
+		configurationRepository = new ConfigurationRepositoryImpl();
 		clientService = new ClientServiceImpl(this, connectionRepository, configurationRepository);
+		clientService.addListener(this);
 		return true;
 
 	}
@@ -734,5 +734,35 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager {
 
 		// Install the all-trusting host verifier
 		HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+	}
+
+	@Override
+	public void configurationChange(ConfigurationItem<?> item, Object oldValue, Object newValue) {
+
+		if (item == ConfigurationItem.LOG_LEVEL) {
+			String value = (String)newValue;
+			try {
+				if (StringUtils.isBlank(value))
+					org.apache.log4j.Logger.getRootLogger().setLevel(getDefaultLogLevel());
+				else
+					org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.toLevel(value));
+			}
+			catch(Exception e) {
+				if(log.isDebugEnabled())
+					log.warn("Invalid log level, setting default. ", e);
+				else
+					log.warn("Invalid log level, setting default. " + e.getMessage());
+				org.apache.log4j.Logger.getRootLogger().setLevel(getDefaultLogLevel());	
+			}
+		}
+		
+		if(getConnection() != null) {
+			try {
+				sendMessage(new VPN.GlobalConfigChange("/com/logonbox/vpn", item.getKey(), newValue == null ? "" : newValue.toString()));
+			} catch (DBusException e) {
+				throw new IllegalStateException("Failed to send event.", e);
+			}
+		}
+		
 	}
 }

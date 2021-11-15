@@ -38,7 +38,7 @@ import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.service.ClientService;
 import com.logonbox.vpn.client.service.ReauthorizeException;
 import com.logonbox.vpn.client.service.VPNSession;
-import com.logonbox.vpn.common.client.ConfigurationRepository;
+import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.ConnectionStatus;
 import com.logonbox.vpn.common.client.DNSIntegrationMethod;
@@ -161,7 +161,7 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 
 	protected void configureVirtualAddress(I vaddr) {
 		try {
-			vaddr.method(DNSIntegrationMethod.valueOf(context.getClientService().getValue(ConfigurationRepository.DNS_INTEGRATION_METHOD, DNSIntegrationMethod.AUTO.name())));
+			vaddr.method(context.getClientService().getValue(ConfigurationItem.DNS_INTEGRATION_METHOD));
 		}
 		catch(Exception e) {
 			LOG.error("Failed to set DNS integeration method, reverting to AUTO.", e);
@@ -380,7 +380,7 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 			pw.println("AllowedIPs = 0.0.0.0/0");
 		}	
 		else {
-			if(context.getClientService().getValue(ConfigurationRepository.IGNORE_LOCAL_ROUTES, "true").equals("true")) {
+			if(context.getClientService().getValue(ConfigurationItem.IGNORE_LOCAL_ROUTES)) {
 				/* Filter out any routes that would cover the addresses of any interfaces
 				 * we already have
 				 */

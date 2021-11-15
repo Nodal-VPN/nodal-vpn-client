@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.hypersocket.json.version.HypersocketVersion;
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.Main;
+import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection.Mode;
 import com.logonbox.vpn.common.client.ConnectionImpl;
 import com.logonbox.vpn.common.client.ConnectionStatus;
@@ -157,16 +158,58 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 	}
 
 	@Override
-	public String getValue(String name, String defaultValue) {
+	public String getValue(String name) {
 		assertRegistered();
-		return ctx.getClientService().getValue(name, defaultValue);
+		ConfigurationItem<?> item = ConfigurationItem.get(name);
+		Object val = ctx.getClientService().getValue(item); 
+		return val.toString();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setValue(String name, String value) {
 		assertRegistered();
-		ctx.getClientService().setValue(name, value);
+		ctx.getClientService().setValue((ConfigurationItem<String>)ConfigurationItem.get(name), value);
 
+	}
+
+	@Override
+	public int getIntValue(String key) {
+		assertRegistered();
+		return (Integer)ctx.getClientService().getValue(ConfigurationItem.get(key));
+	}
+
+	@Override
+	public long getLongValue(String key) {
+		assertRegistered();
+		return (Long)ctx.getClientService().getValue(ConfigurationItem.get(key));
+	}
+
+	@Override
+	public boolean getBooleanValue(String key) {
+		assertRegistered();
+		return (Boolean)ctx.getClientService().getValue(ConfigurationItem.get(key));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setIntValue(String key, int value) {
+		assertRegistered();
+		ctx.getClientService().setValue((ConfigurationItem<Integer>)ConfigurationItem.get(key), value);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setLongValue(String key, long value) {
+		assertRegistered();
+		ctx.getClientService().setValue((ConfigurationItem<Long>)ConfigurationItem.get(key), value);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setBooleanValue(String key, boolean value) {
+		assertRegistered();
+		ctx.getClientService().setValue((ConfigurationItem<Boolean>)ConfigurationItem.get(key), value);		
 	}
 
 	@Override

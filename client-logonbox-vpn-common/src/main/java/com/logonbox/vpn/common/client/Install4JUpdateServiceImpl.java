@@ -33,7 +33,7 @@ public class Install4JUpdateServiceImpl extends AbstractUpdateService {
 	}
 
 	protected String buildUpdateUrl() {
-		String configuredPhase = context.getVPN().getValue("phase", "stable");
+		String configuredPhase = context.getVPN().getValue("phase");
 		return "https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client/" + configuredPhase
 				+ "/updates.xml";
 	}

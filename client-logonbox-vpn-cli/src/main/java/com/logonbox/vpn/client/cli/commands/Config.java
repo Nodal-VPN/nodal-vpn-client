@@ -23,10 +23,10 @@ public class Config extends AbstractConnectionCommand {
 		ConsoleProvider console = cli.getConsole();
 		if (StringUtils.isBlank(name)) {
 			for (String n : cli.getVPN().getKeys()) {
-				console.out().println(String.format("%-30s %s", n, cli.getVPN().getValue(n, "<unset>")));
+				console.out().println(String.format("%-30s %s", n, cli.getVPN().getValue(n)));
 			}
 		} else if (StringUtils.isBlank(value)) {
-			console.out().println(cli.getVPN().getValue(name, "<unset>"));
+			console.out().println(cli.getVPN().getValue(name));
 		} else {
 			cli.getVPN().setValue(name, value);
 		}

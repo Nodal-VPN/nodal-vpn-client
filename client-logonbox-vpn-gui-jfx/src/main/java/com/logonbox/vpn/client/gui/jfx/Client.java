@@ -4,6 +4,7 @@ import java.awt.SplashScreen;
 import java.awt.Taskbar;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.freedesktop.dbus.utils.Util;
+import org.jetbrains.annotations.NotNull;
 import org.kordamp.bootstrapfx.BootstrapFX;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,9 @@ import com.jthemedetecor.OsThemeDetector;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.api.Branding;
 import com.logonbox.vpn.common.client.api.BrandingInfo;
+import com.vladsch.boxed.json.BoxedJsObject;
+import com.vladsch.boxed.json.BoxedJson;
+import com.vladsch.javafx.webview.debugger.JfxScriptStateProvider;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -65,8 +70,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class Client extends Application {
-
+public class Client extends Application implements JfxScriptStateProvider {
 
 	static final boolean allowBranding = System.getProperty("logonbox.vpn.allowBranding", "true").equals("true");
 
@@ -79,7 +83,20 @@ public class Client extends Application {
 
 	private CookieHandler originalCookieHander;
 	private static Client instance;
-	
+
+	static private BoxedJsObject jsstate = BoxedJson.of(); // start with empty state
+
+	@NotNull
+	@Override
+	public BoxedJsObject getState() {
+		return jsstate;
+	}
+
+	@Override
+	public void setState(@NotNull final BoxedJsObject state) {
+		jsstate = state;
+	}
+
 	public static Alert createAlertWithOptOut(AlertType type, String title, String headerText, String message,
 			String optOutMessage, Consumer<Boolean> optOutAction, ButtonType... buttonTypes) {
 		Alert alert = new Alert(type);
@@ -105,19 +122,19 @@ public class Client extends Application {
 		alert.getDialogPane().autosize();
 		return alert;
 	}
-    
+
 	public static Client get() {
 		return instance;
 	}
-	
+
 	static String toHex(Color color) {
 		return toHex(color, -1);
 	}
-	
+
 	static String toHex(Color color, boolean opacity) {
 		return toHex(color, opacity ? color.getOpacity() : -1);
 	}
-	
+
 	static String toHex(Color color, double opacity) {
 		if (opacity > -1)
 			return String.format("#%02x%02x%02x%02x", (int) (color.getRed() * 255), (int) (color.getGreen() * 255),
@@ -148,7 +165,6 @@ public class Client extends Application {
 	private boolean waitingForExitChoice;
 
 	private UI ui;
-
 
 	public void clearLoadQueue() {
 		opQueue.shutdownNow();
@@ -224,13 +240,13 @@ public class Client extends Application {
 	}
 
 	public boolean isMinimizeAllowed() {
-		return ( tray == null || !(tray instanceof AWTTaskbarTray) ) ;
+		return (tray == null || !(tray instanceof AWTTaskbarTray));
 	}
 
 	public boolean isTrayConfigurable() {
 		return tray != null && tray.isConfigurable();
 	}
-	
+
 	public Tray getTray() {
 		return tray;
 	}
@@ -240,13 +256,12 @@ public class Client extends Application {
 		boolean isPersistJar = default1 instanceof CookieManager;
 //		boolean wantsPeristJar = Configuration.getDefault().saveCookiesProperty().get();
 		boolean wantsPeristJar = false;
-		if(isPersistJar != wantsPeristJar) {
-			if(wantsPeristJar) {
+		if (isPersistJar != wantsPeristJar) {
+			if (wantsPeristJar) {
 				log.info("Using in custom cookie manager");
 				CookieManager mgr = createCookieManager();
 				CookieHandler.setDefault(mgr);
-			}
-			else {
+			} else {
 				log.info("Using Webkit cookie manager");
 				CookieHandler.setDefault(originalCookieHander);
 			}
@@ -254,7 +269,7 @@ public class Client extends Application {
 	}
 
 	protected CookieManager createCookieManager() {
-		CookieStore store =new CustomCookieStore();
+		CookieStore store = new CustomCookieStore();
 		CookieManager mgr = new CookieManager(store, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
 		return mgr;
 	}
@@ -274,28 +289,25 @@ public class Client extends Application {
 	public void open() {
 		log.info("Open request");
 		Platform.runLater(() -> {
-			if(primaryStage.isIconified())
+			if (primaryStage.isIconified())
 				primaryStage.setIconified(false);
 			primaryStage.show();
 			primaryStage.toFront();
 		});
 	}
 
-	public <C extends AbstractController> C openScene(Class<C> controller) throws IOException {
-		return openScene(controller, null);
-	}
-
-	@SuppressWarnings("unchecked")
-	public <C extends AbstractController> C openScene(Class<C> controller, String fxmlSuffix) throws IOException {
-		URL resource = controller
-				.getResource(controller.getSimpleName() + (fxmlSuffix == null ? "" : fxmlSuffix) + ".fxml");
+	public UI openScene() throws IOException {
+		URL resource = UI.class
+				.getResource("UI.fxml");
 		FXMLLoader loader = new FXMLLoader();
-		loader.setResources(ResourceBundle.getBundle(controller.getName()));
+		ResourceBundle resources = ResourceBundle.getBundle(UI.class.getName());
+		loader.setResources(resources);
 		Parent root = loader.load(resource.openStream());
-		C controllerInst = (C) loader.getController();
+		UI controllerInst = (UI) loader.getController();
 		if (controllerInst == null) {
 			throw new IOException("Controller not found. Check controller in FXML");
 		}
+		controllerInst.initialize(resource, resources);
 		Scene scene = new Scene(root);
 		controllerInst.configure(scene, this);
 		return controllerInst;
@@ -310,8 +322,20 @@ public class Client extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		this.primaryStage = primaryStage;
 		detector = OsThemeDetector.getDetector();
-
 		
+        try {
+            File stateFile = new File(getTempDir(), "debug.json");
+            if (stateFile.exists()) {
+                FileReader stateReader = new FileReader(stateFile);
+                jsstate = BoxedJson.boxedFrom(stateReader);
+                stateReader.close();
+            }
+        } catch (IOException e) {
+        }
+
+        if (!jsstate.isValid()) {
+            jsstate = BoxedJson.of();
+        }
 
 		// Setup the window
 //		if (Platform.isSupported(ConditionalFeature.TRANSPARENT_WINDOW)) {
@@ -340,15 +364,15 @@ public class Client extends Application {
 			w = 457;
 			h = 768;
 		}
-		if(StringUtils.isNotBlank(main.getSize())) {
+		if (StringUtils.isNotBlank(main.getSize())) {
 			String[] sizeParts = main.getSize().toLowerCase().split("x");
 			w = Integer.parseInt(sizeParts[0]);
 			h = Integer.parseInt(sizeParts[1]);
 		}
-		if(main.isNoMove()) {
+		if (main.isNoMove()) {
 			Rectangle2D screenBounds = Screen.getPrimary().getBounds();
-			x = (int)(screenBounds.getMinX() + ( ( screenBounds.getWidth() - w ) / 2));
-			y = (int)(screenBounds.getMinY() + ( ( screenBounds.getHeight() - h ) / 2));
+			x = (int) (screenBounds.getMinX() + ((screenBounds.getWidth() - w) / 2));
+			y = (int) (screenBounds.getMinY() + ((screenBounds.getHeight() - h) / 2));
 		}
 		primaryStage.setX(x);
 		primaryStage.setY(y);
@@ -410,22 +434,21 @@ public class Client extends Application {
 		Configuration.getDefault().saveCookiesProperty().addListener((e) -> updateCookieHandlerState());
 
 	}
-	
+
 	protected void keepInBounds(Stage primaryStage) {
-		ObservableList<Screen> screens = Screen.getScreensForRectangle(primaryStage.getX(), primaryStage.getY(), primaryStage.getWidth(), primaryStage.getHeight());
+		ObservableList<Screen> screens = Screen.getScreensForRectangle(primaryStage.getX(), primaryStage.getY(),
+				primaryStage.getWidth(), primaryStage.getHeight());
 		Screen screen = screens.isEmpty() ? Screen.getPrimary() : screens.get(0);
 		Rectangle2D bounds = screen.getVisualBounds();
 		log.info(String.format("Moving into bounds %s from %f,%f", bounds, primaryStage.getX(), primaryStage.getY()));
-		if(primaryStage.getX() < bounds.getMinX()) {
+		if (primaryStage.getX() < bounds.getMinX()) {
 			primaryStage.setX(bounds.getMinX());
-		}
-		else if(primaryStage.getX() + primaryStage.getWidth() > bounds.getMaxX()) {
+		} else if (primaryStage.getX() + primaryStage.getWidth() > bounds.getMaxX()) {
 			primaryStage.setX(bounds.getMaxX() - primaryStage.getWidth());
 		}
-		if(primaryStage.getY() < bounds.getMinY()) {
+		if (primaryStage.getY() < bounds.getMinY()) {
 			primaryStage.setY(bounds.getMinY());
-		}
-		else if(primaryStage.getY() + primaryStage.getHeight() > bounds.getMaxY()) {
+		} else if (primaryStage.getY() + primaryStage.getHeight() > bounds.getMaxY()) {
 			primaryStage.setY(bounds.getMaxY() - primaryStage.getHeight());
 		}
 	}
@@ -433,16 +456,16 @@ public class Client extends Application {
 	protected Scene createWindows(Stage primaryStage) throws IOException {
 
 		// Open the actual scene
-		ui = openScene(UI.class, null);
+		ui = openScene();
 		Scene scene = ui.getScene();
 		Parent node = scene.getRoot();
-		
-		// For line store border 
+
+		// For line store border
 //		node.styleProperty().set("-fx-border-color: -fx-lbvpn-background;");
 
 		applyColors(null, node);
-		
-		if(isUndecoratedWindow()) {
+
+		if (isUndecoratedWindow()) {
 
 			/* Anchor to stretch the content across the borderless window */
 			AnchorPane anchor = new AnchorPane(node);
@@ -450,12 +473,12 @@ public class Client extends Application {
 			AnchorPane.setLeftAnchor(node, 0d);
 			AnchorPane.setTopAnchor(node, 0d);
 			AnchorPane.setRightAnchor(node, 0d);
-			
+
 			BorderlessScene primaryScene = new BorderlessScene(primaryStage, StageStyle.TRANSPARENT, anchor, 1, 1);
-			
+
 			if (!Main.getInstance().isNoMove())
 				primaryScene.setMoveControl(node);
-			
+
 			primaryScene.setDoubleClickMaximizeEnabled(false);
 			primaryScene.setSnapEnabled(false);
 			primaryScene.removeDefaultCSS();
@@ -464,10 +487,9 @@ public class Client extends Application {
 			primaryScene.getRoot().setEffect(new DropShadow());
 			((Region) primaryScene.getRoot()).setPadding(new Insets(10, 10, 10, 10));
 			primaryScene.setFill(Color.TRANSPARENT);
-			
+
 			return primaryScene;
-		}
-		else {
+		} else {
 			return scene;
 		}
 	}
@@ -477,6 +499,21 @@ public class Client extends Application {
 	}
 
 	protected void cleanUp() {
+        File stateFile = new File(getTempDir(), "debug.json");
+        if (jsstate.isEmpty()) {
+            stateFile.delete();
+        } else {
+            // save state for next run
+            try {
+                FileWriter stateWriter = new FileWriter(stateFile);
+                stateWriter.write(jsstate.toString());
+                stateWriter.flush();
+                stateWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        
 		if (tray != null) {
 			try {
 				tray.close();
@@ -536,9 +573,9 @@ public class Client extends Application {
 	}
 
 	void applyColors(Branding branding, Parent node) {
-		if(node == null && ui != null)
+		if (node == null && ui != null)
 			node = ui.getScene().getRoot();
-		
+
 		this.branding = branding;
 
 		ObservableList<String> ss = node.getStylesheets();
@@ -561,16 +598,21 @@ public class Client extends Application {
 		ss.add(Client.class.getResource(Client.class.getSimpleName() + ".css").toExternalForm());
 
 	}
+	
+	File getTempDir() {
+		if (System.getProperty("hypersocket.bootstrap.distDir") == null)
+			return new File(System.getProperty("java.io.tmpdir"));
+		else
+			return new File(System.getProperty("hypersocket.bootstrap.distDir")).getParentFile();
+	}
 
 	File getCustomJavaFXCSSFile() {
-		File tmpFile;
 		if (System.getProperty("hypersocket.bootstrap.distDir") == null)
-			tmpFile = new File(new File(System.getProperty("java.io.tmpdir")),
+			return new File(getTempDir(),
 					System.getProperty("user.name") + "-lbvpn-jfx.css");
 		else
-			tmpFile = new File(new File(System.getProperty("hypersocket.bootstrap.distDir")).getParentFile(),
+			return new File(getTempDir(),
 					"lbvpn-jfx.css");
-		return tmpFile;
 	}
 
 	String getCustomJavaFXCSSResource(Branding branding) {
@@ -629,11 +671,9 @@ public class Client extends Application {
 	File getCustomLocalWebCSSFile() {
 		File tmpFile;
 		if (System.getProperty("hypersocket.bootstrap.distDir") == null)
-			tmpFile = new File(new File(System.getProperty("java.io.tmpdir")),
-					System.getProperty("user.name") + "-lbvpn-web.css");
+			tmpFile = new File(getTempDir(), System.getProperty("user.name") + "-lbvpn-web.css");
 		else
-			tmpFile = new File(new File(System.getProperty("hypersocket.bootstrap.distDir")).getParentFile(),
-					"lbvpn-web.css");
+			tmpFile = new File(getTempDir(), "lbvpn-web.css");
 		return tmpFile;
 	}
 
@@ -660,9 +700,9 @@ public class Client extends Application {
 
 	boolean isDarkMode() {
 		String mode = Configuration.getDefault().darkModeProperty().get();
-		if(mode.equals(Configuration.DARK_MODE_AUTO)) 
+		if (mode.equals(Configuration.DARK_MODE_AUTO))
 			return detector.isDark();
-		else if(mode.equals(Configuration.DARK_MODE_ALWAYS))
+		else if (mode.equals(Configuration.DARK_MODE_ALWAYS))
 			return true;
 		else
 			return false;
@@ -699,5 +739,9 @@ public class Client extends Application {
 
 	private boolean isHidpi() {
 		return Screen.getPrimary().getDpi() >= 300;
+	}
+
+	public boolean isChromeDebug() {
+		return Boolean.getBoolean("logonbox.vpn.chromeDebug");
 	}
 }

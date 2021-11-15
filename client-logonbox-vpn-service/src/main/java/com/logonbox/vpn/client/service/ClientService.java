@@ -5,11 +5,16 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 
+import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.ConnectionStatus;
 import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
 
 public interface ClientService  {
+	
+	public interface Listener {
+		void configurationChange(ConfigurationItem<?> item, Object oldValue, Object newValue);
+	}
 	
 	int CONNECT_TIMEOUT = Integer.parseInt(System.getProperty("logonbox.vpn.connectTimeout", "12"));
 	int HANDSHAKE_TIMEOUT = Integer.parseInt(System.getProperty("logonbox.vpn.handshakeTimeout", "180"));
@@ -18,6 +23,10 @@ public interface ClientService  {
 	default String[] getMissingPackages() {
 		return new String[0];
 	}
+	
+	void addListener(Listener listener);
+	
+	void removeListener(Listener listener);
 	
 	String getDeviceName() ;
 	
@@ -53,9 +62,9 @@ public interface ClientService  {
 
 	void delete(Connection connection) ;
 
-	String getValue(String name, String defaultValue) ;
+	<V> V getValue(ConfigurationItem<V> item) ;
 	
-	void setValue(String name, String value) ;
+	<V> void setValue(ConfigurationItem<V> item, V value) ;
 
 	Connection create(Connection connection);
 

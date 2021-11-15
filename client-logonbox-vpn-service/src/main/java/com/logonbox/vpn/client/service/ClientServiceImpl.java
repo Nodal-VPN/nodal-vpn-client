@@ -33,6 +33,7 @@ import com.hypersocket.utils.HttpUtilsHolder;
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.dbus.VPNConnectionImpl;
 import com.logonbox.vpn.client.wireguard.VirtualInetAddress;
+import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.ConfigurationRepository;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.ConnectionImpl;
@@ -58,7 +59,6 @@ public class ClientServiceImpl implements ClientService {
 
 	private static final String AUTHORIZE_URI = "/logonBoxVPNClient/";
 	private static final long PING_TIMEOUT = TimeUnit.SECONDS.toMillis(30);
-	private static final long UPDATE_SERVER_POLL_INTERVAL = TimeUnit.DAYS.toMillis(1);
 
 	protected Map<Connection, VPNSession> activeSessions = new HashMap<>();
 	protected Map<Connection, ScheduledFuture<?>> authorizingClients = new HashMap<>();
@@ -72,6 +72,7 @@ public class ClientServiceImpl implements ClientService {
 	private Semaphore startupLock = new Semaphore(1);
 	private ScheduledExecutorService timer;
 	private AtomicLong transientConnectionId = new AtomicLong();
+	private List<Listener> listeners = new ArrayList<>();
 
 	public ClientServiceImpl(LocalContext context, ConnectionRepository connectionRepository,
 			ConfigurationRepository configurationRepository) {
@@ -102,6 +103,16 @@ public class ClientServiceImpl implements ClientService {
 				context.deregisterFrontEnd(fe.getSource());
 			}
 		}, 5, 5, TimeUnit.SECONDS);
+	}
+
+	@Override
+	public void addListener(Listener listener) {
+		listeners.add(listener);
+	}
+
+	@Override
+	public void removeListener(Listener listener) {
+		listeners.remove(listener);
 	}
 
 	@Override
@@ -398,7 +409,7 @@ public class ClientServiceImpl implements ClientService {
 
 	@Override
 	public String[] getKeys() {
-		return configurationRepository.getKeys();
+		return ConfigurationItem.keys().toArray(new String[0]);
 	}
 
 	@Override
@@ -487,22 +498,36 @@ public class ClientServiceImpl implements ClientService {
 		return timer;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public UUID getUUID(String owner) {
 		UUID deviceUUID;
 		String key = String.format("deviceUUID.%s", owner);
-		String deviceUUIDString = configurationRepository.getValue(key, "");
+		ConfigurationItem<String> item;
+		if (!ConfigurationItem.has(key)) {
+			item = ConfigurationItem.add(key, String.class, "");
+		} else {
+			item = (ConfigurationItem<String>) ConfigurationItem.get(key);
+		}
+		String deviceUUIDString = configurationRepository.getValue(item);
 		if (deviceUUIDString.equals("")) {
 			deviceUUID = UUID.randomUUID();
-			configurationRepository.setValue(key, deviceUUID.toString());
-		} else
-			deviceUUID = UUID.fromString(deviceUUIDString);
+			configurationRepository.setValue(item, deviceUUID.toString());
+		} else {
+			try {
+				deviceUUID = UUID.fromString(deviceUUIDString);
+			} catch (Exception e) {
+				log.warn("Invalid device UUID, resetting.");
+				deviceUUID = UUID.randomUUID();
+				configurationRepository.setValue(item, deviceUUID.toString());
+			}
+		}
 		return deviceUUID;
 	}
 
 	@Override
-	public String getValue(String key, String defaultValue) {
-		return configurationRepository.getValue(key, defaultValue);
+	public <V> V getValue(ConfigurationItem<V> item) {
+		return configurationRepository.getValue(item);
 	}
 
 	@Override
@@ -641,10 +666,7 @@ public class ClientServiceImpl implements ClientService {
 			if (log.isInfoEnabled()) {
 				log.info("Scheduling connect for connection id " + c.getId() + "/" + c.getHostname());
 			}
-
-			Integer reconnectSeconds = Integer
-					.valueOf(configurationRepository.getValue("client.reconnectInSeconds", "5"));
-
+			Integer reconnectSeconds = configurationRepository.getValue(ConfigurationItem.RECONNECT_DELAY);
 			Connection connection = connectionRepository.getConnection(c.getId());
 			if (connection == null) {
 				log.warn("Ignoring a scheduled connection that no longer exists, probably deleted.");
@@ -658,15 +680,12 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
-	public void setValue(String key, String value) {
-		String was = configurationRepository.getValue(key, null);
+	public <V> void setValue(ConfigurationItem<V> key, V value) {
+		V was = configurationRepository.getValue(key);
 		if (!Objects.equals(was, value)) {
 			configurationRepository.setValue(key, value);
-			if (key.equals(ConfigurationRepository.LOG_LEVEL)) {
-				if (StringUtils.isBlank(value))
-					org.apache.log4j.Logger.getRootLogger().setLevel(getContext().getDefaultLogLevel());
-				else
-					org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.toLevel(value));
+			for (int i = listeners.size() - 1; i >= 0; i--) {
+				listeners.get(i).configurationChange(key, was, value);
 			}
 		}
 	}

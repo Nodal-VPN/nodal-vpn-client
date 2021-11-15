@@ -14,22 +14,10 @@
 	<script src="web.js"></script>
 	<div>
 		<div id="connections" class="container-fluid">
-			<div id="connectionTemplate" class="row connection pt-3 pb-3"
-				data-bs-toggle="dropdown">
-                <div class="dropdown">
-                    <a class="btn btn-secondary dropdown-toggle visually-hidden" href="#" role="button"
-                        id="dropdownMenuLink" data-bs-toggle="dropdown"
-                        aria-expanded="false"> Dropdown link </a>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                        <li><a class="dropdown-item delete-connection" href="#">Delete</a></li>
-                        <li><a class="dropdown-item edit-connection" href="#">Edit</a></li>
-                        <li><a class="dropdown-item favourite-connection" href="#">Make Favourite</a></li>
-                    </ul>
-                </div>
+			<div id="connectionTemplate" class="row connection pt-3 pb-3">
 				<div class="status-icon col-2"></div>
 				<div class="col-8">
-					<strong> <small class="connection-name">Connection
-							Name</small>
+					<strong> <small class="connection-name">Connection Name</small>
 					</strong><br /> <small class="status"></small><br /> <small
 						class="subText"></small>
 				</div>
@@ -58,19 +46,26 @@
 
 
 	<script type="text/javascript">
+	   var template = false;
+	
 		function rebuildConnections() {
 			$('.row').off('mouseenter');
 			$('.row').off('mouseleave');
 			$('.row').off('click');
 			try {
 				var connections = bridge.getConnections();
-				var template = $('#connectionTemplate');
-				var connectionsEl = $('#connections');
-				connectionsEl.empty();
-				template.appendTo(connectionsEl);
+                var connectionsEl = $('#connections');
+				if(!template) {
+				    template = $('#connectionTemplate').clone();
+				    $('#connectionTemplate').remove();
+				}
+				else {
+					connectionsEl.empty();
+				}
 				for (var i = 0; i < connections.length; i++) {
 					var connection = connections[i];
 					var connectionEl = template.clone();
+					connectionEl.prop('id', 'connection' + connection.getId());
 					connectionEl.attr('data-connection', connection.getId());
 					var nameEl = connectionEl.find('.connection-name')[0];
 					/* Name */
@@ -98,7 +93,7 @@
 						textStyle = 'text-info';
 					} else if (statusName === 'CONNECTING') {
 						iconName = 'fa-spinner fa-spin';
-						connected = true;
+						connected = true; 
 						textStyle = 'text-info';
 					} else if (statusName === 'CONNECTED') {
 						iconName = 'fa-check-circle';
@@ -126,46 +121,11 @@
 						subTextEl.html(subText);
 					}
 
-					/* Right Click Actions */
-					
-                    var dropDownEl = $(connectionEl.find('.dropdown-toggle')[0]);
-					var dropDownId = dropDownEl.attr('id') + i;
-					dropDownEl.attr('id', dropDownId);
-                    var dropDownMenuEl = $(connectionEl.find('.dropdown-meun')[0]);
-                    dropDownMenuEl.attr('aria-labelledby', dropDownId);
-					connectionEl.on('mousedown', function(evt) {
-						try {
-							if (evt.which === 3) {
-						       /*  var posX = $(this).offset().left,
-						        var posY = $(this).offset().top; */
-								var bs = new bootstrap.Dropdown(dropDownEl, {
-									offset: [0,0]
-								});
-								bs.show();
-							}
-						} catch (e) {
-							alert(e);
-						}
-					});
-
-					//
 					connectionEl.appendTo(connectionsEl);
 				}
 			} catch (e) {
 				alert(e);
 			}
-			template.hide();
-            $('.toggle-connection').off('change').on('change', function(e) {
-                alert('c ' + this);
-                if (this.checked) {
-                    bridge.connectTo(parseInt($($(this).parents('.connection')).attr('data-connection')));
-                    rebuildConnections();
-                } else {
-                    bridge.disconnectFrom(parseInt($($(this).parents('.connection')).attr('data-connection')));
-                    rebuildConnections();
-                }
-                e.preventDefault();
-            });
 			$('.row').off('mouseenter').on('mouseenter', function() {
 				$(this).addClass('active');
 			});
@@ -176,6 +136,17 @@
 				bridge.details(parseInt($(this).attr('data-connection')));
 				evt.preventDefault();
 			});
+			$('.toggle-connection').change(function(e) {
+                console.log(this);
+                if (this.checked) {
+                    bridge.connectTo(parseInt($($(this).parents('.connection')).attr('data-connection')));
+                    rebuildConnections();
+                } else {
+                    bridge.disconnectFrom(parseInt($($(this).parents('.connection')).attr('data-connection')));
+                    rebuildConnections();
+                }
+                e.preventDefault();
+            });
 			$('.delete-connection').off('click').on('click', function(evt) {
 				bridge.confirmDelete(parseInt($($(this).parents('.connection')).attr('data-connection')));
 			});

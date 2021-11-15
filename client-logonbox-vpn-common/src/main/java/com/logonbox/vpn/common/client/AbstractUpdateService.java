@@ -37,7 +37,7 @@ public abstract class AbstractUpdateService implements UpdateService {
 	public void checkIfBusAvailable() {
 		cancelTask();
 		if (context.isBusAvailable()) {
-			deferUntil = Long.parseLong(context.getVPN().getValue(ConfigurationRepository.DEFER_UPDATE_UNTIL, "0"));
+			deferUntil = context.getVPN().getLongValue(ConfigurationItem.DEFER_UPDATE_UNTIL.getKey());
 			rescheduleCheck(TimeUnit.SECONDS.toMillis(12));
 		} else
 			deferUntil = 0;
@@ -91,7 +91,7 @@ public abstract class AbstractUpdateService implements UpdateService {
 		setAvailableVersion(null);
 		configDeferUpdate();
 		if (context.isBusAvailable()) {
-			context.getVPN().setValue(ConfigurationRepository.DEFER_UPDATE_UNTIL, String.valueOf(deferUntil));
+			context.getVPN().setLongValue(ConfigurationItem.DEFER_UPDATE_UNTIL.getKey(), deferUntil);
 		} else {
 			log.warn("Failed to set defer time, not connected to bus.");
 		}

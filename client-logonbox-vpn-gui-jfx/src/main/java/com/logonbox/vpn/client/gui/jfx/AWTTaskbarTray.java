@@ -28,7 +28,7 @@ public class AWTTaskbarTray extends AbstractTray implements AutoCloseable, Tray,
 
 	private Taskbar taskbar;
 
-	final static Logger log = LoggerFactory.getLogger(UI.class);
+	final static Logger log = LoggerFactory.getLogger(AWTTaskbarTray.class);
 
 	public AWTTaskbarTray(Client context) throws Exception {
 		super(context);
@@ -162,7 +162,7 @@ public class AWTTaskbarTray extends AbstractTray implements AutoCloseable, Tray,
 
 			var open = new MenuItem(bundle.getString("open"), new MenuShortcut('o'));
 			open.addActionListener((e) -> {
-				context.open(); 
+				queueGuiOp(() ->  context.open()); 
 			});
 			menu.add(open);
 			addSeparator(menu);

@@ -36,9 +36,21 @@ public interface VPN extends DBusInterface {
 
 	long connect(String uri);
 
-	String getValue(String key, String defaultValue);
+	String getValue(String key);
+
+	int getIntValue(String key);
+
+	long getLongValue(String key);
+
+	boolean getBooleanValue(String key);
 	
 	void setValue(String key, String value); 
+	
+	void setIntValue(String key, int value); 
+	
+	void setLongValue(String key, long value); 
+	
+	void setBooleanValue(String key, boolean value);
 	
 	void disconnectAll();
 

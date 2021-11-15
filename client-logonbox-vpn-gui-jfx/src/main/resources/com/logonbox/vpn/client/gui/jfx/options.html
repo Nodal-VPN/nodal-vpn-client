@@ -98,13 +98,32 @@
 	                </div> -->
 				</div>
 				<button id="save" type="submit" class="btn btn-primary"
-					data-i18n="save">Save</button>
+					data-i18n="save" data-conditional="!newUI">Save</button>
 			</form>
 		</div>
 	</div>
 	<script type="text/javascript">
 		function uiReady() {
 			try {
+				if(newUI) {
+                    $('#logLevel').off('change');
+                    $('#dnsIntegrationMethod').off('change');
+                    if ($('#trayMode').length) {
+                        $('#trayMode').off('change');
+                    }
+                    if ($('#darkMode').length) {
+                        $('#darkMode').off('change');
+                    }
+                    if ($('#phase').length) {
+                        $('#phase').off('change');
+                    }
+                    if ($('#automaticUpdates').length) {
+                        $('#automaticUpdates').off('change');
+                    }
+                    if ($('#ignoreLocalRoutes').length) {
+                        $('#ignoreLocalRoutes').off('change');;
+                    }
+                }
 
 				if ($('#phase').length) {
 					for (var i = 0; i < phases.length; i++) {
@@ -149,7 +168,7 @@
                     var key = 'logLevel.' + logLevels[i];
                     var txt = 'i18n:' + key;
                     try {
-                        txt = pageBundle.getString(key);
+                        txt = pageBundle.getString(key); 
                     } catch (e) {}
                     
 					try {
@@ -177,32 +196,67 @@
 					$('#ignoreLocalRoutes').prop('checked', ignoreLocalRoutes);
 				}
 
-				$('#optionsForm').submit(function(event) {
-					$('#save').buttonLoader('start');
-					var ser = {
-						logLevel : $('#logLevel').val(),
-						dnsIntegrationMethod : $('#dnsIntegrationMethod').val()
-					/* ,
-							                saveCookies: $('#saveCookies').is(':checked') */
-					};
-					if ($('#trayMode').length) {
-						ser['trayMode'] = $('#trayMode').val();
-					}
-					if ($('#darkMode').length) {
-						ser['darkMode'] = $('#darkMode').val();
-					}
-					if ($('#phase').length) {
-						ser['phase'] = $('#phase').val();
-					}
-					if ($('#automaticUpdates').length) {
-						ser['automaticUpdates'] = $('#automaticUpdates').is(':checked');
-					}
-					if ($('#ignoreLocalRoutes').length) {
-						ser['ignoreLocalRoutes'] = $('#ignoreLocalRoutes').is(':checked');
-					}
-					bridge.saveOptions(ser);
-					event.preventDefault();
-				});
+				if(newUI) {
+					$('#logLevel').on('change', function() {
+                        bridge.saveOptions({ logLevel : $('#logLevel').val() });
+					});
+                    $('#dnsIntegrationMethod').on('change', function() {
+                        bridge.saveOptions({ dnsIntegrationMethod : $('#dnsIntegrationMethod').val() });
+                    });
+                    if ($('#trayMode').length) {
+                        $('#trayMode').on('change', function() {
+                            bridge.saveOptions({ trayMode : $('#trayMode').val() });
+                        });
+                    }
+                    if ($('#darkMode').length) {
+                        $('#darkMode').on('change', function() {
+                            bridge.saveOptions({ darkMode : $('#darkMode').val() });
+                        });
+                    }
+                    if ($('#phase').length) {
+                        $('#phase').on('change', function() {
+                            bridge.saveOptions({ phase : $('#phase').val() });
+                        });
+                    }
+                    if ($('#automaticUpdates').length) {
+                        $('#automaticUpdates').on('change', function() {
+                            bridge.saveOptions({ automaticUpdates : $('#automaticUpdates').is(':checked') });
+                        });
+                    }
+                    if ($('#ignoreLocalRoutes').length) {
+                        $('#ignoreLocalRoutes').on('change', function() {
+                            bridge.saveOptions({ ignoreLocalRoutes : $('#ignoreLocalRoutes').is(':checked') });
+                        });
+                    }
+				}
+				else {
+					$('#optionsForm').submit(function(event) {
+						$('#save').buttonLoader('start');
+						var ser = {
+							logLevel : $('#logLevel').val(),
+							dnsIntegrationMethod : $('#dnsIntegrationMethod').val()
+						/* ,
+								                saveCookies: $('#saveCookies').is(':checked') */
+						};
+						if ($('#trayMode').length) {
+							ser['trayMode'] = $('#trayMode').val();
+						}
+						if ($('#darkMode').length) {
+							ser['darkMode'] = $('#darkMode').val();
+						}
+						if ($('#phase').length) {
+							ser['phase'] = $('#phase').val();
+						}
+						if ($('#automaticUpdates').length) {
+							ser['automaticUpdates'] = $('#automaticUpdates').is(':checked');
+						}
+						if ($('#ignoreLocalRoutes').length) {
+							ser['ignoreLocalRoutes'] = $('#ignoreLocalRoutes').is(':checked');
+						}
+						bridge.saveOptions(ser);
+						event.preventDefault();
+					});
+				}
 
 			} catch (e) {
 				alert('Error: ' + e);
