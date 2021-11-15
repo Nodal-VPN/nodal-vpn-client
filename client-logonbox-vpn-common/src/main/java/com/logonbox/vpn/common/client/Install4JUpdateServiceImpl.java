@@ -4,12 +4,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.URL;
+import java.util.Map;
 
 import org.apache.commons.io.output.NullOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hypersocket.extensions.AbstractExtensionUpdater;
+import com.hypersocket.extensions.ExtensionHelper;
+import com.hypersocket.extensions.ExtensionPlace;
+import com.hypersocket.extensions.ExtensionTarget;
+import com.hypersocket.extensions.PropertyCallback;
 import com.hypersocket.json.version.HypersocketVersion;
+import com.hypersocket.utils.FileUtils;
 import com.install4j.api.context.UserCanceledException;
 import com.install4j.api.launcher.ApplicationLauncher;
 import com.install4j.api.update.ApplicationDisplayMode;
@@ -41,15 +48,20 @@ public class Install4JUpdateServiceImpl extends AbstractUpdateService {
 		 */
 		scheduler.execute(() -> {
 			try {
-				// https://updates2.hypersocket.com/hypersocket/api/store/repos2/2.4.0-456/logonbox-vpn-client/265f97ff-3d65-454d-aadc-a427385b20e2/CLIENT_SERVICE
-				URL url = new URL(String.format("%s/api/store/repos2/%s/logonbox-vpn-client/%s/CLIENT_SERVICE", 
-						System.getProperty("hypersocket.archivesURL", "https://updates2.hypersocket.com/hypersocket"),
+				
+				ExtensionHelper.resolveExtensions(
+						true,
+						FileUtils.checkEndsWithSlash(AbstractExtensionUpdater.getExtensionStoreRoot()) + "api/store/repos2",
+						new String[] { "logonbox-vpn-client" },
 						context.getVersion(),
-						HypersocketVersion.getSerial()));
-				try(InputStream in = url.openStream()) {
-					in.transferTo(new NullOutputStream());
-				}
-				log.debug("Pinged " + url);
+						HypersocketVersion.getSerial(),
+						"VPN Client",
+						getCustomerInfo(),
+						ExtensionPlace.getDefault(),
+						true,
+						(properties) -> { },
+						ExtensionTarget.CLIENT_SERVICE);
+
 			}
 			catch(Exception e) {
 				if(log.isDebugEnabled()) {
@@ -107,6 +119,18 @@ public class Install4JUpdateServiceImpl extends AbstractUpdateService {
 		}
 		return null;
 
+	}
+	
+	private String getCustomerInfo() {
+		try {
+			if(context.getVPNConnections().isEmpty()) {
+				return "New Install";
+			} else {
+				return context.getVPNConnections().iterator().next().getHostname();
+			}
+		} catch(Throwable t) {
+			return "Default Install";
+		}
 	}
 
 }
