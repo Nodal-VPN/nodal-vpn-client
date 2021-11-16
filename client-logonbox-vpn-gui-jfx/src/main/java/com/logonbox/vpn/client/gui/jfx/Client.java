@@ -240,7 +240,7 @@ public class Client extends Application implements JfxScriptStateProvider {
 	}
 
 	public boolean isMinimizeAllowed() {
-		return (tray == null || !(tray instanceof AWTTaskbarTray));
+		return tray == null || tray instanceof AWTTaskbarTray;
 	}
 
 	public boolean isTrayConfigurable() {

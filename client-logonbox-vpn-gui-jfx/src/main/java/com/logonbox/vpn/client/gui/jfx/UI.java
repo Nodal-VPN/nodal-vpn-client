@@ -482,6 +482,8 @@ public class UI implements BusLifecycleListener {
 	private Runnable runOnNextLoad;
 	private ServerBridge bridge;
 	private String disconnectionReason;
+	private DevToolsDebuggerJsBridge myJSBridge;
+	private final JfxScriptStateProvider myStateProvider;
 
 	@FXML
 	protected ListView<VPNConnection> connections;
@@ -832,7 +834,7 @@ public class UI implements BusLifecycleListener {
 					if (Main.getInstance().isExitOnConnection()) {
 						context.exitApp();
 					} else
-						selectPageForState(false, false);
+						selectPageForState(false, true);
 				});
 			}
 		});
@@ -1291,7 +1293,10 @@ public class UI implements BusLifecycleListener {
 
 		/* Watch for update check state changing */
 		Main.getInstance().getUpdateService().addListener(() -> {
-			maybeRunLater(() -> selectPageForState(false, false));
+			maybeRunLater(() ->  {
+				if(getAuthorizingConnection() == null)
+					selectPageForState(false, false); 
+			});
 		});
 
 		// TEMP
@@ -1306,6 +1311,8 @@ public class UI implements BusLifecycleListener {
 		sidebar.managedProperty().bind(sidebar.visibleProperty());
 		debugBar.managedProperty().bind(debugBar.visibleProperty());
 		back.managedProperty().bind(back.visibleProperty());
+		back.managedProperty().bind(back.visibleProperty());
+		toggleSidebar.managedProperty().bind(toggleSidebar.visibleProperty());
 
 		stopDebugger.disableProperty().bind(Bindings.not(startDebugger.disableProperty()));
 
@@ -1331,7 +1338,6 @@ public class UI implements BusLifecycleListener {
 		close.setVisible(!Main.getInstance().isNoClose() && Client.get().isUndecoratedWindow());
 		close.setManaged(close.isVisible());
 		toggleSidebar.setVisible(!Main.getInstance().isNoSidebar() && !isNewUI());
-		toggleSidebar.setManaged(toggleSidebar.isVisible());
 	}
 
 	protected void saveOptions(String trayMode, String darkMode, String phase, Boolean automaticUpdates,
@@ -1419,6 +1425,7 @@ public class UI implements BusLifecycleListener {
 	}
 
 	protected void setHtmlPage(String htmlPage, boolean force) {
+		log.info("Potention page: " + htmlPage + " frc " + force);
 		if (!Objects.equals(htmlPage, this.htmlPage) || force) {
 			changeHtmlPage(htmlPage);
 			pageBundle = null;
@@ -1486,6 +1493,13 @@ public class UI implements BusLifecycleListener {
 				LOG.error("Failed to set page.", e);
 			} finally {
 				setAvailable();
+			}
+		}
+		else {
+			try {
+				webView.getEngine().executeScript("uiRefresh();");
+			} catch (Exception e) {
+				log.debug(String.format("Page %s failed to execute uiRefresh() functions.", htmlPage), e);
 			}
 		}
 	}
@@ -2201,6 +2215,7 @@ public class UI implements BusLifecycleListener {
 			updateService.checkForUpdate();
 			maybeRunLater(() -> {
 				if (updateService.isNeedsUpdating() && getAuthorizingConnection() == null) {
+					log.info("Updated needed and no authorizing connections, checking page state.");
 					selectPageForState(false, true);
 				}
 			});
@@ -2279,23 +2294,6 @@ public class UI implements BusLifecycleListener {
 		}
 	}
 
-	/*
-	 * *****************************************************************************
-	 * ************ Required: JSBridge to handle debugging proxy interface
-	 *******************************************************************************************/
-	DevToolsDebuggerJsBridge myJSBridge;
-
-	/*
-	 * *****************************************************************************
-	 * ************ Optional: state provider to allow persistent state for scripts
-	 *******************************************************************************************/
-	final JfxScriptStateProvider myStateProvider;
-
-	/*
-	 * *****************************************************************************
-	 * ************ Optional: extend JSBridge, or use an instance of
-	 * DevToolsDebuggerJsBridge
-	 *******************************************************************************************/
 	public class DevToolsJsBridge extends DevToolsDebuggerJsBridge {
 		public DevToolsJsBridge(final @NotNull WebView webView, final int instance,
 				@Nullable final JfxScriptStateProvider stateProvider) {
@@ -2314,11 +2312,6 @@ public class UI implements BusLifecycleListener {
 		}
 	}
 
-	/*
-	 * *****************************************************************************
-	 * ************ Required: to call JSBridge.pageReloading() to inform of upcoming
-	 * WebView side page reload
-	 *******************************************************************************************/
 	private void load(final String url) {
 		LOG.info(String.format("Loading page %s", htmlPage));
 		// let it know that we are reloading the page, not chrome dev tools
@@ -2329,13 +2322,6 @@ public class UI implements BusLifecycleListener {
 		log.info("Loaded " + url + ". " + webView.getEngine().getHistory().getEntries());
 	}
 
-	/*
-	 * *****************************************************************************
-	 * ************ Optional: adds JSBridge helper script in the head to setup
-	 * missing console for other scripts to use when a debugger is not connected
-	 *
-	 * Optional: insert persisted JavaScript state information into the page
-	 *******************************************************************************************/
 	private void instrumentHtml(Element documentElement) {
 		// now we add our script if not debugging, because it will be injected
 		if (!myJSBridge.isDebugging()) {
