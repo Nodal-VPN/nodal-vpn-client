@@ -1329,7 +1329,7 @@ public class UI implements BusLifecycleListener {
 
 	public void setAvailable() {
 		boolean isNoBack = "missingSoftware.html".equals(htmlPage) || "connections.html".equals(htmlPage)
-				|| !context.getDBus().isBusAvailable();
+				|| !context.getDBus().isBusAvailable() || ( "addLogonBoxVPN.html".equals(htmlPage) && context.getDBus().getVPNConnections().isEmpty() );
 		back.visibleProperty().set(isNewUI() && !isNoBack);
 		debugBar.setVisible(context.isChromeDebug());
 		minimize.setVisible(!Main.getInstance().isNoMinimize() && Client.get().isMinimizeAllowed()
@@ -2059,7 +2059,19 @@ public class UI implements BusLifecycleListener {
 							setHtmlPage("updateAvailable.html");
 						} else {
 							/* Otherwise connections page */
-							setHtmlPage("connections.html");
+							if(context.getDBus().getVPNConnections().isEmpty()) {
+								if (Main.getInstance().isNoAddWhenNoConnections()) {
+									if (Main.getInstance().isConnect()
+											|| StringUtils.isNotBlank(Main.getInstance().getUri()))
+										setHtmlPage("busy.html");
+									else
+										setHtmlPage("connections.html");
+								} else
+									setHtmlPage("addLogonBoxVPN.html");
+							}
+							else {
+								setHtmlPage("connections.html");
+							}
 						}
 					} else {
 

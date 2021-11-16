@@ -13,6 +13,15 @@
 	<script src="bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
 	<script src="web.js"></script>
 	<div>
+	    <div id="noConnections" class="full-container" Xstyle="display: none;">
+	        <div id="main" class="container clear-top">
+	            <div class="row text-center">
+	                <div class="col-md-12">
+	                    <p id="noConnectionsText"></p>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
 		<div id="connections" class="container-fluid">
 			<div id="connectionTemplate" class="row connection pt-3 pb-3">
 				<div class="status-icon col-2"></div>
@@ -61,6 +70,12 @@
 				}
 				else {
 					connectionsEl.empty();
+				}
+				if(connections.length == 0) {
+					$('#noConnections').show();
+				}
+				else {
+                    $('#noConnections').hide();	
 				}
 				for (var i = 0; i < connections.length; i++) {
 					var connection = connections[i];
@@ -153,6 +168,9 @@
             $('.edit-connection').off('click').on('click', function(evt) {
                 bridge.edit(parseInt($($(this).parents('.connection')).attr('data-connection')));
             });
+            
+            /* TODO: cant get text with links from i18n resources for some reason. Fix in Quark */
+            $('#noConnectionsText').html(pageBundle.getString('noConnections'));
         }
 
         function uiRefresh() {
