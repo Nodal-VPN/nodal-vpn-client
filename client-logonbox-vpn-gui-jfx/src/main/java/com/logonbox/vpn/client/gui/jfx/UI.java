@@ -2244,7 +2244,7 @@ public class UI implements BusLifecycleListener {
 	}
 
 	static boolean isNewUI() {
-		return "true".equals(System.getProperty("logonbox.vpn.newUI", "false"));
+		return "true".equals(System.getProperty("logonbox.vpn.newUI", "true"));
 	}
 
 	public static void maybeRunLater(Runnable r) {
