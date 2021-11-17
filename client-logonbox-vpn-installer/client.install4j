@@ -892,6 +892,14 @@ context.goForward(1, true, true);
               </action>
               <action id="2109" beanClass="com.install4j.runtime.beans.actions.update.CheckForUpdateAction" actionElevationType="none" failureStrategy="quit">
                 <serializedBean>
+                  <property name="requestHeaders">
+                    <add>
+                      <object class="com.install4j.runtime.beans.KeyValuePair">
+                        <property name="key" type="string">User-Agent</property>
+                        <property name="value" type="string">LogonBoxVPNClient/${installer:sys.version}</property>
+                      </object>
+                    </add>
+                  </property>
                   <property name="url" type="string">${installer:updatesUrl?:${compiler:sys.updatesUrl}}</property>
                   <property name="variable" type="string">updateDescriptor</property>
                 </serializedBean>
@@ -1177,6 +1185,14 @@ context.goForward(1, true, true);
                   </action>
                   <action id="2139" beanClass="com.install4j.runtime.beans.actions.net.DownloadFileAction" actionElevationType="elevated" failureStrategy="quit">
                     <serializedBean>
+                      <property name="requestHeaders">
+                        <add>
+                          <object class="com.install4j.runtime.beans.KeyValuePair">
+                            <property name="key" type="string">User-Agent</property>
+                            <property name="value" type="string">LogonBoxVPNClient/${installer:sys.version}</property>
+                          </object>
+                        </add>
+                      </property>
                       <property name="targetFile">
                         <object class="java.io.File">
                           <string>${installer:updaterDownloadFile}</string>
