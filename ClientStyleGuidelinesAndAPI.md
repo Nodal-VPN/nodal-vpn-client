@@ -114,7 +114,13 @@ If a Configuration has been obtained from the server, the Advanced tab shows det
 
 An important part of the LogonBox VPN client is obtaining the *Configuration* from the LogonBox VPN Server. This is done by authenticating with that server using an embedded browser to a particular URL.
 
-The user is then directed through LogonBox's usual logon process, and at the end a configuration is delivered back to the client. The client then saves this configuration, and will continue to use it with no further HTTP contact unless something goes wrong. 
+The user is then directed through LogonBox's usual logon process, and at the end a configuration is delivered back to the client. The client then saves this configuration, and will continue to use it with no further HTTP contact unless something goes wrong.
+
+### The Device Identifier
+
+Before calling any remote LogonBox VPN server URL, the client must generate a *UUID*. This must then be added as a *Cookie* named `LBVPNDID` to any requests to any server.
+
+The UUID will last forever, or until the client is uninstalled and configuration removed. 
 
 ### Starting The Login
 
