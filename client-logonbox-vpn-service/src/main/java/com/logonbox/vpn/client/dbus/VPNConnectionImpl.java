@@ -65,9 +65,10 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 			/* Peer (them) */
 			Section peerSection = ini.get("Peer");
 			setPublicKey(peerSection.get("PublicKey"));
-			String[] endpoint = peerSection.get("Endpoint").split(":");
-			setEndpointAddress(endpoint[0]);
-			setEndpointPort(Integer.parseInt(endpoint[1]));
+			String endpoint = peerSection.get("Endpoint");
+			int idx = endpoint.lastIndexOf(':');
+			setEndpointAddress(endpoint.substring(0, idx));
+			setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
 			setPeristentKeepalive(Integer.parseInt(peerSection.get("PersistentKeepalive")));
 			setAllowedIps(Util.toStringList(peerSection, "AllowedIPs").toArray(new String[0]));
 			
