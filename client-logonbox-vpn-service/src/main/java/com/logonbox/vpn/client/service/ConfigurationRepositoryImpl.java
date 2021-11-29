@@ -21,9 +21,9 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 	@Override
 	public <V> V getValue(ConfigurationItem<V> key) {
 		V v = key.parse(NODE.get(key.getKey(), null));
-		if(key.getValues() != null) {
+		if(key.getValues() != null && !key.getValues().isEmpty()) {
 			if(!key.getValues().contains(v)) {
-				log.warn(String.format("Invalid value found in %s, resetting to default", key.getKey(), key.getDefaultValue()));
+				log.warn(String.format("Invalid value found in %s. %s is not in %s, resetting to default", key.getKey(), v, key.getValues(), key.getDefaultValue()));
 				setValue(key, key.getDefaultValue());
 				return key.getDefaultValue();
 			}

@@ -22,15 +22,15 @@
 	            </div>
 	        </div>
 	    </div>
-		<div id="connections" class="container-fluid">
+		<div id="connections" class="container-fluid grid-striped">
 			<div id="connectionTemplate" class="row connection pt-3 pb-3">
-				<div class="status-icon col-2"></div>
-				<div class="col-8">
+				<div class="col status-icon end-column"></div>
+				<div class="col">
 					<strong> <small class="connection-name">Connection Name</small>
 					</strong><br /> <small class="status"></small><br /> <small
 						class="subText"></small>
 				</div>
-				<div class="col-2">
+				<div class="col end-column">
 					<div class="form-check form-switch">
 						<input class="toggle-connection form-check-input" type="checkbox" />
 					</div>
@@ -147,6 +147,10 @@
 			$('.row').off('mouseleave').on('mouseleave', function() {
 				$(this).removeClass('active');
 			});
+            $('.row strong').off('click').on('click', function(evt) {
+                bridge.details(parseInt($(this).parent().parent().attr('data-connection')));
+                evt.preventDefault();
+            });
 			$('.row').off('dblclick').on('dblclick', function(evt) {
 				bridge.details(parseInt($(this).attr('data-connection')));
 				evt.preventDefault();
@@ -162,13 +166,6 @@
                 }
                 e.preventDefault();
             });
-			$('.delete-connection').off('click').on('click', function(evt) {
-				bridge.confirmDelete(parseInt($($(this).parents('.connection')).attr('data-connection')));
-			});
-            $('.edit-connection').off('click').on('click', function(evt) {
-                bridge.edit(parseInt($($(this).parents('.connection')).attr('data-connection')));
-            });
-            
             /* TODO: cant get text with links from i18n resources for some reason. Fix in Quark */
             $('#noConnectionsText').html(pageBundle.getString('noConnections'));
         }

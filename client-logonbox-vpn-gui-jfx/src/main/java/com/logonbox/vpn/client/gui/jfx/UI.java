@@ -1156,7 +1156,7 @@ public class UI implements BusLifecycleListener {
 	}
 
 	protected VPNConnection getSelectedConnection() {
-		if (isNewUI()) {
+		if (isNewUI() && "connections.html".equals(htmlPage)) {
 			/*
 			 * New UI, we use the connection that needs the most attention. If / when it
 			 * becomes the default, then this will not be necessary.
@@ -1539,7 +1539,12 @@ public class UI implements BusLifecycleListener {
 		WebEngine engine = webView.getEngine();
 		JSObject jsobj = (JSObject) engine.executeScript("window");
 		jsobj.setMember("bridge", bridge);
-		jsobj.setMember("vpn", Main.getInstance().getVPN());
+		try {
+			jsobj.setMember("vpn", Main.getInstance().getVPN());
+		}
+		catch(IllegalStateException ise) {
+			/* No bus */
+		}
 		VPNConnection selectedConnection = getSelectedConnection();
 		jsobj.setMember("connection", selectedConnection);
 		jsobj.setMember("pageBundle", pageBundle);

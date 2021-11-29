@@ -144,6 +144,23 @@ public class Client extends Application implements JfxScriptStateProvider {
 					(int) (color.getBlue() * 255));
 	}
 
+	static String toRgb(Color color) {
+		return toRgba(color, -1);
+	}
+
+	static String toRgba(Color color, boolean opacity) {
+		return toRgba(color, opacity ? color.getOpacity() : -1);
+	}
+	
+	static String toRgba(Color color, double opacity) {
+		if (opacity > -1)
+			return String.format("rgba(%3f,%3f,%3f,%3f)", color.getRed(), color.getGreen(),
+					color.getBlue(), opacity);
+		else
+			return String.format("rgba(%3f,%3f,%3f)", color.getRed(), color.getGreen(),
+					color.getBlue());
+	}
+
 	static URL toUri(File tmpFile) {
 		try {
 			return tmpFile.toURI().toURL();
@@ -720,6 +737,7 @@ public class Client extends Application implements JfxScriptStateProvider {
 		String cac2 = toHex(Color.valueOf(cbg).deriveColor(0, 1, 1.15, 1));
 		String baseStr = toHex(getBase());
 		String baseInverseStr = toHex(getBaseInverse());
+		String baseInverseRgbStr = toRgba(getBaseInverse(), 0.05f);
 		try (PrintWriter output = new PrintWriter(new FileWriter(tmpFile))) {
 			try (InputStream input = UI.class.getResource("local.css").openStream()) {
 				for (String line : IOUtils.readLines(input, "UTF-8")) {
@@ -729,6 +747,7 @@ public class Client extends Application implements JfxScriptStateProvider {
 					line = line.replace("${lbvpnAccent2}", cac2);
 					line = line.replace("${lbvpnBase}", baseStr);
 					line = line.replace("${lbvpnBaseInverse}", baseInverseStr);
+					line = line.replace("${lbvpnBaseInverseRgb}", baseInverseRgbStr);
 					output.println(line);
 				}
 			}

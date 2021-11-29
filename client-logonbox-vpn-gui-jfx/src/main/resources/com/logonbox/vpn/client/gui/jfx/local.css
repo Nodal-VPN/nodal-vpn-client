@@ -47,7 +47,7 @@ a {
 .btn-primary, .btn-primary:active, .btn-primary:hover {
 	color: ${lbvpnForeground} !important;
 	background: ${lbvpnBackground} !important;
-	border-color: ${lbvpnAccent} !important;
+	border-color: ${lbvpnAccent} !important; 
 }
 
 .nav-link {
@@ -55,7 +55,20 @@ a {
 }
 
 .connection.active {
-    background: ${lbvpnBackground} !important;
-    color: ${lbvpnForeground} !important;
+    /* background: ${lbvpnBackground} !important;
+    color: ${lbvpnForeground} !important; */
     cursor: pointer; 
+}
+
+.connection.active strong {
+    text-decoration: underline;	
+}
+
+.end-column {
+    -ms-flex: 0 0 64px !important;	
+    flex: 0 0 64px !important;
+}
+
+.grid-striped .row:nth-of-type(odd) {
+    background-color: ${lbvpnBaseInverseRgb};
 }

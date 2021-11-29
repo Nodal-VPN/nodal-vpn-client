@@ -179,24 +179,29 @@ public abstract class AbstractDBusClient implements DBusClient {
 			return;
 		}
 		
-		getLog().info(String.format("Using update service %s", updateService.getClass().getName()));
+		if(getLog().isDebugEnabled())
+			getLog().debug(String.format("Using update service %s", updateService.getClass().getName()));
 
 		if (conn == null || !conn.isConnected()) {
 			String busAddress = this.busAddress;
 			if (StringUtils.isNotBlank(busAddress)) {
-				getLog().debug("Getting bus. " + this.busAddress);
+				if(getLog().isDebugEnabled())
+					getLog().debug("Getting bus. " + this.busAddress);
 				conn = DBusConnection.getConnection(busAddress);
 			} else {
 				if (sessionBus) {
-					getLog().debug("Getting session bus.");
+					if(getLog().isDebugEnabled())
+						getLog().debug("Getting session bus.");
 					conn = DBusConnection.getConnection(DBusBusType.SESSION);
 				} else {
 					String fixedAddress = getServerDBusAddress();
 					if (fixedAddress == null) {
-						getLog().debug("Getting system bus.");
+						if(getLog().isDebugEnabled())
+							getLog().debug("Getting system bus.");
 						conn = DBusConnection.getConnection(DBusBusType.SYSTEM);
 					} else {
-						getLog().debug("Getting fixed bus " + fixedAddress);
+						if(getLog().isDebugEnabled())
+							getLog().debug("Getting fixed bus " + fixedAddress);
 						conn = DBusConnection.getConnection(fixedAddress);
 					}
 				}
