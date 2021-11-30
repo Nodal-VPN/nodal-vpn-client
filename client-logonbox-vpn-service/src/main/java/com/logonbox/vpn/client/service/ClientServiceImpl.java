@@ -4,6 +4,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpClient.Redirect;
+import java.net.http.HttpClient.Version;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.Builder;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,16 +32,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hypersocket.utils.HttpUtilsHolder;
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.dbus.VPNConnectionImpl;
 import com.logonbox.vpn.client.wireguard.VirtualInetAddress;
+import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.ConfigurationRepository;
 import com.logonbox.vpn.common.client.Connection;
@@ -138,9 +145,8 @@ public class ClientServiceImpl implements ClientService {
 			}
 
 			c.setError(null);
-			if (!c.isTransient())
-				save(c);
-
+			save(c);
+			
 			VPNSession task = createJob(c);
 			temporarilyOffline.remove(c);
 			task.setTask(timer.schedule(() -> doConnect(task), 1, TimeUnit.MILLISECONDS));
@@ -355,26 +361,84 @@ public class ClientServiceImpl implements ClientService {
 
 	@Override
 	public IOException getConnectionError(Connection connection) {
+		
+		HttpClient client = HttpClient.newBuilder()
+		        .version(Version.HTTP_1_1)
+		        .followRedirects(Redirect.NORMAL)
+		        .connectTimeout(Duration.ofSeconds(20))
+		        .build();
 
-		try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-			String uri = connection.getUri(false) + "/api/server/ping";
-			log.info(String.format("Testing if a connection to %s should be retried using %s.",
-					connection.getDisplayName(), uri));
-			String content = HttpUtilsHolder.getInstance().doHttpGetContent(uri, true, new HashMap<>());
+		Builder builder = HttpRequest.newBuilder();
+		
+		/* A simple ping first. This is mainly for backwards compatibility with servers
+		 * prior to version 2.3.12. 
+		 */
+		String uri = connection.getUri(false) + "/api/server/ping";
+		log.info(String.format("Testing if a connection to %s should be retried using %s.",
+				connection.getDisplayName(), uri));
+		UUID uuid = getUUID(connection.getOwner());
+		HttpRequest request = builder
+		         .uri(URI.create(uri))
+		         .setHeader("Cookie", AbstractDBusClient.DEVICE_IDENTIFIER + "=" + uuid)
+		         .build();
 
-			/*
-			 * The Http service appears to be there, so this is likely an invalidated
-			 * session.
+		try {
+			HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+			if(response.statusCode() != 200) {
+				log.info(String.format("Server for %s appears to exist, but there was an error pinging (error %d).",
+						connection.getDisplayName(), response.statusCode()));
+				throw new IOException("Server returned a non-200 response.");
+			}
+			
+			/* So the ping was OK (we dont care about the content of the response here, just that it happened), this means we either need to re-authorize, or somehow
+			 * the server is no longer accepting wireguard packets, but is still running and
+			 * accepting HTTP requests.
+			 * 
+			 * It turns out this can happen, so we do need to check if we really need to 
+			 * re-authorize by seeing if our public key is still valid.
 			 */
-			log.info("Error is not retryable, invalidate configuration. " + content);
-			return new ReauthorizeException(
-					"Your configuration has been invalidated, and you will need to sign-on again.");
 
-		} catch (IOException ex) {
-			/* Decide what's happening based on the error. */
-			log.info("Error is retryable.", ex);
-			return ex;
+			uri = connection.getUri(false) + "/api/peers/check/" + connection.getUserPublicKey();
+			log.info(String.format("Testing if a configuration is actually valid for %s on %s.",
+					connection.getDisplayName(), uri));
+			request = builder
+			         .uri(URI.create(uri))
+			         .setHeader("Cookie", AbstractDBusClient.DEVICE_IDENTIFIER + "=" + uuid)
+			         .build();
+
+			response = client.send(request, BodyHandlers.ofString());
+			if(response.statusCode() == 200) {
+				/* TODO This public key DOES exist */
+				log.info(String.format("A peer with the key %s is still valid according to the server, so the problem is transient.", connection.getUserPublicKey()));
+				return null;
+			}
+			else if(response.statusCode() == 404) {
+				/* Server is earlier than version 2.3.12 */
+				log.info(String.format("This is a < 2.3.12 server, assuming re-authorization is needed (please upgrade).", connection.getUserPublicKey()));
+			}
+			else {
+				/* TODO This public key DOES NOT exist */
+				log.info(String.format("No peer with the key %s is valid according to the server, so we need to re-authorize.", connection.getUserPublicKey()));
+			}
+			
 		}
+		catch(InterruptedException ex) {
+			return new IOException("Interrupted.", ex);
+		}
+		catch(IOException ex) {
+			/* Failed to reach Http server, assume this is a transient network error and
+			 * keep retrying */
+			log.info("Error is retryable.", ex);
+			return ex;			
+		}
+			
+		/*
+		 * The Http service appears to be there, and a VALID peer with this public key
+		 * does not exist, so is likely an invalidated session.
+		 */
+		log.info("Error is not retryable, invalidate configuration. ");
+		return new ReauthorizeException(
+				"Your configuration has been invalidated, and you will need to sign-on again.");
 	}
 
 	@Override
@@ -650,7 +714,9 @@ public class ClientServiceImpl implements ClientService {
 		} catch (DBusException e) {
 			log.error("Failed to signal connection updating.", e);
 		}
-		Connection newConnection = doSave(c);
+		Connection newConnection = c;
+		if(!c.isTransient())
+			newConnection = doSave(c);
 		try {
 			context.sendMessage(new VPN.ConnectionUpdated("/com/logonbox/vpn", newConnection.getId()));
 		} catch (DBusException e) {

@@ -381,6 +381,18 @@ public class Client extends Application implements JfxScriptStateProvider {
 			w = 457;
 			h = 768;
 		}
+		if(w < 256) {
+			w = 256;
+		}
+		else if(w > 1024) {
+			w = 1024;
+		}
+		if(h < 256) {
+			h = 256;
+		}
+		else if(h  > 1024) {
+			h = 1024;
+		}
 		if (StringUtils.isNotBlank(main.getSize())) {
 			String[] sizeParts = main.getSize().toLowerCase().split("x");
 			w = Integer.parseInt(sizeParts[0]);

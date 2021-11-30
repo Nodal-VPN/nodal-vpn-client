@@ -69,6 +69,12 @@ a {
     flex: 0 0 64px !important;
 }
 
+.middle-column {
+    min-width: 10em !important;	
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .grid-striped .row:nth-of-type(odd) {
     background-color: ${lbvpnBaseInverseRgb};
 }
