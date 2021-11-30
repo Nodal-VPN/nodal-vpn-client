@@ -16,3 +16,6 @@
    of the embedded runtime. If the version of the runtime was insufficient, this could
    lead to crashes or other unexpected behaviour.
  * Possible fix for crashing when opening the window from the Mac OS taskbar "Open" action.
+ * Added minimum and maximum startup window sizes.
+ * If used with LogonBox VPN Server 2.3.12 or above, will now no longer de-authorize unless
+   the configuration has actually been invalidate on the server. 

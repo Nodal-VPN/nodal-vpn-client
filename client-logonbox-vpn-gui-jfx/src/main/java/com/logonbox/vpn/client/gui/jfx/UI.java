@@ -2298,8 +2298,8 @@ public class UI implements BusLifecycleListener {
 				log.info(String.format("Retrieving branding from %s", uri));
 				URL url = new URL(uri);
 				URLConnection urlConnection = url.openConnection();
-				urlConnection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(10));
-				urlConnection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(10));
+				urlConnection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(6));
+				urlConnection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(6));
 				try (InputStream in = urlConnection.getInputStream()) {
 					Branding brandingObj = mapper.readValue(in, Branding.class);
 					brandingObj.setLogo("https://" + connection.getHostname() + ":" + connection.getPort()

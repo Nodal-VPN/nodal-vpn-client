@@ -95,7 +95,7 @@
 					if (statusName === 'DISCONNECTING') {
 						iconName = 'fa-spinner fa-spin';
 					} else if (statusName === 'DISCONNECTED') {
-						iconName = 'fa-exclamation-triangle';
+						iconName = 'fa-power-off';
 						textStyle = 'text-danger';
 						subText = connection.getLastError();
 					} else if (statusName === 'TEMPORARILY_OFFLINE') {
@@ -121,13 +121,12 @@
 					/* Connected switch */
 					var cbEl = connectionEl.find('.toggle-connection');
 		            var status = connection.getStatus();
-		            var cbChk = status === 'CONNECTED' || status === 'CONNECTING';
-					cbEl.prop('checked', cbChk);
+					cbEl.prop('checked', connected);
 
 					/* Status text */
 					var statusEl = $(connectionEl.find('.status')[0]);
 					statusEl.addClass(textStyle);
-					statusEl.html(pageBundle.getString('status.' + connection.getStatus()));
+					statusEl.html(pageBundle.getString('status.' + statusName));
 
 					/* Sub text */
 					var subTextEl = $(connectionEl.find('.subText')[0]);

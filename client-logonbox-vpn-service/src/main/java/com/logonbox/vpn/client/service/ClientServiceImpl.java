@@ -65,7 +65,7 @@ public class ClientServiceImpl implements ClientService {
 			.parseInt(System.getProperty("logonbox.vpn.authorizeTimeout", "300"));
 
 	private static final String AUTHORIZE_URI = "/logonBoxVPNClient/";
-	private static final long PING_TIMEOUT = TimeUnit.SECONDS.toMillis(30);
+	private static final long PING_TIMEOUT = TimeUnit.SECONDS.toMillis(45);
 
 	protected Map<Connection, VPNSession> activeSessions = new HashMap<>();
 	protected Map<Connection, ScheduledFuture<?>> authorizingClients = new HashMap<>();
