@@ -115,6 +115,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.web.WebEngine;
@@ -519,6 +520,10 @@ public class UI implements BusLifecycleListener {
 	private Button startDebugger;
 	@FXML
 	private Button stopDebugger;
+	@FXML
+	private HBox titleLeft;
+	@FXML
+	private HBox titleRight;
 
 	private UpdateService updateService;
 
@@ -1192,6 +1197,19 @@ public class UI implements BusLifecycleListener {
 	}
 
 	protected void onConfigure() {
+		
+		/* If on Mac, swap which side minimize / close is on */
+		if(SystemUtils.IS_OS_MAC_OSX) {
+			var tempL =  new ArrayList<>(titleLeft.getChildren());
+			var tempR =  new ArrayList<>(titleRight.getChildren());
+			Collections.reverse(tempL);
+			Collections.reverse(tempR);
+			titleLeft.getChildren().clear();
+			titleLeft.getChildren().addAll(tempR);
+			titleRight.getChildren().clear();
+			titleRight.getChildren().addAll(tempL);
+		}
+		
 
 		bridge = new ServerBridge();
 

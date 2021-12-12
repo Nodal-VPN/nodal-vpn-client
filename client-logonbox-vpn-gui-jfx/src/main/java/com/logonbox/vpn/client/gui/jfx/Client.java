@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.goxr3plus.fxborderlessscene.borderless.BorderlessScene;
 import com.jthemedetecor.OsThemeDetector;
+import com.logonbox.vpn.client.gui.jfx.PowerMonitor.Listener;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.api.Branding;
 import com.logonbox.vpn.common.client.api.BrandingInfo;
@@ -70,7 +71,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class Client extends Application implements JfxScriptStateProvider {
+public class Client extends Application implements JfxScriptStateProvider, Listener {
 
 	static final boolean allowBranding = System.getProperty("logonbox.vpn.allowBranding", "true").equals("true");
 
@@ -337,6 +338,10 @@ public class Client extends Application implements JfxScriptStateProvider {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		PowerMonitor powerMonitor = PowerMonitor.get();
+		powerMonitor.addListener(this);
+		powerMonitor.start();
+		
 		this.primaryStage = primaryStage;
 		detector = OsThemeDetector.getDetector();
 		
@@ -774,5 +779,12 @@ public class Client extends Application implements JfxScriptStateProvider {
 
 	public boolean isChromeDebug() {
 		return Boolean.getBoolean("logonbox.vpn.chromeDebug");
+	}
+
+	@Override
+	public void wake() {
+		// TODO Auto-generated method stub
+		log.info("Got Wake event.");
+		ui.refresh();
 	}
 }

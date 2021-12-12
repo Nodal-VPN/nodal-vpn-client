@@ -342,6 +342,9 @@
 									<variables>
 										<build.phase>${build.phase}</build.phase>
 									</variables>
+                                    <jvmArguments>
+                                        <jvmArgument>-Xmx2048m</jvmArgument>
+                                    </jvmArguments>
 								</configuration>
 							</execution>
 						</executions>

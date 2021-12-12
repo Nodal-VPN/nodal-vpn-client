@@ -19,3 +19,4 @@
  * Added minimum and maximum startup window sizes.
  * If used with LogonBox VPN Server 2.3.12 or above, will now no longer de-authorize unless
    the configuration has actually been invalidate on the server. 
+ * Default DNS method changed on Mac OS to "SCUtil (split)".

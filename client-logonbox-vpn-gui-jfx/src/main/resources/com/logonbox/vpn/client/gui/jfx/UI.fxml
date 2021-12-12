@@ -19,7 +19,7 @@
 			<top>
 				<BorderPane fx:id="header" minHeight="1.0" minWidth="1.0" BorderPane.alignment="CENTER">
 					<right>
-						<HBox alignment="CENTER_RIGHT" minHeight="1.0" minWidth="1.0" prefWidth="94.0" BorderPane.alignment="CENTER">
+						<HBox fx:id="titleRight" alignment="CENTER_RIGHT" minHeight="1.0" minWidth="1.0" prefWidth="94.0" BorderPane.alignment="CENTER">
 							<children>
 								<Hyperlink fx:id="minimize" onAction="#evtMinimize" styleClass="icon">
                            <graphic>
@@ -33,7 +33,7 @@
 						</HBox>
 					</right>
 					<left>
-						<HBox alignment="CENTER_LEFT" minHeight="1.0" minWidth="1.0" prefWidth="94.0" BorderPane.alignment="CENTER">
+						<HBox fx:id="titleLeft" alignment="CENTER_LEFT" minHeight="1.0" minWidth="1.0" prefWidth="94.0" BorderPane.alignment="CENTER">
 							<children>
 								<Hyperlink fx:id="toggleSidebar" onAction="#evtToggleSidebar" styleClass="icon">
                            <graphic>
