@@ -457,6 +457,6 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 
 	@Override
 	public DNSIntegrationMethod dnsMethod() {
-		return DNSIntegrationMethod.SCUTIL_COMPATIBLE;
+		return DNSIntegrationMethod.NETWORKSETUP;
 	}
 }
