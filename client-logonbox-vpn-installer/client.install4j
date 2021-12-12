@@ -116,7 +116,7 @@
     <launcher name="logonbox-vpn-gui" id="783" menuName="LogonBox VPN" icnsFile="./images/mac-logo.icns" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui">
       <executable name="logonbox-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/error.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/output.log" executableMode="gui" checkConsoleParameter="true" dpiAware="false" />
       <splashScreen bitmapFile="./images/splash.png" />
-      <java mainClass="com.sshtools.forker.wrapper.ForkerWrapper" vmParameters="-Xmx10m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true" arguments="-c conf/gui-forker.cfg">
+      <java mainClass="com.sshtools.forker.wrapper.ForkerWrapper" vmParameters="-Xmx32m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true" arguments="-c conf/gui-forker.cfg">
         <classPath>
           <scanDirectory location="bootstrap" failOnError="false" />
         </classPath>
@@ -1737,6 +1737,16 @@ return true;</property>
       </exclude>
       <jreBundle jdkProviderId="AdoptOpenJDK" release="16/jdk-16.0.2+7" overrideJdkRelease="true" manualJreEntry="true" platform="linux-arm" />
     </unixInstaller>
+    <macosFolder name="Mac OS X Folder (Arm)" id="2173" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-arm-${compiler:sys.version}" architecture="aarch64">
+      <exclude>
+        <entry location="gui/linux" />
+        <entry location="gui/win" />
+        <entry location="cleanup.bat" />
+        <entry rootId="2027" />
+        <entry rootId="2036" />
+      </exclude>
+      <jreBundle jdkProviderId="Adoptium" release="16/jdk-16.0.2+7" includedJre="macosx-amd64-1.8.0_121" />
+    </macosFolder>
   </mediaSets>
   <buildOptions verbose="true" debug="true" />
 </install4j>
