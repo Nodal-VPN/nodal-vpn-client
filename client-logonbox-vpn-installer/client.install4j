@@ -1745,7 +1745,7 @@ return true;</property>
         <entry rootId="2027" />
         <entry rootId="2036" />
       </exclude>
-      <jreBundle jdkProviderId="Adoptium" release="16/jdk-16.0.2+7" includedJre="macosx-amd64-1.8.0_121" />
+      <jreBundle jdkProviderId="AdoptOpenJDK-OpenJ9" release="17/jdk-17.0.1+12_openj9-0.29.1" overrideJdkRelease="true" includedJre="macosx-amd64-1.8.0_121" />
     </macosFolder>
   </mediaSets>
   <buildOptions verbose="true" debug="true" />
