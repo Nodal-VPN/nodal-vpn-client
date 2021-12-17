@@ -75,6 +75,7 @@ import com.logonbox.vpn.client.wireguard.linux.LinuxPlatformServiceImpl;
 import com.logonbox.vpn.client.wireguard.osx.BrewOSXPlatformServiceImpl;
 import com.logonbox.vpn.client.wireguard.windows.WindowsPlatformServiceImpl;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
+import com.logonbox.vpn.common.client.ClientTrustProvider;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.ConnectionRepository;
@@ -148,6 +149,8 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	private SaslAuthMode authMode = SaslAuthMode.AUTH_ANONYMOUS;
 
 	private ConfigurationRepositoryImpl configurationRepository;
+
+	private SSLContext sslContext;
 
 	public static final String ARTIFACT_COORDS = "com.logonbox/client-logonbox-vpn-service";
 
@@ -711,15 +714,16 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	protected void installAllTrustingCertificateVerifier() {
 
 		log.warn(
-				"NOT FOR PRODUCTION USE. All SSL certificates will be trusted regardless of status. This should only be used for testing.");
+				"All SSL certificates will be trusted regardless of status. This will change in future versions.");
 
 		Security.insertProviderAt(new ServiceTrustProvider(), 1);
 		Security.setProperty("ssl.TrustManagerFactory.algorithm", ServiceTrustProvider.TRUST_PROVIDER_ALG);
 
 		try {
-			SSLContext sc = SSLContext.getInstance("SSL");
-			sc.init(null, new TrustManager[] { this }, new java.security.SecureRandom());
-			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+			sslContext = SSLContext.getInstance("SSL");
+			sslContext.init(null, new TrustManager[] { this }, new java.security.SecureRandom());
+			HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+			SSLContext.setDefault(sslContext);
 		} catch (GeneralSecurityException e) {
 		}
 
@@ -764,5 +768,14 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 			}
 		}
 		
+	}
+
+	@Override
+	public SSLContext getSSLContext() {
+		return sslContext;
+	}
+
+	protected boolean isStrictSSL() {
+		return "true".equals(System.getProperty("logonbox.vpn.strictSSL", "true"));
 	}
 }

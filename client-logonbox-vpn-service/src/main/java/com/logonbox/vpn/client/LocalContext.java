@@ -2,6 +2,8 @@ package com.logonbox.vpn.client;
 
 import java.util.Collection;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.log4j.Level;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.messages.Message;
@@ -35,4 +37,6 @@ public interface LocalContext {
 	Level getDefaultLogLevel();
 
 	void shutdown(boolean restart);
+
+	SSLContext getSSLContext();
 }

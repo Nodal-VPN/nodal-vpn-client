@@ -363,6 +363,7 @@ public class ClientServiceImpl implements ClientService {
 	public IOException getConnectionError(Connection connection) {
 		
 		HttpClient client = HttpClient.newBuilder()
+				.sslContext(context.getSSLContext())
 		        .version(Version.HTTP_1_1)
 		        .followRedirects(Redirect.NORMAL)
 		        .connectTimeout(Duration.ofSeconds(20))

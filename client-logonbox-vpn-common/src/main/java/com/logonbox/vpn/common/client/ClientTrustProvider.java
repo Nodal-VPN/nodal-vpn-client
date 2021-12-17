@@ -12,7 +12,7 @@ import javax.net.ssl.TrustManagerFactorySpi;
 
 @SuppressWarnings("serial")
 public final class ClientTrustProvider extends Provider {
-	static final String TRUST_PROVIDER_ALG = "ClientTrustAlgorithm";
+	public static final String TRUST_PROVIDER_ALG = "ClientTrustAlgorithm";
 	private static final String TRUST_PROVIDER_ID = "ClientTrustProvider";
 	private static TrustManager trustManager;
 
