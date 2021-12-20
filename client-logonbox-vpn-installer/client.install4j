@@ -719,7 +719,7 @@ return console.askYesNo(message, true);
               </action>
               <action id="2042" beanClass="com.install4j.runtime.beans.actions.misc.CheckRunningProcessesAction" actionElevationType="none" rollbackBarrierExitCode="0" failureStrategy="quit">
                 <serializedBean>
-                  <property name="closeStrategy" type="enum" class="com.install4j.runtime.beans.actions.misc.CloseStrategy" value="ASK_FOR_CLOSE_AND_TERMINATE" />
+                  <property name="closeStrategy" type="enum" class="com.install4j.runtime.beans.actions.misc.CloseStrategy" value="TERMINATE" />
                 </serializedBean>
               </action>
               <action id="2031" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" rollbackBarrierExitCode="0" multiExec="true" failureStrategy="askRetryQuit" errorMessage="VPN Services could not be uninstalled.">
