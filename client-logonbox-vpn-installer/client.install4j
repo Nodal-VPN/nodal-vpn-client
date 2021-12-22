@@ -9,7 +9,7 @@
       <variable name="build.phase" value="nightly" />
     </variables>
     <codeSigning macEnabled="true" macPkcs12File="logonbox-developer-id.p12" windowsEnabled="true" windowsPkcs12File="logonbox.p12" macNotarize="true" appleId="brett@logonbox.com" />
-    <jreBundles jdkProviderId="AdoptOpenJDK-OpenJ9" release="17/jdk-17.0.1+12_openj9-0.29.1" />
+    <jreBundles jdkProviderId="AdoptOpenJDK-OpenJ9" release="16/jdk-16+36_openj9-0.25.0" />
   </application>
   <files keepModificationTimes="true" globalExcludeSuffixes="*.ser" defaultOverwriteMode="1" defaultUninstallMode="2" preserveSymlinks="false">
     <roots>
@@ -712,14 +712,14 @@ return console.askYesNo(message, true);
           </screen>
           <screen id="16" beanClass="com.install4j.runtime.beans.screens.UninstallationScreen">
             <actions>
-              <action id="2042" beanClass="com.install4j.runtime.beans.actions.misc.CheckRunningProcessesAction" actionElevationType="none" rollbackBarrierExitCode="0" failureStrategy="quit">
-                <serializedBean>
-                  <property name="closeStrategy" type="enum" class="com.install4j.runtime.beans.actions.misc.CloseStrategy" value="TERMINATE" />
-                </serializedBean>
-              </action>
               <action id="1320" beanClass="com.install4j.runtime.beans.actions.services.StopServiceAction" actionElevationType="elevated">
                 <serializedBean>
                   <property name="launcherId" type="string">583</property>
+                </serializedBean>
+              </action>
+              <action id="2042" beanClass="com.install4j.runtime.beans.actions.misc.CheckRunningProcessesAction" actionElevationType="none" rollbackBarrierExitCode="0" failureStrategy="quit">
+                <serializedBean>
+                  <property name="closeStrategy" type="enum" class="com.install4j.runtime.beans.actions.misc.CloseStrategy" value="TERMINATE" />
                 </serializedBean>
               </action>
               <action id="2031" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" rollbackBarrierExitCode="0" multiExec="true" failureStrategy="askRetryQuit" errorMessage="VPN Services could not be uninstalled.">
