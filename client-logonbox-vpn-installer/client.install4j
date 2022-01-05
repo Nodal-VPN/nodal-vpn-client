@@ -44,7 +44,6 @@
       </dirEntry>
       <dirEntry mountPoint="1487" file="./target/cli" subDirectory="cli" />
       <fileEntry mountPoint="2041" file="./images/splash.png" />
-      <fileEntry mountPoint="2032" file="./scripts/cleanup.bat" />
       <fileEntry mountPoint="2032" file="./EULA.txt" />
       <fileEntry mountPoint="2032" file="./WINTUN-LICENSE.txt" />
       <fileEntry mountPoint="2032" file="./WIREGUARD-LICENSE.txt" />
@@ -722,22 +721,23 @@ return console.askYesNo(message, true);
                   <property name="closeStrategy" type="enum" class="com.install4j.runtime.beans.actions.misc.CloseStrategy" value="TERMINATE" />
                 </serializedBean>
               </action>
-              <action id="2031" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" rollbackBarrierExitCode="0" multiExec="true" failureStrategy="askRetryQuit" errorMessage="VPN Services could not be uninstalled.">
+              <action id="2174" beanClass="com.install4j.runtime.beans.actions.control.RunScriptAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
-                  <property name="executable">
-                    <object class="java.io.File">
-                      <string>cleanup.bat</string>
-                    </object>
-                  </property>
-                  <property name="showWindowsConsole" type="boolean" value="true" />
-                  <property name="wait" type="boolean" value="true" />
-                  <property name="workingDirectory">
-                    <object class="java.io.File">
-                      <string>.</string>
+                  <property name="script">
+                    <object class="com.install4j.api.beans.ScriptProperty">
+                      <property name="value" type="string">for(int i = 0 ; i &lt; 255; i++) {
+    Process p = Runtime.getRuntime().exec(new String[] {"SC", "STOP", "LogonBoxVPNTunnel" + i });
+    p.getInputStream().transferTo(System.out);
+    p.waitFor();
+    p = Runtime.getRuntime().exec(new String[] {"SC", "DELETE", "LogonBoxVPNTunnel" + i });
+    p.getInputStream().transferTo(System.out);
+    p.waitFor();
+}
+return true;</property>
                     </object>
                   </property>
                 </serializedBean>
-                <condition>Util.isWindows() &amp;&amp; !context.isUninstallForUpgrade()</condition>
+                <condition>Util.isWindows() /*&amp;&amp; !context.isUninstallForUpgrade()*/</condition>
               </action>
               <action id="1350" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated">
                 <serializedBean>
@@ -1670,7 +1670,6 @@ return true;</property>
       <exclude>
         <entry location="gui/linux" />
         <entry location="gui/win" />
-        <entry location="cleanup.bat" />
         <entry rootId="2027" />
         <entry rootId="2036" />
       </exclude>

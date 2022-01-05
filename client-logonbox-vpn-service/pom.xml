@@ -107,6 +107,12 @@
 					<groupId>com.github.hypfvieh</groupId>
 					<artifactId>dbus-java</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>com.github.hypfvieh</groupId>
+					<artifactId>
+						dbus-java-transport-jnr-unixsocket
+					</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 	</dependencies>

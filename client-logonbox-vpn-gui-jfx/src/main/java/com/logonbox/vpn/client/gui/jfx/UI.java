@@ -1443,7 +1443,6 @@ public class UI implements BusLifecycleListener {
 	}
 
 	protected void setHtmlPage(String htmlPage, boolean force) {
-		log.info("Potention page: " + htmlPage + " frc " + force);
 		if (!Objects.equals(htmlPage, this.htmlPage) || force) {
 			changeHtmlPage(htmlPage);
 			pageBundle = null;

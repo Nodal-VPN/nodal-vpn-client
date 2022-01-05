@@ -134,7 +134,7 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 		}
 	}
 	
-	protected String getWGCommand() {
+	public String getWGCommand() {
 		return wgCommandPath == null ? null : wgCommandPath.toString();
 	}
 

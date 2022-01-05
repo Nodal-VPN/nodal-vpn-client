@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.NetworkInterface;
 import java.util.ArrayList;
@@ -18,6 +19,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -38,6 +41,7 @@ import com.logonbox.vpn.client.dbus.NetworkManager.Ipv6Address;
 import com.logonbox.vpn.client.dbus.Resolve1Manager;
 import com.logonbox.vpn.client.wireguard.AbstractVirtualInetAddress;
 import com.logonbox.vpn.client.wireguard.IpUtil;
+import com.logonbox.vpn.client.wireguard.OsUtil;
 import com.logonbox.vpn.common.client.DNSIntegrationMethod;
 import com.logonbox.vpn.common.client.Util;
 import com.sshtools.forker.client.EffectiveUserFactory;
@@ -47,6 +51,7 @@ import com.sshtools.forker.client.OSCommand;
 import com.sshtools.forker.common.IO;
 
 public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl> {
+	private static final String TABLE_PREFIX = "logonbox-vpn-";
 	private static final String NETWORK_MANAGER_BUS_NAME = "org.freedesktop.NetworkManager";
 
 	enum IpAddressState {
@@ -62,7 +67,7 @@ public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl
 	private static final String START_HYPERSOCKET_WIREGUARD_RESOLVECONF = "###### START-HYPERSOCKET-WIREGUARD ######";
 
 	private Set<String> addresses = new LinkedHashSet<>();
-
+	private boolean haveSetFirewall;
 	private boolean dnsSet;
 
 	public LinuxIP(String name, LinuxPlatformServiceImpl platform) {
@@ -86,7 +91,38 @@ public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl
 
 	@Override
 	public void delete() throws IOException {
+		if(dnsSet) {
+			unsetDns();
+		}
+		if(haveSetFirewall) {
+			removeFirewall();
+		}
+		String table = getTable();
+		int fwmark = getFWMark("table");
+		if((StringUtils.isBlank(table) || table.equals(TABLE_AUTO)) && fwmark > -1 /* && [[ $(wg show "$INTERFACE" allowed-ips) =~ /0(\ |$'\n'|$) ]] */) {
+			while(commandOutputMatches(".*lookup " + fwmark + ".*", "ip", "-4", "rule", "show")) {
+				OSCommand.adminCommand("ip", "-4", "rule", "delete", "table", String.valueOf(fwmark));
+			}
+			while(commandOutputMatches(".*from all lookup main suppress_prefixlength 0.*", "ip", "-4", "rule", "show")) {
+				OSCommand.adminCommand("ip", "-4", "rule", "delete", "table", "main", "suppress_prefixlength", "0");
+			}
+			while(commandOutputMatches(".*lookup " + fwmark + ".*", "ip", "-6", "rule", "show")) {
+				OSCommand.adminCommand("ip", "-6", "rule", "delete", "table", String.valueOf(fwmark));
+			}
+			while(commandOutputMatches(".*from all lookup main suppress_prefixlength 0.*", "ip", "-6", "rule", "show")) {
+				OSCommand.adminCommand("ip", "-6", "rule", "delete", "table", "main", "suppress_prefixlength", "0");
+			}	
+		}
+
 		OSCommand.adminCommand("ip", "link", "del", "dev", getName());
+	}
+	
+	private boolean commandOutputMatches(String pattern, String... args) throws IOException {
+		for(String line : OSCommand.adminCommandAndCaptureOutput(args)) {
+			if(line.matches(pattern))
+				return true;
+		}
+		return false;
 	}
 
 	public void dns(String[] dns) throws IOException {
@@ -126,25 +162,11 @@ public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl
 		if (dnsSet) {
 			unsetDns();
 		}
-		/*
-		 * TODO
-		 * 
-		 * [[ $HAVE_SET_FIREWALL -eq 0 ]] || remove_firewall
-		 * 
-		 * TODO
-		 * 
-		 * if [[ -z $TABLE || $TABLE == auto ]] && get_fwmark table && [[ $(wg show
-		 * "$INTERFACE" allowed-ips) =~ /0(\ |$'\n'|$) ]]; then while [[ $(ip -4 rule
-		 * show 2>/dev/null) == *"lookup $table"* ]]; do cmd ip -4 rule delete table
-		 * $table done while [[ $(ip -4 rule show 2>/dev/null) ==
-		 * *"from all lookup main suppress_prefixlength 0"* ]]; do cmd ip -4 rule delete
-		 * table main suppress_prefixlength 0 done while [[ $(ip -6 rule show
-		 * 2>/dev/null) == *"lookup $table"* ]]; do cmd ip -6 rule delete table $table
-		 * done while [[ $(ip -6 rule show 2>/dev/null) ==
-		 * *"from all lookup main suppress_prefixlength 0"* ]]; do cmd ip -6 rule delete
-		 * table main suppress_prefixlength 0 done fi cmd ip link delete dev
-		 * "$INTERFACE"
-		 */
+		
+		if(haveSetFirewall) {
+			removeFirewall();
+		}
+
 		setRoutes(new ArrayList<>());
 		delete();
 	}
@@ -289,6 +311,38 @@ public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl
 			OSCommand.adminCommand("ip", "link", "set", "mtu", String.valueOf(tmtu), "up", "dev", getName());
 		}
 	}
+	
+	private void removeFirewall() throws IOException {
+		if(OsUtil.doesCommandExist("nft")) {
+			StringBuilder nftcmd = new StringBuilder();
+			for(String table : OSCommand.adminCommandAndCaptureOutput("nft", "list", "tables")) {
+				if(table.contains(TABLE_PREFIX)) {
+					nftcmd.append(String.format("%s\n", table));
+				}	
+			}
+			if(nftcmd.length() > 0) {
+				pipeToCommand(nftcmd.toString(), "nft", "-f");
+			}
+		}
+		if(OsUtil.doesCommandExist("iptables")) {
+			for(String iptables : new String[] {"iptables", "ip6tables"}) {
+				StringBuilder restore = new StringBuilder();
+				boolean found = false;
+				for(String line : OSCommand.adminCommandAndCaptureOutput(iptables + "-save")) {
+					if(line.startsWith("*") || line.equals("COMMIT") || line.matches("-A .*-m comment --comment \"LogonBoxVPN rule for " + getName() + ".*"))
+						continue;
+					if(line.startsWith("-A"))
+						found = true;
+					restore.append(String.format("%s\n", line.replace("#-A", "-D"))); // TODO is this really #-A?
+				}
+				if(found) {
+					pipeToCommand(restore.toString(), iptables + "-restore", "-n");
+				}
+			}
+		}
+
+		
+	}
 
 	private int getIndexForName() throws IOException {
 		for (String line : OSCommand.runCommandAndCaptureOutput("ip", "addr")) {
@@ -305,11 +359,109 @@ public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl
 		}
 		throw new IOException(String.format("Could not find interface index for %s", getName()));
 	}
-
-	private void addDefault(String route) {
-		throw new UnsupportedOperationException("Not yet implemented.");
+	
+	private int getFWMark(String table) {
+		try {
+			Collection<String> lines = OSCommand.adminCommandAndCaptureOutput(getPlatform().getWGCommand(), "show", getName(), "fwmark");
+			if(lines.isEmpty())
+				throw new IOException();
+			else {
+				String fwmark = lines.iterator().next();
+				if(fwmark.length() > 0 && !fwmark.equals("off"))
+					return -1;
+				fwmark = fwmark.substring(2); // 0x...
+				return Integer.parseInt(fwmark, 16);
+			}
+		}
+		catch(IOException ioe) {
+			return -1;
+		}
+	}
+	
+	private void pipeToCommand(String content, String... commands) throws IOException {
+		ForkerBuilder fb = new ForkerBuilder(commands);
+		fb.redirectErrorStream(true);
+		Process p = fb.start();
+		try(OutputStream stdin = p.getOutputStream()) {
+			p.getOutputStream().write(content.getBytes());
+			p.getOutputStream().flush();	
+		}
+		p.getInputStream().transferTo(System.out);
+		try {
+		int ret = p.waitFor();
+		if(ret != 0)
+			throw new IllegalStateException("Unexpected return code. " + ret);
+		}
+		catch(InterruptedException ie) {
+			throw new IOException("Interrupted.", ie);
+		}
 	}
 
+	private void addDefault(String route) throws IOException {
+		int table = getFWMark("table");
+		if(table == -1) {
+			table = 51820;
+			while(!OSCommand.adminCommandAndCaptureOutput("ip", "-4", "route", "show", "table", String.valueOf(table)).isEmpty() ||
+					   !OSCommand.adminCommandAndCaptureOutput("ip", "-6", "route", "show", "table", String.valueOf(table)).isEmpty()) {
+				table++;
+			}
+			OSCommand.adminCommand(getPlatform().getWGCommand(), "set", getName(), "fwmark", String.valueOf(table));
+		}
+		String proto = "-4";
+		String iptables = "iptables";
+		String pf = "ip";
+
+		if (route.matches(".*:.*")) {
+			proto = "-6";
+			iptables = "ip6tables";
+			pf = "ip6";
+		}
+
+		OSCommand.adminCommand("ip", proto, "route", "add", route, "dev", getName(), "table", String.valueOf(table));
+		OSCommand.adminCommand("ip", proto, "rule", "add", "not", "fwmark", String.valueOf("table"), "table", String.valueOf(table));
+		OSCommand.adminCommand("ip", proto, "rule", "add", "table", "main", "suppress_prefixlength", "0");
+		
+		String marker = String.format("-m comment --comment \"LogonBoxVPN rule for %s\"", getName());
+		String restore = "*raw\n";
+		String nftable = TABLE_PREFIX + getName();
+		
+		StringBuilder nftcmd = new StringBuilder();
+		nftcmd.append(String.format("add table %s %s\n", pf, nftable));
+		nftcmd.append(String.format("add chain %s %s preraw { type filter hook prerouting priority -300; }\n", pf, nftable));
+		nftcmd.append(String.format("add chain %s %s premangle { type filter hook prerouting priority -150; }\n", pf, nftable));
+		nftcmd.append(String.format("add chain %s %s postmangle { type filter hook postrouting priority -150; }\n", pf, nftable));
+		
+		Pattern pattern = Pattern.compile(".*inet6?\\ ([0-9a-f:.]+)/[0-9]+.*");
+		for(String line : OSCommand.adminCommandAndCaptureOutput("ip", "-o", proto, "addr", "show", "dev", getName())) {
+			Matcher m = pattern.matcher(line); 
+			if(!m.matches()) {
+				continue;
+			}
+			
+			restore += String.format("-I PREROUTING ! -i %s -d %s -m addrtype ! --src-type LOCAL -j DROP %s\n", getName(), m.group(1), marker);
+			nftcmd.append(String.format("add rule %s %s postmangle meta l4proto udp mark %s ct mark set mark \n", pf, nftable, getName(), pf, m.group(1)));
+		}
+
+		
+		restore += String.format("COMMIT\n*mangle\n-I POSTROUTING -m mark --mark %d -p udp -j CONNMARK --save-mark %s\n-I PREROUTING -p udp -j CONNMARK --restore-mark %s\nCOMMIT\n", table, marker, marker);
+		nftcmd.append(String.format("add rule %s %s postmangle meta l4proto udp mark %d ct mark set mark \n", pf, nftable, table));
+		nftcmd.append(String.format("add rule %s %s premangle meta l4proto udp meta mark set ct mark \n", pf, nftable));
+		
+		if(proto.equals("-4")) {
+			OSCommand.adminCommand("sysctl", "-q", "net.ipv4.conf.all.src_valid_mark=1");
+		}
+		
+		if(OsUtil.doesCommandExist("nft")) {
+			LOG.info("Updating firewall: " + nftcmd.toString());
+			pipeToCommand(nftcmd.toString(), "nft", "-f");
+		}
+		else {
+			LOG.info("Updating firewall: " + restore);
+			pipeToCommand(restore, iptables + "-restore", "-n");
+		}
+		haveSetFirewall = true;
+	}
+	
 	private void addRoute(String route) throws IOException {
 		String proto = "-4";
 		if (route.matches(".*:.*"))

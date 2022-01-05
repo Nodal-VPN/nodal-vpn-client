@@ -508,7 +508,7 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 	}
 
 	@Override
-	protected String getWGCommand() {
+	public String getWGCommand() {
 		synchronized (lock) {
 			if (wgFile == null) {
 				try {

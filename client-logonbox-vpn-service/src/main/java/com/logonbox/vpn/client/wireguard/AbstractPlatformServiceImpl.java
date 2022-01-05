@@ -314,7 +314,7 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 		return Objects.equals(publicKey, pipe.getPublicKey()) ? pipe.getLastHandshake() : 0;
 	}
 	
-	protected String getWGCommand() {
+	public String getWGCommand() {
 		return "wg";
 	}
 
