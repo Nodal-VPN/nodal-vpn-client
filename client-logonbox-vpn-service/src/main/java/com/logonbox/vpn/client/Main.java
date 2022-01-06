@@ -400,6 +400,23 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 					busAddress = new BusAddress(newAddress);
 				}
 			}
+			else if (SystemUtils.IS_OS_MAC_OSX && busAddress.getBusType().equals("UNIX")) {
+				/* Work around for Mac OS X. We need the domain socket file to be created
+				 * somewhere that can be read by anyone. C:/Windows/TEMP cannot be 
+				 * read by a "Normal User" without elevating.
+				 */
+				File publicDir = new File("/var/tmp");
+				if (publicDir.exists()) {
+					File vpnAppData = new File(publicDir, "/var/tmp/logonbox-vpn-client");
+					if (!vpnAppData.exists() && !vpnAppData.mkdirs())
+						throw new IOException("Failed to create public directory for domain socket file.");
+
+					newAddress = newAddress.replace("path=" + System.getProperty("java.io.tmpdir"),
+							"path=" + vpnAppData.getAbsolutePath().replace('/', '\\') + "\\");
+					log.info(String.format("Adjusting DBus path from %s to %s (%s)", busAddress, newAddress, System.getProperty("java.io.tmpdir")));
+					busAddress = new BusAddress(newAddress);
+				}
+			}
 
 			boolean startedBus = false;
 			if (daemon == null) {
