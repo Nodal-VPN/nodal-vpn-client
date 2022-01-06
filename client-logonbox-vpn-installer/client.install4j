@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="9.0.5" transformSequenceNumber="9">
   <directoryPresets config="./target" />
-  <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" pack200Compression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="16" jdkMode="jdk">
+  <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" pack200Compression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="16" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
     </searchSequence>
@@ -726,10 +726,10 @@ return console.askYesNo(message, true);
                   <property name="script">
                     <object class="com.install4j.api.beans.ScriptProperty">
                       <property name="value" type="string">for(int i = 0 ; i &lt; 255; i++) {
-    Process p = Runtime.getRuntime().exec(new String[] {"SC", "STOP", "LogonBoxVPNTunnel" + i });
+    Process p = Runtime.getRuntime().exec(new String[] {"SC", "STOP", "LogonBoxVPNTunnel$net" + i });
     p.getInputStream().transferTo(System.out);
     p.waitFor();
-    p = Runtime.getRuntime().exec(new String[] {"SC", "DELETE", "LogonBoxVPNTunnel" + i });
+    p = Runtime.getRuntime().exec(new String[] {"SC", "DELETE", "LogonBoxVPNTunnel$net" + i });
     p.getInputStream().transferTo(System.out);
     p.waitFor();
 }
@@ -737,7 +737,7 @@ return true;</property>
                     </object>
                   </property>
                 </serializedBean>
-                <condition>Util.isWindows() /*&amp;&amp; !context.isUninstallForUpgrade()*/</condition>
+                <condition>Util.isWindows()</condition>
               </action>
               <action id="1350" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated">
                 <serializedBean>
