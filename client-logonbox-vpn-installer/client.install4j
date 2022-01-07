@@ -717,23 +717,26 @@ return console.askYesNo(message, true);
                   <property name="launcherId" type="string">583</property>
                 </serializedBean>
               </action>
-              <action id="2042" beanClass="com.install4j.runtime.beans.actions.misc.CheckRunningProcessesAction" actionElevationType="none" rollbackBarrierExitCode="0" failureStrategy="quit">
+              <action id="2042" beanClass="com.install4j.runtime.beans.actions.misc.CheckRunningProcessesAction" actionElevationType="none" rollbackBarrierExitCode="0" failureStrategy="askRetryQuit">
                 <serializedBean>
                   <property name="closeStrategy" type="enum" class="com.install4j.runtime.beans.actions.misc.CloseStrategy" value="TERMINATE" />
                 </serializedBean>
               </action>
               <action id="2031" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" rollbackBarrierExitCode="0" multiExec="true" failureStrategy="askRetryQuit" errorMessage="VPN Services could not be uninstalled.">
                 <serializedBean>
+                  <property name="arguments" type="array" elementType="string" length="1">
+                    <element index="0">/c ${installer:sys.installerDir}/cleanup.bat</element>
+                  </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>cleanup.bat</string>
+                      <string>cmd.exe</string>
                     </object>
                   </property>
                   <property name="showWindowsConsole" type="boolean" value="true" />
                   <property name="wait" type="boolean" value="true" />
                   <property name="workingDirectory">
                     <object class="java.io.File">
-                      <string>.</string>
+                      <string>${installer:sys.installerDir}</string>
                     </object>
                   </property>
                 </serializedBean>
