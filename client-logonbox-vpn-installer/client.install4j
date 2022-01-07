@@ -737,7 +737,7 @@ return console.askYesNo(message, true);
                     </object>
                   </property>
                 </serializedBean>
-                <condition>Util.isWindows() &amp;&amp; !context.isUninstallForUpgrade()</condition>
+                <condition>Util.isWindows()</condition>
               </action>
               <action id="1350" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated">
                 <serializedBean>
