@@ -724,8 +724,9 @@ return console.askYesNo(message, true);
               </action>
               <action id="2031" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" rollbackBarrierExitCode="0" multiExec="true" failureStrategy="askRetryQuit" errorMessage="VPN Services could not be uninstalled.">
                 <serializedBean>
-                  <property name="arguments" type="array" elementType="string" length="1">
-                    <element index="0">/c ${installer:sys.installerDir}/cleanup.bat</element>
+                  <property name="arguments" type="array" elementType="string" length="2">
+                    <element index="0">/c</element>
+                    <element index="1">${installer:sys.installerDir}/cleanup.bat</element>
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
