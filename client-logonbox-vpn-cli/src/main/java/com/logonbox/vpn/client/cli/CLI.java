@@ -1,5 +1,6 @@
 package com.logonbox.vpn.client.cli;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,6 +29,7 @@ import com.logonbox.vpn.client.cli.commands.Delete;
 import com.logonbox.vpn.client.cli.commands.Disconnect;
 import com.logonbox.vpn.client.cli.commands.Edit;
 import com.logonbox.vpn.client.cli.commands.Exit;
+import com.logonbox.vpn.client.cli.commands.Shutdown;
 import com.logonbox.vpn.client.cli.commands.Help;
 import com.logonbox.vpn.client.cli.commands.Show;
 import com.logonbox.vpn.client.cli.commands.Update;
@@ -48,7 +50,7 @@ import picocli.CommandLine.Spec;
 
 @Command(name = "logonbox-vpn-cli", usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.", subcommands = {
 		Connections.class, Connect.class, Create.class, Delete.class, Disconnect.class, Exit.class, Show.class,
-		About.class, Edit.class, Update.class, Debug.class, Config.class })
+		About.class, Edit.class, Update.class, Debug.class, Config.class, Shutdown.class })
 public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBusClient {
 
 	static Logger log;
