@@ -712,6 +712,20 @@ return console.askYesNo(message, true);
           </screen>
           <screen id="16" beanClass="com.install4j.runtime.beans.screens.UninstallationScreen">
             <actions>
+              <action id="2176" beanClass="com.install4j.runtime.beans.actions.control.RunScriptAction" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="rollbackScript">
+                    <object class="com.install4j.api.beans.ScriptProperty">
+                      <property name="value" type="string">new File(context.getInstallationDirectory(), "uninstalling.txt").delete();</property>
+                    </object>
+                  </property>
+                  <property name="script">
+                    <object class="com.install4j.api.beans.ScriptProperty">
+                      <property name="value" type="string">return new File(context.getInstallationDirectory(), "uninstalling.txt").createNewFile();</property>
+                    </object>
+                  </property>
+                </serializedBean>
+              </action>
               <action id="1320" beanClass="com.install4j.runtime.beans.actions.services.StopServiceAction" actionElevationType="elevated">
                 <serializedBean>
                   <property name="launcherId" type="string">583</property>
@@ -804,16 +818,6 @@ return console.askYesNo(message, true);
                 <condition>context.getBooleanVariable("uninstallConfiguration")</condition>
               </action>
               <action id="17" beanClass="com.install4j.runtime.beans.actions.UninstallFilesAction" actionElevationType="elevated" />
-              <action id="2174" beanClass="com.install4j.runtime.beans.actions.text.WriteTextFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
-                <serializedBean>
-                  <property name="file">
-                    <object class="java.io.File">
-                      <string>uninstalling.txt</string>
-                    </object>
-                  </property>
-                  <property name="text" type="string">This file tells the service to send a signal to clients to shutdown.</property>
-                </serializedBean>
-              </action>
             </actions>
             <formComponents>
               <formComponent id="1748" beanClass="com.install4j.runtime.beans.formcomponents.ProgressComponent">
