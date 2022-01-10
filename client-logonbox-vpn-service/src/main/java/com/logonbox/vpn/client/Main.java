@@ -432,6 +432,11 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 				daemon = new EmbeddedDBusDaemon(listenBusAddress);
 				daemon.setSaslAuthMode(authMode);
 				daemon.startInBackground();
+				
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e1) {
+				}
 
 				log.info(String.format("Started embedded bus on address %s", listenBusAddress.getRawAddress()));				
 				
@@ -721,6 +726,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 					catch(Exception e) {
 					}
 				}
+				Thread.sleep(5000);
 			}
 			catch(Exception e) {
 			}

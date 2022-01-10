@@ -804,6 +804,16 @@ return console.askYesNo(message, true);
                 <condition>context.getBooleanVariable("uninstallConfiguration")</condition>
               </action>
               <action id="17" beanClass="com.install4j.runtime.beans.actions.UninstallFilesAction" actionElevationType="elevated" />
+              <action id="2174" beanClass="com.install4j.runtime.beans.actions.text.WriteTextFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="file">
+                    <object class="java.io.File">
+                      <string>uninstalling.txt</string>
+                    </object>
+                  </property>
+                  <property name="text" type="string">This file tells the service to send a signal to clients to shutdown.</property>
+                </serializedBean>
+              </action>
             </actions>
             <formComponents>
               <formComponent id="1748" beanClass="com.install4j.runtime.beans.formcomponents.ProgressComponent">
