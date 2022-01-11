@@ -736,11 +736,28 @@ return console.askYesNo(message, true);
                       <string>logonbox-vpn-cli</string>
                     </object>
                   </property>
+                  <property name="timeout" type="int" value="20" />
+                  <property name="wait" type="boolean" value="true" />
                   <property name="workingDirectory">
                     <object class="java.io.File">
                       <string>.</string>
                     </object>
                   </property>
+                </serializedBean>
+              </action>
+              <action id="2180" beanClass="com.install4j.runtime.beans.actions.control.SleepAction" actionElevationType="none" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="sleepTimeMs" type="int" value="5000" />
+                </serializedBean>
+              </action>
+              <action id="2178" beanClass="com.install4j.runtime.beans.actions.services.StopServiceAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="launcherId" type="string">583</property>
+                </serializedBean>
+              </action>
+              <action id="2179" beanClass="com.install4j.runtime.beans.actions.misc.CheckRunningProcessesAction" actionElevationType="none" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="closeStrategy" type="enum" class="com.install4j.runtime.beans.actions.misc.CloseStrategy" value="TERMINATE" />
                 </serializedBean>
               </action>
               <action id="1350" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated">
