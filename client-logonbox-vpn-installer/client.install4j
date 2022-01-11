@@ -743,11 +743,6 @@ return console.askYesNo(message, true);
                   </property>
                 </serializedBean>
               </action>
-              <action id="2178" beanClass="com.install4j.runtime.beans.actions.services.StopServiceAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
-                <serializedBean>
-                  <property name="launcherId" type="string">583</property>
-                </serializedBean>
-              </action>
               <action id="1350" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated">
                 <serializedBean>
                   <property name="files" type="array" class="java.io.File" length="7">
