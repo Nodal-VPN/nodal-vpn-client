@@ -20,7 +20,7 @@ import org.ini4j.Profile.Section;
 public class Util {
 
 	private static final boolean IS_64BIT = is64bit0();
-
+	private static final boolean IS_AARCH64 = isAarch640();
 
 	public static boolean isAdministrator() {
 		if (SystemUtils.IS_OS_WINDOWS) {
@@ -229,6 +229,14 @@ public class Util {
 
 	public static boolean is64bit() {
 		return IS_64BIT;
+	}
+
+	public static boolean isAarch64() {
+		return IS_AARCH64;
+	}
+
+	private static boolean isAarch640() {
+		return "aarch64".equals(System.getProperty("os.arch"));
 	}
 
 	private static boolean is64bit0() {

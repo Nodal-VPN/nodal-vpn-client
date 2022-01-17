@@ -54,6 +54,18 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 
 	@Override
 	protected void beforeStart(LocalContext ctx) {
+		String archPath = "x86";
+		if(Util.isAarch64()) {
+			LOG.info("Detected Aarch64");
+			archPath = "aarch64";
+		}
+		else if(Util.is64bit()) {
+			LOG.info("Detected 64 bit (Intel)");
+			archPath = "x86-64";
+		}
+		else {
+			LOG.warn("Unknown architecture, assuming 32 bit. Wireguard must be manually installed.");
+		}
 		
 		/* Detect or extract the binaries for this platform */
 		wgCommandPath = OsUtil.getPathOfCommandInPath("wg");
@@ -61,7 +73,7 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 		
 		if(wgCommandPath == null) {
 			try {
-				wgCommandPath = extractCommand("macosx", Util.is64bit() ? "x86-64" : "x86", "wg");
+				wgCommandPath = extractCommand("macosx", archPath, "wg");
 			} catch (IOException e) {
 				LOG.error("Failed to extract bundled wireguard components.", e);
 			}
@@ -71,7 +83,7 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 		
 		if(wgGoCommandPath == null) {
 			try {
-				wgGoCommandPath = extractCommand("macosx", Util.is64bit() ? "x86-64" : "x86", "wireguard-go");
+				wgGoCommandPath = extractCommand("macosx", archPath, "wireguard-go");
 			} catch (IOException e) {
 				LOG.error("Failed to extract bundled wireguard components.", e);
 			}
