@@ -407,12 +407,12 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 				 */
 				File publicDir = new File("/tmp");
 				if (publicDir.exists()) {
-					File vpnAppData = new File(publicDir, "/tmp/logonbox-vpn-client");
+					File vpnAppData = new File(publicDir, "/logonbox-vpn-client");
 					if (!vpnAppData.exists() && !vpnAppData.mkdirs())
 						throw new IOException("Failed to create public directory for domain socket file.");
 
 					newAddress = newAddress.replace("path=" + System.getProperty("java.io.tmpdir"),
-							"path=" + vpnAppData.getAbsolutePath());
+							"path=" + vpnAppData.getAbsolutePath() + "/");
 					log.info(String.format("Adjusting DBus path from %s to %s (%s)", busAddress, newAddress, System.getProperty("java.io.tmpdir")));
 					busAddress = new BusAddress(newAddress);
 				}
