@@ -138,6 +138,19 @@
 					connectionEl.appendTo(connectionsEl);
 				}
 			} catch (e) {
+				try {
+					bridge.getOS();
+				}
+				catch(e2) {
+					// HACK: The Mac looses the bridge object somehow coming out of hibernate. I can only
+					// guess this is some weird webkit bug. If that appears to happen, wait one second and refresh
+					// the page and hope it works again
+					window.setTimeout(function() {
+						window.location.reload();
+					}, 1000);
+				    return;
+				}
+				
 				alert(e);
 			}
 			$('.row').off('mouseenter').on('mouseenter', function() {

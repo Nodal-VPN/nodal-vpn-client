@@ -2032,11 +2032,20 @@ public class UI implements BusLifecycleListener {
 	}
 	
 	private VPNConnection getAuthorizingConnection() {
+		return getFirstConnectionForState(Type.AUTHORIZING);
+	}
+	
+	private VPNConnection getConnectingConnection() {
+		return getFirstConnectionForState(Type.CONNECTING);
+	}
+	
+	private VPNConnection getFirstConnectionForState(Type... type) {
 		if(context.getDBus().isBusAvailable()) {
+			List<Type> tl = Arrays.asList(type);
 			for (VPNConnection connection : context.getDBus().getVPNConnections()
 					.toArray(new VPNConnection[0])) {
 				Type status = Type.valueOf(connection.getStatus());
-				if (status == Type.AUTHORIZING) {
+				if (tl.contains(status)) {
 					return connection;
 				}
 			}
@@ -2075,7 +2084,7 @@ public class UI implements BusLifecycleListener {
 							/* Done */
 							return;
 						}
-						if (busAvailable && updateService.isUpdatesEnabled() && updateService.isNeedsUpdating()) {
+						if (getConnectingConnection() == null && busAvailable && updateService.isUpdatesEnabled() && updateService.isNeedsUpdating()) {
 							// An update is available
 							log.warn(String.format("Update is available"));
 							setHtmlPage("updateAvailable.html");

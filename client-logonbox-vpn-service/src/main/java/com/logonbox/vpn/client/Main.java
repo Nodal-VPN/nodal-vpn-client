@@ -412,7 +412,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 						throw new IOException("Failed to create public directory for domain socket file.");
 
 					newAddress = newAddress.replace("path=" + System.getProperty("java.io.tmpdir"),
-							"path=" + vpnAppData.getAbsolutePath().replace('/', '\\') + "\\");
+							"path=" + vpnAppData.getAbsolutePath());
 					log.info(String.format("Adjusting DBus path from %s to %s (%s)", busAddress, newAddress, System.getProperty("java.io.tmpdir")));
 					busAddress = new BusAddress(newAddress);
 				}
