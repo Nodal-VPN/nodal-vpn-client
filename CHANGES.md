@@ -1,6 +1,12 @@
 # Changes
 
-## 2.4.1
+## 2.4.0-????
+
+ * DBus path on Mac could still be incorrect. 
+ * Hack for bridge loss when Mac coming out of hibernate
+ * Bumped JavaFX version to latest.
+
+## 2.4.0-595
 
  * New simplified user interface. The "Burger" menu has been removed, and all connections
    are now visible on the new home page. "Back" navigation has been simplified.
