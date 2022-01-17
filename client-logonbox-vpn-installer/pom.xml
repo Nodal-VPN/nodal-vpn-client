@@ -259,6 +259,44 @@
                                 </configuration>
                             </execution>
                             <execution>
+                                <id>copy-gui-jfx-linux-arm32-monocle</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>get-artifacts</goal>
+                                </goals>
+                                <configuration>
+                                    <output>${project.build.directory}/gui/linux-arm32-monocle</output>
+                                    <transitive>false</transitive>
+                                    <artifacts>
+                                        <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:linux-arm32-monocle</artifact>
+                                        <artifact>org.openjfx:javafx-base:${javafx.version}:jar:linux-arm32-monocle</artifact>
+                                        <artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:linux-arm32-monocle</artifact>
+                                        <artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:linux-arm32-monocle</artifact>
+                                        <artifact>org.openjfx:javafx-media:${javafx.version}:jar:linux-arm32-monocle</artifact>
+                                        <artifact>org.openjfx:javafx-web:${javafx.version}:jar:linux-arm32-monocle</artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copy-gui-jfx-linux-aarch64</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>get-artifacts</goal>
+                                </goals>
+                                <configuration>
+                                    <output>${project.build.directory}/gui/linux-aarch64</output>
+                                    <transitive>false</transitive>
+                                    <artifacts>
+                                        <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:linux-aarch64</artifact>
+                                        <artifact>org.openjfx:javafx-base:${javafx.version}:jar:linux-aarch64</artifact>
+                                        <artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:linux-aarch64</artifact>
+                                        <artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:linux-aarch64</artifact>
+                                        <artifact>org.openjfx:javafx-media:${javafx.version}:jar:linux-aarch64</artifact>
+                                        <artifact>org.openjfx:javafx-web:${javafx.version}:jar:linux-aarch64</artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                            <execution>
                                 <id>copy-gui-jfx-mac</id>
                                 <phase>package</phase>
                                 <goals>
@@ -274,6 +312,25 @@
                                         <artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:mac</artifact>
                                         <artifact>org.openjfx:javafx-media:${javafx.version}:jar:mac</artifact>
                                         <artifact>org.openjfx:javafx-web:${javafx.version}:jar:mac</artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copy-gui-jfx-mac-aarch64</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>get-artifacts</goal>
+                                </goals>
+                                <configuration>
+                                    <output>${project.build.directory}/gui/mac-aarch64</output>
+                                    <transitive>false</transitive>
+                                    <artifacts>
+                                        <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:mac-aarch64</artifact>
+                                        <artifact>org.openjfx:javafx-base:${javafx.version}:jar:mac-aarch64</artifact>
+                                        <artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:mac-aarch64</artifact>
+                                        <artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:mac-aarch64</artifact>
+                                        <artifact>org.openjfx:javafx-media:${javafx.version}:jar:mac-aarch64</artifact>
+                                        <artifact>org.openjfx:javafx-web:${javafx.version}:jar:mac-aarch64</artifact>
                                     </artifacts>
                                 </configuration>
                             </execution>
