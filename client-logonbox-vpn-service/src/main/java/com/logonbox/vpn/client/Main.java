@@ -15,6 +15,7 @@ import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.UserPrincipal;
 import java.nio.file.attribute.UserPrincipalLookupService;
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.security.GeneralSecurityException;
 import java.security.Security;
 import java.security.cert.CertificateException;
@@ -483,14 +484,22 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 					else if(Platform.isWindows()) {
 					    AclFileAttributeView aclAttr = Files.getFileAttributeView(path, AclFileAttributeView.class);
 					    UserPrincipalLookupService upls = path.getFileSystem().getUserPrincipalLookupService();
-					    UserPrincipal user = upls.lookupPrincipalByName("Everyone") /* TODO Tighten this */;
-					    AclEntry.Builder builder = AclEntry.newBuilder();       
-					    builder.setPermissions( EnumSet.of(AclEntryPermission.READ_DATA, AclEntryPermission.WRITE_DATA));
-					    builder.setPrincipal(user);
-					    builder.setType(AclEntryType.ALLOW);
-					    List<AclEntry> acl = Collections.singletonList(builder.build());
-						log.info(String.format("Setting DBus permissions on %s as %s to %s", path, user, acl));
-						aclAttr.setAcl(acl);
+					    try {
+						    UserPrincipal user = upls.lookupPrincipalByName("Everyone") /* TODO Tighten this */;
+						    AclEntry.Builder builder = AclEntry.newBuilder();       
+						    builder.setPermissions( EnumSet.of(AclEntryPermission.READ_DATA, AclEntryPermission.WRITE_DATA));
+						    builder.setPrincipal(user);
+						    builder.setType(AclEntryType.ALLOW);
+						    List<AclEntry> acl = Collections.singletonList(builder.build());
+							log.info(String.format("Setting DBus permissions on %s as %s to %s", path, user, acl));
+							aclAttr.setAcl(acl);
+					    }
+					    catch(UserPrincipalNotFoundException upnfe) {
+					    	/* No everyone user, fallback to basic java.io.File methods */
+					    	log.warn("No 'Everyone' users, falling back to basic file permissions method.");
+					    	path.toFile().setReadable(true, false);
+					    	path.toFile().setWritable(true, false);
+					    }
 					}
 					else 
 						log.warn("Cannot open socket permissions on this platform, clients may not be able to connect.");
