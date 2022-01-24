@@ -3,8 +3,9 @@
 ## 2.4.0-????
 
  * DBus path on Mac could still be incorrect. 
- * Hack for bridge loss when Mac coming out of hibernate
+ * Hack for bridge loss in UI when Mac coming out of hibernate.
  * Bumped JavaFX version to latest.
+ * Fixes problems with service coming out of hibernate.
 
 ## 2.4.0-595
 
