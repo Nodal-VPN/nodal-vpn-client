@@ -497,7 +497,7 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		// For line store border
 //		node.styleProperty().set("-fx-border-color: -fx-lbvpn-background;");
 
-		applyColors(null, node);
+		applyColors(branding, node);
 
 		if (isUndecoratedWindow()) {
 

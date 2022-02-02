@@ -574,25 +574,25 @@ public class ClientServiceImpl implements ClientService {
 		} else {
 			item = (ConfigurationItem<String>) ConfigurationItem.get(key);
 		}
-		String deviceUUIDString = configurationRepository.getValue(item);
+		String deviceUUIDString = configurationRepository.getValue(owner, item);
 		if (deviceUUIDString.equals("")) {
 			deviceUUID = UUID.randomUUID();
-			configurationRepository.setValue(item, deviceUUID.toString());
+			configurationRepository.setValue(owner, item, deviceUUID.toString());
 		} else {
 			try {
 				deviceUUID = UUID.fromString(deviceUUIDString);
 			} catch (Exception e) {
 				log.warn("Invalid device UUID, resetting.");
 				deviceUUID = UUID.randomUUID();
-				configurationRepository.setValue(item, deviceUUID.toString());
+				configurationRepository.setValue(owner, item, deviceUUID.toString());
 			}
 		}
 		return deviceUUID;
 	}
 
 	@Override
-	public <V> V getValue(ConfigurationItem<V> item) {
-		return configurationRepository.getValue(item);
+	public <V> V getValue(String owner, ConfigurationItem<V> item) {
+		return configurationRepository.getValue(owner, item);
 	}
 
 	@Override
@@ -733,7 +733,7 @@ public class ClientServiceImpl implements ClientService {
 			if (log.isInfoEnabled()) {
 				log.info("Scheduling connect for connection id " + c.getId() + "/" + c.getHostname());
 			}
-			Integer reconnectSeconds = configurationRepository.getValue(ConfigurationItem.RECONNECT_DELAY);
+			Integer reconnectSeconds = configurationRepository.getValue(null, ConfigurationItem.RECONNECT_DELAY);
 			Connection connection = connectionRepository.getConnection(c.getId());
 			if (connection == null) {
 				log.warn("Ignoring a scheduled connection that no longer exists, probably deleted.");
@@ -747,10 +747,10 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
-	public <V> void setValue(ConfigurationItem<V> key, V value) {
-		V was = configurationRepository.getValue(key);
+	public <V> void setValue(String owner, ConfigurationItem<V> key, V value) {
+		V was = configurationRepository.getValue(owner, key);
 		if (!Objects.equals(was, value)) {
-			configurationRepository.setValue(key, value);
+			configurationRepository.setValue(owner, key, value);
 			for (int i = listeners.size() - 1; i >= 0; i--) {
 				listeners.get(i).configurationChange(key, was, value);
 			}

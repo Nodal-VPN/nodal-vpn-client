@@ -161,7 +161,7 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 
 	protected void configureVirtualAddress(I vaddr) {
 		try {
-			vaddr.method(context.getClientService().getValue(ConfigurationItem.DNS_INTEGRATION_METHOD));
+			vaddr.method(context.getClientService().getValue(null, ConfigurationItem.DNS_INTEGRATION_METHOD));
 		}
 		catch(Exception e) {
 			LOG.error("Failed to set DNS integeration method, reverting to AUTO.", e);
@@ -380,7 +380,7 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 			pw.println("AllowedIPs = 0.0.0.0/0");
 		}	
 		else {
-			if(context.getClientService().getValue(ConfigurationItem.IGNORE_LOCAL_ROUTES)) {
+			if(context.getClientService().getValue(null, ConfigurationItem.IGNORE_LOCAL_ROUTES)) {
 				/* Filter out any routes that would cover the addresses of any interfaces
 				 * we already have
 				 */

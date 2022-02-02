@@ -3,11 +3,13 @@ package com.logonbox.vpn.client.service;
 import java.util.Objects;
 import java.util.prefs.Preferences;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.ConfigurationRepository;
+import com.logonbox.vpn.common.client.ConfigurationItem.Scope;
 
 public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
@@ -19,12 +21,13 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 	}
 
 	@Override
-	public <V> V getValue(ConfigurationItem<V> key) {
-		V v = key.parse(NODE.get(key.getKey(), null));
+	public <V> V getValue(String owner, ConfigurationItem<V> key) {
+		Preferences node = getNode(owner, key);
+		V v = key.parse(node.get(key.getKey(), null));
 		if(key.getValues() != null && !key.getValues().isEmpty()) {
 			if(!key.getValues().contains(v)) {
 				log.warn(String.format("Invalid value found in %s. %s is not in %s, resetting to default", key.getKey(), v, key.getValues(), key.getDefaultValue()));
-				setValue(key, key.getDefaultValue());
+				setValue(owner, key, key.getDefaultValue());
 				return key.getDefaultValue();
 			}
 		}
@@ -32,18 +35,30 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 	}
 
 	@Override
-	public <V> void setValue(ConfigurationItem<V> key, V value) {
-		String was = NODE.get(key.getKey(), null);
+	public <V> void setValue(String owner, ConfigurationItem<V> key, V value) {
+		Preferences node = getNode(owner, key);
+		String was = node.get(key.getKey(), null);
 		if (!Objects.equals(was, value)) {
 			if (value == null) {
 				log.info(String.format("Setting '%s' to default value", key));
-				NODE.remove(key.getKey());
+				node.remove(key.getKey());
 			} else {
 				log.info(String.format("Setting '%s' to '%s'", key, value));
-				NODE.put(key.getKey(), value.toString());
+				node.put(key.getKey(), value.toString());
 			}
 		}
 
+	}
+
+	protected <V> Preferences getNode(String owner, ConfigurationItem<V> key) {
+		Preferences node = NODE;
+		if(key.getScope() == Scope.USER && StringUtils.isBlank(owner)) {
+			throw new IllegalArgumentException(String.format("No owner provided for a %s scoped configuration item, '%s'.", key.getScope(), key.getKey()));
+		}
+		else if(key.getScope() == Scope.USER) {
+			node = node.node(owner);
+		}
+		return node;
 	}
 
 }

@@ -10,6 +10,7 @@ import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
 import com.logonbox.vpn.client.LocalContext;
+import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.ConnectionStatus;
 import com.logonbox.vpn.common.client.Keys;
@@ -267,6 +268,19 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 
 	public boolean isRemote() {
 		return true;
+	}
+
+	@Override
+	public void setAsFavourite() {
+		assertRegistered();
+		ctx.getClientService().setValue(getOwner(), ConfigurationItem.FAVOURITE, connection.getId());
+		
+	}
+
+	@Override
+	public boolean isFavourite() {
+		assertRegistered();
+		return  ctx.getClientService().getConnections(getOwner()).size() == 1 ||  ctx.getClientService().getValue(getOwner(), ConfigurationItem.FAVOURITE).longValue() == connection.getId();
 	}
 
 	@Override

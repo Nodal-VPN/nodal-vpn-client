@@ -45,7 +45,7 @@
             $('#disconnect').off('click').on('click', function(event) {
                 $('#disconnect').buttonLoader('start');
                 event.preventDefault();
-                bridge.unjoin(null);
+                bridge.unjoinAll();
             });
         };
     </script>

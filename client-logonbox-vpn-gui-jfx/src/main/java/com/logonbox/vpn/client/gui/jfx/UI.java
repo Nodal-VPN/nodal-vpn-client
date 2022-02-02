@@ -106,15 +106,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -123,7 +118,6 @@ import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import javafx.util.Duration;
 import netscape.javascript.JSObject;
 
@@ -260,19 +254,18 @@ public class UI implements BusLifecycleListener {
 			UI.this.addConnection(stayConnected, connectAtStartup, server);
 		}
 
-		public void confirmDelete(long id) {
-			VPNConnection connection = context.getDBus().getVPNConnection(id);
-			UI.this.confirmDelete(connection);
+		public void setAsFavourite(long id) {
+			UI.this.setAsFavourite(context.getDBus().getVPNConnection(id));
 		}
 
-		public void authenticate() {
-			UI.this.authorize(UI.this.getSelectedConnection());
+		public void confirmDelete(long id) {
+			UI.this.confirmDelete(context.getDBus().getVPNConnection(id));
 		}
 
 		public void configure(String usernameHint, String configIniFile) {
 			if (LOG.isDebugEnabled())
 				LOG.debug(String.format("Connect user: %s, Config: %s", usernameHint, configIniFile));
-			UI.this.configure(usernameHint, configIniFile, UI.this.getSelectedConnection());
+			UI.this.configure(usernameHint, configIniFile, UI.this.getForegroundConnection());
 		}
 
 		public void reset() {
@@ -280,27 +273,15 @@ public class UI implements BusLifecycleListener {
 		}
 
 		public void details(long id) {
-			VPNConnection connection = context.getDBus().getVPNConnection(id);
-			UI.this.connections.getSelectionModel().select(connection);
-			setHtmlPage("details.html");
+			setHtmlPage("details.html#" + id);
 		}
 
 		public void edit(long id) {
 			UI.this.editConnection(context.getDBus().getVPNConnection(id));
 		}
 
-		public void connect() {
-			VPNConnection selectedItem = UI.this.getSelectedConnection();
-			UI.this.connect(selectedItem == null ? UI.this.connections.getItems().get(0) : selectedItem);
-		}
-
 		public void connectTo(long id) {
 			UI.this.connect(context.getDBus().getVPNConnection(id));
-		}
-
-		public void disconnect() {
-			VPNConnection selectedItem = UI.this.getSelectedConnection();
-			UI.this.disconnect(selectedItem == null ? UI.this.connections.getItems().get(0) : selectedItem);
 		}
 
 		public void disconnectFrom(long id) {
@@ -312,11 +293,11 @@ public class UI implements BusLifecycleListener {
 			Boolean stayConnected = (Boolean) o.getMember("stayConnected");
 			String server = (String) o.getMember("serverUrl");
 			String name = (String) o.getMember("name");
-			UI.this.editConnection(connectAtStartup, stayConnected, name, server, getSelectedConnection());
+			UI.this.editConnection(connectAtStartup, stayConnected, name, server, getForegroundConnection());
 		}
 
 		public VPNConnection getConnection() {
-			return UI.this.getSelectedConnection();
+			return UI.this.getForegroundConnection();
 		}
 
 		public String getOS() {
@@ -332,21 +313,12 @@ public class UI implements BusLifecycleListener {
 			return connection == null ? null : connection.getUserPublicKey();
 		}
 
-		public void join() {
-			UI.this.joinNetwork(UI.this.getSelectedConnection());
-		}
-
 		public void log(String message) {
 			LOG.info("WEB: " + message);
 		}
 
 		public void reload() {
-			UI.this.initUi(getSelectedConnection());
-		}
-
-		public void reveal() {
-			UI.this.sidebar.setVisible(true);
-			UI.this.connections.requestFocus();
+			UI.this.initUi();
 		}
 
 		public void saveOptions(JSObject o) {
@@ -366,8 +338,8 @@ public class UI implements BusLifecycleListener {
 			UI.this.showError(error);
 		}
 
-		public void unjoin(String reason) {
-			UI.this.disconnect(getSelectedConnection(), reason);
+		public void unjoinAll(String reason) {
+			UI.this.disconnect(null, reason);
 		}
 
 		public void update() {
@@ -400,7 +372,11 @@ public class UI implements BusLifecycleListener {
 		}
 
 		public VPNConnection[] getConnections() {
-			return context.getDBus().getVPNConnections().toArray(new VPNConnection[0]);
+			var l = context.getDBus().getVPNConnections();
+			var f = getFavouriteConnection();
+			l.remove(f);
+			l.add(0, f);
+			return l.toArray(new VPNConnection[0]);
 		}
 	}
 
@@ -479,17 +455,12 @@ public class UI implements BusLifecycleListener {
 	private String lastException;
 	private ResourceBundle pageBundle;
 	private File logoFile;
-	private boolean adjustingSelection;
 	private Runnable runOnNextLoad;
 	private ServerBridge bridge;
 	private String disconnectionReason;
 	private DevToolsDebuggerJsBridge myJSBridge;
 	private final JfxScriptStateProvider myStateProvider;
 
-	@FXML
-	protected ListView<VPNConnection> connections;
-	@FXML
-	private Hyperlink addConnection;
 	@FXML
 	private Label messageIcon;
 	@FXML
@@ -498,8 +469,6 @@ public class UI implements BusLifecycleListener {
 	private Hyperlink options;
 	@FXML
 	private VBox root;
-	@FXML
-	private BorderPane sidebar;
 	@FXML
 	private WebView webView;
 	@FXML
@@ -510,8 +479,6 @@ public class UI implements BusLifecycleListener {
 	private Hyperlink minimize;
 	@FXML
 	private Hyperlink back;
-	@FXML
-	private Hyperlink toggleSidebar;
 	@FXML
 	private Parent debugBar;
 	@FXML
@@ -605,9 +572,14 @@ public class UI implements BusLifecycleListener {
 		}
 	}
 
+
 	public void notify(String msg, ToastType toastType) {
-		Toast.toast(toastType, resources.getString("appName"), msg);
+		Toast.toast(toastType, resources.getString("appName"), msg);		
 	}
+
+//	public void notify(String msg, ToastType toastType, ToastActionListener action) {
+//		Toast.toast(toastType, resources.getString("appName"), msg, action);
+//	}
 
 	private Map<String, Object> beansForOptions() {
 		Map<String, Object> beans = new HashMap<>();
@@ -651,7 +623,6 @@ public class UI implements BusLifecycleListener {
 		/* Per-user GUI specific */
 		Configuration config = Configuration.getDefault();
 		beans.put("trayMode", config.trayModeProperty().get());
-		beans.put("newUI", isNewUI());
 		beans.put("darkMode", config.darkModeProperty().get());
 		beans.put("logLevel", config.logLevelProperty().get() == null ? "" : config.logLevelProperty().get());
 		beans.put("saveCookies", config.saveCookiesProperty().get());
@@ -660,13 +631,10 @@ public class UI implements BusLifecycleListener {
 	}
 
 	public void options() {
-		connections.getSelectionModel().clearSelection();
 		setHtmlPage("options.html");
-		sidebar.setVisible(false);
 	}
 
 	public void refresh() {
-		rebuildConnections(getSelectedConnection());
 		selectPageForState(false, true);
 	}
 
@@ -693,28 +661,15 @@ public class UI implements BusLifecycleListener {
 								throw new IllegalStateException("Failed to listen for new connections events.");
 							}
 
-							VPNConnection selectedConnection = getSelectedConnection();
-							if (selectedConnection == null || selectedConnection.getId() == sig.getId()) {
-								adjustingSelection = true;
-								try {
-									rebuildConnections(selectedConnection);
-								} finally {
-									adjustingSelection = false;
-								}
-								VPNConnection newSelectedConnection = getSelectedConnection();
-								context.getOpQueue().execute(() -> {
-									reloadState(() -> {
-										maybeRunLater(() -> {
-											reapplyColors();
-											reapplyLogo();
-											authorize(newSelectedConnection);
-										});
+							context.getOpQueue().execute(() -> {
+								reloadState(() -> {
+									maybeRunLater(() -> {
+										reapplyColors();
+										reapplyLogo();
+										authorize(addedConnection);
 									});
 								});
-							} else {
-								rebuildConnections(null);
-								selectPageForState(false, false);
-							}
+							});
 						} finally {
 							log.info("Connection added");
 						}
@@ -726,7 +681,6 @@ public class UI implements BusLifecycleListener {
 				public void handle(VPN.ConnectionRemoved sig) {
 					maybeRunLater(() -> {
 						try {
-							rebuildConnections(null);
 							context.getOpQueue().execute(() -> {
 								reloadState(() -> {
 									maybeRunLater(() -> {
@@ -752,11 +706,25 @@ public class UI implements BusLifecycleListener {
 				@Override
 				public void handle(VPN.ConnectionUpdated sig) {
 					maybeRunLater(() -> {
-						connections.refresh();
 						selectPageForState(false, false);
 					});
 				}
 			});
+
+			connection.addSigHandler(VPN.GlobalConfigChange.class, new DBusSigHandler<VPN.GlobalConfigChange>() {
+				@Override
+				public void handle(VPN.GlobalConfigChange sig) {
+					if(sig.getName().equals(ConfigurationItem.FAVOURITE.getKey())) {
+						reloadState(() -> {
+							maybeRunLater(() -> {
+								initUi();
+								refresh();
+							});
+						});
+					}
+				}
+			});
+			
 
 			/* Listen for events on all existing connections */
 			for (VPNConnection vpnConnection : context.getDBus().getVPNConnections()) {
@@ -780,7 +748,7 @@ public class UI implements BusLifecycleListener {
 					if (StringUtils.isNotBlank(unprocessedUri)) {
 						connectToUri(unprocessedUri);
 					} else {
-						initUi(null);
+						initUi();
 						selectPageForState(Main.getInstance().isConnect(), false);
 					}
 				}
@@ -835,7 +803,6 @@ public class UI implements BusLifecycleListener {
 					UI.this.notify(MessageFormat.format(bundle.getString("connected"), connection.getName(),
 							connection.getHostname()), ToastType.INFO);
 					connecting.remove(connection);
-					connections.refresh();
 					if (Main.getInstance().isExitOnConnection()) {
 						context.exitApp();
 					} else
@@ -853,7 +820,6 @@ public class UI implements BusLifecycleListener {
 					String s = sig.getReason();
 					log.info(String.format("Failed to connect. %s", s));
 					connecting.remove(connection);
-					connections.refresh();
 					showError("Failed to connect.", s, sig.getTrace());
 					UI.this.notify(s, ToastType.ERROR);
 				});
@@ -868,7 +834,6 @@ public class UI implements BusLifecycleListener {
 						disconnectionReason = sig.getReason();
 						maybeRunLater(() -> {
 							log.info("Temporarily offline " + sig.getId());
-							connections.refresh();
 							selectPageForState(false, false);
 						});
 					}
@@ -885,24 +850,30 @@ public class UI implements BusLifecycleListener {
 							VPNConnection connection = null;
 							try {
 								connection = context.getDBus().getVPNConnection(sig.getId());
+								var c = connection;
 								if (StringUtils.isBlank(thisDisconnectionReason))
-									UI.this.notify(
-											MessageFormat.format(bundle.getString("disconnectedNoReason"),
-													connection.getDisplayName(), connection.getHostname()),
-											ToastType.INFO);
+									Toast.builder().title(MessageFormat.format(bundle.getString("disconnectedNoReason"),
+											connection.getDisplayName(), connection.getHostname())).type(ToastType.INFO).action("default", () -> {
+												Client.get().open();
+											}).toast();
 								else
-									UI.this.notify(MessageFormat.format(bundle.getString("disconnected"),
+
+									Toast.builder().title(MessageFormat.format(bundle.getString("disconnected"),
 											connection.getDisplayName(), connection.getHostname(),
-											thisDisconnectionReason), ToastType.INFO);
+											thisDisconnectionReason)).type(ToastType.INFO).action("default", () -> {
+												Client.get().open();
+											}).action(bundle.getString("reconnect"), () -> {
+												Client.get().open();
+												UI.this.connect(c);
+											}).timeout(0).toast();
 							} catch (Exception e) {
-								log.error("Failed to get connection, delete not possible.");
+								log.error("Failed to get connection, delete not possible.", e);
 							}
 
-							connections.refresh();
 							if (connection != null && deleteOnDisconnect) {
 								try {
 									doDelete(connection);
-									initUi(connection);
+									initUi();
 								} catch (RemoteException e1) {
 									log.error("Failed to delete.", e1);
 								}
@@ -944,8 +915,7 @@ public class UI implements BusLifecycleListener {
 				awaitingBridgeEstablish.play();
 			} else {
 				connecting.clear();
-				rebuildConnections(null);
-				initUi(null);
+				initUi();
 				selectPageForState(false, false);
 			}
 		});
@@ -1009,8 +979,7 @@ public class UI implements BusLifecycleListener {
 		});
 		engine.locationProperty().addListener((c, oldLoc, newLoc) -> {
 			if (newLoc != null) {
-				if ((newLoc.startsWith("http://") || newLoc.startsWith("https://"))
-						&& !(newLoc.startsWith(DEFAULT_LOCALHOST_ADDR))) {
+				if (isRemote(newLoc)) {
 					log.info(String.format("This is a remote page (%s), not changing current html page", newLoc));
 					changeHtmlPage(null);
 				} else {
@@ -1026,12 +995,12 @@ public class UI implements BusLifecycleListener {
 					if (base.equals(""))
 						base = "index.html";
 					idx = base.indexOf('#');
-					if (idx != -1) {
-						base = base.substring(0, idx);
-					}
+//					if (idx != -1) {
+//						base = base.substring(0, idx);
+//					}
 					if (!base.equals("") && !base.equals(htmlPage)) {
 						changeHtmlPage(base);
-						log.info(String.format("Page changed by user to %s (from browser view)", htmlPage));
+						log.debug(String.format("Page changed by user to %s (from browser view)", htmlPage));
 					}
 				}
 				setupPage();
@@ -1060,7 +1029,7 @@ public class UI implements BusLifecycleListener {
 							Node element = (Node) evt.getTarget();
 							Node id = element.getAttributes().getNamedItem("id");
 							String idSelector = id != null ? "#" + id.getNodeValue() : "";
-							LOG.info("onClick: clicked on " + element.getNodeName() + idSelector);
+							LOG.debug("onClick: clicked on " + element.getNodeName() + idSelector);
 						}
 					};
 
@@ -1093,16 +1062,16 @@ public class UI implements BusLifecycleListener {
 			 * 
 			 * So cancel the authorize and show the error and allow retry.
 			 */
-			VPNConnection selectedConnection = getSelectedConnection();
+			VPNConnection priorityConnection = getPriorityConnection();
 			try {
-				if (selectedConnection != null && ConnectionStatus.Type
-						.valueOf(selectedConnection.getStatus()) == ConnectionStatus.Type.AUTHORIZING) {
+				if (priorityConnection != null && ConnectionStatus.Type
+						.valueOf(priorityConnection.getStatus()) == ConnectionStatus.Type.AUTHORIZING) {
 					String reason = value != null ? value.getMessage() : null;
 					LOG.info(String.format("Got error while authorizing. Disconnecting now using '%s' as the reason",
 							reason));
 					context.getOpQueue().execute(() -> {
 						try {
-							selectedConnection.disconnect(reason);
+							priorityConnection.disconnect(reason);
 						} catch (Exception e) {
 							Platform.runLater(() -> showError("Failed to disconnect.", e));
 						}
@@ -1125,6 +1094,11 @@ public class UI implements BusLifecycleListener {
 		engine.setJavaScriptEnabled(true);
 	}
 
+	protected boolean isRemote(String newLoc) {
+		return (newLoc.startsWith("http://") || newLoc.startsWith("https://"))
+				&& !(newLoc.startsWith(DEFAULT_LOCALHOST_ADDR));
+	}
+
 	protected boolean checkForInvalidatedSession(Throwable value) {
 		/*
 		 * This is pretty terrible. JavFX's WebEngine$LoadWorker constructs a new
@@ -1134,7 +1108,7 @@ public class UI implements BusLifecycleListener {
 		 */
 		if (value != null && value.getMessage() != null) {
 			if (value.getMessage().equals("Connection refused by server")) {
-				setHtmlPage("offline.html");
+				selectPageForState(false, false);
 				return true;
 			}
 		}
@@ -1159,41 +1133,44 @@ public class UI implements BusLifecycleListener {
 			showError("Failed to save connection.", e);
 		}
 	}
+	
+	protected VPNConnection getFavouriteConnection() {
+		List<VPNConnection> alls = getAllConnections();
+		for (VPNConnection connection : alls) {
+			if(connection.isFavourite())
+				return connection;
+		}	
+		return alls.isEmpty() ? null : alls.get(0);	
+	}
 
-	protected VPNConnection getSelectedConnection() {
-		if (isNewUI() && "connections.html".equals(htmlPage)) {
-			/*
-			 * New UI, we use the connection that needs the most attention. If / when it
-			 * becomes the default, then this will not be necessary.
-			 */
-			for (VPNConnection connection : connections.getItems()) {
-				ConnectionStatus.Type type = Type.valueOf(connection.getStatus());
-				if (type == Type.AUTHORIZING) {
-					return connection;
-				}
+	protected VPNConnection getPriorityConnection() {
+		List<VPNConnection> alls = getAllConnections();
+		/*
+		 * New UI, we use the connection that needs the most attention. If / when it
+		 * becomes the default, then this will not be necessary.
+		 */
+		for (VPNConnection connection : alls) {
+			ConnectionStatus.Type type = Type.valueOf(connection.getStatus());
+			if (type == Type.AUTHORIZING) {
+				return connection;
 			}
-
-			for (VPNConnection connection : connections.getItems()) {
-				ConnectionStatus.Type type = Type.valueOf(connection.getStatus());
-				if (type == Type.CONNECTING || type == Type.DISCONNECTING) {
-					return connection;
-				}
-			}
-
-			for (VPNConnection connection : connections.getItems()) {
-				ConnectionStatus.Type type = Type.valueOf(connection.getStatus());
-				if (type == Type.CONNECTED) {
-					return connection;
-				}
-			}
-
-			return connections.getItems().isEmpty() ? null : connections.getItems().get(0);
-		} else {
-			VPNConnection selectedItem = connections.getSelectionModel().getSelectedItem();
-			if (selectedItem == null && connections.getItems().size() > 0)
-				selectedItem = connections.getItems().get(0);
-			return selectedItem;
 		}
+
+		for (VPNConnection connection : alls) {
+			ConnectionStatus.Type type = Type.valueOf(connection.getStatus());
+			if (type == Type.CONNECTING || type == Type.DISCONNECTING) {
+				return connection;
+			}
+		}
+
+		for (VPNConnection connection : alls) {
+			ConnectionStatus.Type type = Type.valueOf(connection.getStatus());
+			if (type == Type.CONNECTED) {
+				return connection;
+			}
+		}
+
+		return alls.isEmpty() ? null : alls.get(0);
 	}
 
 	protected void onConfigure() {
@@ -1218,94 +1195,6 @@ public class UI implements BusLifecycleListener {
 
 		setAvailable();
 
-		/*
-		 * Setup the connection list
-		 */
-		Callback<ListView<VPNConnection>, ListCell<VPNConnection>> factory = new Callback<ListView<VPNConnection>, ListCell<VPNConnection>>() {
-
-			@Override
-			public ListCell<VPNConnection> call(ListView<VPNConnection> l) {
-				return new ListCell<VPNConnection>() {
-
-					@Override
-					protected void updateItem(VPNConnection item, boolean empty) {
-						super.updateItem(item, empty);
-						if (item == null) {
-							setText("");
-						} else
-							setText(item.getDisplayName());
-					}
-				};
-			}
-		};
-		connections.setOnMouseClicked((e) -> {
-			if (e.getClickCount() == 2)
-				connect(getSelectedConnection());
-		});
-		connections.setCellFactory(factory);
-		connections.focusedProperty().addListener((e, o, n) -> {
-			if (!n && !addConnection.isFocused() && !options.isFocused()) {
-				sidebar.setVisible(false);
-			}
-		});
-		connections.getSelectionModel().selectedItemProperty().addListener((e, o, n) -> {
-			if (!adjustingSelection && n != null) {
-				context.getOpQueue().execute(() -> {
-					reloadState(() -> {
-						maybeRunLater(() -> {
-							reapplyColors();
-							reapplyLogo();
-							if (htmlPage == null || !htmlPage.equals("details.html"))
-								selectPageForState(false, true);
-						});
-					});
-				});
-			}
-		});
-
-		/* Context menu */
-		ContextMenu menu = new ContextMenu();
-		MenuItem connect = new MenuItem(bundle.getString("contextMenuConnect"));
-		connect.onActionProperty().set((e) -> {
-			connect(getSelectedConnection());
-		});
-		menu.getItems().add(connect);
-		MenuItem disconnect = new MenuItem(bundle.getString("contextMenuDisconnect"));
-		disconnect.onActionProperty().set((e) -> {
-			disconnect(getSelectedConnection());
-		});
-		menu.getItems().add(disconnect);
-		MenuItem add = new MenuItem(bundle.getString("contextMenuEdit"));
-		add.onActionProperty().set((e) -> {
-			editConnection(getSelectedConnection());
-		});
-		menu.getItems().add(add);
-		MenuItem remove = new MenuItem(bundle.getString("contextMenuRemove"));
-		remove.onActionProperty().set((e) -> {
-			confirmDelete(getSelectedConnection());
-		});
-		menu.getItems().add(remove);
-		connections.setContextMenu(menu);
-		menu.setOnShowing((e) -> {
-			VPNConnection selectedConnection = getSelectedConnection();
-			if (selectedConnection != null) {
-				try {
-					ConnectionStatus.Type type = Type.valueOf(selectedConnection.getStatus());
-					connect.setDisable(type != ConnectionStatus.Type.DISCONNECTED);
-					disconnect.setDisable(
-							type != ConnectionStatus.Type.CONNECTED && type != ConnectionStatus.Type.AUTHORIZING);
-					add.setDisable(false);
-					remove.setDisable(type != ConnectionStatus.Type.DISCONNECTED);
-				} catch (Exception e1) {
-					connect.setDisable(false);
-					disconnect.setDisable(false);
-					add.setDisable(false);
-					remove.setDisable(false);
-					showError("Failed to check state.", e1);
-				}
-			}
-		});
-
 		/* Configure engine */
 		configureWebEngine();
 
@@ -1326,11 +1215,9 @@ public class UI implements BusLifecycleListener {
 //		sidebar.managedProperty().set(false);
 
 		/* Make various components completely hide from layout when made invisible */
-		sidebar.managedProperty().bind(sidebar.visibleProperty());
 		debugBar.managedProperty().bind(debugBar.visibleProperty());
 		back.managedProperty().bind(back.visibleProperty());
 		back.managedProperty().bind(back.visibleProperty());
-		toggleSidebar.managedProperty().bind(toggleSidebar.visibleProperty());
 
 		stopDebugger.disableProperty().bind(Bindings.not(startDebugger.disableProperty()));
 
@@ -1348,14 +1235,13 @@ public class UI implements BusLifecycleListener {
 	public void setAvailable() {
 		boolean isNoBack = "missingSoftware.html".equals(htmlPage) || "connections.html".equals(htmlPage)
 				|| !context.getDBus().isBusAvailable() || ( "addLogonBoxVPN.html".equals(htmlPage) && context.getDBus().getVPNConnections().isEmpty() );
-		back.visibleProperty().set(isNewUI() && !isNoBack);
+		back.visibleProperty().set(!isNoBack);
 		debugBar.setVisible(context.isChromeDebug());
 		minimize.setVisible(!Main.getInstance().isNoMinimize() && Client.get().isMinimizeAllowed()
 				&& Client.get().isUndecoratedWindow());
 		minimize.setManaged(minimize.isVisible());
 		close.setVisible(!Main.getInstance().isNoClose() && Client.get().isUndecoratedWindow());
 		close.setManaged(close.isVisible());
-		toggleSidebar.setVisible(!Main.getInstance().isNoSidebar() && !isNewUI());
 	}
 
 	protected void saveOptions(String trayMode, String darkMode, String phase, Boolean automaticUpdates,
@@ -1409,25 +1295,13 @@ public class UI implements BusLifecycleListener {
 				vpn.setValue(ConfigurationItem.DNS_INTEGRATION_METHOD.getKey(), dnsIntegrationMethod);
 			}
 
-			/* Update selection */
-			if (connections.getSelectionModel().isEmpty()) {
-				adjustingSelection = true;
-				try {
-					connections.getSelectionModel().selectFirst();
-				} finally {
-					adjustingSelection = false;
-				}
-			}
-
 			if (automaticUpdates != null && checkUpdates) {
 				new Thread() {
 					public void run() {
 						checkForUpdate();
 					}
 				}.start();
-			} else if (!isNewUI())
-				selectPageForState(false, false);
-			else if (darkMode != null) {
+			} else if (darkMode != null) {
 				UI.this.reapplyColors();
 				setHtmlPage("options.html", true);
 			}
@@ -1488,10 +1362,13 @@ public class UI implements BusLifecycleListener {
 
 					setupPage();
 					String loc = htmlPage;
-					URL resource = UI.class.getResource(htmlPage);
+					URL resource = UI.class.getResource(getBaseHtml());
 					if (resource == null)
 						throw new FileNotFoundException(String.format("No page named %s.", htmlPage));
 					loc = resource.toExternalForm();
+					String anchor = getAnchor();
+					if(anchor != null)
+						loc += "#" + anchor;
 
 					URI uri = new URI(loc);
 					Map<String, List<String>> headers = new LinkedHashMap<String, List<String>>();
@@ -1504,8 +1381,6 @@ public class UI implements BusLifecycleListener {
 
 					load(loc);
 				}
-
-				sidebar.setVisible(false);
 			} catch (Exception e) {
 				LOG.error("Failed to set page.", e);
 			} finally {
@@ -1548,6 +1423,23 @@ public class UI implements BusLifecycleListener {
 			}
 		}
 	}
+	
+	private VPNConnection getForegroundConnection() {
+		if(htmlPage != null && isRemote(htmlPage)) {
+			
+		}
+		else {
+			String anchor = getAnchor();
+			if(anchor != null) {
+				try {
+					return context.getDBus().getVPNConnection(Long.parseLong(anchor));
+				}
+				catch(Exception nfe) {
+				}
+			}
+		}
+		return getPriorityConnection();
+	}
 
 	private void processJavascript() {
 		if (log.isDebugEnabled())
@@ -1562,7 +1454,7 @@ public class UI implements BusLifecycleListener {
 		catch(IllegalStateException ise) {
 			/* No bus */
 		}
-		VPNConnection selectedConnection = getSelectedConnection();
+		VPNConnection selectedConnection = getForegroundConnection();
 		jsobj.setMember("connection", selectedConnection);
 		jsobj.setMember("pageBundle", pageBundle);
 
@@ -1602,6 +1494,16 @@ public class UI implements BusLifecycleListener {
 
 	}
 
+	private String getAnchor() {
+		if(htmlPage == null)
+			return null;
+		int idx = htmlPage.indexOf('#');
+		if (idx != -1) {
+			return htmlPage.substring(idx + 1);
+		}
+		return null;
+	}
+
 	private String getBaseHtml() {
 		String htmlPage = this.htmlPage;
 		if (htmlPage == null)
@@ -1619,7 +1521,7 @@ public class UI implements BusLifecycleListener {
 
 	private void processDOM() {
 		boolean busAvailable = context.getDBus().isBusAvailable();
-		VPNConnection connection = busAvailable ? getSelectedConnection() : null;
+		VPNConnection connection = busAvailable ? getForegroundConnection() : null;
 		DOMProcessor processor = new DOMProcessor(busAvailable ? context.getDBus().getVPN() : null, connection,
 				collections, lastErrorMessage, lastErrorCause, lastException, branding, pageBundle, resources,
 				webView.getEngine().getDocument().getDocumentElement(),
@@ -1661,7 +1563,7 @@ public class UI implements BusLifecycleListener {
 				} else {
 					reloadState(() -> {
 						maybeRunLater(() -> {
-							initUi(context.getDBus().getVPNConnection(connectionId));
+							initUi();
 						});
 					});
 				}
@@ -1674,12 +1576,11 @@ public class UI implements BusLifecycleListener {
 
 	private void addConnection() {
 		setHtmlPage("addLogonBoxVPN.html");
-		sidebar.setVisible(false);
 	}
 
 	private void configure(String usernameHint, String configIniFile, VPNConnection config) {
 		try {
-			LOG.info(String.format("Configuration for %s", usernameHint));
+			LOG.info(String.format("Configuration for %s on %s", usernameHint, config.getDisplayName()));
 			config.setUsernameHint(usernameHint);
 			String error = config.parse(configIniFile);
 			if (StringUtils.isNotBlank(error))
@@ -1691,6 +1592,10 @@ public class UI implements BusLifecycleListener {
 		} catch (Exception e) {
 			showError("Failed to configure connection.", e);
 		}
+	}
+	
+	private void setAsFavourite(VPNConnection sel) {
+		sel.setAsFavourite();
 	}
 
 	private boolean confirmDelete(VPNConnection sel) {
@@ -1709,7 +1614,7 @@ public class UI implements BusLifecycleListener {
 					doDisconnect(sel);
 				} else {
 					doDelete(sel);
-					initUi(sel);
+					initUi();
 				}
 			} catch (Exception e) {
 				log.error("Failed to delete connection.", e);
@@ -1733,9 +1638,9 @@ public class UI implements BusLifecycleListener {
 		 */
 
 //		mode = context.getDBus().isBusAvailable() && context.getDBus().getVPN().isUpdating() ? UIState.UPDATE : UIState.NORMAL;
-		VPNConnection selectedConnection = getSelectedConnection();
+		VPNConnection favouriteConnection = getFavouriteConnection();
 		if (Client.allowBranding) {
-			branding = getBranding(selectedConnection);
+			branding = getBranding(favouriteConnection);
 		}
 		File splashFile = getCustomSplashFile();
 		if (branding == null) {
@@ -1762,7 +1667,7 @@ public class UI implements BusLifecycleListener {
 
 			/* Create logo file */
 			if (StringUtils.isNotBlank(logo)) {
-				File newLogoFile = getCustomLogoFile(selectedConnection);
+				File newLogoFile = getCustomLogoFile(favouriteConnection);
 				try {
 					if (!newLogoFile.exists()) {
 						log.info(String.format("Attempting to cache logo"));
@@ -1863,8 +1768,7 @@ public class UI implements BusLifecycleListener {
 	}
 
 	private void editConnection(VPNConnection connection) {
-		setHtmlPage("editConnection.html");
-		sidebar.setVisible(false);
+		setHtmlPage("editConnection.html#" + connection.getId());
 	}
 
 	@FXML
@@ -1961,14 +1865,6 @@ public class UI implements BusLifecycleListener {
 		options();
 	}
 
-	@FXML
-	private void evtToggleSidebar() {
-		sidebar.setVisible(!sidebar.isVisible());
-		if (sidebar.isVisible()) {
-			connections.requestFocus();
-		}
-	}
-
 	private void giveUpWaitingForBridgeEstablish() {
 		LOG.info("Given up waiting for bridge to start");
 		resetAwaingBridgeEstablish();
@@ -1976,10 +1872,9 @@ public class UI implements BusLifecycleListener {
 		selectPageForState(false, false);
 	}
 
-	private void initUi(VPNConnection connection) {
+	private void initUi() {
 		log.info("Rebuilding URIs");
 		try {
-			rebuildConnections(connection);
 		} catch (Exception e) {
 			log.error("Failed to load connections.", e);
 		}
@@ -1987,34 +1882,8 @@ public class UI implements BusLifecycleListener {
 		reapplyLogo();
 	}
 
-	private void rebuildConnections(final VPNConnection sel) {
-		connections.getItems().clear();
-		List<VPNConnection> connectionList = context.getDBus().isBusAvailable() ? context.getDBus().getVPNConnections()
-				: Collections.emptyList();
-		VPNConnection connected = null;
-		VPNConnection connecting = null;
-		for (VPNConnection s : connectionList) {
-			connections.getItems().add(s);
-			Type status = Type.valueOf(s.getStatus());
-			if (connected == null && status == Type.CONNECTED) {
-				connected = s;
-			}
-			if (connecting == null && status == Type.CONNECTING) {
-				connecting = s;
-			}
-		}
-		if (sel != null && connections.getItems().contains(sel))
-			connections.getSelectionModel().select(sel);
-		else if (connections.getSelectionModel().isEmpty() && !connections.getItems().isEmpty()) {
-			/* Prefer connected connection */
-			if (connected == null) {
-				if (connecting == null)
-					connections.getSelectionModel().select(connections.getItems().get(0));
-				else
-					connections.getSelectionModel().select(connecting);
-			} else
-				connections.getSelectionModel().select(connected);
-		}
+	private List<VPNConnection> getAllConnections() {
+		return context.getDBus().isBusAvailable() ? context.getDBus().getVPNConnections() : Collections.emptyList();
 	}
 
 	private void resetAwaingBridgeEstablish() {
@@ -2067,101 +1936,40 @@ public class UI implements BusLifecycleListener {
 					setHtmlPage("index.html");
 				} else {
 
-					if (isNewUI()) {
-						/* Are ANY connections authorizing? */
-						VPNConnection connection = getAuthorizingConnection();
-						if(connection != null) {
-							Mode mode = Mode.valueOf(connection.getMode());
-							if (mode == Mode.SERVICE) {
-								log.info("Authorizing service");
-								setHtmlPage("authorize.html");
-							} else {
-								String authUrl = connection.getAuthorizeUri();
-								log.info(String.format("Authorizing to %s", authUrl));
-								setHtmlPage(authUrl);
-							}
-
-							/* Done */
-							return;
-						}
-						if (getConnectingConnection() == null && busAvailable && updateService.isUpdatesEnabled() && updateService.isNeedsUpdating()) {
-							// An update is available
-							log.warn(String.format("Update is available"));
-							setHtmlPage("updateAvailable.html");
+					/* Are ANY connections authorizing? */
+					VPNConnection connection = getAuthorizingConnection();
+					if(connection != null) {
+						Mode mode = Mode.valueOf(connection.getMode());
+						if (mode == Mode.SERVICE) {
+							log.info("Authorizing service");
+							setHtmlPage("authorize.html");
 						} else {
-							/* Otherwise connections page */
-							if(context.getDBus().getVPNConnections().isEmpty()) {
-								if (Main.getInstance().isNoAddWhenNoConnections()) {
-									if (Main.getInstance().isConnect()
-											|| StringUtils.isNotBlank(Main.getInstance().getUri()))
-										setHtmlPage("busy.html");
-									else
-										setHtmlPage("connections.html");
-								} else
-									setHtmlPage("addLogonBoxVPN.html");
-							}
-							else {
-								setHtmlPage("connections.html");
-							}
+							String authUrl = connection.getAuthorizeUri();
+							log.info(String.format("Authorizing to %s", authUrl));
+							setHtmlPage(authUrl);
 						}
+
+						/* Done */
+						return;
+					}
+					if (getConnectingConnection() == null && busAvailable && updateService.isUpdatesEnabled() && updateService.isNeedsUpdating()) {
+						// An update is available
+						log.warn(String.format("Update is available"));
+						setHtmlPage("updateAvailable.html");
 					} else {
-
-						VPNConnection sel = getSelectedConnection();
-
-						/* The bridge is connected */
-						if (sel == null) {
+						/* Otherwise connections page */
+						if(context.getDBus().getVPNConnections().isEmpty()) {
 							if (Main.getInstance().isNoAddWhenNoConnections()) {
 								if (Main.getInstance().isConnect()
 										|| StringUtils.isNotBlank(Main.getInstance().getUri()))
 									setHtmlPage("busy.html");
 								else
-									setHtmlPage("connected.html");
+									setHtmlPage("connections.html");
 							} else
 								setHtmlPage("addLogonBoxVPN.html");
-						} else {
-
-							Type status = Type.valueOf(sel.getStatus());
-							if (connectIfDisconnected && status != Type.DISCONNECTED
-									&& status != Type.TEMPORARILY_OFFLINE && !sel.isAuthorized()) {
-								log.info(String.format("Not authorized, requesting authorize"));
-								authorize(sel);
-							} else if (status == Type.AUTHORIZING) {
-								Mode mode = Mode.valueOf(sel.getMode());
-								if (mode == Mode.SERVICE) {
-									log.info("Authorizing service");
-									setHtmlPage("authorize.html");
-								} else {
-									String authUrl = sel.getAuthorizeUri();
-									log.info(String.format("Authorizing to %s", authUrl));
-									setHtmlPage(authUrl);
-								}
-							} else {
-								if (busAvailable && updateService.isUpdatesEnabled() && updateService.isNeedsUpdating()) {
-									// An update is available
-									log.warn(String.format("Update is available"));
-									setHtmlPage("updateAvailable.html");
-								} else {
-									if (status == Type.CONNECTING || status == Type.AUTHORIZING) {
-										/* We have a connection, a peer configuration and are connected! */
-										log.info(String.format("Joining"));
-										setHtmlPage("joining.html");
-									} else if (status == Type.TEMPORARILY_OFFLINE) {
-										/* We are connected, but the server (peer) appears offline */
-										log.info(String.format("Temporarily Offline"));
-										setHtmlPage("temporarilyOffline.html");
-									} else if (status == Type.CONNECTED) {
-										/* We have a connection, a peer configuration and are connected! */
-										log.info(String.format("Ready, so showing join UI"));
-										setHtmlPage("joined.html");
-									} else if (status == Type.DISCONNECTING) {
-										log.info(String.format("Disconnecting, so showing leaving UI"));
-										setHtmlPage("leaving.html");
-									} else {
-										log.info("Disconnected, so showing join UI");
-										setHtmlPage("join.html");
-									}
-								}
-							}
+						}
+						else {
+							setHtmlPage("connections.html");
 						}
 					}
 				}
@@ -2274,10 +2082,6 @@ public class UI implements BusLifecycleListener {
 		selectPageForState(false, true);
 	}
 
-	static boolean isNewUI() {
-		return "true".equals(System.getProperty("logonbox.vpn.newUI", "true"));
-	}
-
 	public static void maybeRunLater(Runnable r) {
 		if (Platform.isFxApplicationThread())
 			r.run();
@@ -2362,7 +2166,7 @@ public class UI implements BusLifecycleListener {
 			myJSBridge.pageReloading();
 		// load the web page
 		webView.getEngine().load(url);
-		log.info("Loaded " + url + ". " + webView.getEngine().getHistory().getEntries());
+		log.info("Loaded " + url);
 	}
 
 	private void instrumentHtml(Element documentElement) {

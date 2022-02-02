@@ -86,7 +86,6 @@ public class DOMProcessor {
 		replacements.put("exception", exceptionText);
 		String version = HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx");
 		replacements.put("clientVersion", version);
-		replacements.put("newUI", String.valueOf(UI.isNewUI()));
 		replacements.put("snapshot", String.valueOf(version.indexOf("-SNAPSHOT") != -1));
 		replacements.put("brand",
 				MessageFormat.format(resources.getString("brand"),

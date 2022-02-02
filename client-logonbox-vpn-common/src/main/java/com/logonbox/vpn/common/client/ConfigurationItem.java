@@ -11,24 +11,36 @@ import java.util.Set;
 import org.apache.log4j.Level;
 
 public class ConfigurationItem<T> {
+	
+	public enum Scope {
+		GLOBAL, USER
+	}
 
 	public final static ConfigurationItem<Level> LOG_LEVEL = add("logLevel", Level.class, Level.WARN, Level.ALL, Level.TRACE, Level.DEBUG, Level.WARN, Level.INFO, Level.ERROR, Level.FATAL, Level.OFF);
 	public final static ConfigurationItem<Boolean> IGNORE_LOCAL_ROUTES = add("ignoreLocalRoutes", Boolean.class, true, true, false);
 	public final static ConfigurationItem<DNSIntegrationMethod> DNS_INTEGRATION_METHOD = add("dnsIntegrationMethod", DNSIntegrationMethod.class, DNSIntegrationMethod.AUTO, DNSIntegrationMethod.values());
-	public final static ConfigurationItem<Boolean> AUTOMATIC_UPDATES = add("automaticUpdates", Boolean.class, true, true, false);
+	public final static ConfigurationItem<Boolean> AUTOMATIC_UPDATES = add("automaticUpdates", Boolean.class, Scope.USER, true, true, false);
 	public final static ConfigurationItem<String> PHASE = add("phase", String.class, "stable", "stable", "ea", "nightly");
-	public final static ConfigurationItem<Long> DEFER_UPDATE_UNTIL = add("deferUpdatesUntil", Long.class, 0l);
+	public final static ConfigurationItem<Long> DEFER_UPDATE_UNTIL = add("deferUpdatesUntil", Long.class, Scope.USER, 0l);
 	public final static ConfigurationItem<Integer> RECONNECT_DELAY = add("reconnectDelay", Integer.class, 5);
+	public final static ConfigurationItem<Long> FAVOURITE = add("favourite", Long.class, Scope.USER, 0l);
 	
 	private final String key;
-	private Class<?> type;
-	private T defaultValue;
-	private Set<T> values;
+	private final Class<?> type;
+	private final T defaultValue;
+	private final Set<T> values;
+	private final Scope scope;
 	
 	private static Map<String, ConfigurationItem<?>> items;
+
 	
 	private ConfigurationItem(String key, Class<T> type, T defaultValue, @SuppressWarnings("unchecked") T... values) {
+		this(key, type, Scope.GLOBAL, defaultValue, values);	
+	}
+	
+	private ConfigurationItem(String key, Class<T> type, Scope scope, T defaultValue, @SuppressWarnings("unchecked") T... values) {
 		this.key = key;
+		this.scope = scope;
 		this.type = type;
 		this.defaultValue = defaultValue;
 		this.values = new LinkedHashSet<>(Arrays.asList(values));
@@ -41,7 +53,11 @@ public class ConfigurationItem<T> {
 	}
 	
 	public static <T> ConfigurationItem<T> add(String key, Class<T> type, T defaultValue, @SuppressWarnings("unchecked") T... values) {
-		ConfigurationItem<T> item = new ConfigurationItem<>(key, type, defaultValue, values);
+		return add(key, type, Scope.GLOBAL, defaultValue, values);
+	}
+	
+	public static <T> ConfigurationItem<T> add(String key, Class<T> type, Scope scope, T defaultValue, @SuppressWarnings("unchecked") T... values) {
+		ConfigurationItem<T> item = new ConfigurationItem<>(key, type, scope, defaultValue, values);
 		add(item);
 		return item;
 	}
@@ -63,6 +79,10 @@ public class ConfigurationItem<T> {
 	
 	public static Collection<String> keys() {
 		return items.keySet();
+	}
+
+	public Scope getScope() {
+		return scope;
 	}
 
 	public String getKey() {

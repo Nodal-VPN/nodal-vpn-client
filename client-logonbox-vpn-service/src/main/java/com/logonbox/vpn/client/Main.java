@@ -76,7 +76,6 @@ import com.logonbox.vpn.client.wireguard.linux.LinuxPlatformServiceImpl;
 import com.logonbox.vpn.client.wireguard.osx.BrewOSXPlatformServiceImpl;
 import com.logonbox.vpn.client.wireguard.windows.WindowsPlatformServiceImpl;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
-import com.logonbox.vpn.common.client.ClientTrustProvider;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.ConnectionRepository;
@@ -221,7 +220,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 			 * Have database, so enough to get configuration for log level, we can start
 			 * logging now
 			 */
-			Level cfgLevel = configurationRepository.getValue(ConfigurationItem.LOG_LEVEL);
+			Level cfgLevel = configurationRepository.getValue(null, ConfigurationItem.LOG_LEVEL);
 			defaultLogLevel = org.apache.log4j.Logger.getRootLogger().getLevel();
 			if (cfgLevel != null) {
 				org.apache.log4j.Logger.getRootLogger().setLevel(cfgLevel);

@@ -161,7 +161,7 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 	public String getValue(String name) {
 		assertRegistered();
 		ConfigurationItem<?> item = ConfigurationItem.get(name);
-		Object val = ctx.getClientService().getValue(item); 
+		Object val = ctx.getClientService().getValue(getOwner(), item); 
 		return val.toString();
 	}
 
@@ -169,47 +169,47 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 	@Override
 	public void setValue(String name, String value) {
 		assertRegistered();
-		ctx.getClientService().setValue((ConfigurationItem<String>)ConfigurationItem.get(name), value);
+		ctx.getClientService().setValue(getOwner(), (ConfigurationItem<String>)ConfigurationItem.get(name), value);
 
 	}
 
 	@Override
 	public int getIntValue(String key) {
 		assertRegistered();
-		return (Integer)ctx.getClientService().getValue(ConfigurationItem.get(key));
+		return (Integer)ctx.getClientService().getValue(getOwner(), ConfigurationItem.get(key));
 	}
 
 	@Override
 	public long getLongValue(String key) {
 		assertRegistered();
-		return (Long)ctx.getClientService().getValue(ConfigurationItem.get(key));
+		return (Long)ctx.getClientService().getValue(getOwner(), ConfigurationItem.get(key));
 	}
 
 	@Override
 	public boolean getBooleanValue(String key) {
 		assertRegistered();
-		return (Boolean)ctx.getClientService().getValue(ConfigurationItem.get(key));
+		return (Boolean)ctx.getClientService().getValue(getOwner(), ConfigurationItem.get(key));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setIntValue(String key, int value) {
 		assertRegistered();
-		ctx.getClientService().setValue((ConfigurationItem<Integer>)ConfigurationItem.get(key), value);
+		ctx.getClientService().setValue(getOwner(), (ConfigurationItem<Integer>)ConfigurationItem.get(key), value);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setLongValue(String key, long value) {
 		assertRegistered();
-		ctx.getClientService().setValue((ConfigurationItem<Long>)ConfigurationItem.get(key), value);
+		ctx.getClientService().setValue(getOwner(), (ConfigurationItem<Long>)ConfigurationItem.get(key), value);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setBooleanValue(String key, boolean value) {
 		assertRegistered();
-		ctx.getClientService().setValue((ConfigurationItem<Boolean>)ConfigurationItem.get(key), value);		
+		ctx.getClientService().setValue(getOwner(), (ConfigurationItem<Boolean>)ConfigurationItem.get(key), value);		
 	}
 
 	@Override

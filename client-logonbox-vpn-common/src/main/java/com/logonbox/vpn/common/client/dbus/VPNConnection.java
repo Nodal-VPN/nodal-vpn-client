@@ -79,6 +79,10 @@ public interface VPNConnection extends DBusInterface {
 	boolean isAuthorized();
 
 	boolean isShared();
+
+	boolean isFavourite();
+
+	void setAsFavourite();
 	
 	String getOwner();
 	
