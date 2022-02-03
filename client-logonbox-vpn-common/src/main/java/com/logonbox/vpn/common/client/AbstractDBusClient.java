@@ -1,6 +1,7 @@
 package com.logonbox.vpn.common.client;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -10,14 +11,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.freedesktop.dbus.DBusMatchRule;
+import org.freedesktop.dbus.connections.IDisconnectCallback;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnection.DBusBusType;
 import org.freedesktop.dbus.errors.ServiceUnknown;
 import org.freedesktop.dbus.errors.UnknownObject;
 import org.freedesktop.dbus.exceptions.DBusException;
-import org.freedesktop.dbus.interfaces.DBusSigHandler;
-import org.freedesktop.dbus.interfaces.Local;
+//import org.freedesktop.dbus.interfaces.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -211,13 +211,11 @@ public abstract class AbstractDBusClient implements DBusClient {
 			getLog().info("Already have bus connection.");
 		}
 
-		conn.addSigHandler(new DBusMatchRule((String) null, "org.freedesktop.DBus.Local", "Disconnected"),
-				new DBusSigHandler<Local.Disconnected>() {
-					@Override
-					public void handle(Local.Disconnected sig) {
-						busGone();
-					}
-				});
+		conn.setDisconnectCallback(new IDisconnectCallback() {
+		    public void disconnectOnError(IOException _ex) {
+				busGone();
+		    }
+		});
 
 		/* Load the VPN object */
 		loadRemote();

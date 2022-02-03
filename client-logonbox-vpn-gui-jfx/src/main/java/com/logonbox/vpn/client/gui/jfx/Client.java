@@ -16,6 +16,8 @@ import java.net.CookieStore;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.UUID;
@@ -23,6 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -748,20 +751,40 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		String url = toUri(tmpFile).toExternalForm();
 		if (log.isDebugEnabled())
 			log.debug(String.format("Writing local web style sheet to %s", url));
-		String cbg = branding == null ? BrandingInfo.DEFAULT_BACKGROUND : branding.getResource().getBackground();
-		String cfg = branding == null ? BrandingInfo.DEFAULT_FOREGROUND : branding.getResource().getForeground();
-		String cac = toHex(Color.valueOf(cbg).deriveColor(0, 1, 0.85, 1));
-		String cac2 = toHex(Color.valueOf(cbg).deriveColor(0, 1, 1.15, 1));
-		String baseStr = toHex(getBase());
+		String bgStr = branding == null ? BrandingInfo.DEFAULT_BACKGROUND : branding.getResource().getBackground();
+		String fgStr = branding == null ? BrandingInfo.DEFAULT_FOREGROUND : branding.getResource().getForeground();
+		Color fgColor = Color.valueOf(fgStr);
+		Color bgColor = Color.valueOf(bgStr);
+		Color baseColor = getBase();
+		Color linkColor;
+
+		if(contrast(baseColor, bgColor) < 3) {
+			/* Brightness is similar, use foreground as basic of link color */
+			var b3 = fgColor.getBrightness();
+			if(b3 > 0.5)
+				linkColor = fgColor.deriveColor(0, 0, 0.75, 1.0);
+			else
+				linkColor = fgColor.deriveColor(0, 0, 1.25, 1.0);
+		}
+		else {
+			/* Brightness is dissimilar, use foreground as basic of link color */
+			linkColor = bgColor;
+		}
+		
+		String accent1Str = toHex(bgColor.deriveColor(0, 1, 0.85, 1));
+		String accent2Str = toHex(bgColor.deriveColor(0, 1, 1.15, 1));
+		String baseStr = toHex(baseColor);
 		String baseInverseStr = toHex(getBaseInverse());
+		String linkStr = toHex(linkColor);
 		String baseInverseRgbStr = toRgba(getBaseInverse(), 0.05f);
 		try (PrintWriter output = new PrintWriter(new FileWriter(tmpFile))) {
 			try (InputStream input = UI.class.getResource("local.css").openStream()) {
 				for (String line : IOUtils.readLines(input, "UTF-8")) {
-					line = line.replace("${lbvpnBackground}", cbg);
-					line = line.replace("${lbvpnForeground}", cfg);
-					line = line.replace("${lbvpnAccent}", cac);
-					line = line.replace("${lbvpnAccent2}", cac2);
+					line = line.replace("${lbvpnBackground}", bgStr);
+					line = line.replace("${lbvpnForeground}", fgStr);
+					line = line.replace("${lbvpnAccent}", accent1Str);
+					line = line.replace("${lbvpnAccent2}", accent2Str);
+					line = line.replace("${lbvpnLink}", linkStr);
 					line = line.replace("${lbvpnBase}", baseStr);
 					line = line.replace("${lbvpnBaseInverse}", baseInverseStr);
 					line = line.replace("${lbvpnBaseInverseRgb}", baseInverseRgbStr);
@@ -786,5 +809,18 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		// TODO Auto-generated method stub
 		log.info("Got Wake event.");
 		ui.refresh();
+	}
+
+	static double lum(Color c) {
+		List<Double> a = Arrays.asList(c.getRed(), c.getGreen(), c.getBlue()).stream()
+				.map(v -> v <= 0.03925 ? v / 12.92f : Math.pow((v + 0.055f) / 1.055f, 2.4f)).collect(Collectors.toList());
+		return a.get(0) * 0.2126 + a.get(1) * 0.7152 + a.get(2) * 0.0722;
+	}
+	
+	static double contrast(Color c1, Color c2) {
+		var brightest = Math.max(lum(c1), lum(c2));
+	    var darkest = Math.min(lum(c1), lum(c2));
+	    return (brightest + 0.05f)
+	         / (darkest + 0.05f);
 	}
 }

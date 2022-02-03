@@ -34,13 +34,13 @@
 }
 
 a:focus, a:hover {
-    color: ${lbvpnBackground} !important;
+    color: ${lbvpnLink} !important;
     text-decoration: underline !important;
-    cursor: pointer; 
+    cursor: pointer;  
 }
 
 a {
-    color: ${lbvpnBackground} !important;
+    color: ${lbvpnLink} !important;
     text-decoration: none !important;
 }
 

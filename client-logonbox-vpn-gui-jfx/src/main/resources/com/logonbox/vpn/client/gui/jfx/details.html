@@ -15,22 +15,13 @@
 		<div id="main" class="clear-top container-fluid">
 
 			<div class="tools mt-1" style="position: absolute; right: 1em;">
-				<div class="row">
-                    <div class="col">
-                        <a id="favourite" href="#" class="mr-3"><i class="fa fa-star fa-2x"></i></a>
-                    </div>
-					<div class="col">
-						<a id="edit" href="#" class="mr-3"><i class="fa fa-cog fa-2x"></i></a>
-					</div>
-					<div class="col">
-						<a id="delete" href="#" class="mr-3"><i class="fa fa-trash fa-2x"></i></a>
-					</div>
-					<div class="col">
-						<div class="form-check form-switch mr-3">
-							<input class="connect form-check-input" type="checkbox" />
-						</div>
-					</div>
-				</div>
+	            <a id="favourite" href="#" class="pr-1"><i class="fa fa-star fa-2x"></i></a>
+				<a id="edit" href="#" class="pr-1" data-attr-i18n-title="edit"><i class="fa fa-cog fa-2x"></i></a>
+				<a id="delete" href="#" class="pr-3" data-attr-i18n-title="delete"><i class="fa fa-trash fa-2x"></i></a>
+				&nbsp;
+				<span id="connectContainer" class="form-check form-switch d-inline-block">
+					<input class="connect form-check-input" type="checkbox" />
+				</span>
 			</div>
 
 			<nav>
@@ -169,11 +160,14 @@
 			var con = bridge.getConnection();
 			var status = con.getStatus();
 			cbEl.attr('checked', status === 'CONNECTED' || status === 'CONNECTING');
+		    $('#connectContainer').attr('title', status === 'CONNECTED' || status === 'CONNECTING' ? pageBundle.getString('connected') : pageBundle.getString('disconnected'));
 			cbEl.off('change').on('change', function(e) {
 				if (this.checked) {
 					bridge.connectTo(con.getId());
+		            $('#connectContainer').attr('title', pageBundle.getString('connected'));
 				} else {
 					bridge.disconnectFrom(con.getId());
+                    $('#connectContainer').attr('title', pageBundle.getString('disconnected'));
 				}
                 e.preventDefault();
 			});
@@ -181,11 +175,13 @@
 			/* Favourite */
 			if(con.isFavourite()) {
 			    $('#favourite').empty();
+                $('#favourite').attr('title', pageBundle.getString('favourite'));
                 $('#favourite').append($('<i class="fa fa-star fa-2x">'));
 			}
 			else {
                 $('#favourite').empty();
                 $('#favourite').append($('<i class="fa fa-star-o fa-2x">'));
+                $('#favourite').attr('title', pageBundle.getString('makeFavourite'));
                 $('#favourite').off('click').on('click', function(e) {
                     bridge.setAsFavourite(bridge.getConnection().getId());
                     e.preventDefault();

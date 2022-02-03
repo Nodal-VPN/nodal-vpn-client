@@ -52,12 +52,12 @@ import org.apache.log4j.Level;
 import org.apache.log4j.PropertyConfigurator;
 import org.freedesktop.dbus.bin.EmbeddedDBusDaemon;
 import org.freedesktop.dbus.connections.BusAddress;
+import org.freedesktop.dbus.connections.IDisconnectCallback;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnection.DBusBusType;
 import org.freedesktop.dbus.connections.transports.TransportBuilder;
 import org.freedesktop.dbus.connections.transports.TransportBuilder.SaslAuthMode;
 import org.freedesktop.dbus.exceptions.DBusException;
-import org.freedesktop.dbus.interfaces.DBusSigHandler;
 import org.freedesktop.dbus.messages.Message;
 import org.freedesktop.dbus.utils.Util;
 import org.slf4j.Logger;
@@ -514,27 +514,40 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 			properties.store(out, "LogonBox VPN Client Service");
 		}
 
-		conn.addSigHandler(org.freedesktop.dbus.interfaces.Local.Disconnected.class,
-				new DBusSigHandler<org.freedesktop.dbus.interfaces.Local.Disconnected>() {
-
-					@Override
-					public void handle(org.freedesktop.dbus.interfaces.Local.Disconnected sig) {
-						try {
-							conn.removeSigHandler(org.freedesktop.dbus.interfaces.Local.Disconnected.class, this);
-						} catch (DBusException e1) {
-						}
-						log.info("Disconnected from Bus, retrying");
-						conn = null;
-						connTask = queue.schedule(() -> {
-							try {
-								connect();
-								publishDefaultServices();
-							} catch (DBusException | IOException e) {
-							}
-						}, 10, TimeUnit.SECONDS);
-
+		conn.setDisconnectCallback(new IDisconnectCallback() {
+		    public void disconnectOnError(IOException _ex) {
+				log.info("Disconnected from Bus, retrying");
+				conn = null;
+				connTask = queue.schedule(() -> {
+					try {
+						connect();
+						publishDefaultServices();
+					} catch (DBusException | IOException e) {
 					}
-				});
+				}, 10, TimeUnit.SECONDS);
+		    }
+		});
+//		conn.addSigHandler(org.freedesktop.dbus.interfaces.Local.Disconnected.class,
+//				new DBusSigHandler<org.freedesktop.dbus.interfaces.Local.Disconnected>() {
+//
+//					@Override
+//					public void handle(org.freedesktop.dbus.interfaces.Local.Disconnected sig) {
+//						try {
+//							conn.removeSigHandler(org.freedesktop.dbus.interfaces.Local.Disconnected.class, this);
+//						} catch (DBusException e1) {
+//						}
+//						log.info("Disconnected from Bus, retrying");
+//						conn = null;
+//						connTask = queue.schedule(() -> {
+//							try {
+//								connect();
+//								publishDefaultServices();
+//							} catch (DBusException | IOException e) {
+//							}
+//						}, 10, TimeUnit.SECONDS);
+//
+//					}
+//				});
 
 		try {
 			conn.requestBusName("com.logonbox.vpn");

@@ -51,6 +51,7 @@ import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.DBusSigHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -85,16 +86,15 @@ import com.logonbox.vpn.common.client.dbus.VPN;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
 import com.sshtools.twoslices.Toast;
 import com.sshtools.twoslices.ToastType;
-import com.sshtools.twoslices.Toaster;
 import com.sshtools.twoslices.ToasterFactory;
 import com.sshtools.twoslices.ToasterSettings;
 import com.sshtools.twoslices.ToasterSettings.SystemTrayIconMode;
-import com.sshtools.twoslices.impl.OsXToaster;
 //import com.sun.javafx.util.Utils;
 import com.vladsch.javafx.webview.debugger.DevToolsDebuggerJsBridge;
 import com.vladsch.javafx.webview.debugger.JfxScriptStateProvider;
 
 import javafx.animation.KeyFrame;
+import javafx.animation.RotateTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -110,6 +110,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -420,14 +421,14 @@ public class UI implements BusLifecycleListener {
 		settings.setAppName(bundle.getString("appName"));
 		settings.setSystemTrayIconMode(SystemTrayIconMode.HIDDEN);
 		ToasterFactory.setSettings(settings);
-		if (SystemUtils.IS_OS_MAC_OSX) {
-			ToasterFactory.setFactory(new ToasterFactory() {
-				@Override
-				public Toaster toaster() {
-					return new OsXToaster(settings);
-				}
-			});
-		}
+//		if (SystemUtils.IS_OS_MAC_OSX) {
+//			ToasterFactory.setFactory(new ToasterFactory() {
+//				@Override
+//				public Toaster toaster() {
+//					return new OsXToaster(settings);
+//				}
+//			});
+//		}
 	}
 
 	static int DROP_SHADOW_SIZE = 11;
@@ -472,6 +473,10 @@ public class UI implements BusLifecycleListener {
 	@FXML
 	private WebView webView;
 	@FXML
+	private AnchorPane loading;
+	@FXML
+	private FontIcon loadingSpinner;
+	@FXML
 	private ImageView titleBarImageView;
 	@FXML
 	private Hyperlink close;
@@ -505,6 +510,7 @@ public class UI implements BusLifecycleListener {
 	protected ResourceBundle resources;
 	protected URL location;
 	protected Scene scene;
+	private RotateTransition loadingRotation;
 
 	public final void initialize(URL location, ResourceBundle resources) {
 		this.location = location;
@@ -1041,6 +1047,7 @@ public class UI implements BusLifecycleListener {
 
 				processDOM();
 				processJavascript();
+				setLoading(false);
 				if (runOnNextLoad != null) {
 					try {
 						runOnNextLoad.run();
@@ -2158,8 +2165,24 @@ public class UI implements BusLifecycleListener {
 			LOG.info("Chrome Dev Tools disconnected");
 		}
 	}
+	
+	private void setLoading(boolean loading) {
+		if(this.loading.isVisible() != loading) {
+			if(loading) {
+				loadingRotation = new RotateTransition(Duration.millis(1000), loadingSpinner);
+				loadingRotation.setByAngle(360);
+				loadingRotation.setCycleCount(RotateTransition.INDEFINITE);
+				loadingRotation.play();
+			}
+			else if(loadingRotation != null) {
+				loadingRotation.stop();
+			}
+			this.loading.setVisible(loading);
+		}
+	}
 
 	private void load(final String url) {
+		setLoading(true);
 		LOG.info(String.format("Loading page %s", htmlPage));
 		// let it know that we are reloading the page, not chrome dev tools
 		if (myJSBridge != null)

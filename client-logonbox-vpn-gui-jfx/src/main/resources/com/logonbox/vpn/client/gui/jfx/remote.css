@@ -13,9 +13,10 @@ footer {
 	display: none !important;
 }
 
-
-
-
+.card {
+	background-color: transparent !important;
+    border: none !important;
+}
 
  body, html {
     background-color: ${lbvpnBase} !important;

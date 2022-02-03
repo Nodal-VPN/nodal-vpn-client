@@ -9,7 +9,7 @@
       <variable name="build.phase" value="nightly" />
     </variables>
     <codeSigning macEnabled="true" macPkcs12File="logonbox-developer-id.p12" windowsEnabled="true" windowsPkcs12File="logonbox.p12" macNotarize="true" appleId="brett@logonbox.com" />
-    <jreBundles jdkProviderId="AdoptOpenJDK" release="17/jdk-17.0.1+12" />
+    <jreBundles jdkProviderId="AdoptOpenJDK-OpenJ9" release="17/jdk-17.0.2+8_openj9-0.30.0" />
   </application>
   <files keepModificationTimes="true" globalExcludeSuffixes="*.ser" defaultOverwriteMode="1" defaultUninstallMode="2" preserveSymlinks="false">
     <roots>
@@ -122,6 +122,8 @@
         </classPath>
       </java>
       <macStaticAssociationActions mode="selected" />
+      <infoPlist>&lt;key&gt;NSUserNotificationAlertStyle&lt;/key&gt;
+&lt;string&gt;alert&lt;/string&gt;</infoPlist>
       <iconImageFiles>
         <file path="./images/logo16px.png" />
         <file path="./images/logo32px.png" />
@@ -1698,7 +1700,7 @@ return true;</property>
         <entry rootId="2027" />
         <entry rootId="2036" />
       </exclude>
-      <jreBundle jdkProviderId="Adoptium" release="16/jdk-16.0.2+7" includedJre="macosx-amd64-1.8.0_121" />
+      <jreBundle jdkProviderId="AdoptOpenJDK-OpenJ9" release="16/jdk-16.0.1+9_openj9-0.26.0" overrideJdkRelease="true" includedJre="macosx-amd64-1.8.0_121" />
     </macosFolder>
     <windows name="Windows x64" id="1554" installDir="LogonBox\VPN Client">
       <exclude>
