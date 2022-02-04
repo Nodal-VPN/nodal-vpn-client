@@ -36,12 +36,6 @@
 			<groupId>com.logonbox</groupId>
 			<artifactId>client-logonbox-vpn-common</artifactId>
 			<version>${project.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.github.hypfvieh</groupId>
-					<artifactId>dbus-java</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>info.picocli</groupId>
@@ -105,8 +99,16 @@
 			<exclusions>
 				<exclusion>
 					<groupId>com.github.hypfvieh</groupId>
-					<artifactId>dbus-java</artifactId>
+					<artifactId>dbus-java-core</artifactId>
 				</exclusion>
+                <exclusion>
+                    <groupId>com.github.hypfvieh</groupId>
+                    <artifactId>dbus-java-transport-tcp</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.hypfvieh</groupId>
+                    <artifactId>dbus-java-transport-native-unixsocket</artifactId>
+                </exclusion>
 				<exclusion>
 					<groupId>com.github.hypfvieh</groupId>
 					<artifactId>

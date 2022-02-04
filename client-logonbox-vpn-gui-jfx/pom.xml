@@ -116,6 +116,12 @@
 			<groupId>com.sshtools</groupId>
 			<artifactId>two-slices</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.hypfvieh</groupId>
+                    <artifactId>dbus-java</artifactId>
+                </exclusion>
+            </exclusions>
 		</dependency>
         <dependency>
             <groupId>org.controlsfx</groupId>
