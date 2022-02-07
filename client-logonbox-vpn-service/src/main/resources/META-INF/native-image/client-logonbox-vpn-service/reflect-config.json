@@ -1,0 +1,1825 @@
+[
+{
+  "name":"[B"
+},
+{
+  "name":"[C"
+},
+{
+  "name":"[D"
+},
+{
+  "name":"[F"
+},
+{
+  "name":"[I"
+},
+{
+  "name":"[J"
+},
+{
+  "name":"[Ljava.lang.String;"
+},
+{
+  "name":"[Ljava.nio.file.CopyOption;"
+},
+{
+  "name":"[Ljavax.management.openmbean.CompositeData;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.AutoFlushEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.DeleteEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.DirtyCheckEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.EvictEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.FlushEntityEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.FlushEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.InitializeCollectionEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.LoadEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.LockEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.MergeEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.PersistEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.PostDeleteEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.PostInsertEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.PostLoadEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.PostUpdateEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.PreLoadEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.RefreshEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.ReplicateEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.ResolveNaturalIdEventListener;"
+},
+{
+  "name":"[Lorg.hibernate.event.spi.SaveOrUpdateEventListener;"
+},
+{
+  "name":"[S"
+},
+{
+  "name":"[Z"
+},
+{
+  "name":"com.logonbox.vpn.client.Main",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.Connection",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.Connection$Mode"
+},
+{
+  "name":"com.logonbox.vpn.common.client.ConnectionImpl",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }],
+  "queriedMethods":[
+    {"name":"equals","parameterTypes":["java.lang.Object"] }, 
+    {"name":"getId","parameterTypes":[] }, 
+    {"name":"setId","parameterTypes":["java.lang.Long"] }
+  ]
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPN",
+  "allDeclaredClasses":true,
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPN$Alert",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPN$ConnectionAdded",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPN$ConnectionAdding",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPN$ConnectionRemoved",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPN$ConnectionRemoving",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPN$ConnectionUpdated",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPN$ConnectionUpdating",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPN$Exit",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPN$GlobalConfigChange",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPNConnection",
+  "allDeclaredClasses":true,
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Authorize",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Connected",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Connecting",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Disconnected",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Disconnecting",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Failed",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$TemporarilyOffline",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.sun.management.GarbageCollectorMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"com.sun.management.GcInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"com.sun.management.HotSpotDiagnosticMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"com.sun.management.ThreadMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"com.sun.management.UnixOperatingSystemMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"com.sun.management.VMOption",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"com.sun.management.internal.GarbageCollectorExtImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.sun.management.internal.HotSpotDiagnostic",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.sun.management.internal.HotSpotThreadImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.sun.management.internal.OperatingSystemImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.sun.org.apache.xerces.internal.impl.dv.xs.ExtendedSchemaDVFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.org.apache.xerces.internal.impl.dv.xs.SchemaDVFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.xml.bind.v2.ContextFactory",
+  "methods":[{"name":"createContext","parameterTypes":["java.lang.Class[]","java.util.Map"] }]
+},
+{
+  "name":"com.sun.xml.bind.v2.model.nav.ReflectionNavigator",
+  "methods":[{"name":"getInstance","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.xml.bind.v2.runtime.property.ArrayElementLeafProperty",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.sun.xml.bind.v2.runtime.property.ArrayElementNodeProperty",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":["com.sun.xml.bind.v2.runtime.JAXBContextImpl","com.sun.xml.bind.v2.model.runtime.RuntimeElementPropertyInfo"] }]
+},
+{
+  "name":"com.sun.xml.bind.v2.runtime.property.ArrayReferenceNodeProperty",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.sun.xml.bind.v2.runtime.property.SingleElementLeafProperty",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.sun.xml.bind.v2.runtime.property.SingleElementNodeProperty",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":["com.sun.xml.bind.v2.runtime.JAXBContextImpl","com.sun.xml.bind.v2.model.runtime.RuntimeElementPropertyInfo"] }]
+},
+{
+  "name":"com.sun.xml.bind.v2.runtime.property.SingleMapNodeProperty",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.sun.xml.bind.v2.runtime.property.SingleReferenceNodeProperty",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"com.sun.xml.internal.stream.XMLInputFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.xml.internal.stream.events.XMLEventFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"java.beans.PropertyVetoException"
+},
+{
+  "name":"java.io.File",
+  "queriedMethods":[{"name":"toPath","parameterTypes":[] }]
+},
+{
+  "name":"java.io.Serializable",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"java.lang.Boolean",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Byte",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Character",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Class",
+  "queriedMethods":[
+    {"name":"getAnnotatedInterfaces","parameterTypes":[] }, 
+    {"name":"getAnnotatedSuperclass","parameterTypes":[] }, 
+    {"name":"getDeclaredMethod","parameterTypes":["java.lang.String","java.lang.Class[]"] }, 
+    {"name":"getMethod","parameterTypes":["java.lang.String","java.lang.Class[]"] }, 
+    {"name":"getNestHost","parameterTypes":[] }, 
+    {"name":"getNestMembers","parameterTypes":[] }, 
+    {"name":"isNestmateOf","parameterTypes":["java.lang.Class"] }
+  ]
+},
+{
+  "name":"java.lang.Deprecated",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.Double",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Float",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Integer",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Long",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Object",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"java.lang.Runtime",
+  "methods":[{"name":"version","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.Runtime$Version",
+  "methods":[{"name":"major","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.Short",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.StackTraceElement",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.String"
+},
+{
+  "name":"java.lang.Thread",
+  "methods":[{"name":"getContextClassLoader","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.ThreadLocal",
+  "methods":[{"name":"remove","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.Void",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.annotation.Annotation",
+  "methods":[{"name":"annotationType","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.invoke.MethodHandles",
+  "methods":[{"name":"privateLookupIn","parameterTypes":["java.lang.Class","java.lang.invoke.MethodHandles$Lookup"] }]
+},
+{
+  "name":"java.lang.invoke.MethodHandles$Lookup",
+  "methods":[
+    {"name":"defineClass","parameterTypes":["byte[]"] }, 
+    {"name":"lookupClass","parameterTypes":[] }, 
+    {"name":"lookupModes","parameterTypes":[] }
+  ]
+},
+{
+  "name":"java.lang.management.BufferPoolMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.ClassLoadingMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.CompilationMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.LockInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.ManagementPermission",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.management.MemoryMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.MemoryManagerMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.MemoryPoolMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.MemoryUsage",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.MonitorInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.PlatformLoggingMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.RuntimeMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.management.ThreadInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"java.lang.reflect.AnnotatedArrayType",
+  "queriedMethods":[{"name":"getAnnotatedGenericComponentType","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.reflect.AnnotatedParameterizedType",
+  "queriedMethods":[{"name":"getAnnotatedActualTypeArguments","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.reflect.AnnotatedType",
+  "queriedMethods":[{"name":"getType","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.reflect.Executable",
+  "methods":[
+    {"name":"getAnnotatedReceiverType","parameterTypes":[] }, 
+    {"name":"getParameterCount","parameterTypes":[] }, 
+    {"name":"getParameters","parameterTypes":[] }
+  ],
+  "queriedMethods":[
+    {"name":"getAnnotatedExceptionTypes","parameterTypes":[] }, 
+    {"name":"getAnnotatedParameterTypes","parameterTypes":[] }
+  ]
+},
+{
+  "name":"java.lang.reflect.Field",
+  "queriedMethods":[{"name":"getAnnotatedType","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.reflect.Method",
+  "queriedMethods":[{"name":"getAnnotatedReturnType","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.reflect.Parameter",
+  "methods":[{"name":"isNamePresent","parameterTypes":[] }],
+  "queriedMethods":[
+    {"name":"getModifiers","parameterTypes":[] }, 
+    {"name":"getName","parameterTypes":[] }
+  ]
+},
+{
+  "name":"java.math.BigDecimal"
+},
+{
+  "name":"java.math.BigInteger"
+},
+{
+  "name":"java.nio.Buffer"
+},
+{
+  "name":"java.nio.file.CopyOption"
+},
+{
+  "name":"java.nio.file.Files",
+  "queriedMethods":[{"name":"move","parameterTypes":["java.nio.file.Path","java.nio.file.Path","java.nio.file.CopyOption[]"] }]
+},
+{
+  "name":"java.nio.file.Path"
+},
+{
+  "name":"java.nio.file.Paths",
+  "queriedMethods":[{"name":"get","parameterTypes":["java.lang.String","java.lang.String[]"] }]
+},
+{
+  "name":"java.nio.file.StandardCopyOption"
+},
+{
+  "name":"java.security.SecureRandomParameters"
+},
+{
+  "name":"java.sql.Connection",
+  "methods":[{"name":"createClob","parameterTypes":[] }]
+},
+{
+  "name":"java.sql.Driver"
+},
+{
+  "name":"java.sql.DriverManager",
+  "queriedMethods":[
+    {"name":"getConnection","parameterTypes":["java.lang.String"] }, 
+    {"name":"getDriver","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"java.sql.Time",
+  "queriedMethods":[{"name":"<init>","parameterTypes":["long"] }]
+},
+{
+  "name":"java.sql.Timestamp",
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.time.Duration",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.Instant",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.LocalDate",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.LocalDateTime",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.LocalTime",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.MonthDay",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.OffsetDateTime",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.OffsetTime",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.Period",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.Year",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.YearMonth",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.ZoneId",
+  "queriedMethods":[{"name":"of","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.time.ZoneOffset",
+  "queriedMethods":[{"name":"of","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.time.ZonedDateTime",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.util.ArrayList",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"java.util.Date"
+},
+{
+  "name":"java.util.PropertyPermission",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
+},
+{
+  "name":"java.util.ServiceLoader",
+  "methods":[{"name":"stream","parameterTypes":[] }]
+},
+{
+  "name":"java.util.ServiceLoader$Provider",
+  "queriedMethods":[{"name":"type","parameterTypes":[] }]
+},
+{
+  "name":"java.util.logging.LogManager",
+  "methods":[{"name":"getLoggingMXBean","parameterTypes":[] }]
+},
+{
+  "name":"java.util.logging.LoggingMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"javax.crypto.SecretKey"
+},
+{
+  "name":"javax.management.MBeanOperationInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"javax.management.MBeanServerBuilder",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"javax.management.ObjectName"
+},
+{
+  "name":"javax.management.openmbean.CompositeData"
+},
+{
+  "name":"javax.management.openmbean.OpenMBeanOperationInfoSupport"
+},
+{
+  "name":"javax.management.openmbean.TabularData"
+},
+{
+  "name":"javax.naming.directory.InitialDirContext"
+},
+{
+  "name":"javax.sql.ConnectionPoolDataSource"
+},
+{
+  "name":"javax.sql.DataSource"
+},
+{
+  "name":"javax.sql.PooledConnection"
+},
+{
+  "name":"javax.sql.XAConnection"
+},
+{
+  "name":"javax.sql.XADataSource"
+},
+{
+  "name":"javax.transaction.xa.XAException"
+},
+{
+  "name":"javax.transaction.xa.XAResource"
+},
+{
+  "name":"javax.transaction.xa.Xid"
+},
+{
+  "name":"javax.xml.bind.annotation.XmlAccessorType",
+  "methods":[{"name":"value","parameterTypes":[] }]
+},
+{
+  "name":"javax.xml.bind.annotation.XmlElement",
+  "methods":[{"name":"type","parameterTypes":[] }]
+},
+{
+  "name":"javax.xml.bind.annotation.XmlElements",
+  "methods":[{"name":"value","parameterTypes":[] }]
+},
+{
+  "name":"javax.xml.bind.annotation.XmlEnum",
+  "methods":[{"name":"value","parameterTypes":[] }]
+},
+{
+  "name":"javax.xml.bind.annotation.XmlEnumValue",
+  "methods":[{"name":"value","parameterTypes":[] }]
+},
+{
+  "name":"javax.xml.bind.annotation.XmlType",
+  "methods":[{"name":"factoryClass","parameterTypes":[] }]
+},
+{
+  "name":"javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter",
+  "methods":[
+    {"name":"type","parameterTypes":[] }, 
+    {"name":"value","parameterTypes":[] }
+  ]
+},
+{
+  "name":"jdk.management.jfr.ConfigurationInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"jdk.management.jfr.EventTypeInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"jdk.management.jfr.FlightRecorderMXBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"jdk.management.jfr.FlightRecorderMXBeanImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"jdk.management.jfr.RecordingInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"jdk.management.jfr.SettingDescriptorInfo",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"net.bytebuddy.implementation.bind.annotation.AllArguments",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"includeSelf","parameterTypes":[] }, 
+    {"name":"value","parameterTypes":[] }
+  ]
+},
+{
+  "name":"net.bytebuddy.implementation.bind.annotation.Default",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"net.bytebuddy.implementation.bind.annotation.DefaultCall",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"net.bytebuddy.implementation.bind.annotation.DefaultMethod",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"net.bytebuddy.implementation.bind.annotation.FieldValue",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"declaringType","parameterTypes":[] }, 
+    {"name":"value","parameterTypes":[] }
+  ]
+},
+{
+  "name":"net.bytebuddy.implementation.bind.annotation.Origin",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"cache","parameterTypes":[] }, 
+    {"name":"privileged","parameterTypes":[] }
+  ]
+},
+{
+  "name":"net.bytebuddy.implementation.bind.annotation.StubValue",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"net.bytebuddy.implementation.bind.annotation.Super",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"net.bytebuddy.implementation.bind.annotation.This",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"optional","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.catalog.types.DefaultInfoImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.catalog.types.IndexDescriptorImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.catalog.types.ReferencedColumnsDescriptorImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.catalog.types.TypeDescriptorImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.catalog.types.TypesImplInstanceGetter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.catalog.types.UserDefinedTypeIdImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.client.ClientAutoloadedDriver"
+},
+{
+  "name":"org.apache.derby.database.Database"
+},
+{
+  "name":"org.apache.derby.exe.ac0963c106x017cxc14cx8fd0x000001a3ec280",
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"e10","parameterTypes":[] }, 
+    {"name":"e11","parameterTypes":[] }, 
+    {"name":"e12","parameterTypes":[] }, 
+    {"name":"e13","parameterTypes":[] }, 
+    {"name":"e14","parameterTypes":[] }
+  ]
+},
+{
+  "name":"org.apache.derby.exe.ac6a6b410ax017cxc14cx8fd0x000001a3ec280",
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"e10","parameterTypes":[] }, 
+    {"name":"e11","parameterTypes":[] }, 
+    {"name":"e12","parameterTypes":[] }, 
+    {"name":"e13","parameterTypes":[] }, 
+    {"name":"e14","parameterTypes":[] }, 
+    {"name":"e15","parameterTypes":[] }, 
+    {"name":"e16","parameterTypes":[] }, 
+    {"name":"e17","parameterTypes":[] }
+  ]
+},
+{
+  "name":"org.apache.derby.exe.ac80220011x017exd389xb3c9x0000065e42100",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.exe.ac80220011x017exd389xb3c9x0000065e42101",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.exe.acdf2180fdx017cxc14cx8fd0x000001a3ec280",
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"e10","parameterTypes":[] }, 
+    {"name":"e11","parameterTypes":[] }, 
+    {"name":"e12","parameterTypes":[] }, 
+    {"name":"e13","parameterTypes":[] }, 
+    {"name":"e14","parameterTypes":[] }, 
+    {"name":"e15","parameterTypes":[] }, 
+    {"name":"e16","parameterTypes":[] }, 
+    {"name":"e17","parameterTypes":[] }, 
+    {"name":"e18","parameterTypes":[] }, 
+    {"name":"e19","parameterTypes":[] }, 
+    {"name":"e20","parameterTypes":[] }, 
+    {"name":"e21","parameterTypes":[] }, 
+    {"name":"e22","parameterTypes":[] }, 
+    {"name":"e23","parameterTypes":[] }
+  ]
+},
+{
+  "name":"org.apache.derby.iapi.jdbc.AuthenticationService"
+},
+{
+  "name":"org.apache.derby.iapi.jdbc.AutoloadedDriver"
+},
+{
+  "name":"org.apache.derby.iapi.jdbc.DRDAServerStarter"
+},
+{
+  "name":"org.apache.derby.iapi.jdbc.Driver42",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.iapi.jdbc.InternalDriver"
+},
+{
+  "name":"org.apache.derby.iapi.jdbc.JDBC",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"org.apache.derby.iapi.jdbc.ResourceAdapter"
+},
+{
+  "name":"org.apache.derby.iapi.services.cache.CacheFactory"
+},
+{
+  "name":"org.apache.derby.iapi.services.cache.ClassSizeCatalogImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.iapi.services.compiler.JavaFactory"
+},
+{
+  "name":"org.apache.derby.iapi.services.daemon.DaemonFactory"
+},
+{
+  "name":"org.apache.derby.iapi.services.io.FormatableArrayHolder",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.iapi.services.io.FormatableBitSet",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.iapi.services.io.FormatableHashtable",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.iapi.services.io.FormatableIntHolder",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.iapi.services.jmx.ManagementService"
+},
+{
+  "name":"org.apache.derby.iapi.services.loader.ClassFactory"
+},
+{
+  "name":"org.apache.derby.iapi.services.locks.LockFactory"
+},
+{
+  "name":"org.apache.derby.iapi.services.property.PropertyFactory"
+},
+{
+  "name":"org.apache.derby.iapi.services.property.PropertyValidation",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.iapi.services.timer.TimerFactory"
+},
+{
+  "name":"org.apache.derby.iapi.services.uuid.UUIDFactory"
+},
+{
+  "name":"org.apache.derby.iapi.sql.LanguageFactory"
+},
+{
+  "name":"org.apache.derby.iapi.sql.compile.OptimizerFactory"
+},
+{
+  "name":"org.apache.derby.iapi.sql.compile.TypeCompilerFactory"
+},
+{
+  "name":"org.apache.derby.iapi.sql.conn.LanguageConnectionFactory"
+},
+{
+  "name":"org.apache.derby.iapi.sql.dictionary.DataDictionary"
+},
+{
+  "name":"org.apache.derby.iapi.sql.execute.ExecRowBuilder",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.iapi.sql.execute.ExecutionFactory"
+},
+{
+  "name":"org.apache.derby.iapi.store.access.AccessFactory"
+},
+{
+  "name":"org.apache.derby.iapi.store.access.conglomerate.MethodFactory"
+},
+{
+  "name":"org.apache.derby.iapi.store.raw.RawStoreFactory"
+},
+{
+  "name":"org.apache.derby.iapi.store.raw.data.DataFactory"
+},
+{
+  "name":"org.apache.derby.iapi.store.raw.log.LogFactory"
+},
+{
+  "name":"org.apache.derby.iapi.store.raw.xact.TransactionFactory"
+},
+{
+  "name":"org.apache.derby.iapi.types.DataType",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.iapi.types.DataTypeDescriptor",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.iapi.types.DataValueFactory"
+},
+{
+  "name":"org.apache.derby.iapi.types.DataValueFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.iapi.types.NumberDataType",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.iapi.types.SQLBoolean",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.iapi.types.SQLChar",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.iapi.types.SQLDate",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.iapi.types.SQLDecimal",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.iapi.types.SQLInteger",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.iapi.types.SQLLongint",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.iapi.types.SQLSmallint",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.iapi.types.SQLTime",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.iapi.types.SQLTimestamp",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.iapi.types.UserType",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.impl.db.BasicDatabase",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.db.SlaveDatabase"
+},
+{
+  "name":"org.apache.derby.impl.io.DirStorageFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.jdbc.EmbedClob",
+  "methods":[{"name":"free","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.jdbc.EmbedConnection",
+  "queriedMethods":[{"name":"getSchema","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.jdbc.ResourceAdapterImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.jdbc.SQLExceptionFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.jdbc.authentication.BasicAuthenticationServiceImpl"
+},
+{
+  "name":"org.apache.derby.impl.jdbc.authentication.JNDIAuthenticationService"
+},
+{
+  "name":"org.apache.derby.impl.jdbc.authentication.NativeAuthenticationServiceImpl"
+},
+{
+  "name":"org.apache.derby.impl.jdbc.authentication.NoneAuthenticationServiceImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.jdbc.authentication.SpecificAuthenticationServiceImpl"
+},
+{
+  "name":"org.apache.derby.impl.services.bytecode.BCJava",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.services.cache.ConcurrentCacheFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.services.cache.ConcurrentCacheMBeanImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"org.apache.derby.impl.services.daemon.SingleThreadDaemonFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.services.jce.JCECipherFactoryBuilder"
+},
+{
+  "name":"org.apache.derby.impl.services.jmx.JMXManagementService",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.services.jmxnone.NoManagementService"
+},
+{
+  "name":"org.apache.derby.impl.services.locks.ConcurrentPool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.services.reflect.ReflectClassesJava2",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.services.stream.SingleStream",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.services.timer.SingletonTimerFactory",
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"getWarnings","parameterTypes":[] }
+  ]
+},
+{
+  "name":"org.apache.derby.impl.services.uuid.BasicUUIDFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.services.uuid.BasicUUIDGetter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.sql.CursorInfo",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.sql.GenericColumnDescriptor",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.sql.GenericLanguageFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.sql.GenericResultDescription",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.sql.GenericStorablePreparedStatement",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.sql.catalog.DD_Version",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.sql.catalog.DataDictionaryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.sql.compile.CharTypeCompiler",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.sql.compile.OptimizerFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.sql.compile.TypeCompilerFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.sql.conn.GenericLanguageConnectionFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.sql.execute.GenericExecutionFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.sql.execute.IndexColumnOrder",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.sql.execute.RealResultSetStatisticsFactory"
+},
+{
+  "name":"org.apache.derby.impl.sql.execute.xplain.XPLAINFactory"
+},
+{
+  "name":"org.apache.derby.impl.store.access.PC_XenaVersion",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.access.RllRAMAccessManager",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.access.StorableFormatId",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.impl.store.access.btree.BTree",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.impl.store.access.btree.BranchControlRow",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.access.btree.LeafControlRow",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.access.btree.index.B2I",
+  "allDeclaredFields":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.access.btree.index.B2IFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.access.btree.index.B2IStaticCompiledInfo",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.access.conglomerate.GenericConglomerate",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.impl.store.access.heap.Heap",
+  "allDeclaredFields":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.access.heap.HeapClassInfo",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.access.heap.HeapConglomerateFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.access.heap.HeapRowLocation",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.apache.derby.impl.store.access.sort.ExternalSortFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.access.sort.UniqueWithDuplicateNullsExternalSortFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.RawStore",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.data.AllocPage",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.data.BaseDataFileFactory"
+},
+{
+  "name":"org.apache.derby.impl.store.raw.data.BaseDataFileFactoryJ4",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.log.CheckpointOperation",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.log.ChecksumOperation",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.log.LogCounter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.log.LogRecord",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.log.LogToFile",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.log.ReadOnly",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.xact.BeginXact",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.xact.EndXact",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.xact.TransactionTable",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.xact.TransactionTableEntry",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.xact.XactFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.raw.xact.XactId",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.impl.store.replication.master.MasterController"
+},
+{
+  "name":"org.apache.derby.impl.store.replication.slave.SlaveController"
+},
+{
+  "name":"org.apache.derby.jdbc.EmbeddedDriver",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.derby.mbeans.CacheManagerMBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.apache.derby.mbeans.JDBCMBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.apache.derby.mbeans.ManagementMBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.apache.derby.mbeans.Version",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"org.apache.derby.mbeans.VersionMBean",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.apache.derby.shared.common.stream.InfoStreams"
+},
+{
+  "name":"org.apache.derby.tools.sysinfo",
+  "methods":[
+    {"name":"getMajorVersion","parameterTypes":[] }, 
+    {"name":"getMinorVersion","parameterTypes":[] }
+  ]
+},
+{
+  "name":"org.apache.log4j.Appender"
+},
+{
+  "name":"org.apache.log4j.AppenderSkeleton",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.apache.log4j.Category"
+},
+{
+  "name":"org.apache.log4j.CategoryKey"
+},
+{
+  "name":"org.apache.log4j.FileAppender",
+  "queryAllPublicMethods":true,
+  "methods":[
+    {"name":"setAppend","parameterTypes":["boolean"] }, 
+    {"name":"setFile","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"org.apache.log4j.Layout",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.apache.log4j.LogManager"
+},
+{
+  "name":"org.apache.log4j.Logger"
+},
+{
+  "name":"org.apache.log4j.PatternLayout",
+  "queryAllPublicMethods":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setConversionPattern","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"org.apache.log4j.RollingFileAppender",
+  "queryAllPublicMethods":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setMaxBackupIndex","parameterTypes":["int"] }, 
+    {"name":"setMaxFileSize","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"org.apache.log4j.WriterAppender",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.apache.log4j.config.PropertySetter"
+},
+{
+  "name":"org.apache.log4j.helpers.Loader"
+},
+{
+  "name":"org.apache.log4j.spi.OptionHandler"
+},
+{
+  "name":"org.freedesktop.dbus.interfaces.DBus$NameAcquired",
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
+},
+{
+  "name":"org.freedesktop.dbus.interfaces.Introspectable",
+  "allDeclaredClasses":true,
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"org.freedesktop.dbus.interfaces.Peer",
+  "allDeclaredClasses":true,
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"org.hibernate.annotations.common.reflection.ReflectionManager",
+  "methods":[{"name":"reset","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.annotations.common.reflection.java.JavaReflectionManager",
+  "queriedMethods":[{"name":"getXAnnotatedElement","parameterTypes":["java.lang.Package"] }]
+},
+{
+  "name":"org.hibernate.annotations.common.reflection.java.JavaXMember",
+  "queriedMethods":[{"name":"getMember","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.annotations.common.util.impl.Log_$logger",
+  "methods":[{"name":"<init>","parameterTypes":["org.jboss.logging.Logger"] }]
+},
+{
+  "name":"org.hibernate.boot.cfgxml.internal.CfgXmlAccessServiceImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.boot.internal.DefaultSessionFactoryBuilderService",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.boot.jaxb.cfg.spi.JaxbCfgCacheUsageEnum",
+  "allDeclaredFields":true,
+  "fields":[
+    {"name":"NONSTRICT_READ_WRITE"}, 
+    {"name":"READ_ONLY"}, 
+    {"name":"READ_WRITE"}, 
+    {"name":"TRANSACTIONAL"}
+  ]
+},
+{
+  "name":"org.hibernate.boot.jaxb.cfg.spi.JaxbCfgCollectionCacheType",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queriedMethods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.boot.jaxb.cfg.spi.JaxbCfgConfigPropertyType",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.boot.jaxb.cfg.spi.JaxbCfgEntityCacheType",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queriedMethods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.boot.jaxb.cfg.spi.JaxbCfgEventListenerGroupType",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queriedMethods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.boot.jaxb.cfg.spi.JaxbCfgEventListenerType",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queriedMethods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.boot.jaxb.cfg.spi.JaxbCfgEventTypeEnum",
+  "allDeclaredFields":true,
+  "fields":[
+    {"name":"AUTO_FLUSH"}, 
+    {"name":"CREATE"}, 
+    {"name":"CREATE_ONFLUSH"}, 
+    {"name":"DELETE"}, 
+    {"name":"DIRTY_CHECK"}, 
+    {"name":"EVICT"}, 
+    {"name":"FLUSH"}, 
+    {"name":"FLUSH_ENTITY"}, 
+    {"name":"LOAD"}, 
+    {"name":"LOAD_COLLECTION"}, 
+    {"name":"LOCK"}, 
+    {"name":"MERGE"}, 
+    {"name":"POST_COLLECTION_RECREATE"}, 
+    {"name":"POST_COLLECTION_REMOVE"}, 
+    {"name":"POST_COLLECTION_UPDATE"}, 
+    {"name":"POST_COMMIT_DELETE"}, 
+    {"name":"POST_COMMIT_INSERT"}, 
+    {"name":"POST_COMMIT_UPDATE"}, 
+    {"name":"POST_DELETE"}, 
+    {"name":"POST_INSERT"}, 
+    {"name":"POST_LOAD"}, 
+    {"name":"POST_UPDATE"}, 
+    {"name":"PRE_COLLECTION_RECREATE"}, 
+    {"name":"PRE_COLLECTION_REMOVE"}, 
+    {"name":"PRE_COLLECTION_UPDATE"}, 
+    {"name":"PRE_DELETE"}, 
+    {"name":"PRE_INSERT"}, 
+    {"name":"PRE_LOAD"}, 
+    {"name":"PRE_UPDATE"}, 
+    {"name":"REFRESH"}, 
+    {"name":"REPLICATE"}, 
+    {"name":"SAVE"}, 
+    {"name":"SAVE_UPDATE"}, 
+    {"name":"UPDATE"}
+  ]
+},
+{
+  "name":"org.hibernate.boot.jaxb.cfg.spi.JaxbCfgHibernateConfiguration",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.boot.jaxb.cfg.spi.JaxbCfgHibernateConfiguration$JaxbCfgSecurity",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queriedMethods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.boot.jaxb.cfg.spi.JaxbCfgHibernateConfiguration$JaxbCfgSecurity$JaxbCfgGrant",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queriedMethods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.boot.jaxb.cfg.spi.JaxbCfgHibernateConfiguration$JaxbCfgSessionFactory",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.boot.jaxb.cfg.spi.JaxbCfgMappingReferenceType",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.bytecode.internal.bytebuddy.BytecodeProviderImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.bytecode.internal.bytebuddy.ProxyFactoryFactoryImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.cache.internal.DisabledCaching",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.cache.internal.NoCachingRegionFactory",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.dialect.DerbyTenSevenDialect",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.engine.config.internal.ConfigurationServiceImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.engine.jdbc.dialect.internal.DialectFactoryImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.engine.jdbc.dialect.internal.DialectResolverSet",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.engine.jdbc.internal.JdbcServicesImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.engine.jndi.internal.JndiServiceImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.engine.query.internal.NativeQueryInterpreterStandardImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.event.service.internal.EventListenerRegistryImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.event.spi.EventType",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.hibernate.hql.internal.ast.ASTQueryTranslatorFactory",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.hql.internal.ast.HqlToken",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.hql.internal.ast.tree.DotNode",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.hql.internal.ast.tree.FromClause",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.hql.internal.ast.tree.FromElement",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.hql.internal.ast.tree.IdentNode",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.hql.internal.ast.tree.Node",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.hql.internal.ast.tree.QueryNode",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.hql.internal.ast.tree.SelectClause",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.hql.internal.ast.tree.SqlFragment",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.hql.internal.ast.tree.SqlNode",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.id.enhanced.NoopOptimizer",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Class","int"] }]
+},
+{
+  "name":"org.hibernate.id.enhanced.SequenceStyleGenerator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.internal.CoreMessageLogger_$logger",
+  "methods":[{"name":"<init>","parameterTypes":["org.jboss.logging.Logger"] }]
+},
+{
+  "name":"org.hibernate.internal.EntityManagerMessageLogger_$logger",
+  "methods":[{"name":"<init>","parameterTypes":["org.jboss.logging.Logger"] }]
+},
+{
+  "name":"org.hibernate.internal.log.ConnectionPoolingLogger_$logger",
+  "methods":[{"name":"<init>","parameterTypes":["org.jboss.logging.Logger"] }]
+},
+{
+  "name":"org.hibernate.jmx.internal.DisabledJmxServiceImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.persister.entity.SingleTableEntityPersister",
+  "methods":[{"name":"<init>","parameterTypes":["org.hibernate.mapping.PersistentClass","org.hibernate.cache.spi.access.EntityDataAccess","org.hibernate.cache.spi.access.NaturalIdDataAccess","org.hibernate.persister.spi.PersisterCreationContext"] }]
+},
+{
+  "name":"org.hibernate.persister.internal.PersisterFactoryImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.persister.internal.StandardPersisterClassResolver",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.property.access.internal.PropertyAccessStrategyResolverStandardImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.proxy.HibernateProxy",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"org.hibernate.proxy.ProxyConfiguration",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"org.hibernate.proxy.ProxyConfiguration$InterceptorDispatcher",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"org.hibernate.resource.beans.internal.ManagedBeanRegistryImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.resource.transaction.backend.jdbc.internal.JdbcResourceLocalTransactionCoordinatorBuilderImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.service.internal.SessionFactoryServiceRegistryFactoryImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.stat.internal.StatisticsImpl",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.tool.schema.internal.HibernateSchemaManagementTool",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.hibernate.tuple.entity.PojoEntityTuplizer",
+  "methods":[{"name":"<init>","parameterTypes":["org.hibernate.tuple.entity.EntityMetamodel","org.hibernate.mapping.PersistentClass"] }]
+},
+{
+  "name":"org.hibernate.type.EnumType",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"picocli.CommandLine$AutoHelpMixin",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"sun.management.ClassLoadingImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.management.CompilationImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.management.ManagementFactoryHelper$1",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.management.ManagementFactoryHelper$PlatformLoggingImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.management.MemoryImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.management.MemoryManagerImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.management.MemoryPoolImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.management.RuntimeImpl",
+  "queryAllPublicConstructors":true
+},
+{
+  "name":"sun.security.provider.NativePRNG",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.NativePRNG$NonBlocking",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.SHA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+}
+]

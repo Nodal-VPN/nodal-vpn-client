@@ -2,6 +2,12 @@
 
 ## 2.4.0-????
 
+ * Dark branding colours for links in dark mode were hard to read
+ * Better transition to remote authorisation page on first load.
+ * Improved look of remote authorisation.
+
+## 2.4.0-690
+
  * DBus path on Mac could still be incorrect. 
  * Hack for bridge loss in UI when Mac coming out of hibernate.
  * Bumped JavaFX version to latest.

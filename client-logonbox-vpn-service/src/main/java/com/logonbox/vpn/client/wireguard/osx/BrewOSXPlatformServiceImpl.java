@@ -54,6 +54,10 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 
 	@Override
 	protected void beforeStart(LocalContext ctx) {
+		extractExecutables();
+	}
+
+	protected void extractExecutables() {
 		String archPath = "x86";
 		if(Util.isAarch64()) {
 			LOG.info("Detected Aarch64");
@@ -115,6 +119,7 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 
 	@Override
 	protected long getLatestHandshake(String iface, String publicKey) throws IOException {
+		checkWGCommand();
 		for (String line : OSCommand.adminCommandAndCaptureOutput(getWGCommand(), "show", iface, "latest-handshakes")) {
 			String[] args = line.trim().split("\\s+");
 			if (args.length == 2) {
@@ -129,6 +134,7 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 	@Override
 	protected String getPublicKey(String interfaceName) throws IOException {
 		try {
+			checkWGCommand();
 			String pk = OSCommand.adminCommandAndCaptureOutput(getWGCommand(), "show", interfaceName, "public-key")
 					.iterator().next().trim();
 			if (pk.equals("(none)") || pk.equals(""))
@@ -146,8 +152,25 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 		}
 	}
 	
+	@Override
 	public String getWGCommand() {
 		return wgCommandPath == null ? null : wgCommandPath.toString();
+	}
+	
+	protected void checkWGCommand() {
+		if(wgCommandPath != null) {
+			/* It is possible the temp directory these are stored gets cleaned out
+			 * by OS at some point. Re-extract if this appears to happen.
+			 */
+			if(!Files.exists(wgCommandPath)) {
+				wgCommandPath = null;
+				LOG.warn("It looks like the Wireguard binaries have disappeared. Attempting to re-extract.");
+				extractExecutables();
+				if(wgCommandPath == null) {
+					throw new IllegalStateException("WireGuard userspace daemon cannot be found.");
+				}
+			}
+		}
 	}
 
 	@Override
@@ -234,6 +257,7 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 	@Override
 	public StatusDetail status(String iface) throws IOException {
 		/* TODO replace this with WireguardPipe and use a domain socket (JDK 16) */
+		checkWGCommand();
 		Collection<String> hs = OSCommand.adminCommandAndCaptureOutput(getWGCommand(), "show", iface,
 				"latest-handshakes");
 		long lastHandshake = hs.isEmpty() ? 0 : Long.parseLong(hs.iterator().next().split("\\s+")[1]) * 1000;
@@ -358,6 +382,7 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 				write(configuration, writer);
 			}
 			log.info(String.format("Activating Wireguard configuration for %s (in %s)", ip.getName(), tempFile));
+			checkWGCommand();
 			OSCommand.adminCommand(getWGCommand(), "setconf", ip.getName(), tempFile.toString());
 			log.info(String.format("Activated Wireguard configuration for %s", ip.getName()));
 		} finally {
@@ -429,6 +454,7 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 		/* Set routes from the known allowed-ips supplies by Wireguard. */
 		session.getAllows().clear();
 
+		checkWGCommand();
 		for (String s : OSCommand.adminCommandAndCaptureOutput(getWGCommand(), "show", ip.getName(), "allowed-ips")) {
 			StringTokenizer t = new StringTokenizer(s);
 			if (t.hasMoreTokens()) {
