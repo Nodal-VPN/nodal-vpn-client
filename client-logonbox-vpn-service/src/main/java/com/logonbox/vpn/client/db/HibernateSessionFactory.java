@@ -5,6 +5,7 @@ import org.hibernate.cfg.Configuration;
 
 import com.logonbox.vpn.client.Main;
 
+@Deprecated
 public class HibernateSessionFactory {
 
 	static SessionFactory factory;

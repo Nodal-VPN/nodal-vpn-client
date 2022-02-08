@@ -1,12 +1,8 @@
 package com.logonbox.vpn.common.client;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.net.URL;
-import java.util.Map;
 
-import org.apache.commons.io.output.NullOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +10,6 @@ import com.hypersocket.extensions.AbstractExtensionUpdater;
 import com.hypersocket.extensions.ExtensionHelper;
 import com.hypersocket.extensions.ExtensionPlace;
 import com.hypersocket.extensions.ExtensionTarget;
-import com.hypersocket.extensions.PropertyCallback;
 import com.hypersocket.json.version.HypersocketVersion;
 import com.hypersocket.utils.FileUtils;
 import com.install4j.api.context.UserCanceledException;

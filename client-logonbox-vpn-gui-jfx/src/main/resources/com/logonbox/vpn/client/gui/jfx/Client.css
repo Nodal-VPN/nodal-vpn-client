@@ -68,12 +68,16 @@
   -fx-background-color: -fx-lbvpn-background; 
 }
 
+.busySpinner {
+    -fx-icon-color: -fx-lbvpn-link;
+}
+
 a:focus, a:hover {
-    -fx-text-fill: -fx-lbvpn-background;
+    -fx-text-fill: -fx-lbvpn-link;
 }
 
 a {
-    -fx-text-fill: -fx-lbvpn-background;
+    -fx-text-fill: -fx-lbvpn-link;
 }
 
 Hyperlink:focused {

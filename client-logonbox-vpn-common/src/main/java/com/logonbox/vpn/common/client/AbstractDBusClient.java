@@ -57,6 +57,8 @@ public abstract class AbstractDBusClient implements DBusClient {
 	private boolean busAvailable;
 	private List<BusLifecycleListener> busLifecycleListeners = new ArrayList<>();
 
+	@Option(names = { "-a", "--address-file" }, description = "File to obtain DBUS address from.")
+	private String addressFile;
 	@Option(names = { "-ba", "--bus-address" }, description = "Use an alternative bus address.")
 	private String busAddress;
 	@Option(names = { "-sb", "--session-bus" }, description = "Use session bus.")
@@ -95,6 +97,8 @@ public abstract class AbstractDBusClient implements DBusClient {
 			updateService = new Install4JUpdateServiceImpl(this);
 		}
 		catch(Throwable t) {
+			System.out.println("FALLBACK");
+			t.printStackTrace();
 			updateService = new DummyUpdateService(this);
 		}
 		
@@ -194,7 +198,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 						getLog().debug("Getting session bus.");
 					conn = DBusConnection.getConnection(DBusBusType.SESSION);
 				} else {
-					String fixedAddress = getServerDBusAddress();
+					String fixedAddress = getServerDBusAddress(addressFile);
 					if (fixedAddress == null) {
 						if(getLog().isDebugEnabled())
 							getLog().debug("Getting system bus.");
@@ -348,5 +352,5 @@ public abstract class AbstractDBusClient implements DBusClient {
 	
 	protected abstract String getVersion();
 
-	protected abstract boolean isConsole(); 
+	protected abstract boolean isConsole();
 }

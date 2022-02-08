@@ -1,7 +1,9 @@
-package com.logonbox.vpn.client.service.vpn;
+package com.logonbox.vpn.client.db;
 
+import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.persistence.TypedQuery;
@@ -14,12 +16,11 @@ import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.logonbox.vpn.client.db.HibernateSessionFactory;
 import com.logonbox.vpn.common.client.Connection;
-import com.logonbox.vpn.common.client.ConnectionImpl;
 import com.logonbox.vpn.common.client.ConnectionRepository;
 import com.logonbox.vpn.common.client.Util;
 
+@Deprecated
 public class ConnectionRepositoryImpl implements ConnectionRepository {
 
 	static Logger log = LoggerFactory.getLogger(ConnectionRepositoryImpl.class);
@@ -28,18 +29,6 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 
 	public ConnectionRepositoryImpl() {
 		session = HibernateSessionFactory.getFactory().openSession();
-	}
-
-	public Connection getConfigurationForPublicKey(String publicKey) {
-		synchronized (session) {
-			CriteriaBuilder builder = session.getCriteriaBuilder();
-			CriteriaQuery<Connection> query = builder.createQuery(Connection.class);
-			Root<ConnectionImpl> root = query.from(ConnectionImpl.class);
-			query = query.select(root).where(builder.equal(root.get("userPublicKey"), publicKey));
-			TypedQuery<Connection> typeQuery = session.createQuery(query);
-			List<Connection> results = typeQuery.getResultList();
-			return results.isEmpty() ? null : results.get(0);
-		}
 	}
 
 	@Override
@@ -133,79 +122,6 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 	}
 
 	@Override
-	public Connection getConnectionByName(String owner, final String name) {
-
-		synchronized (session) {
-			CriteriaBuilder builder = session.getCriteriaBuilder();
-			CriteriaQuery<Connection> query = builder.createQuery(Connection.class);
-			Root<ConnectionImpl> root = query.from(ConnectionImpl.class);
-			if (owner == null)
-				query = query.select(root)
-						.where(builder.and(
-								builder.isTrue(root.get("shared")), 
-								builder.equal(root.get("name"), name)));
-			else
-				query = query.select(root)
-						.where(builder.or(
-								builder.and(
-										builder.isFalse(root.get("shared")), 
-										builder.equal(root.get("owner"), owner)),
-										builder.equal(root.get("name"), name)),
-								builder.and(
-									builder.isTrue(root.get("shared")), 
-									builder.equal(root.get("name"), name)));
-			
-			TypedQuery<Connection> typeQuery = session.createQuery(query);
-			List<Connection> results = typeQuery.getResultList();
-			return results.isEmpty() ? null : results.get(0);
-		}
-	}
-
-	@Override
-	public Connection getConnectionByURI(String owner, final String uri) {
-		
-		synchronized (session) {
-			CriteriaBuilder builder = session.getCriteriaBuilder();
-			CriteriaQuery<Connection> query = builder.createQuery(Connection.class);
-			Root<ConnectionImpl> root = query.from(ConnectionImpl.class);
-			URI uriObj;
-			try {
-				uriObj = Util.getUri(uri);
-			} catch (URISyntaxException e) {
-				throw new IllegalArgumentException("Invalid URI.", e);
-			}
-			if (owner == null)
-				query = query.select(root)
-						.where(builder.and(
-								builder.isTrue(root.get("shared")),
-								builder.equal(root.get("hostname"), uriObj.getHost()),
-								builder.equal(root.get("port"), uriObj.getPort() <= 0 ? 443 : uriObj.getPort()),
-								builder.equal(root.get("path"), uriObj.getPath())
-							));
-			else
-				query = query.select(root)
-						.where(builder.or(
-								builder.and(
-										builder.isFalse(root.get("shared")), 
-										builder.equal(root.get("owner"), owner)),
-										builder.equal(root.get("hostname"), uriObj.getHost()),
-										builder.equal(root.get("port"), uriObj.getPort() <= 0 ? 443 : uriObj.getPort()),
-										builder.equal(root.get("path"), uriObj.getPath())
-										),
-								builder.and(
-									builder.isTrue(root.get("shared")), 
-									builder.equal(root.get("hostname"), uriObj.getHost()),
-									builder.equal(root.get("port"), uriObj.getPort() <= 0 ? 443 : uriObj.getPort()),
-									builder.equal(root.get("path"), uriObj.getPath())
-									));
-			
-			TypedQuery<Connection> typeQuery = session.createQuery(query);
-			List<Connection> results = typeQuery.getResultList();
-			return results.isEmpty() ? null : results.get(0);
-		}
-	}
-
-	@Override
 	public Connection getConnection(Long id) {
 		synchronized (session) {
 			CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -216,6 +132,16 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 			List<Connection> results = typeQuery.getResultList();
 			return results.isEmpty() ? null : results.get(0);
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		log.info("Shutting down database.");
+		try(java.sql.Connection c = DriverManager.getConnection("jdbc:derby:data;shutdown=true")) {
+		} catch (SQLException e) {
+			log.warn("Failed to close database.");
+		}
+		
 	}
 
 }

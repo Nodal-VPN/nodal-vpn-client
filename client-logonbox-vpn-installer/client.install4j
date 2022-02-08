@@ -24,6 +24,7 @@
       <mountPoint id="1081" location="logs" />
       <mountPoint id="1487" location="cli" />
       <mountPoint id="2041" location="images" />
+      <mountPoint id="2189" location="converter" />
       <mountPoint id="2032" />
       <mountPoint id="2028" root="2027" />
       <mountPoint id="2037" root="2036" />
@@ -44,6 +45,7 @@
       </dirEntry>
       <dirEntry mountPoint="1487" file="./target/cli" subDirectory="cli" />
       <fileEntry mountPoint="2041" file="./images/splash.png" />
+      <dirEntry mountPoint="2189" file="./target/converter" subDirectory="service" />
       <fileEntry mountPoint="2032" file="./scripts/cleanup.bat" />
       <fileEntry mountPoint="2032" file="./EULA.txt" />
       <fileEntry mountPoint="2032" file="./WINTUN-LICENSE.txt" />
@@ -61,12 +63,14 @@
           <entry location="bootstrap" />
           <entry location="service" />
           <entry location="logs" />
+          <entry location="converter" />
           <entry location="cleanup.bat" />
           <entry location="EULA.txt" />
           <entry location="WINTUN-LICENSE.txt" />
           <entry location="WIREGUARD-LICENSE.txt" />
           <entry location="logonbox-vpn-service" fileType="launcher" />
           <entry location="logonbox-vpn-service-console" fileType="launcher" />
+          <entry location="dbconvert" fileType="launcher" />
           <entry rootId="2027" />
           <entry rootId="2036" />
         </include>
@@ -160,6 +164,21 @@
       <java mainClass="com.sshtools.forker.wrapper.ForkerWrapper" vmParameters="-Xmx10m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true" arguments="-c conf/gui-forker.cfg" allowVMPassthroughParameters="false">
         <classPath>
           <scanDirectory location="bootstrap" failOnError="false" />
+        </classPath>
+      </java>
+      <macStaticAssociationActions mode="selected" />
+      <iconImageFiles>
+        <file path="./images/logo16px.png" />
+        <file path="./images/logo32px.png" />
+        <file path="./images/logo48px.png" />
+        <file path="./images/logo128px.png" />
+      </iconImageFiles>
+    </launcher>
+    <launcher name="dbconvert" id="2181" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.DbConvert">
+      <executable name="dbconvert" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false" />
+      <java mainClass="com.logonbox.vpn.client.dbconvert.DbConvert" vmParameters="-Xmx20m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true">
+        <classPath>
+          <scanDirectory location="converter" failOnError="false" />
         </classPath>
       </java>
       <macStaticAssociationActions mode="selected" />
@@ -565,6 +584,15 @@ return path.replace('\\', '/');</property>
                   <property name="replaceValue" type="string">java ${installer:custom.jrePath}/bin/java</property>
                   <property name="searchValue" type="string">#java java</property>
                 </serializedBean>
+              </action>
+              <action id="2185" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" rollbackBarrier="true" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="arguments" type="array" elementType="string" length="1">
+                    <element index="0">${installer:sys.installationDir}/data ${installer:sys.installationDir}/conf/ini</element>
+                  </property>
+                  <property name="launcherId" type="string">2181</property>
+                </serializedBean>
+                <condition>new java.io.File((String)context.getVariable("sys.installationDir") + java.io.File.separator + "data").exists()</condition>
               </action>
               <action id="584" beanClass="com.install4j.runtime.beans.actions.services.InstallServiceAction" actionElevationType="elevated" failureStrategy="askRetryQuit">
                 <serializedBean>

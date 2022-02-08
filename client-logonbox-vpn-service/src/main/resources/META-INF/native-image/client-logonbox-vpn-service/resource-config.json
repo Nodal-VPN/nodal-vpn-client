@@ -2,9 +2,6 @@
   "resources":{
   "includes":[
     {
-      "pattern":"\\QMETA-INF/maven/com.logonbox/client-logonbox-vpn-service/pom.properties\\E"
-    }, 
-    {
       "pattern":"\\QMETA-INF/services/com.sshtools.forker.client.ForkerProcessFactory\\E"
     }, 
     {
@@ -14,22 +11,10 @@
       "pattern":"\\QMETA-INF/services/java.sql.Driver\\E"
     }, 
     {
-      "pattern":"\\QMETA-INF/services/javax.xml.bind.JAXBContext\\E"
-    }, 
-    {
       "pattern":"\\QMETA-INF/services/org.freedesktop.dbus.spi.transport.ITransportProvider\\E"
     }, 
     {
-      "pattern":"\\Qdefault-log4j-service.properties\\E"
-    }, 
-    {
-      "pattern":"\\Qhibernate.cfg.xml\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/apache/derby/impl/jdbc/metadata.properties\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/apache/derby/impl/sql/catalog/metadata_net.properties\\E"
+      "pattern":"\\Qcom/sun/jna/linux-x86-64/libjnidispatch.so\\E"
     }, 
     {
       "pattern":"\\Qorg/apache/derby/info/client/info.properties\\E"
@@ -41,78 +26,20 @@
       "pattern":"\\Qorg/apache/derby/modules.properties\\E"
     }, 
     {
-      "pattern":"\\Qorg/hibernate/hibernate-configuration-3.0.dtd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/hibernate/hibernate-configuration-4.0.xsd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/hibernate/hibernate-mapping-3.0.dtd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/hibernate/hibernate-mapping-4.0.xsd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/hibernate/jpa/orm_2_0.xsd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/hibernate/jpa/orm_2_1.xsd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/hibernate/jpa/orm_2_2.xsd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/hibernate/jpa/orm_3_0.xsd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/hibernate/xsd/cfg/legacy-configuration-4.0.xsd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/hibernate/xsd/mapping/legacy-mapping-4.0.xsd\\E"
-    }, 
-    {
       "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
     }
   ]},
   "bundles":[
     {
-      "name":"com.sun.org.apache.xerces.internal.impl.xpath.regex.message",
+      "name":"com.sun.org.apache.xml.internal.serializer.XMLEntities",
       "locales":[""]
     }, 
     {
-      "name":"org.apache.derby.loc.m13",
-      "locales":["en"]
-    }, 
-    {
-      "name":"org.apache.derby.loc.m14",
-      "locales":["en"]
-    }, 
-    {
-      "name":"org.apache.derby.loc.m16",
-      "locales":["en"]
-    }, 
-    {
-      "name":"org.apache.derby.loc.m18",
+      "name":"org.apache.derby.loc.m10",
       "locales":["en"]
     }, 
     {
       "name":"org.apache.derby.loc.m2",
-      "locales":["en"]
-    }, 
-    {
-      "name":"org.apache.derby.loc.m25",
-      "locales":["en"]
-    }, 
-    {
-      "name":"org.apache.derby.loc.m26",
-      "locales":["en"]
-    }, 
-    {
-      "name":"org.apache.derby.loc.m34",
-      "locales":["en"]
-    }, 
-    {
-      "name":"org.apache.derby.loc.m4",
       "locales":["en"]
     }
   ]

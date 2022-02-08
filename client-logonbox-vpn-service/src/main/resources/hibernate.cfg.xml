@@ -44,7 +44,7 @@
 		<property name="hibernate.dbcp.maxIdle">20</property>
 		<property name="hibernate.dbcp.minIdle">0</property>
 
-		<mapping class="com.logonbox.vpn.common.client.ConnectionImpl" />
+		<mapping class="com.logonbox.vpn.client.db.ConnectionImpl" />
 
 	</session-factory>
 

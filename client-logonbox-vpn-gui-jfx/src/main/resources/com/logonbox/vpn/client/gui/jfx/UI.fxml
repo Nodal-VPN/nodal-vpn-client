@@ -69,7 +69,7 @@
                      <children>
                         <Label alignment="CENTER" styleClass="root" text="%loading" textAlignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <graphic>
-                              <FontIcon fx:id="loadingSpinner" iconLiteral="fa-spinner" iconSize="32" />
+                              <FontIcon fx:id="loadingSpinner" iconLiteral="fa-spinner" iconSize="32" styleClass="busySpinner" />
                            </graphic>
                         </Label>
                      </children>

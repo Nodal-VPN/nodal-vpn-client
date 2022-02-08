@@ -666,6 +666,22 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 			backgroundColour = new Color(backgroundColour.getRed(), backgroundColour.getGreen(),
 					backgroundColour.getBlue(), 1f / 255f);
 		}
+		
+		Color baseColor = getBase();
+		Color linkColor;
+
+		if(contrast(baseColor, backgroundColour) < 3) {
+			/* Brightness is similar, use foreground as basic of link color */
+			var b3 = foregroundColour.getBrightness();
+			if(b3 > 0.5)
+				linkColor = foregroundColour.deriveColor(0, 0, 0.75, 1.0);
+			else
+				linkColor = foregroundColour.deriveColor(0, 0, 1.25, 1.0);
+		}
+		else {
+			/* Brightness is dissimilar, use foreground as basic of link color */
+			linkColor = backgroundColour;
+		}
 
 		bui.append("* {\n");
 
@@ -683,6 +699,10 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 
 		bui.append("-fx-lbvpn-base-inverse: ");
 		bui.append(toHex(getBaseInverse()));
+		bui.append(";\n");
+
+		bui.append("-fx-lbvpn-link: ");
+		bui.append(toHex(linkColor));
 		bui.append(";\n");
 
 //

@@ -39,6 +39,10 @@ a:focus, a:hover {
     cursor: pointer;  
 }
 
+.busySpinner {
+    color: ${lbvpnLink} !important;
+}
+
 a {
     color: ${lbvpnLink} !important;
     text-decoration: none !important;
@@ -51,7 +55,7 @@ a {
 }
 
 .nav-link {
-   color: ${lbvpnAccent}  !important;
+   color: ${lbvpnLink}  !important;
 }
 
 .connection.active {

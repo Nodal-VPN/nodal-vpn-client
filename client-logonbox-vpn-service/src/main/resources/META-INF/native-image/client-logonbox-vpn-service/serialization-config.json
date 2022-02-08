@@ -1,8 +1,11 @@
 [
   {
-    "name":"boolean[]"
+    "name":"java.rmi.server.RemoteObject"
   },
   {
-    "name":"int[]"
+    "name":"java.rmi.server.RemoteStub"
+  },
+  {
+    "name":"javax.management.remote.rmi.RMIServerImpl_Stub"
   }
 ]

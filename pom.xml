@@ -53,6 +53,8 @@
 		
 		<!-- When you change this, remember to also change hypersocket-framework, hypersocket-enterprise, hypersocket-ui  -->
 		<hypersocket.languages>da,nl,fi,fr,de,it,no,pl,ru,sv,es,ja,he,pt</hypersocket.languages>
+		
+        <native.maven.plugin.version>0.9.9</native.maven.plugin.version>
 	</properties>
 
 	<modules>
@@ -60,6 +62,7 @@
 		<module>client-logonbox-vpn-service</module>
 		<module>client-logonbox-vpn-gui-jfx</module>
 		<module>client-logonbox-vpn-cli</module>
+		<module>client-logonbox-vpn-dbconvert</module>
 		<module>client-logonbox-vpn-installer</module>
 		<!-- <module>client-logonbox-vpn-winsrv</module> -->
 	</modules>
@@ -300,6 +303,15 @@
 	</build>
 
 	<repositories>
+        <repository>
+            <id>ej</id>
+            <url>https://maven.ej-technologies.com/repository/</url>
+            <releases />
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        
         <repository>
             <id>libs-releases</id>
             <url>https://artifactory.jadaptive.com/libs-releases-local</url>

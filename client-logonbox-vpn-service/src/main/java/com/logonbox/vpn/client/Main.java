@@ -8,27 +8,14 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.AclEntry;
-import java.nio.file.attribute.AclEntryPermission;
-import java.nio.file.attribute.AclEntryType;
-import java.nio.file.attribute.AclFileAttributeView;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.UserPrincipal;
-import java.nio.file.attribute.UserPrincipalLookupService;
-import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.security.GeneralSecurityException;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -70,7 +57,6 @@ import com.logonbox.vpn.client.service.ClientService;
 import com.logonbox.vpn.client.service.ClientService.Listener;
 import com.logonbox.vpn.client.service.ClientServiceImpl;
 import com.logonbox.vpn.client.service.ConfigurationRepositoryImpl;
-import com.logonbox.vpn.client.service.vpn.ConnectionRepositoryImpl;
 import com.logonbox.vpn.client.wireguard.PlatformService;
 import com.logonbox.vpn.client.wireguard.linux.LinuxPlatformServiceImpl;
 import com.logonbox.vpn.client.wireguard.osx.BrewOSXPlatformServiceImpl;
@@ -83,7 +69,6 @@ import com.logonbox.vpn.common.client.ConnectionStatus;
 import com.logonbox.vpn.common.client.dbus.VPN;
 import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
 import com.sshtools.forker.common.OS;
-import com.sun.jna.Platform;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -149,8 +134,9 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	private SaslAuthMode authMode = SaslAuthMode.AUTH_ANONYMOUS;
 
 	private ConfigurationRepositoryImpl configurationRepository;
-
 	private SSLContext sslContext;
+	private BusAddress busAddress;
+	private ConnectionRepository connectionRepository;
 
 	public static final String ARTIFACT_COORDS = "com.logonbox/client-logonbox-vpn-service";
 
@@ -369,7 +355,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 				}
 			}
 
-			BusAddress busAddress = new BusAddress(newAddress);
+			busAddress = new BusAddress(newAddress);
 			if (!busAddress.hasGuid()) {
 				/* Add a GUID if user supplied bus address without one */
 				newAddress += ",guid=" + Util.genGUID();
@@ -474,34 +460,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 			 */
 			if (startedBus) {
 				if (busAddress.getBusType().equals("UNIX")) {
-					Path path = Paths.get(busAddress.getPath());
-					if(Platform.isLinux() || Util.isMacOs()) {					
-						log.info(String.format("Setting DBus permissions on %s to %s", path, Arrays.asList(PosixFilePermission.values())));
-						Files.setPosixFilePermissions(path, 
-								new LinkedHashSet<>(Arrays.asList(PosixFilePermission.values())));
-					}
-					else if(Platform.isWindows()) {
-					    AclFileAttributeView aclAttr = Files.getFileAttributeView(path, AclFileAttributeView.class);
-					    UserPrincipalLookupService upls = path.getFileSystem().getUserPrincipalLookupService();
-					    try {
-						    UserPrincipal user = upls.lookupPrincipalByName("Everyone") /* TODO Tighten this */;
-						    AclEntry.Builder builder = AclEntry.newBuilder();       
-						    builder.setPermissions( EnumSet.of(AclEntryPermission.READ_DATA, AclEntryPermission.WRITE_DATA));
-						    builder.setPrincipal(user);
-						    builder.setType(AclEntryType.ALLOW);
-						    List<AclEntry> acl = Collections.singletonList(builder.build());
-							log.info(String.format("Setting DBus permissions on %s as %s to %s", path, user, acl));
-							aclAttr.setAcl(acl);
-					    }
-					    catch(UserPrincipalNotFoundException upnfe) {
-					    	/* No everyone user, fallback to basic java.io.File methods */
-					    	log.warn("No 'Everyone' users, falling back to basic file permissions method.");
-					    	path.toFile().setReadable(true, false);
-					    	path.toFile().setWritable(true, false);
-					    }
-					}
-					else 
-						log.warn("Cannot open socket permissions on this platform, clients may not be able to connect.");
+					FileSecurity.openToEveryone(Paths.get(busAddress.getPath()));
 				}
 			}
 		}
@@ -594,9 +553,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	}
 
 	private boolean startServices() {
-		if (!"true".equals(System.getProperty("logonbox.vpn.strictSSL", "true"))) {
-			installAllTrustingCertificateVerifier();
-		}
+		installAllTrustingCertificateVerifier();
 
 		try {
 			clientService.start();
@@ -608,9 +565,19 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	}
 
 	private boolean buildServices() throws Exception {
-
-		ConnectionRepository connectionRepository = new ConnectionRepositoryImpl();
-
+		/* TODO swap these and enable the dbconvert install action in Install4J project
+		 * when ready to make ini files the default.
+		 */
+		Path iniDir = Paths.get("conf").resolve("ini");
+		if(Files.exists(iniDir)) {
+			log.info("Using file data backend");
+			connectionRepository = new com.logonbox.vpn.client.ini.ConnectionRepositoryImpl();
+		}
+		else {
+			log.info("Using Derby data backend");
+			connectionRepository = new com.logonbox.vpn.client.db.ConnectionRepositoryImpl();
+		}
+		
 		configurationRepository = new ConfigurationRepositoryImpl();
 		clientService = new ClientServiceImpl(this, connectionRepository, configurationRepository);
 		clientService.addListener(this);
@@ -720,12 +687,19 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 				shutdownEmbeddeDaemon();
 			}
 			finally {
-				log.info("Shutting down database.");
-				try(java.sql.Connection c = DriverManager.getConnection("jdbc:derby:data;shutdown=true")) {
-					
-				} catch (SQLException e) {
-					log.warn("Failed to close database.");
-				}	
+				if(busAddress != null) {
+					try {
+						Files.delete(Paths.get(busAddress.getPath()));
+					} catch (IOException e) {
+						log.warn("Failed to delete bus socket file.");
+					}
+				}
+				try {
+					connectionRepository.close();
+				}
+				catch(IOException ioe) {
+					log.error("Failed to close connection repository.", ioe);
+				}
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-package com.logonbox.vpn.common.client;
+package com.logonbox.vpn.client.db;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -20,8 +20,11 @@ import javax.persistence.Table;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.logonbox.vpn.common.client.Connection;
+
 @Entity
 @Table(name = "peer_configurations")
+@Deprecated
 public class ConnectionImpl implements Connection, Serializable {
 
 	private static final long serialVersionUID = 1007856764641094257L;

@@ -9,10 +9,12 @@ import com.logonbox.vpn.common.client.AbstractDBusClient;
 
 public interface DBusClient {
 
-	default String getServerDBusAddress() {
+	default String getServerDBusAddress(String addressFile) {
 		Properties properties = new Properties();
 		String path;
-		if (System.getProperty("hypersocket.dbus") != null) {
+		if(addressFile != null)
+			path = addressFile;
+		else if (System.getProperty("hypersocket.dbus") != null) {
 			path = System.getProperty("hypersocket.dbus");
 		} else if (Boolean.getBoolean("hypersocket.development")) {
 			path = new File(AbstractDBusClient.CLIENT_CONFIG_HOME,  "dbus.properties").getAbsolutePath();

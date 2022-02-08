@@ -1,17 +1,17 @@
 [
   {
-    "interfaces":["javax.xml.bind.annotation.XmlAccessorType","com.sun.xml.bind.v2.model.annotation.Locatable"]}
+    "interfaces":["com.logonbox.vpn.client.dbus.NetworkManager"]}
   ,
   {
-    "interfaces":["javax.xml.bind.annotation.XmlElements","com.sun.xml.bind.v2.model.annotation.Locatable"]}
+    "interfaces":["com.logonbox.vpn.client.dbus.NetworkManager$Settings$Connection"]}
   ,
   {
-    "interfaces":["javax.xml.bind.annotation.XmlEnumValue","com.sun.xml.bind.v2.model.annotation.Locatable"]}
-  ,
-  {
-    "interfaces":["javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter","com.sun.xml.bind.v2.model.annotation.Locatable"]}
+    "interfaces":["com.sshtools.forker.common.CSystem"]}
   ,
   {
     "interfaces":["org.freedesktop.dbus.interfaces.DBus"]}
+  ,
+  {
+    "interfaces":["org.freedesktop.dbus.interfaces.Properties"]}
   
 ]

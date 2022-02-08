@@ -112,6 +112,11 @@
 			<artifactId>client-logonbox-vpn-cli</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>com.logonbox</groupId>
+            <artifactId>client-logonbox-vpn-dbconvert</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>com.sshtools</groupId>
 			<artifactId>forker-wrapper</artifactId>
@@ -161,6 +166,9 @@
 										<fileset>
 											<directory>target/bootstrap</directory>
 										</fileset>
+                                        <fileset>
+                                            <directory>target/dbconvert</directory>
+                                        </fileset>
 									</filesets>
 								</configuration>
 							</execution>
@@ -198,6 +206,19 @@
 									</artifacts>
 								</configuration>
 							</execution>
+                            <execution>
+                                <id>copy-converter</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>get-artifacts</goal>
+                                </goals>
+                                <configuration>
+                                    <output>${project.build.directory}/converter</output>
+                                    <artifacts>
+                                        <artifact>com.logonbox:client-logonbox-vpn-dbconvert:${project.version}</artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
 							<execution>
 								<id>copy-gui</id>
 								<phase>package</phase>

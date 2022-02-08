@@ -1,0 +1,37 @@
+{
+  "resources":{
+  "includes":[
+    {
+      "pattern":"\\QMETA-INF/services/org.freedesktop.dbus.spi.transport.ITransportProvider\\E"
+    }, 
+    {
+      "pattern":"\\Qcom/exe4j/runtime/util/ResourceHelper.class\\E"
+    }, 
+    {
+      "pattern":"\\Qdefault-log4j-cli.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qmozilla/public-suffix-list.txt\\E"
+    }, 
+    {
+      "pattern":"\\Qorg/apache/http/client/version.properties\\E"
+    }, 
+    {
+      "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
+    }
+  ]},
+  "bundles":[
+    {
+      "name":"com.logonbox.vpn.client.cli.CLI",
+      "locales":[""]
+    }, 
+    {
+      "name":"com.sun.org.apache.xml.internal.serializer.XMLEntities",
+      "locales":[""]
+    }, 
+    {
+      "name":"sun.awt.resources.awt",
+      "classNames":["sun.awt.resources.awt"]
+    }
+  ]
+}

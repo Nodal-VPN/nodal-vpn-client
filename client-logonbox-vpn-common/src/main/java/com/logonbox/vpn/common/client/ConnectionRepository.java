@@ -1,15 +1,12 @@
 package com.logonbox.vpn.common.client;
 
+import java.io.Closeable;
 import java.net.URI;
 import java.util.List;
 
-public interface ConnectionRepository {
-
-	Connection getConfigurationForPublicKey(String publicKey);
+public interface ConnectionRepository extends Closeable {
 
 	Connection getConnection(Long id);
-
-	Connection getConnectionByName(String owner, String name);
 
 	Connection save(Connection connection);
 
@@ -22,6 +19,4 @@ public interface ConnectionRepository {
 	List<Connection> getConnections(String owner);
 
 	void delete(Connection con);
-
-	Connection getConnectionByURI(String owner, String uri);
 }
