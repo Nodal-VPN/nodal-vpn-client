@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
@@ -37,13 +38,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.logonbox.vpn.client.LocalContext;
-import com.logonbox.vpn.client.db.ConnectionImpl;
 import com.logonbox.vpn.client.dbus.VPNConnectionImpl;
 import com.logonbox.vpn.client.wireguard.VirtualInetAddress;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.ConfigurationRepository;
 import com.logonbox.vpn.common.client.Connection;
+import com.logonbox.vpn.common.client.Connection.Mode;
 import com.logonbox.vpn.common.client.ConnectionRepository;
 import com.logonbox.vpn.common.client.ConnectionStatus;
 import com.logonbox.vpn.common.client.ConnectionStatus.Type;
@@ -163,7 +164,7 @@ public class ClientServiceImpl implements ClientService {
 			}
 
 			/* New temporary connection */
-			ConnectionImpl connection = new ConnectionImpl();
+			Connection connection = connectionRepository.createNew();
 			connection.setId(transientConnectionId.decrementAndGet());
 			connection.updateFromUri(uri);
 			connection.setConnectAtStartup(false);
@@ -174,7 +175,18 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
-	public Connection create(Connection connection) {
+	public Connection create(String uri, String owner, boolean connectAtStartup, Mode mode, boolean stayConnected) {
+		Connection connection;
+		try {
+			connection = connectionRepository.createNew(new URI(uri));
+		} catch (URISyntaxException e1) {
+			throw new IllegalStateException("Failed to create new connection.", e1);
+		}
+		connection.setOwner(owner);
+		connection.setConnectAtStartup(connectAtStartup);
+		connection.setMode(mode);
+		connection.setStayConnected(stayConnected);
+		
 		try {
 			context.sendMessage(new VPN.ConnectionAdding("/com/logonbox/vpn"));
 		} catch (DBusException e) {

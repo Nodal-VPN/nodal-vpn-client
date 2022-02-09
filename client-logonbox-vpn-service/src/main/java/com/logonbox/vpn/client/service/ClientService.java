@@ -7,6 +7,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
+import com.logonbox.vpn.common.client.Connection.Mode;
 import com.logonbox.vpn.common.client.ConnectionStatus;
 import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
 
@@ -66,8 +67,6 @@ public interface ClientService  {
 	
 	<V> void setValue(String owner, ConfigurationItem<V> item, V value) ;
 
-	Connection create(Connection connection);
-
 	ScheduledExecutorService getTimer();
 
 	void registered(VPNFrontEnd frontEnd);
@@ -83,4 +82,6 @@ public interface ClientService  {
 	List<Connection> getConnections(String owner);
 
 	void restart();
+
+	Connection create(String uri, String owner, boolean connectAtStartup, Mode mode, boolean stayConnected);
 }

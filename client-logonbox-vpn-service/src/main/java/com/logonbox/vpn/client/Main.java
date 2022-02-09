@@ -441,7 +441,6 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 						}
 					}
 				}
-				log.info(String.format("Connecting to embedded DBus %s", busAddress.getRawAddress()));
 
 				startedBus = true;
 				

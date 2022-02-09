@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import com.hypersocket.json.version.HypersocketVersion;
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.Main;
-import com.logonbox.vpn.client.db.ConnectionImpl;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection.Mode;
 import com.logonbox.vpn.common.client.ConnectionStatus;
@@ -129,19 +128,13 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 	@Override
 	public long createConnection(String uri, boolean connectAtStartup, boolean stayConnected, String mode) {
 		assertRegistered();
-		ConnectionImpl connection = new ConnectionImpl();
 		try {
 			ctx.getClientService().getStatus(getOwner(), uri);
 			throw new IllegalArgumentException(String.format("Connection with URI %s already exists.", uri));
 		} catch (Exception e) {
 			/* Doesn't exist */
-			connection.updateFromUri(uri);
 			VPNFrontEnd fe = ctx.getFrontEnd(DBusConnection.getCallInfo().getSource());
-			connection.setOwner(fe == null ? System.getProperty("user.name") : fe.getUsername());
-			connection.setConnectAtStartup(connectAtStartup);
-			connection.setMode(Mode.valueOf(mode));
-			connection.setStayConnected(stayConnected);
-			return ctx.getClientService().create(connection).getId();
+			return ctx.getClientService().create(uri, fe == null ? System.getProperty("user.name") : fe.getUsername(), connectAtStartup, Mode.valueOf(mode), stayConnected).getId();
 		}
 	}
 

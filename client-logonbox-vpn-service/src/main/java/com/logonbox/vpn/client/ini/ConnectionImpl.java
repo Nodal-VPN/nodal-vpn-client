@@ -196,9 +196,33 @@ public class ConnectionImpl implements Connection, Serializable {
 		this.shared = publicToAll;
 	}
 
+//	@Override
+//	public int hashCode() {
+//		return Objects.hash(hostname, owner, path, port);
+//	}
+//
+//	@Override
+//	public boolean equals(Object obj) {
+//		if (this == obj)
+//			return true;
+//		if (obj == null)
+//			return false;
+//		if (getClass() != obj.getClass())
+//			return false;
+//		ConnectionImpl other = (ConnectionImpl) obj;
+//		return Objects.equals(hostname, other.hostname) && Objects.equals(owner, other.owner)
+//				&& Objects.equals(path, other.path) && Objects.equals(port, other.port);
+//	}
+
+	
+	
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(hostname, owner, path, port);
+		return Objects.hash(id);
 	}
 
 	@Override
@@ -210,12 +234,7 @@ public class ConnectionImpl implements Connection, Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		ConnectionImpl other = (ConnectionImpl) obj;
-		return Objects.equals(hostname, other.hostname) && Objects.equals(owner, other.owner)
-				&& Objects.equals(path, other.path) && Objects.equals(port, other.port);
-	}
-
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
+		return Objects.equals(id, other.id);
 	}
 
 	private void writeObject(ObjectOutputStream out) throws IOException {
