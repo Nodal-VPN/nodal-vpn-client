@@ -81,6 +81,18 @@ public class FileSecurity {
 		} else if (Platform.isWindows()) {
 			AclFileAttributeView aclAttr = Files.getFileAttributeView(path, AclFileAttributeView.class);
 			List<AclEntry> acl = new ArrayList<>();
+			if (OS.isAdministrator()) {
+				try {
+					acl.add(set(true, path, "Administrators", AclEntryType.ALLOW, AclEntryPermission.values()));
+				} catch (UserPrincipalNotFoundException upnfe2) {
+					log.debug("Failed to add administrators permission.", upnfe2);
+				}
+				try {
+					acl.add(set(true, path, "SYSTEM", AclEntryType.ALLOW, AclEntryPermission.values()));
+				} catch (UserPrincipalNotFoundException upnfe2) {
+					log.debug("Failed to add administrators permission.", upnfe2);
+				}
+			}
 			try {
 				acl.add(set(true, path, "Everyone", AclEntryType.ALLOW, AclEntryPermission.READ_DATA,
 						AclEntryPermission.WRITE_DATA));

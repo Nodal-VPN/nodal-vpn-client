@@ -683,15 +683,30 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 			queue.shutdown();
 		}
 		finally {
+			if(conn != null) {
+				try {
+					conn.close();
+				}
+				catch(Exception e) {
+					log.warn("Failed to close bus connection.");
+				}
+			}
 			try {
 				shutdownEmbeddeDaemon();
 			}
 			finally {
 				if(busAddress != null) {
-					try {
-						Files.delete(Paths.get(busAddress.getPath()));
-					} catch (IOException e) {
-						log.warn("Failed to delete bus socket file.");
+					for(int i = 0 ; i < 10 ; i++) {
+						try {
+							Files.delete(Paths.get(busAddress.getPath()));
+							break;
+						} catch (IOException e) {
+							log.warn("Failed to delete bus socket file, trying again.");
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e1) {
+							}
+						}
 					}
 				}
 				try {
