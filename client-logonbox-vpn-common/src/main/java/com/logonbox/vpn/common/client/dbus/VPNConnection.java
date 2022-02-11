@@ -225,10 +225,22 @@ public interface VPNConnection extends DBusInterface {
 	public static class Disconnected extends DBusSignal {
 
 		private final String reason;
+		private final String displayName;
+		private final String hostname;
 
-		public Disconnected(String path, String reason) throws DBusException {
-			super(path, reason);
+		public Disconnected(String path, String reason, String displayName, String hostname) throws DBusException {
+			super(path, reason, displayName, hostname);
 			this.reason = reason;
+			this.displayName = displayName;
+			this.hostname = hostname;
+		}
+
+		public String getDisplayName() {
+			return displayName;
+		}
+
+		public String getHostname() {
+			return hostname;
 		}
 
 		public String getReason() {

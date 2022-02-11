@@ -3,9 +3,6 @@
   "name":"[B"
 },
 {
-  "name":"[Lcom.hypersocket.extensions.ExtensionVersion;"
-},
-{
   "name":"[Ljava.lang.String;"
 },
 {
@@ -20,18 +17,59 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.hypersocket.extensions.ExtensionState",
+  "name":"com.hypersocket.json.AuthenticationRequiredResult",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setFormTemplate","parameterTypes":["com.hypersocket.json.input.FormTemplate"] }
+  ]
+},
+{
+  "name":"com.hypersocket.json.AuthenticationResult",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setBannerMsg","parameterTypes":["java.lang.String"] }, 
+    {"name":"setErrorMsg","parameterTypes":["java.lang.String"] }, 
+    {"name":"setErrorStyle","parameterTypes":["java.lang.String"] }, 
+    {"name":"setLastErrorIsResourceKey","parameterTypes":["boolean"] }, 
+    {"name":"setShowLocales","parameterTypes":["boolean"] }, 
+    {"name":"setSuccess","parameterTypes":["boolean"] }
+  ]
+},
+{
+  "name":"com.hypersocket.json.JsonLogonResult",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setSession","parameterTypes":["com.hypersocket.json.JsonSession"] }
+  ]
+},
+{
+  "name":"com.hypersocket.json.JsonPrincipal",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setId","parameterTypes":["java.lang.Long"] }, 
+    {"name":"setPrincipalName","parameterTypes":["java.lang.String"] }, 
+    {"name":"setType","parameterTypes":["com.hypersocket.json.JsonPrincipalType"] }
+  ]
+},
+{
+  "name":"com.hypersocket.json.JsonPrincipalType",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true
 },
 {
-  "name":"com.hypersocket.extensions.ExtensionVersion",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"com.hypersocket.extensions.JsonExtensionList",
+  "name":"com.hypersocket.json.JsonRealm",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "queryAllDeclaredConstructors":true,
@@ -40,21 +78,72 @@
 {
   "name":"com.hypersocket.json.JsonResource",
   "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.hypersocket.json.JsonResourceList",
-  "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[
-    {"name":"setProperties","parameterTypes":["java.util.Map"] }, 
-    {"name":"setResources","parameterTypes":["com.hypersocket.json.JsonResource[]"] }, 
-    {"name":"setSuccess","parameterTypes":["boolean"] }
+    {"name":"setId","parameterTypes":["java.lang.Long"] }, 
+    {"name":"setName","parameterTypes":["java.lang.String"] }, 
+    {"name":"setSystem","parameterTypes":["boolean"] }
   ]
 },
 {
-  "name":"com.install4j.runtime.installer.helper.versionspecific.Java11Helper",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "name":"com.hypersocket.json.JsonSession",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setCsrfToken","parameterTypes":["java.lang.String"] }, 
+    {"name":"setId","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"com.hypersocket.json.input.FormTemplate",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setFormClass","parameterTypes":["java.lang.String"] }, 
+    {"name":"setInputFields","parameterTypes":["java.util.List"] }, 
+    {"name":"setLogonButtonIcon","parameterTypes":["java.lang.String"] }, 
+    {"name":"setLogonButtonResourceKey","parameterTypes":["java.lang.String"] }, 
+    {"name":"setOverrideStartAgain","parameterTypes":["boolean"] }, 
+    {"name":"setResourceKey","parameterTypes":["java.lang.String"] }, 
+    {"name":"setShowLogonButton","parameterTypes":["boolean"] }, 
+    {"name":"setShowStartAgain","parameterTypes":["boolean"] }, 
+    {"name":"setStartAuthentication","parameterTypes":["java.lang.Boolean"] }
+  ]
+},
+{
+  "name":"com.hypersocket.json.input.InputField",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setClasses","parameterTypes":["java.lang.String"] }, 
+    {"name":"setDefaultValue","parameterTypes":["java.lang.String"] }, 
+    {"name":"setHelp","parameterTypes":["java.lang.String"] }, 
+    {"name":"setInfoKey","parameterTypes":["java.lang.String"] }, 
+    {"name":"setLabel","parameterTypes":["java.lang.String"] }, 
+    {"name":"setOnChange","parameterTypes":["java.lang.String"] }, 
+    {"name":"setOptions","parameterTypes":["java.util.List"] }, 
+    {"name":"setReadOnly","parameterTypes":["boolean"] }, 
+    {"name":"setRequired","parameterTypes":["boolean"] }, 
+    {"name":"setResourceKey","parameterTypes":["java.lang.String"] }, 
+    {"name":"setType","parameterTypes":["com.hypersocket.json.input.InputFieldType"] }
+  ]
+},
+{
+  "name":"com.hypersocket.json.input.InputFieldType",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"com.hypersocket.json.input.Option",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
 },
 {
   "name":"com.logonbox.vpn.client.cli.CLI",
@@ -161,13 +250,9 @@
   "queryAllDeclaredMethods":true
 },
 {
-  "name":"com.logonbox.vpn.common.client.ClientTrustProvider$ClientTrustManagerFactory",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Connected",
+  "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Authorize",
   "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String","java.lang.String"] }]
 },
 {
   "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Connecting",
@@ -217,23 +302,7 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.sun.crypto.provider.TlsKeyMaterialGenerator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.TlsPrfGenerator$V12",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -241,10 +310,6 @@
 },
 {
   "name":"java.io.Serializable",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"java.lang.Comparable",
   "queryAllDeclaredMethods":true
 },
 {
@@ -269,15 +334,6 @@
   "methods":[{"name":"getContextClassLoader","parameterTypes":[] }]
 },
 {
-  "name":"java.lang.management.PlatformLoggingMXBean",
-  "queriedMethods":[
-    {"name":"getLoggerLevel","parameterTypes":["java.lang.String"] }, 
-    {"name":"getLoggerNames","parameterTypes":[] }, 
-    {"name":"getParentLoggerName","parameterTypes":["java.lang.String"] }, 
-    {"name":"setLoggerLevel","parameterTypes":["java.lang.String","java.lang.String"] }
-  ]
-},
-{
   "name":"java.nio.file.Path"
 },
 {
@@ -286,6 +342,9 @@
 },
 {
   "name":"java.security.AlgorithmParametersSpi"
+},
+{
+  "name":"java.security.KeyStoreSpi"
 },
 {
   "name":"java.security.SecureRandomParameters"
@@ -383,33 +442,9 @@
   "name":"java.util.Date"
 },
 {
-  "name":"java.util.logging.LogManager",
-  "methods":[{"name":"getLoggingMXBean","parameterTypes":[] }]
-},
-{
-  "name":"java.util.logging.LoggingMXBean",
-  "queryAllPublicMethods":true,
-  "methods":[{"name":"setLoggerLevel","parameterTypes":["java.lang.String","java.lang.String"] }]
-},
-{
   "name":"javax.security.auth.x500.X500Principal",
   "fields":[{"name":"thisX500Name"}],
-  "queriedMethods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
-},
-{
-  "name":"org.apache.commons.logging.LogFactory"
-},
-{
-  "name":"org.apache.commons.logging.impl.Log4JLogger",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"org.apache.commons.logging.impl.LogFactoryImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.apache.commons.logging.impl.WeakHashtable",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "methods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
 },
 {
   "name":"org.apache.log4j.Appender"
@@ -437,10 +472,6 @@
   "queryAllPublicMethods":true
 },
 {
-  "name":"org.apache.log4j.Level",
-  "fields":[{"name":"TRACE"}]
-},
-{
   "name":"org.apache.log4j.Logger"
 },
 {
@@ -450,9 +481,6 @@
     {"name":"<init>","parameterTypes":[] }, 
     {"name":"setConversionPattern","parameterTypes":["java.lang.String"] }
   ]
-},
-{
-  "name":"org.apache.log4j.Priority"
 },
 {
   "name":"org.apache.log4j.RollingFileAppender",
@@ -472,6 +500,10 @@
 },
 {
   "name":"org.apache.log4j.spi.OptionHandler"
+},
+{
+  "name":"org.freedesktop.dbus.exceptions.DBusExecutionException",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"org.freedesktop.dbus.interfaces.DBus$NameAcquired",
@@ -499,6 +531,14 @@
 },
 {
   "name":"sun.security.provider.DSA$SHA256withDSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.JavaKeyStore$DualFormatJKS",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.JavaKeyStore$JKS",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -550,10 +590,6 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.security.rsa.RSASignature$SHA256withRSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"sun.security.ssl.SSLContextImpl$TLSContext",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -588,7 +624,19 @@
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
+  "name":"sun.security.x509.IssuerAlternativeNameExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
   "name":"sun.security.x509.KeyUsageExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.NetscapeCertTypeExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.PrivateKeyUsageExtension",
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {

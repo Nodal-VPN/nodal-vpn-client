@@ -79,6 +79,8 @@
 				}
 				for (var i = 0; i < connections.length; i++) {
 					var connection = connections[i];
+					if(!connection)
+						throw 'Index ' + i + ' is null? (in ' + connections.length + ')';
 					var connectionEl = template.clone();
 					connectionEl.prop('id', 'connection' + connection.getId());
 					connectionEl.attr('data-connection', connection.getId());

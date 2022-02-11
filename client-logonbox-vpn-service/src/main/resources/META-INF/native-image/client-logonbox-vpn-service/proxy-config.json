@@ -6,9 +6,6 @@
     "interfaces":["com.logonbox.vpn.client.dbus.NetworkManager$Settings$Connection"]}
   ,
   {
-    "interfaces":["com.sshtools.forker.common.CSystem"]}
-  ,
-  {
     "interfaces":["org.freedesktop.dbus.interfaces.DBus"]}
   ,
   {

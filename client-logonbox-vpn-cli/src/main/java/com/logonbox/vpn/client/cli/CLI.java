@@ -4,6 +4,7 @@ package com.logonbox.vpn.client.cli;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.CookieStore;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -18,7 +19,6 @@ import org.freedesktop.dbus.interfaces.DBusSigHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hypersocket.json.version.HypersocketVersion;
 import com.logonbox.vpn.client.cli.commands.About;
 import com.logonbox.vpn.client.cli.commands.Config;
 import com.logonbox.vpn.client.cli.commands.Connect;
@@ -34,6 +34,7 @@ import com.logonbox.vpn.client.cli.commands.Show;
 import com.logonbox.vpn.client.cli.commands.Shutdown;
 import com.logonbox.vpn.client.cli.commands.Update;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
+import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.UpdateService;
 import com.logonbox.vpn.common.client.Util;
@@ -383,6 +384,11 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 		@Override
 		public UpdateService getUpdateService() {
 			return CLI.this.getUpdateService();
+		}
+
+		@Override
+		public CookieStore getCookieStore() {
+			return CLI.this.getCookieStore();
 		}
 	}
 

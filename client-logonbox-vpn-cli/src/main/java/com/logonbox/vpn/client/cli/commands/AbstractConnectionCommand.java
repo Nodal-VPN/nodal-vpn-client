@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 
-import org.apache.http.message.BasicNameValuePair;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +30,7 @@ import com.logonbox.vpn.client.cli.ConsoleProvider;
 import com.logonbox.vpn.client.cli.StateHelper;
 import com.logonbox.vpn.common.client.ConnectionStatus.Type;
 import com.logonbox.vpn.common.client.ServiceClient;
+import com.logonbox.vpn.common.client.ServiceClient.NameValuePair;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
 
 import picocli.CommandLine.Model.CommandSpec;
@@ -101,7 +101,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 	protected void register(CLIContext cli, VPNConnection connection, PrintWriter out, PrintWriter err)
 			throws IOException, URISyntaxException {
 
-		ServiceClient sc = new ServiceClient(new ServiceClient.Authenticator() {
+		ServiceClient sc = new ServiceClient(getCLI().getCookieStore(), new ServiceClient.Authenticator() {
 
 			@Override
 			public String getUUID() {
@@ -124,7 +124,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 
 			@Override
 			public void collect(JsonNode i18n, AuthenticationRequiredResult result,
-					Map<InputField, BasicNameValuePair> results) throws IOException {
+					Map<InputField, NameValuePair> results) throws IOException {
 				out.println(MessageFormat.format(CLI.BUNDLE.getString("authenticationRequired"),
 						i18n.get("authentication." + result.getFormTemplate().getResourceKey()).asText()));
 				int fieldNo = 0;
@@ -158,14 +158,14 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 									}
 								}
 							}
-							results.put(field, new BasicNameValuePair(field.getResourceKey(), reply));
+							results.put(field, new NameValuePair(field.getResourceKey(), reply));
 							break;
 						case password:
 							char[] pw = cli.getConsole().readPassword(field.getLabel() + ": ");
 							if (pw == null)
 								throw new EOFException();
 							if (pw.length > 0 || !field.isRequired()) {
-								results.put(field, new BasicNameValuePair(field.getResourceKey(), new String(pw)));
+								results.put(field, new NameValuePair(field.getResourceKey(), new String(pw)));
 								loop = false;
 							}
 							break;
@@ -178,7 +178,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 							if (input == null)
 								throw new EOFException();
 							if (input.length() > 0 || !field.isRequired()) {
-								results.put(field, new BasicNameValuePair(field.getResourceKey(),
+								results.put(field, new NameValuePair(field.getResourceKey(),
 										input.equals("") ? field.getDefaultValue() : input));
 								loop = false;
 							} else if (input.length() == 0 && fieldNo == 0) {
@@ -186,7 +186,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 							}
 							break;
 						case hidden:
-							results.put(field, new BasicNameValuePair(field.getResourceKey(), field.getDefaultValue()));
+							results.put(field, new NameValuePair(field.getResourceKey(), field.getDefaultValue()));
 							break;
 						case p:
 						case div:
@@ -210,7 +210,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 							else
 								input = "";
 							if (!input.equals("")) {
-								results.put(field, new BasicNameValuePair(field.getResourceKey(), input));
+								results.put(field, new NameValuePair(field.getResourceKey(), input));
 								loop = false;
 							}
 							break;

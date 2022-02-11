@@ -1,2 +1,17 @@
 [
+  {
+    "name":"com.logonbox.vpn.common.client.CustomCookieStore$CookieWrapper"
+  },
+  {
+    "name":"java.lang.String"
+  },
+  {
+    "name":"java.net.URI"
+  },
+  {
+    "name":"java.util.ArrayList"
+  },
+  {
+    "name":"java.util.HashMap"
+  }
 ]

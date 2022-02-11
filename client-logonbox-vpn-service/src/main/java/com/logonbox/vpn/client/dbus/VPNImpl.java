@@ -9,13 +9,13 @@ import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hypersocket.json.version.HypersocketVersion;
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.Main;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection.Mode;
 import com.logonbox.vpn.common.client.ConnectionStatus;
 import com.logonbox.vpn.common.client.ConnectionStatus.Type;
+import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.dbus.VPN;
 import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
 

@@ -1,5 +1,7 @@
 package com.logonbox.vpn.client.wireguard.osx;
 
+import static com.logonbox.vpn.client.wireguard.OsUtil.debugCommandArgs;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import com.logonbox.vpn.client.wireguard.IpUtil;
 import com.sshtools.forker.client.OSCommand;
-import static com.logonbox.vpn.client.wireguard.OsUtil.debugCommandArgs;
 
 public class OSXNetworksetupDNS {
 	final static Logger LOG = LoggerFactory.getLogger(OSXNetworksetupDNS.class);

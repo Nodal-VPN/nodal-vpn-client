@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.logonbox.vpn.common.client.ConfigurationItem;
-import com.logonbox.vpn.common.client.ConfigurationRepository;
 import com.logonbox.vpn.common.client.ConfigurationItem.Scope;
+import com.logonbox.vpn.common.client.ConfigurationRepository;
 
 public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 

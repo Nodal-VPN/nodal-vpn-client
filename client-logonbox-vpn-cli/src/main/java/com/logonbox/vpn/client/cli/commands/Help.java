@@ -11,8 +11,8 @@ import com.logonbox.vpn.client.cli.ConsoleProvider;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 @Command(name = "help", usageHelpAutoWidth = true, mixinStandardHelpOptions = true, helpCommand = true, description = "Shows help.")

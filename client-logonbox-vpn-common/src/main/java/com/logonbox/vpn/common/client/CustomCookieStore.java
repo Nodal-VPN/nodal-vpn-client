@@ -1,4 +1,4 @@
-package com.logonbox.vpn.client.gui.jfx;
+package com.logonbox.vpn.common.client;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.logonbox.vpn.common.client.AbstractDBusClient;
-
 public class CustomCookieStore implements CookieStore {
+    public static final String DOMAIN_ATTR     = "domain";
+    
 	static Logger log = LoggerFactory.getLogger(CustomCookieStore.class);
 
 	public static class CookieWrapper implements Serializable {

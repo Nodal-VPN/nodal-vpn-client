@@ -5,6 +5,9 @@
  * Dark branding colours for links in dark mode were hard to read
  * Better transition to remote authorisation page on first load.
  * Improved look of remote authorisation.
+ * Better clean up on shutdown of service (e.g. removing dbus socket file)
+ * Alternative configuration storage mechanism (to replace Derby in a later release)
+ * Tool to convert to new storage mechanism.
 
 ## 2.4.0-690
 

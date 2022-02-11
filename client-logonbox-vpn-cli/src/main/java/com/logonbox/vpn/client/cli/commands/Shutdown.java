@@ -5,8 +5,8 @@ import java.util.concurrent.Callable;
 import com.logonbox.vpn.client.cli.CLIContext;
 
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
 @Command(name = "shutdown", usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Shutdown the service.")

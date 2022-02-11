@@ -1,6 +1,7 @@
 package com.logonbox.vpn.client.cli;
 
 import java.io.IOException;
+import java.net.CookieStore;
 import java.util.List;
 
 import org.freedesktop.dbus.connections.impl.DBusConnection;
@@ -30,4 +31,6 @@ public interface CLIContext {
 	DBusConnection getBus();
 
 	UpdateService getUpdateService();
+
+	CookieStore getCookieStore();
 }

@@ -2,6 +2,7 @@ package com.logonbox.vpn.common.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.CookieStore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -72,6 +73,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 	private boolean supportsAuthorization;
 	private PromptingCertManager certManager;
 	private UpdateService  updateService;
+	private CookieStore cookieStore;
 	/**
 	 * Matches the identifier in logonbox VPN server
 	 * PeerConfigurationAuthenticationProvider.java
@@ -101,7 +103,13 @@ public abstract class AbstractDBusClient implements DBusClient {
 			t.printStackTrace();
 			updateService = new DummyUpdateService(this);
 		}
-		
+	}
+	
+	public CookieStore getCookieStore() {
+		if(cookieStore == null) {
+			cookieStore = new CustomCookieStore();
+		}
+		return cookieStore;
 	}
 	
 	public UpdateService getUpdateService() {

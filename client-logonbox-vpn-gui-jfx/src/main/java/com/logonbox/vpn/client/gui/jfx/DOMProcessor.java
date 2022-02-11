@@ -21,9 +21,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.hypersocket.json.version.HypersocketVersion;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.ConnectionStatus;
+import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.UpdateService;
 import com.logonbox.vpn.common.client.Util;
 import com.logonbox.vpn.common.client.api.Branding;

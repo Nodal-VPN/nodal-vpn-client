@@ -2,45 +2,20 @@
   "resources":{
   "includes":[
     {
+      "pattern":"\\QMETA-INF/MANIFEST.MF\\E"
+    }, 
+    {
       "pattern":"\\QMETA-INF/services/com.sshtools.forker.client.ForkerProcessFactory\\E"
     }, 
     {
       "pattern":"\\QMETA-INF/services/com.sshtools.forker.common.IO\\E"
     }, 
     {
-      "pattern":"\\QMETA-INF/services/java.sql.Driver\\E"
-    }, 
-    {
       "pattern":"\\QMETA-INF/services/org.freedesktop.dbus.spi.transport.ITransportProvider\\E"
-    }, 
-    {
-      "pattern":"\\Qcom/sun/jna/linux-x86-64/libjnidispatch.so\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/apache/derby/info/client/info.properties\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/apache/derby/info/engine/info.properties\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/apache/derby/modules.properties\\E"
     }, 
     {
       "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
     }
   ]},
-  "bundles":[
-    {
-      "name":"com.sun.org.apache.xml.internal.serializer.XMLEntities",
-      "locales":[""]
-    }, 
-    {
-      "name":"org.apache.derby.loc.m10",
-      "locales":["en"]
-    }, 
-    {
-      "name":"org.apache.derby.loc.m2",
-      "locales":["en"]
-    }
-  ]
+  "bundles":[]
 }

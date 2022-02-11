@@ -2,12 +2,13 @@ package com.logonbox.vpn.client.gui.jfx;
 
 import java.awt.SplashScreen;
 import java.awt.Taskbar;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -27,13 +28,11 @@ import java.util.function.Consumer;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.freedesktop.dbus.utils.Util;
 import org.jetbrains.annotations.NotNull;
-import org.kordamp.bootstrapfx.BootstrapFX;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +40,7 @@ import com.goxr3plus.fxborderlessscene.borderless.BorderlessScene;
 import com.jthemedetecor.OsThemeDetector;
 import com.logonbox.vpn.client.gui.jfx.PowerMonitor.Listener;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
+import com.logonbox.vpn.common.client.CustomCookieStore;
 import com.logonbox.vpn.common.client.api.Branding;
 import com.logonbox.vpn.common.client.api.BrandingInfo;
 import com.vladsch.boxed.json.BoxedJsObject;
@@ -630,8 +630,6 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 			log.debug(String.format("Using custom JavaFX stylesheet %s", tmpFile));
 		ss.add(0, toUri(tmpFile).toExternalForm());
 
-		ss.add(BootstrapFX.bootstrapFXStylesheet());
-		ss.add(Client.class.getResource("bootstrapfx.override.css").toExternalForm());
 		ss.add(Client.class.getResource(Client.class.getSimpleName() + ".css").toExternalForm());
 
 	}
@@ -798,8 +796,9 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		String linkStr = toHex(linkColor);
 		String baseInverseRgbStr = toRgba(getBaseInverse(), 0.05f);
 		try (PrintWriter output = new PrintWriter(new FileWriter(tmpFile))) {
-			try (InputStream input = UI.class.getResource("local.css").openStream()) {
-				for (String line : IOUtils.readLines(input, "UTF-8")) {
+			try (BufferedReader input = new BufferedReader(new InputStreamReader(UI.class.getResource("local.css").openStream()))) {
+				String line;
+				while(( line = input.readLine()) != null) {
 					line = line.replace("${lbvpnBackground}", bgStr);
 					line = line.replace("${lbvpnForeground}", fgStr);
 					line = line.replace("${lbvpnAccent}", accent1Str);

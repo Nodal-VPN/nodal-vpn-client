@@ -3,6 +3,9 @@ package com.logonbox.vpn.common.client;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.net.http.HttpRequest;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,6 +15,7 @@ import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -21,6 +25,34 @@ public class Util {
 
 	private static final boolean IS_64BIT = is64bit0();
 	private static final boolean IS_AARCH64 = isAarch640();
+	
+	public static String getBasename(String name) {
+		int idx = name.indexOf('.');
+		return idx == -1 ? name : name.substring(0, idx);
+	}
+
+	public static String checkEndsWithSlash(String str) {
+		if (str.endsWith("/")) {
+			return str;
+		} else {
+			return str + "/";
+		}
+	}
+	
+	public static HttpRequest.BodyPublisher ofMap(Map<String, String> parms) {
+		var b = new StringBuilder();
+		for(var m : parms.entrySet()) {
+			if (b.length() > 0) {
+	            b.append("&");
+	        }
+			b.append(URLEncoder.encode(m.getKey(), StandardCharsets.UTF_8));
+			if(m.getValue() != null) {
+				b.append('=');
+				b.append(URLEncoder.encode(m.getValue(), StandardCharsets.UTF_8)); 
+			}
+		}
+		return HttpRequest.BodyPublishers.ofString(b.toString());
+	}
 
 	public static boolean isAdministrator() {
 		if (SystemUtils.IS_OS_WINDOWS) {

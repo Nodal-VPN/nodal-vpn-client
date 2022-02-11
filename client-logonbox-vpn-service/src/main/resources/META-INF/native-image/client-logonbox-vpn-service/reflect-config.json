@@ -1,39 +1,8 @@
 [
 {
-  "name":"[B"
-},
-{
-  "name":"[C"
-},
-{
-  "name":"[D"
-},
-{
-  "name":"[F"
-},
-{
-  "name":"[I"
-},
-{
-  "name":"[J"
-},
-{
-  "name":"[Ljava.lang.String;"
-},
-{
-  "name":"[Ljavax.management.openmbean.CompositeData;"
-},
-{
-  "name":"[S"
-},
-{
-  "name":"[Z"
-},
-{
   "name":"com.logonbox.vpn.client.Main",
   "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"main","parameterTypes":["java.lang.String[]"] }]
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.logonbox.vpn.common.client.DNSIntegrationMethod",
@@ -45,9 +14,6 @@
   "queryAllDeclaredMethods":true,
   "methods":[
     {"name":"createConnection","parameterTypes":["java.lang.String","boolean","boolean","java.lang.String"] }, 
-    {"name":"deregister","parameterTypes":[] }, 
-    {"name":"getActiveButNonPersistentConnections","parameterTypes":[] }, 
-    {"name":"getBooleanValue","parameterTypes":["java.lang.String"] }, 
     {"name":"getConnections","parameterTypes":[] }, 
     {"name":"getFreeMemory","parameterTypes":[] }, 
     {"name":"getLongValue","parameterTypes":["java.lang.String"] }, 
@@ -56,8 +22,7 @@
     {"name":"getUUID","parameterTypes":[] }, 
     {"name":"getValue","parameterTypes":["java.lang.String"] }, 
     {"name":"ping","parameterTypes":[] }, 
-    {"name":"register","parameterTypes":["java.lang.String","boolean","boolean"] }, 
-    {"name":"setLongValue","parameterTypes":["java.lang.String","long"] }
+    {"name":"register","parameterTypes":["java.lang.String","boolean","boolean"] }
   ]
 },
 {
@@ -75,10 +40,12 @@
 },
 {
   "name":"com.logonbox.vpn.common.client.dbus.VPN$ConnectionRemoved",
+  "queryAllDeclaredConstructors":true,
   "queryAllPublicConstructors":true
 },
 {
   "name":"com.logonbox.vpn.common.client.dbus.VPN$ConnectionRemoving",
+  "queryAllDeclaredConstructors":true,
   "queryAllPublicConstructors":true
 },
 {
@@ -97,7 +64,6 @@
 },
 {
   "name":"com.logonbox.vpn.common.client.dbus.VPN$GlobalConfigChange",
-  "queryAllDeclaredConstructors":true,
   "queryAllPublicConstructors":true
 },
 {
@@ -107,6 +73,9 @@
   "methods":[
     {"name":"authorize","parameterTypes":[] }, 
     {"name":"authorized","parameterTypes":[] }, 
+    {"name":"connect","parameterTypes":[] }, 
+    {"name":"delete","parameterTypes":[] }, 
+    {"name":"disconnect","parameterTypes":["java.lang.String"] }, 
     {"name":"getAddress","parameterTypes":[] }, 
     {"name":"getAllowedIps","parameterTypes":[] }, 
     {"name":"getAuthorizeUri","parameterTypes":[] }, 
@@ -121,6 +90,7 @@
     {"name":"getLastHandshake","parameterTypes":[] }, 
     {"name":"getMode","parameterTypes":[] }, 
     {"name":"getName","parameterTypes":[] }, 
+    {"name":"getPath","parameterTypes":[] }, 
     {"name":"getPersistentKeepalive","parameterTypes":[] }, 
     {"name":"getPort","parameterTypes":[] }, 
     {"name":"getPublicKey","parameterTypes":[] }, 
@@ -130,6 +100,7 @@
     {"name":"getUri","parameterTypes":["boolean"] }, 
     {"name":"getUserPublicKey","parameterTypes":[] }, 
     {"name":"getUsernameHint","parameterTypes":[] }, 
+    {"name":"isAuthorized","parameterTypes":[] }, 
     {"name":"isConnectAtStartup","parameterTypes":[] }, 
     {"name":"isFavourite","parameterTypes":[] }, 
     {"name":"isStayConnected","parameterTypes":[] }, 
@@ -153,10 +124,12 @@
 },
 {
   "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Disconnected",
+  "queryAllDeclaredConstructors":true,
   "queryAllPublicConstructors":true
 },
 {
   "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Disconnecting",
+  "queryAllDeclaredConstructors":true,
   "queryAllPublicConstructors":true
 },
 {
@@ -166,14 +139,6 @@
 {
   "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$TemporarilyOffline",
   "queryAllPublicConstructors":true
-},
-{
-  "name":"com.sshtools.forker.wrapper.ForkerWrapper",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"com.sshtools.forker.wrapper.ForkerWrapperMXBean",
-  "queryAllPublicMethods":true
 },
 {
   "name":"com.sun.crypto.provider.AESCipher$General",
@@ -200,91 +165,11 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.sun.jna.CallbackProxy",
-  "queriedMethods":[{"name":"callback","parameterTypes":["java.lang.Object[]"] }]
-},
-{
-  "name":"com.sun.management.GarbageCollectorMXBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"com.sun.management.GcInfo",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"com.sun.management.HotSpotDiagnosticMXBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"com.sun.management.ThreadMXBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"com.sun.management.UnixOperatingSystemMXBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"com.sun.management.VMOption",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"com.sun.management.internal.GarbageCollectorExtImpl",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"com.sun.management.internal.HotSpotDiagnostic",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"com.sun.management.internal.HotSpotThreadImpl",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"com.sun.management.internal.OperatingSystemImpl",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"java.beans.PropertyVetoException"
-},
-{
-  "name":"java.lang.Boolean",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.Byte",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.Character",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.Deprecated",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"java.lang.Double",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.Float",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.Integer",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.Long",
-  "fields":[{"name":"TYPE"}]
 },
 {
   "name":"java.lang.Object",
@@ -293,116 +178,11 @@
   "queryAllPublicMethods":true
 },
 {
-  "name":"java.lang.Short",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.StackTraceElement",
-  "queryAllPublicMethods":true
-},
-{
   "name":"java.lang.String"
 },
 {
   "name":"java.lang.Thread",
   "methods":[{"name":"getContextClassLoader","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.Throwable",
-  "queriedMethods":[{"name":"addSuppressed","parameterTypes":["java.lang.Throwable"] }]
-},
-{
-  "name":"java.lang.Void",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.invoke.MethodHandle",
-  "queriedMethods":[
-    {"name":"bindTo","parameterTypes":["java.lang.Object"] }, 
-    {"name":"invokeWithArguments","parameterTypes":["java.lang.Object[]"] }
-  ]
-},
-{
-  "name":"java.lang.invoke.MethodHandles",
-  "queriedMethods":[
-    {"name":"lookup","parameterTypes":[] }, 
-    {"name":"privateLookupIn","parameterTypes":["java.lang.Class","java.lang.invoke.MethodHandles$Lookup"] }
-  ]
-},
-{
-  "name":"java.lang.invoke.MethodHandles$Lookup",
-  "queriedMethods":[
-    {"name":"findSpecial","parameterTypes":["java.lang.Class","java.lang.String","java.lang.invoke.MethodType","java.lang.Class"] }, 
-    {"name":"in","parameterTypes":["java.lang.Class"] }, 
-    {"name":"unreflectSpecial","parameterTypes":["java.lang.reflect.Method","java.lang.Class"] }
-  ]
-},
-{
-  "name":"java.lang.invoke.MethodType",
-  "queriedMethods":[{"name":"methodType","parameterTypes":["java.lang.Class","java.lang.Class[]"] }]
-},
-{
-  "name":"java.lang.management.BufferPoolMXBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"java.lang.management.ClassLoadingMXBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"java.lang.management.CompilationMXBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"java.lang.management.LockInfo",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"java.lang.management.ManagementPermission",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.management.MemoryMXBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"java.lang.management.MemoryManagerMXBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"java.lang.management.MemoryPoolMXBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"java.lang.management.MemoryUsage",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"java.lang.management.MonitorInfo",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"java.lang.management.PlatformLoggingMXBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"java.lang.management.RuntimeMXBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"java.lang.management.ThreadInfo",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"java.lang.reflect.Method",
-  "methods":[{"name":"isDefault","parameterTypes":[] }],
-  "queriedMethods":[{"name":"isVarArgs","parameterTypes":[] }]
-},
-{
-  "name":"java.math.BigDecimal"
-},
-{
-  "name":"java.math.BigInteger"
 },
 {
   "name":"java.nio.Buffer"
@@ -496,302 +276,6 @@
 {
   "name":"java.time.ZonedDateTime",
   "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.util.Date"
-},
-{
-  "name":"java.util.PropertyPermission",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
-},
-{
-  "name":"java.util.logging.LogManager",
-  "methods":[{"name":"getLoggingMXBean","parameterTypes":[] }]
-},
-{
-  "name":"java.util.logging.LoggingMXBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"javax.crypto.SecretKey"
-},
-{
-  "name":"javax.management.MBeanOperationInfo",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"javax.management.MBeanServerBuilder",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"javax.management.ObjectName"
-},
-{
-  "name":"javax.management.openmbean.CompositeData"
-},
-{
-  "name":"javax.management.openmbean.OpenMBeanOperationInfoSupport"
-},
-{
-  "name":"javax.management.openmbean.TabularData"
-},
-{
-  "name":"javax.management.remote.rmi.RMIServer",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"javax.management.remote.rmi.RMIServerImpl_Stub",
-  "methods":[{"name":"<init>","parameterTypes":["java.rmi.server.RemoteRef"] }]
-},
-{
-  "name":"javax.naming.directory.InitialDirContext"
-},
-{
-  "name":"javax.sql.ConnectionPoolDataSource"
-},
-{
-  "name":"javax.sql.DataSource"
-},
-{
-  "name":"javax.sql.PooledConnection"
-},
-{
-  "name":"javax.sql.XAConnection"
-},
-{
-  "name":"javax.sql.XADataSource"
-},
-{
-  "name":"javax.transaction.xa.XAException"
-},
-{
-  "name":"javax.transaction.xa.XAResource"
-},
-{
-  "name":"javax.transaction.xa.Xid"
-},
-{
-  "name":"jdk.management.jfr.ConfigurationInfo",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"jdk.management.jfr.EventTypeInfo",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"jdk.management.jfr.FlightRecorderMXBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"jdk.management.jfr.FlightRecorderMXBeanImpl",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"jdk.management.jfr.RecordingInfo",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"jdk.management.jfr.SettingDescriptorInfo",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"org.apache.derby.client.ClientAutoloadedDriver"
-},
-{
-  "name":"org.apache.derby.database.Database"
-},
-{
-  "name":"org.apache.derby.iapi.jdbc.AuthenticationService"
-},
-{
-  "name":"org.apache.derby.iapi.jdbc.AutoloadedDriver"
-},
-{
-  "name":"org.apache.derby.iapi.jdbc.DRDAServerStarter"
-},
-{
-  "name":"org.apache.derby.iapi.jdbc.Driver42",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.apache.derby.iapi.jdbc.InternalDriver"
-},
-{
-  "name":"org.apache.derby.iapi.jdbc.JDBC",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"org.apache.derby.iapi.services.jmx.ManagementService"
-},
-{
-  "name":"org.apache.derby.iapi.services.property.PropertyFactory"
-},
-{
-  "name":"org.apache.derby.iapi.services.property.PropertyValidation"
-},
-{
-  "name":"org.apache.derby.iapi.services.timer.TimerFactory"
-},
-{
-  "name":"org.apache.derby.iapi.services.uuid.UUIDFactory"
-},
-{
-  "name":"org.apache.derby.iapi.store.access.AccessFactory"
-},
-{
-  "name":"org.apache.derby.iapi.types.DataValueFactoryImpl"
-},
-{
-  "name":"org.apache.derby.impl.db.BasicDatabase"
-},
-{
-  "name":"org.apache.derby.impl.db.SlaveDatabase"
-},
-{
-  "name":"org.apache.derby.impl.jdbc.ResourceAdapterImpl"
-},
-{
-  "name":"org.apache.derby.impl.jdbc.SQLExceptionFactory",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.apache.derby.impl.jdbc.authentication.BasicAuthenticationServiceImpl"
-},
-{
-  "name":"org.apache.derby.impl.jdbc.authentication.JNDIAuthenticationService"
-},
-{
-  "name":"org.apache.derby.impl.jdbc.authentication.NativeAuthenticationServiceImpl"
-},
-{
-  "name":"org.apache.derby.impl.jdbc.authentication.NoneAuthenticationServiceImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.apache.derby.impl.jdbc.authentication.SpecificAuthenticationServiceImpl"
-},
-{
-  "name":"org.apache.derby.impl.services.bytecode.BCJava"
-},
-{
-  "name":"org.apache.derby.impl.services.cache.ConcurrentCacheFactory"
-},
-{
-  "name":"org.apache.derby.impl.services.daemon.SingleThreadDaemonFactory"
-},
-{
-  "name":"org.apache.derby.impl.services.jce.JCECipherFactoryBuilder"
-},
-{
-  "name":"org.apache.derby.impl.services.jmx.JMXManagementService",
-  "queryAllPublicConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.apache.derby.impl.services.jmxnone.NoManagementService"
-},
-{
-  "name":"org.apache.derby.impl.services.locks.ConcurrentPool"
-},
-{
-  "name":"org.apache.derby.impl.services.reflect.ReflectClassesJava2"
-},
-{
-  "name":"org.apache.derby.impl.services.stream.SingleStream",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.apache.derby.impl.services.timer.SingletonTimerFactory",
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"getWarnings","parameterTypes":[] }
-  ]
-},
-{
-  "name":"org.apache.derby.impl.services.uuid.BasicUUIDFactory",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.apache.derby.impl.sql.GenericLanguageFactory"
-},
-{
-  "name":"org.apache.derby.impl.sql.catalog.DataDictionaryImpl"
-},
-{
-  "name":"org.apache.derby.impl.sql.compile.OptimizerFactoryImpl"
-},
-{
-  "name":"org.apache.derby.impl.sql.compile.TypeCompilerFactoryImpl"
-},
-{
-  "name":"org.apache.derby.impl.sql.conn.GenericLanguageConnectionFactory"
-},
-{
-  "name":"org.apache.derby.impl.sql.execute.GenericExecutionFactory"
-},
-{
-  "name":"org.apache.derby.impl.sql.execute.RealResultSetStatisticsFactory"
-},
-{
-  "name":"org.apache.derby.impl.sql.execute.xplain.XPLAINFactory"
-},
-{
-  "name":"org.apache.derby.impl.store.access.RllRAMAccessManager"
-},
-{
-  "name":"org.apache.derby.impl.store.access.btree.index.B2IFactory"
-},
-{
-  "name":"org.apache.derby.impl.store.access.heap.HeapConglomerateFactory"
-},
-{
-  "name":"org.apache.derby.impl.store.access.sort.ExternalSortFactory"
-},
-{
-  "name":"org.apache.derby.impl.store.access.sort.UniqueWithDuplicateNullsExternalSortFactory"
-},
-{
-  "name":"org.apache.derby.impl.store.raw.RawStore"
-},
-{
-  "name":"org.apache.derby.impl.store.raw.data.BaseDataFileFactory"
-},
-{
-  "name":"org.apache.derby.impl.store.raw.data.BaseDataFileFactoryJ4"
-},
-{
-  "name":"org.apache.derby.impl.store.raw.log.LogToFile"
-},
-{
-  "name":"org.apache.derby.impl.store.raw.log.ReadOnly"
-},
-{
-  "name":"org.apache.derby.impl.store.raw.xact.XactFactory"
-},
-{
-  "name":"org.apache.derby.impl.store.replication.master.MasterController"
-},
-{
-  "name":"org.apache.derby.impl.store.replication.slave.SlaveController"
-},
-{
-  "name":"org.apache.derby.mbeans.JDBCMBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"org.apache.derby.mbeans.ManagementMBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"org.apache.derby.mbeans.Version",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"org.apache.derby.mbeans.VersionMBean",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"org.apache.derby.shared.common.stream.InfoStreams"
 },
 {
   "name":"org.apache.log4j.Appender"
@@ -895,46 +379,6 @@
   "name":"picocli.CommandLine$AutoHelpMixin",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true
-},
-{
-  "name":"sun.management.ClassLoadingImpl",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"sun.management.CompilationImpl",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"sun.management.ManagementFactoryHelper$1",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"sun.management.ManagementFactoryHelper$PlatformLoggingImpl",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"sun.management.MemoryImpl",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"sun.management.MemoryManagerImpl",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"sun.management.MemoryPoolImpl",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"sun.management.RuntimeImpl",
-  "queryAllPublicConstructors":true
-},
-{
-  "name":"sun.rmi.transport.DGCImpl_Skel",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.rmi.transport.DGCImpl_Stub",
-  "methods":[{"name":"<init>","parameterTypes":["java.rmi.server.RemoteRef"] }]
 },
 {
   "name":"sun.security.provider.MD5",

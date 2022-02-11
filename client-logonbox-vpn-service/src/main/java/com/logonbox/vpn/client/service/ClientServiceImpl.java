@@ -16,6 +16,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -39,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.dbus.VPNConnectionImpl;
-import com.logonbox.vpn.client.wireguard.VirtualInetAddress;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.ConfigurationRepository;
@@ -81,6 +81,7 @@ public class ClientServiceImpl implements ClientService {
 	private ScheduledExecutorService timer;
 	private AtomicLong transientConnectionId = new AtomicLong();
 	private List<Listener> listeners = new ArrayList<>();
+	private Set<Long> deleting = Collections.synchronizedSet(new LinkedHashSet<>());
 
 	public ClientServiceImpl(LocalContext context, ConnectionRepository connectionRepository,
 			ConfigurationRepository configurationRepository) {
@@ -221,30 +222,31 @@ public class ClientServiceImpl implements ClientService {
 
 	@Override
 	public void delete(Connection connection) {
+		synchronized(deleting) {
+			if(deleting.contains(connection.getId()))
+				return;
+			deleting.add(connection.getId());
+		}
 		try {
 			try {
 				context.sendMessage(new VPN.ConnectionRemoving("/com/logonbox/vpn", connection.getId()));
 				synchronized (activeSessions) {
 					if (getStatusType(connection) == Type.CONNECTED) {
-						if (StringUtils.isNotBlank(connection.getUserPublicKey())) {
-							VirtualInetAddress<?> addr = getContext().getPlatformService()
-									.getByPublicKey(connection.getPublicKey());
-							if (addr != null) {
-								addr.delete();
-							}
-						}
 						disconnect(connection, null);
 					}
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new IllegalStateException("Failed to disconnect.", e);
 			}
 			connectionRepository.delete(connection);
-			context.sendMessage(new VPN.ConnectionRemoved("/com/logonbox/vpn", connection.getId()));
 			context.getConnection().unExportObject(String.format("/com/logonbox/vpn/%d", connection.getId()));
+			context.sendMessage(new VPN.ConnectionRemoved("/com/logonbox/vpn", connection.getId()));
 
 		} catch (DBusException e) {
 			throw new IllegalStateException("Failed to delete.", e);
+		} finally {
+			deleting.remove(connection.getId());
 		}
 	}
 
@@ -331,7 +333,7 @@ public class ClientServiceImpl implements ClientService {
 				}
 
 				VPNConnection.Disconnected message = new VPNConnection.Disconnected(
-						String.format("/com/logonbox/vpn/%d", c.getId()), reason == null ? "" : reason);
+						String.format("/com/logonbox/vpn/%d", c.getId()), reason == null ? "" : reason, c.getDisplayName(), c.getHostname());
 				context.sendMessage(message);
 
 				if (log.isInfoEnabled()) {
@@ -852,7 +854,7 @@ public class ClientServiceImpl implements ClientService {
 	private void addConnections(List<ConnectionStatus> ret, Collection<Connection> connections,
 			List<Connection> added) {
 		for (Connection c : connections) {
-			if (!added.contains(c)) {
+			if (!added.contains(c) && !deleting.contains(c.getId())) {
 				StatusDetail status = StatusDetail.EMPTY;
 				VPNSession session = activeSessions.get(c);
 				if (session != null) {

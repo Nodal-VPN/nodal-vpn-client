@@ -37,10 +37,10 @@ public class FileSecurity {
 
 	public static void restrictToUser(Path path) throws IOException {
 		if (Platform.isLinux() || Util.isMacOs()) {
-			log.info(String.format("Setting permissions on %s to %s", path,
-					Arrays.asList(PosixFilePermission.values())));
+			var prms = Arrays.asList(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE);
+			log.info(String.format("Setting permissions on %s to %s", path, prms));
 			Files.setPosixFilePermissions(path, new LinkedHashSet<>(
-					Arrays.asList(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE)));
+					prms));
 		} else {
 			var file = path.toFile();
 			file.setReadable(false, false);

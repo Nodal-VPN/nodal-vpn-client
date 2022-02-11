@@ -3,9 +3,9 @@ package com.logonbox.vpn.client.cli.commands;
 import java.io.PrintWriter;
 import java.util.concurrent.Callable;
 
-import com.hypersocket.json.version.HypersocketVersion;
 import com.logonbox.vpn.client.cli.CLIContext;
 import com.logonbox.vpn.client.cli.ConsoleProvider;
+import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.Util;
 import com.logonbox.vpn.common.client.dbus.VPN;
 
