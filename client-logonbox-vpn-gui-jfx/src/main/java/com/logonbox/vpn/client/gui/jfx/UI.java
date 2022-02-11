@@ -807,13 +807,16 @@ public class UI implements BusLifecycleListener {
 	}
 
 	protected void listenConnectionEvents(DBusConnection bus, VPNConnection connection) throws DBusException {
+		var id = connection.getId();
 		/*
 		 * Client needs authorizing (first time configuration needed, or connection
 		 * failed with existing configuration)
 		 */
-		bus.addSigHandler(VPNConnection.Authorize.class, connection, registerMappedEvent(connection, VPNConnection.Authorize.class, new DBusSigHandler<VPNConnection.Authorize>() {
+		bus.addSigHandler(VPNConnection.Authorize.class, registerMappedEvent(connection, VPNConnection.Authorize.class, new DBusSigHandler<VPNConnection.Authorize>() {
 			@Override
 			public void handle(VPNConnection.Authorize sig) {
+				if(sig.getId() != id)
+					return;
 				disconnectionReason = null;
 				Mode authMode = Connection.Mode.valueOf(sig.getMode());
 				if (authMode.equals(Connection.Mode.CLIENT) || authMode.equals(Connection.Mode.SERVICE)) {
@@ -826,19 +829,23 @@ public class UI implements BusLifecycleListener {
 				}
 			}
 		}));
-		bus.addSigHandler(VPNConnection.Connecting.class, connection, registerMappedEvent(connection, VPNConnection.Connecting.class, new DBusSigHandler<VPNConnection.Connecting>() {
+		bus.addSigHandler(VPNConnection.Connecting.class, registerMappedEvent(connection, VPNConnection.Connecting.class, new DBusSigHandler<VPNConnection.Connecting>() {
 			@Override
 			public void handle(VPNConnection.Connecting sig) {
+				if(sig.getId() != id)
+					return;
 				disconnectionReason = null;
 				maybeRunLater(() -> {
 					selectPageForState(false, false);
 				});
 			}
 		}));
-		bus.addSigHandler(VPNConnection.Connected.class, connection, registerMappedEvent(connection, VPNConnection.Connected.class, new DBusSigHandler<VPNConnection.Connected>() {
+		bus.addSigHandler(VPNConnection.Connected.class, registerMappedEvent(connection, VPNConnection.Connected.class, new DBusSigHandler<VPNConnection.Connected>() {
 			@Override
 			public void handle(VPNConnection.Connected sig) {
 				VPNConnection connection = context.getDBus().getVPNConnection(sig.getId());
+				if(sig.getId() != id)
+					return;
 				maybeRunLater(() -> {
 					UI.this.notify(MessageFormat.format(bundle.getString("connected"), connection.getName(),
 							connection.getHostname()), ToastType.INFO);
@@ -852,9 +859,11 @@ public class UI implements BusLifecycleListener {
 		}));
 
 		/* Failed to connect */
-		bus.addSigHandler(VPNConnection.Failed.class, connection, registerMappedEvent(connection, VPNConnection.Failed.class, new DBusSigHandler<VPNConnection.Failed>() {
+		bus.addSigHandler(VPNConnection.Failed.class, registerMappedEvent(connection, VPNConnection.Failed.class, new DBusSigHandler<VPNConnection.Failed>() {
 			@Override
 			public void handle(VPNConnection.Failed sig) {
+				if(sig.getId() != id)
+					return;
 				VPNConnection connection = context.getDBus().getVPNConnection(sig.getId());
 				maybeRunLater(() -> {
 					String s = sig.getReason();
@@ -867,10 +876,11 @@ public class UI implements BusLifecycleListener {
 		}));
 
 		/* Temporarily offline */
-		bus.addSigHandler(VPNConnection.TemporarilyOffline.class, connection,
-				registerMappedEvent(connection, VPNConnection.TemporarilyOffline.class, new DBusSigHandler<VPNConnection.TemporarilyOffline>() {
+		bus.addSigHandler(VPNConnection.TemporarilyOffline.class, registerMappedEvent(connection, VPNConnection.TemporarilyOffline.class, new DBusSigHandler<VPNConnection.TemporarilyOffline>() {
 					@Override
 					public void handle(VPNConnection.TemporarilyOffline sig) {
+						if(sig.getId() != id)
+							return;
 						disconnectionReason = sig.getReason();
 						maybeRunLater(() -> {
 							log.info("Temporarily offline " + sig.getId());
@@ -880,10 +890,12 @@ public class UI implements BusLifecycleListener {
 				}));
 
 		/* Disconnected */
-		bus.addSigHandler(VPNConnection.Disconnected.class, connection,
+		bus.addSigHandler(VPNConnection.Disconnected.class, 
 				registerMappedEvent(connection, VPNConnection.Disconnected.class, new DBusSigHandler<VPNConnection.Disconnected>() {
 					@Override
 					public void handle(VPNConnection.Disconnected sig) {
+						if(sig.getId() != id)
+							return;
 						String thisDisconnectionReason = sig.getReason();
 						maybeRunLater(() -> {
 							log.info("Disconnected " + sig.getId() /* + " (delete " + deleteOnDisconnect + ")" */);
@@ -916,16 +928,21 @@ public class UI implements BusLifecycleListener {
 											}).timeout(0).toast();
 							} catch (Exception e) {
 								log.error("Failed to get connection, delete not possible.", e);
+							} finally {
+								selectPageForState(false, false);
 							}
+							
 						});
 					}
 				}));
 
 		/* Disconnecting event */
-		bus.addSigHandler(VPNConnection.Disconnecting.class, connection,
+		bus.addSigHandler(VPNConnection.Disconnecting.class, 
 				registerMappedEvent(connection, VPNConnection.Disconnecting.class, new DBusSigHandler<VPNConnection.Disconnecting>() {
 					@Override
 					public void handle(VPNConnection.Disconnecting sig) {
+						if(sig.getId() != id)
+							return;
 						maybeRunLater(() -> {
 							log.info("Disconnecting " + bus /* + " (delete " + deleteOnDisconnect + ")" */);
 							selectPageForState(false, false);
