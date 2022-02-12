@@ -43,6 +43,8 @@ import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.CustomCookieStore;
 import com.logonbox.vpn.common.client.api.Branding;
 import com.logonbox.vpn.common.client.api.BrandingInfo;
+import com.sshtools.twoslices.ToasterFactory;
+import com.sshtools.twoslices.impl.JavaFXToaster;
 import com.vladsch.boxed.json.BoxedJsObject;
 import com.vladsch.boxed.json.BoxedJson;
 import com.vladsch.javafx.webview.debugger.JfxScriptStateProvider;
@@ -628,9 +630,16 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		File tmpFile = getCustomJavaFXCSSFile();
 		if (log.isDebugEnabled())
 			log.debug(String.format("Using custom JavaFX stylesheet %s", tmpFile));
-		ss.add(0, toUri(tmpFile).toExternalForm());
+		var uri = toUri(tmpFile).toExternalForm();
+		ss.add(0, uri);
 
-		ss.add(Client.class.getResource(Client.class.getSimpleName() + ".css").toExternalForm());
+		var properties = ToasterFactory.getSettings().getProperties();
+		var css = Client.class.getResource(Client.class.getSimpleName() + ".css").toExternalForm();
+		properties.put(JavaFXToaster.DARK, isDarkMode());
+		properties.put(JavaFXToaster.STYLESHEETS, Arrays.asList(uri, css));
+		properties.put(JavaFXToaster.COLLAPSE_MESSAGE, BUNDLE.getString("collapse"));
+		properties.put(JavaFXToaster.THRESHOLD, 6);
+		ss.add(css);
 
 	}
 	

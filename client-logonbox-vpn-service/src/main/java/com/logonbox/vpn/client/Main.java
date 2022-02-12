@@ -517,36 +517,39 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	}
 
 	private boolean configureDBus() throws Exception {
-		/*
-		 * Workaround for windows. It's unlikely there will be a 'machine id' available,
-		 * so create one if it appears that this will cause an issue. <p> Better fixes
-		 * are going to require patching java DBC or extracting when DBusConnection does
-		 * (fortunately this is only called in a few places)
-		 */
-		try {
-			DBusConnection.getDbusMachineId();
-		} catch (Exception e) {
-			File etc = new File(File.separator + "etc");
-			if (!etc.exists()) {
-				etc.mkdirs();
-			}
-			File machineId = new File(etc, "machine-id");
-			if (machineId.exists())
-				throw e;
-			else {
-				Random randomService = new Random();
-				StringBuilder sb = new StringBuilder();
-				while (sb.length() < 32) {
-					sb.append(Integer.toHexString(randomService.nextInt()));
-				}
-				sb.setLength(32);
-				try (PrintWriter w = new PrintWriter(new FileWriter(machineId), true)) {
-					w.println(sb.toString());
-				} catch (IOException ioe) {
-					throw new RuntimeException(String.format("Failed to create machine ID file %s.", machineId), ioe);
-				}
-			}
-		}
+		
+		// TODO: I hope this isn't needed any more, the next windows build will tell us
+		
+//		/*
+//		 * Workaround for windows. It's unlikely there will be a 'machine id' available,
+//		 * so create one if it appears that this will cause an issue. <p> Better fixes
+//		 * are going to require patching java DBC or extracting when DBusConnection does
+//		 * (fortunately this is only called in a few places)
+//		 */
+//		try {
+//			DBusConnection.getDbusMachineId();
+//		} catch (Exception e) {
+//			File etc = new File(File.separator + "etc");
+//			if (!etc.exists()) {
+//				etc.mkdirs();
+//			}
+//			File machineId = new File(etc, "machine-id");
+//			if (machineId.exists())
+//				throw e;
+//			else {
+//				Random randomService = new Random();
+//				StringBuilder sb = new StringBuilder();
+//				while (sb.length() < 32) {
+//					sb.append(Integer.toHexString(randomService.nextInt()));
+//				}
+//				sb.setLength(32);
+//				try (PrintWriter w = new PrintWriter(new FileWriter(machineId), true)) {
+//					w.println(sb.toString());
+//				} catch (IOException ioe) {
+//					throw new RuntimeException(String.format("Failed to create machine ID file %s.", machineId), ioe);
+//				}
+//			}
+//		}
 
 		return connect();
 	}

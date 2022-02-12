@@ -83,3 +83,22 @@ a {
 Hyperlink:focused {
   -fx-border-color: transparent;
 }
+
+
+.notification-bar > .pane, .notification-bar.dark > .pane {
+    -fx-background-color: -fx-lbvpn-base;
+    -fx-padding: 7 7 7 7;
+}
+
+.notification-bar > .pane .title, .notification-bar.dark > .pane .title {
+    /*-fx-font-size: 1.166667em;
+    -fx-text-fill: #292929;
+    -fx-font-weight: bold;*/
+    -fx-text-fill: -fx-lbvpn-link;
+}
+
+.notification-bar > .pane .label, .notification-bar.dark > .pane .label {
+    /*-fx-font-size: 1.166667em; 
+    -fx-text-fill: #292929;
+    -fx-alignment: top-left;*/
+}
