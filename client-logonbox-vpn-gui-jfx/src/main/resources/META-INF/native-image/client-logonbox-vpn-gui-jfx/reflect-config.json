@@ -1,15 +1,9 @@
 [
 {
-  "name":"[B"
-},
-{
   "name":"[Ljava.lang.Object;"
 },
 {
   "name":"[Ljava.lang.String;"
-},
-{
-  "name":"[Lsun.security.pkcs.SignerInfo;"
 },
 {
   "name":"com.fasterxml.jackson.databind.ext.Java7HandlersImpl",
@@ -49,10 +43,6 @@
   ]
 },
 {
-  "name":"com.install4j.runtime.installer.helper.versionspecific.Java11Helper",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"com.logonbox.vpn.client.gui.jfx.Client",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -73,14 +63,10 @@
 {
   "name":"com.logonbox.vpn.client.gui.jfx.UI$ServerBridge",
   "methods":[
-    {"name":"checkForUpdate","parameterTypes":[] }, 
-    {"name":"connectTo","parameterTypes":["long"] }, 
     {"name":"details","parameterTypes":["long"] }, 
-    {"name":"edit","parameterTypes":["long"] }, 
-    {"name":"editConnection","parameterTypes":["netscape.javascript.JSObject"] }, 
     {"name":"getConnection","parameterTypes":[] }, 
     {"name":"getConnections","parameterTypes":[] }, 
-    {"name":"log","parameterTypes":["java.lang.String"] }
+    {"name":"setAsFavourite","parameterTypes":["long"] }
   ]
 },
 {
@@ -108,11 +94,6 @@
   ]
 },
 {
-  "name":"com.logonbox.vpn.common.client.dbus.VPN$ConnectionUpdated",
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.Long"] }]
-},
-{
   "name":"com.logonbox.vpn.common.client.dbus.VPN$GlobalConfigChange",
   "queryAllDeclaredConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String","java.lang.String"] }]
@@ -120,40 +101,12 @@
 {
   "name":"com.logonbox.vpn.common.client.dbus.VPNConnection",
   "methods":[
-    {"name":"getDefaultDisplayName","parameterTypes":[] }, 
     {"name":"getDisplayName","parameterTypes":[] }, 
     {"name":"getId","parameterTypes":[] }, 
     {"name":"getLastError","parameterTypes":[] }, 
     {"name":"getStatus","parameterTypes":[] }, 
-    {"name":"isConnectAtStartup","parameterTypes":[] }, 
-    {"name":"isFavourite","parameterTypes":[] }, 
-    {"name":"isStayConnected","parameterTypes":[] }
+    {"name":"isFavourite","parameterTypes":[] }
   ]
-},
-{
-  "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Connected",
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Connecting",
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Disconnected",
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
-},
-{
-  "name":"com.logonbox.vpn.common.client.dbus.VPNConnection$Disconnecting",
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
-},
-{
-  "name":"com.sshtools.twoslices.impl.DBUSNotifyToaster$Notifications$NotificationClosed",
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","org.freedesktop.dbus.types.UInt32","org.freedesktop.dbus.types.UInt32"] }]
 },
 {
   "name":"com.sun.crypto.provider.AESCipher$General",
@@ -188,15 +141,7 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.sun.crypto.provider.TlsKeyMaterialGenerator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.TlsPrfGenerator$V12",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -291,15 +236,7 @@
   "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
 },
 {
-  "name":"com.sun.prism.shader.FillRoundRect_Color_Loader",
-  "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
-},
-{
   "name":"com.sun.prism.shader.Mask_TextureRGB_Loader",
-  "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
-},
-{
-  "name":"com.sun.prism.shader.Solid_Color_Loader",
   "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
 },
 {
@@ -422,8 +359,7 @@
   "queryAllPublicMethods":true
 },
 {
-  "name":"java.lang.String",
-  "methods":[{"name":"toString","parameterTypes":[] }]
+  "name":"java.lang.String"
 },
 {
   "name":"java.lang.Thread",
@@ -432,15 +368,6 @@
 {
   "name":"java.lang.Throwable",
   "queriedMethods":[{"name":"addSuppressed","parameterTypes":["java.lang.Throwable"] }]
-},
-{
-  "name":"java.lang.management.PlatformLoggingMXBean",
-  "queriedMethods":[
-    {"name":"getLoggerLevel","parameterTypes":["java.lang.String"] }, 
-    {"name":"getLoggerNames","parameterTypes":[] }, 
-    {"name":"getParentLoggerName","parameterTypes":["java.lang.String"] }, 
-    {"name":"setLoggerLevel","parameterTypes":["java.lang.String","java.lang.String"] }
-  ]
 },
 {
   "name":"java.lang.reflect.Method",
@@ -466,9 +393,6 @@
 },
 {
   "name":"java.security.AlgorithmParametersSpi"
-},
-{
-  "name":"java.security.KeyStoreSpi"
 },
 {
   "name":"java.security.SecureRandomParameters"
@@ -563,20 +487,8 @@
   "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
 },
 {
-  "name":"java.util.Date"
-},
-{
   "name":"java.util.ResourceBundle",
   "methods":[{"name":"getString","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.util.logging.LogManager",
-  "methods":[{"name":"getLoggingMXBean","parameterTypes":[] }]
-},
-{
-  "name":"java.util.logging.LoggingMXBean",
-  "queryAllPublicMethods":true,
-  "methods":[{"name":"setLoggerLevel","parameterTypes":["java.lang.String","java.lang.String"] }]
 },
 {
   "name":"javafx.fxml.FXMLLoader"
@@ -826,7 +738,7 @@
 {
   "name":"javax.security.auth.x500.X500Principal",
   "fields":[{"name":"thisX500Name"}],
-  "methods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
+  "queriedMethods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
 },
 {
   "name":"org.apache.log4j.Appender"
@@ -889,8 +801,7 @@
 },
 {
   "name":"org.freedesktop.dbus.interfaces.DBus$NameAcquired",
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
+  "queryAllDeclaredConstructors":true
 },
 {
   "name":"org.freedesktop.dbus.interfaces.Introspectable",
@@ -935,14 +846,6 @@
 },
 {
   "name":"sun.security.provider.DSA$SHA256withDSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.JavaKeyStore$DualFormatJKS",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.JavaKeyStore$JKS",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -998,15 +901,8 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.security.rsa.RSASignature$SHA256withRSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"sun.security.ssl.SSLContextImpl$TLSContext",
   "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.util.ObjectIdentifier"
 },
 {
   "name":"sun.security.x509.AuthorityInfoAccessExtension",
@@ -1025,9 +921,6 @@
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
-  "name":"sun.security.x509.CertificateExtensions"
-},
-{
   "name":"sun.security.x509.CertificatePoliciesExtension",
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
@@ -1036,19 +929,7 @@
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
-  "name":"sun.security.x509.IssuerAlternativeNameExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
   "name":"sun.security.x509.KeyUsageExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
-  "name":"sun.security.x509.NetscapeCertTypeExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
-  "name":"sun.security.x509.PrivateKeyUsageExtension",
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {

@@ -491,7 +491,7 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 				null, cmd.toString(), WinNT.SERVICE_DEMAND_START, false, null, false,
 				XWinsvc.SERVICE_SID_TYPE_UNRESTRICTED);
 
-		LOG.info(String.format("Installed service for %s", name));
+		LOG.info(String.format("Installed service for %s (%s)", name, cmd));
 	}
 
 	@Override
@@ -575,7 +575,7 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 			try {
 				String fullPath = new File(url.toURI()).getAbsolutePath();
 				{
-					if (fullPath.matches(".*client-logonbox-vpn-service.*") || fullPath.matches(".*jna.*")
+					if (fullPath.matches(".*client-logonbox-vpn-common.*") || fullPath.matches(".*client-logonbox-vpn-service.*") || fullPath.matches(".*jna.*")
 							|| fullPath.matches(".*forker-common.*") || fullPath.matches(".*forker-client.*")
 							|| fullPath.matches(".*commons-io.*")) {
 						if (path.length() > 0)

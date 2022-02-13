@@ -2,9 +2,10 @@ package com.logonbox.vpn.client.gui.jfx;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,6 +17,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.text.DateFormat;
 import java.text.MessageFormat;
@@ -26,6 +30,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,11 +93,9 @@ import com.logonbox.vpn.common.client.dbus.VPNConnection;
 import com.sshtools.twoslices.Slice;
 import com.sshtools.twoslices.Toast;
 import com.sshtools.twoslices.ToastType;
-import com.sshtools.twoslices.Toaster;
 import com.sshtools.twoslices.ToasterFactory;
 import com.sshtools.twoslices.ToasterSettings;
 import com.sshtools.twoslices.ToasterSettings.SystemTrayIconMode;
-import com.sshtools.twoslices.impl.JavaFXToaster;
 //import com.sun.javafx.util.Utils;
 import com.vladsch.javafx.webview.debugger.DevToolsDebuggerJsBridge;
 import com.vladsch.javafx.webview.debugger.JfxScriptStateProvider;
@@ -127,24 +130,6 @@ import javafx.util.Duration;
 import netscape.javascript.JSObject;
 
 public class UI implements BusLifecycleListener {
-
-	static {
-//		if (Boolean.getBoolean("noToast"))
-//			ToasterFactory.setFactory(new ToasterFactory() {
-//				@Override
-//				public Toaster toaster() {
-//					return new SysOutToaster(getSettings());
-//				}
-//			});
-//		else if (Boolean.getBoolean("javafxToast"))
-
-//		ToasterFactory.setFactory(new ToasterFactory() {
-//			@Override
-//			public Toaster toaster() {
-//				return new JavaFXToaster(getSettings());
-//			}
-//		});
-	}
 
 	private static final int SPLASH_HEIGHT = 360;
 	private static final int SPLASH_WIDTH = 480;
@@ -476,7 +461,7 @@ public class UI implements BusLifecycleListener {
 	private String lastErrorCause;
 	private String lastException;
 	private ResourceBundle pageBundle;
-	private File logoFile;
+	private Path logoFile;
 	private Runnable runOnNextLoad;
 	private ServerBridge bridge;
 	private String disconnectionReason;
@@ -1727,14 +1712,25 @@ public class UI implements BusLifecycleListener {
 		if (Client.allowBranding) {
 			branding = getBranding(favouriteConnection);
 		}
-		File splashFile = getCustomSplashFile();
+		var splashFile = getCustomSplashFile();
 		if (branding == null) {
 			log.info(String.format("Removing branding."));
 			if (logoFile != null) {
-				logoFile.delete();
+				try {
+					Files.delete(logoFile);
+				}
+				catch(IOException ioe) {
+					log.warn("Failed to delete.", ioe);
+				}
 				logoFile = null;
 			}
-			splashFile.delete();
+			try {
+				Files.delete(splashFile);
+			}
+			catch(IOException ioe) {
+				log.warn("Failed to delete.", ioe);
+			}
+			updateVMOptions(null);
 		} else {
 			if (log.isDebugEnabled())
 				log.debug("Adding custom branding");
@@ -1752,29 +1748,29 @@ public class UI implements BusLifecycleListener {
 
 			/* Create logo file */
 			if (StringUtils.isNotBlank(logo)) {
-				File newLogoFile = getCustomLogoFile(favouriteConnection);
+				var newLogoFile = getCustomLogoFile(favouriteConnection);
 				try {
-					if (!newLogoFile.exists()) {
+					if (!Files.exists(newLogoFile)) {
 						log.info(String.format("Attempting to cache logo"));
 						URL logoUrl = new URL(logo);
 						URLConnection urlConnection = logoUrl.openConnection();
 						urlConnection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(10));
 						urlConnection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(10));
 						try (InputStream urlIn = urlConnection.getInputStream()) {
-							try (OutputStream out = new FileOutputStream(newLogoFile)) {
+							try (OutputStream out = Files.newOutputStream(newLogoFile)) {
 								urlIn.transferTo(out);
 							}
 						}
-						log.info(String.format("Logo cached from %s to %s", logoUrl, newLogoFile.toURI()));
-						newLogoFile.deleteOnExit();
+						log.info(String.format("Logo cached from %s to %s", logoUrl, newLogoFile.toUri()));
+						newLogoFile.toFile().deleteOnExit();
 					}
 					logoFile = newLogoFile;
-					branding.setLogo(logoFile.toURI().toString());
+					branding.setLogo(logoFile.toUri().toString());
 
 					/* Draw the logo on the custom splash */
 					if (graphics != null) {
 						log.info(String.format("Drawing logo on splash"));
-						BufferedImage logoImage = ImageIO.read(logoFile);
+						BufferedImage logoImage = ImageIO.read(logoFile.toFile());
 						if (logoImage == null)
 							throw new Exception(String.format("Failed to load image from %s", logoFile));
 						graphics.drawImage(logoImage, (SPLASH_WIDTH - logoImage.getWidth()) / 2,
@@ -1786,45 +1782,87 @@ public class UI implements BusLifecycleListener {
 					branding.setLogo(null);
 				}
 			} else if (logoFile != null) {
-				logoFile.delete();
+				try {
+					Files.delete(logoFile);
+				}
+				catch(IOException ioe) {
+					log.warn("Failed to delete.", ioe);
+				}
 				logoFile = null;
 			}
 
 			/* Write the splash */
 			if (graphics != null) {
 				try {
-					ImageIO.write(bim, "png", splashFile);
+					ImageIO.write(bim, "png", splashFile.toFile());
 					log.info(String.format("Custom splash written to %s", splashFile));
 				} catch (IOException e) {
 					log.error(String.format("Failed to write custom splash"), e);
-					splashFile.delete();
+					try {
+						Files.delete(splashFile);
+					}
+					catch(IOException ioe) {
+						log.warn("Failed to delete.", ioe);
+					}
 				}
 			}
+
+			updateVMOptions(splashFile);
 		}
 
 		then.run();
 	}
-
-	private File getCustomSplashFile() {
-		File tmpFile;
-		String name = "lbvpnc-splash.png";
-		if (System.getProperty("hypersocket.bootstrap.distDir") == null)
-			tmpFile = new File(new File(System.getProperty("java.io.tmpdir")),
-					System.getProperty("user.name") + "-" + name);
-		else
-			tmpFile = new File(new File(System.getProperty("hypersocket.bootstrap.distDir")).getParentFile(), name);
-		return tmpFile;
+	
+	private void updateVMOptions(Path splashFile) {
+		var vmOptionsFile = getConfigDir().resolve("gui.vmoptions");
+		List<String> lines;
+		if(Files.exists(vmOptionsFile)) {
+			try(BufferedReader r = Files.newBufferedReader(vmOptionsFile)) {
+				lines = IOUtils.readLines(r);
+			}
+			catch(IOException ioe) {
+				throw new IllegalStateException("Failed to read .vmoptions.", ioe);
+			}
+		}
+		else {
+			lines = new ArrayList<>();
+		}
+		for(Iterator<String> lineIt = lines.iterator(); lineIt.hasNext(); ) {
+			String line = lineIt.next();
+			if(line.startsWith("-splash:")) {
+				lineIt.remove();
+			}
+		}
+		if(splashFile != null && Files.exists(splashFile)) {
+			lines.add(0, "-splash:" + splashFile.toAbsolutePath().toString());
+		}
+		if(lines.isEmpty()) {
+			try {
+				Files.delete(vmOptionsFile);
+			} catch (IOException e) {
+			}
+		}
+		else {
+			try(BufferedWriter r = Files.newBufferedWriter(vmOptionsFile)) {
+				IOUtils.writeLines(lines, System.getProperty("line.separator"), r);
+			}
+			catch(IOException ioe) {
+				throw new IllegalStateException("Failed to read .vmoptions.", ioe);
+			}
+		}
 	}
 
-	private File getCustomLogoFile(VPNConnection connection) {
-		File tmpFile;
-		String name = "lpvpnclogo-" + (connection == null ? "default" : connection.getId());
-		if (System.getProperty("hypersocket.bootstrap.distDir") == null)
-			tmpFile = new File(new File(System.getProperty("java.io.tmpdir")),
-					System.getProperty("user.name") + "-" + name);
-		else
-			tmpFile = new File(new File(System.getProperty("hypersocket.bootstrap.distDir")).getParentFile(), name);
-		return tmpFile;
+	private Path getCustomSplashFile() {
+		return getConfigDir().resolve("lbvpnc-splash.png"); 
+	}
+
+	private Path getConfigDir() {
+		var upath = System.getProperty("logonbox.vpn.configuration");
+		return upath == null ? Paths.get(System.getProperty("user.home") + File.separator + ".logonbox-vpn-client") : Paths.get(upath);
+	}
+
+	private Path getCustomLogoFile(VPNConnection connection) {
+		return getConfigDir().resolve("lpvpnclogo-" + (connection == null ? "default" : connection.getId()));
 	}
 
 	private void reapplyColors() {

@@ -19,6 +19,7 @@ public abstract class AbstractUpdateService implements UpdateService {
 	static Logger log = LoggerFactory.getLogger(AbstractUpdateService.class);
 
 	private List<Listener> listeners = new ArrayList<>();
+	private List<DownloadListener> downloadListeners = new ArrayList<>();
 	private boolean updating;
 	private String availableVersion;
 	private ScheduledFuture<?> checkTask;
@@ -54,6 +55,11 @@ public abstract class AbstractUpdateService implements UpdateService {
 	}
 
 	@Override
+	public final void addDownloadListener(DownloadListener listener) {
+		downloadListeners.add(listener);
+	}
+
+	@Override
 	public final boolean isNeedsUpdating() {
 		return availableVersion != null;
 	}
@@ -71,6 +77,11 @@ public abstract class AbstractUpdateService implements UpdateService {
 	@Override
 	public final void removeListener(Listener listener) {
 		listeners.remove(listener);
+	}
+
+	@Override
+	public final void removeDownloadListener(DownloadListener listener) {
+		downloadListeners.remove(listener);
 	}
 
 	@Override
@@ -188,6 +199,12 @@ public abstract class AbstractUpdateService implements UpdateService {
 	protected void fireStateChange() {
 		for (int i = listeners.size() - 1; i >= 0; i--) {
 			listeners.get(i).stateChanged();
+		}
+	}
+
+	protected void fireDownload(DownloadEvent event) {
+		for (int i = downloadListeners.size() - 1; i >= 0; i--) {
+			downloadListeners.get(i).downloadEvent(event);
 		}
 	}
 

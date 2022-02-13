@@ -14,9 +14,6 @@
       "pattern":"\\QMETA-INF/services/org.kordamp.ikonli.IkonHandler\\E"
     }, 
     {
-      "pattern":"\\Qcom/exe4j/runtime/util/ResourceHelper.class\\E"
-    }, 
-    {
       "pattern":"\\Qcom/logonbox/vpn/client/gui/jfx/ARLRDBD.TTF\\E"
     }, 
     {
@@ -26,16 +23,10 @@
       "pattern":"\\Qcom/logonbox/vpn/client/gui/jfx/UI.fxml\\E"
     }, 
     {
-      "pattern":"\\Qcom/logonbox/vpn/client/gui/jfx/bootstrapfx.override.css\\E"
-    }, 
-    {
       "pattern":"\\Qcom/logonbox/vpn/client/gui/jfx/connections.html\\E"
     }, 
     {
       "pattern":"\\Qcom/logonbox/vpn/client/gui/jfx/details.html\\E"
-    }, 
-    {
-      "pattern":"\\Qcom/logonbox/vpn/client/gui/jfx/editConnection.html\\E"
     }, 
     {
       "pattern":"\\Qcom/logonbox/vpn/client/gui/jfx/light-logonbox-icon64x64.png\\E"
@@ -62,9 +53,6 @@
       "pattern":"\\Qcom/logonbox/vpn/client/gui/jfx/logonbox-titlebar-logo.png\\E"
     }, 
     {
-      "pattern":"\\Qcom/logonbox/vpn/client/gui/jfx/updateAvailable.html\\E"
-    }, 
-    {
       "pattern":"\\Qcom/sun/glass/utils/NativeLibLoader.class\\E"
     }, 
     {
@@ -77,13 +65,7 @@
       "pattern":"\\Qcom/sun/prism/es2/glsl/FillPgram_Color.frag\\E"
     }, 
     {
-      "pattern":"\\Qcom/sun/prism/es2/glsl/FillRoundRect_Color.frag\\E"
-    }, 
-    {
       "pattern":"\\Qcom/sun/prism/es2/glsl/Mask_TextureRGB.frag\\E"
-    }, 
-    {
-      "pattern":"\\Qcom/sun/prism/es2/glsl/Solid_Color.frag\\E"
     }, 
     {
       "pattern":"\\Qcom/sun/prism/es2/glsl/Solid_TextureFirstPassLCD.frag\\E"
@@ -158,9 +140,6 @@
       "pattern":"\\Qlibprism_es2.so\\E"
     }, 
     {
-      "pattern":"\\Qorg/kordamp/bootstrapfx/bootstrapfx.css\\E"
-    }, 
-    {
       "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
     }, 
     {
@@ -181,27 +160,11 @@
       "locales":[""]
     }, 
     {
-      "name":"com.logonbox.vpn.client.gui.jfx.about",
-      "locales":[""]
-    }, 
-    {
       "name":"com.logonbox.vpn.client.gui.jfx.connections",
       "locales":[""]
     }, 
     {
       "name":"com.logonbox.vpn.client.gui.jfx.details",
-      "locales":[""]
-    }, 
-    {
-      "name":"com.logonbox.vpn.client.gui.jfx.editConnection",
-      "locales":[""]
-    }, 
-    {
-      "name":"com.logonbox.vpn.client.gui.jfx.options",
-      "locales":[""]
-    }, 
-    {
-      "name":"com.logonbox.vpn.client.gui.jfx.updateAvailable",
       "locales":[""]
     }, 
     {

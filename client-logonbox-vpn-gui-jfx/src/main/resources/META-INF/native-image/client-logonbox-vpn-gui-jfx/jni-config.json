@@ -12,7 +12,7 @@
   "name":"[Ljava.lang.Object;"
 },
 {
-  "name":"[Ljava.lang.String;"
+  "name":"[Lsun.font.FontConfigManager$FontConfigFont;"
 },
 {
   "name":"[Lsun.java2d.loops.GraphicsPrimitive;"
@@ -20,14 +20,10 @@
 {
   "name":"com.logonbox.vpn.client.gui.jfx.UI$ServerBridge",
   "methods":[
-    {"name":"checkForUpdate","parameterTypes":[] }, 
-    {"name":"connectTo","parameterTypes":["long"] }, 
     {"name":"details","parameterTypes":["long"] }, 
-    {"name":"edit","parameterTypes":["long"] }, 
-    {"name":"editConnection","parameterTypes":["netscape.javascript.JSObject"] }, 
     {"name":"getConnection","parameterTypes":[] }, 
     {"name":"getConnections","parameterTypes":[] }, 
-    {"name":"log","parameterTypes":["java.lang.String"] }
+    {"name":"setAsFavourite","parameterTypes":["long"] }
   ]
 },
 {
@@ -177,15 +173,6 @@
     {"name":"vertBearingX"}, 
     {"name":"vertBearingY"}, 
     {"name":"width"}
-  ]
-},
-{
-  "name":"com.sun.javafx.font.freetype.FT_Matrix",
-  "fields":[
-    {"name":"xx"}, 
-    {"name":"xy"}, 
-    {"name":"yx"}, 
-    {"name":"yy"}
   ]
 },
 {
@@ -442,21 +429,12 @@
 {
   "name":"com.sun.webkit.graphics.WCGraphicsManager",
   "methods":[
-    {"name":"createBufferedContextRQ","parameterTypes":["com.sun.webkit.graphics.WCImage"] }, 
-    {"name":"createRTImage","parameterTypes":["int","int"] }, 
     {"name":"createWCPath","parameterTypes":[] }, 
     {"name":"createWCPath","parameterTypes":["com.sun.webkit.graphics.WCPath"] }, 
     {"name":"fwkCreateFontCustomPlatformData","parameterTypes":["com.sun.webkit.SharedBuffer"] }, 
     {"name":"getGraphicsManager","parameterTypes":[] }, 
     {"name":"getSupportedMediaTypes","parameterTypes":[] }, 
     {"name":"getWCFont","parameterTypes":["java.lang.String","boolean","boolean","float"] }
-  ]
-},
-{
-  "name":"com.sun.webkit.graphics.WCImage",
-  "methods":[
-    {"name":"drawPixelBuffer","parameterTypes":[] }, 
-    {"name":"getPixelBuffer","parameterTypes":[] }
   ]
 },
 {
@@ -717,8 +695,7 @@
   "methods":[
     {"name":"<init>","parameterTypes":["boolean"] }, 
     {"name":"booleanValue","parameterTypes":[] }, 
-    {"name":"getBoolean","parameterTypes":["java.lang.String"] }, 
-    {"name":"valueOf","parameterTypes":["boolean"] }
+    {"name":"getBoolean","parameterTypes":["java.lang.String"] }
   ]
 },
 {
@@ -824,8 +801,7 @@
     {"name":"getBytes","parameterTypes":[] }, 
     {"name":"getBytes","parameterTypes":["java.lang.String"] }, 
     {"name":"toCharArray","parameterTypes":[] }, 
-    {"name":"toLowerCase","parameterTypes":["java.util.Locale"] }, 
-    {"name":"toString","parameterTypes":[] }
+    {"name":"toLowerCase","parameterTypes":["java.util.Locale"] }
   ]
 },
 {
@@ -839,13 +815,6 @@
 {
   "name":"java.lang.Void",
   "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.reflect.Field",
-  "methods":[
-    {"name":"getName","parameterTypes":[] }, 
-    {"name":"getType","parameterTypes":[] }
-  ]
 },
 {
   "name":"java.lang.reflect.Method",
@@ -1041,6 +1010,31 @@
     {"name":"charToVariationGlyph","parameterTypes":["int","int"] }, 
     {"name":"getMapper","parameterTypes":[] }, 
     {"name":"getTableBytes","parameterTypes":["int"] }
+  ]
+},
+{
+  "name":"sun.font.FontConfigManager$FcCompFont",
+  "fields":[
+    {"name":"allFonts"}, 
+    {"name":"fcName"}, 
+    {"name":"firstFont"}
+  ]
+},
+{
+  "name":"sun.font.FontConfigManager$FontConfigFont",
+  "fields":[
+    {"name":"familyName"}, 
+    {"name":"fontFile"}, 
+    {"name":"fullName"}, 
+    {"name":"styleStr"}
+  ],
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.font.FontConfigManager$FontConfigInfo",
+  "fields":[
+    {"name":"cacheDirs"}, 
+    {"name":"fcVersion"}
   ]
 },
 {
@@ -1273,19 +1267,6 @@
   "fields":[
     {"name":"picture"}, 
     {"name":"xid"}
-  ]
-},
-{
-  "name":"sun.management.VMManagementImpl",
-  "fields":[
-    {"name":"compTimeMonitoringSupport"}, 
-    {"name":"currentThreadCpuTimeSupport"}, 
-    {"name":"objectMonitorUsageSupport"}, 
-    {"name":"otherThreadCpuTimeSupport"}, 
-    {"name":"remoteDiagnosticCommandsSupport"}, 
-    {"name":"synchronizerUsageSupport"}, 
-    {"name":"threadAllocatedMemorySupport"}, 
-    {"name":"threadContentionMonitoringSupport"}
   ]
 }
 ]

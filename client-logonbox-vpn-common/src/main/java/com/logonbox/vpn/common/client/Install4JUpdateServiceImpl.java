@@ -87,7 +87,7 @@ public class Install4JUpdateServiceImpl extends AbstractUpdateService {
 			} else {
 				if (!isNeedsUpdating())
 					throw new IOException("Update not needed.");
-				ApplicationLauncher.launchApplicationInProcess("2103", new String[] { /* "-q" */ },
+				ApplicationLauncher.launchApplicationInProcess("2103", new String[] { },
 						new ApplicationLauncher.Callback() {
 							public void exited(int exitValue) {
 								context.exit();

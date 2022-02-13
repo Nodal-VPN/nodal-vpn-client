@@ -6,9 +6,6 @@
     "interfaces":["com.logonbox.vpn.common.client.dbus.VPNConnection"]}
   ,
   {
-    "interfaces":["com.sshtools.twoslices.impl.DBUSNotifyToaster$Notifications"]}
-  ,
-  {
     "interfaces":["org.freedesktop.dbus.interfaces.DBus"]}
   
 ]

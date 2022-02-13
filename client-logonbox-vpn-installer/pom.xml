@@ -140,7 +140,7 @@
 	                    </configuration>
 	                </plugin>
 
-					<!-- Clean target/extensions / target/bootstrap -->
+					<!-- Clean target/extensions etc -->
 					<plugin>
 						<artifactId>maven-clean-plugin</artifactId>
 						<version>3.1.0</version>
@@ -163,9 +163,6 @@
 										<fileset>
 											<directory>target/gui</directory>
 										</fileset>
-										<fileset>
-											<directory>target/bootstrap</directory>
-										</fileset>
                                         <fileset>
                                             <directory>target/dbconvert</directory>
                                         </fileset>
@@ -175,24 +172,11 @@
 						</executions>
 					</plugin>
 
-					<!-- Generate target/extensions / target/bootstrap -->
+					<!-- Generate target/extensions etc -->
 					<plugin>
 						<groupId>com.logonbox</groupId>
 						<artifactId>logonbox-plugin-generator</artifactId>
 						<executions>
-							<execution>
-								<id>copy-bootstrap</id>
-								<phase>package</phase>
-								<goals>
-									<goal>get-artifacts</goal>
-								</goals>
-								<configuration>
-									<output>${project.build.directory}/bootstrap</output>
-									<artifacts>
-										<artifact>com.sshtools:forker-wrapper:1.7-SNAPSHOT</artifact>
-									</artifacts>
-								</configuration>
-							</execution>
 							<execution>
 								<id>copy-cli</id>
 								<phase>package</phase>

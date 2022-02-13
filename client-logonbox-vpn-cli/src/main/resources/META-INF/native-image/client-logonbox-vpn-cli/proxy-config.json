@@ -3,9 +3,6 @@
     "interfaces":["com.logonbox.vpn.common.client.dbus.VPN"]}
   ,
   {
-    "interfaces":["com.logonbox.vpn.common.client.dbus.VPNConnection"]}
-  ,
-  {
     "interfaces":["org.freedesktop.dbus.interfaces.DBus"]}
   
 ]
