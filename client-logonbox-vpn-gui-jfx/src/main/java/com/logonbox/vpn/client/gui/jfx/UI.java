@@ -93,9 +93,6 @@ import com.logonbox.vpn.common.client.dbus.VPNConnection;
 import com.sshtools.twoslices.Slice;
 import com.sshtools.twoslices.Toast;
 import com.sshtools.twoslices.ToastType;
-import com.sshtools.twoslices.ToasterFactory;
-import com.sshtools.twoslices.ToasterSettings;
-import com.sshtools.twoslices.ToasterSettings.SystemTrayIconMode;
 //import com.sun.javafx.util.Utils;
 import com.vladsch.javafx.webview.debugger.DevToolsDebuggerJsBridge;
 import com.vladsch.javafx.webview.debugger.JfxScriptStateProvider;
@@ -421,21 +418,6 @@ public class UI implements BusLifecycleListener {
 		} catch (Exception | Error ex) {
 			return def;
 		}
-	}
-
-	static {
-		ToasterSettings settings = new ToasterSettings();
-		settings.setAppName(bundle.getString("appName"));
-		settings.setSystemTrayIconMode(SystemTrayIconMode.HIDDEN);
-		ToasterFactory.setSettings(settings);
-//		if (SystemUtils.IS_OS_MAC_OSX) {
-//			ToasterFactory.setFactory(new ToasterFactory() {
-//				@Override
-//				public Toaster toaster() {
-//					return new OsXToaster(settings);
-//				}
-//			});
-//		}
 	}
 
 	static int DROP_SHADOW_SIZE = 11;

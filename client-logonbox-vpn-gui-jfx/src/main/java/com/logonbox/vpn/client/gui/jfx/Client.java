@@ -44,6 +44,7 @@ import com.logonbox.vpn.common.client.CustomCookieStore;
 import com.logonbox.vpn.common.client.api.Branding;
 import com.logonbox.vpn.common.client.api.BrandingInfo;
 import com.sshtools.twoslices.ToasterFactory;
+import com.sshtools.twoslices.ToasterSettings.SystemTrayIconMode;
 import com.sshtools.twoslices.impl.JavaFXToaster;
 import com.vladsch.boxed.json.BoxedJsObject;
 import com.vladsch.boxed.json.BoxedJson;
@@ -633,7 +634,10 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		var uri = toUri(tmpFile).toExternalForm();
 		ss.add(0, uri);
 
-		var properties = ToasterFactory.getSettings().getProperties();
+		var settings = ToasterFactory.getSettings();
+		var properties = settings.getProperties();
+		settings.setAppName(BUNDLE.getString("appName")); 
+		settings.setSystemTrayIconMode(SystemTrayIconMode.HIDDEN);
 		var css = Client.class.getResource(Client.class.getSimpleName() + ".css").toExternalForm();
 		properties.put(JavaFXToaster.DARK, isDarkMode());
 		properties.put(JavaFXToaster.STYLESHEETS, Arrays.asList(uri, css));
