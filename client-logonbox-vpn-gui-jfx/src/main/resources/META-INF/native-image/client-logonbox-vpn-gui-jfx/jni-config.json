@@ -16,10 +16,7 @@
 },
 {
   "name":"com.logonbox.vpn.client.gui.jfx.UI$ServerBridge",
-  "methods":[
-    {"name":"getConnections","parameterTypes":[] }, 
-    {"name":"log","parameterTypes":["java.lang.String"] }
-  ]
+  "methods":[{"name":"getConnections","parameterTypes":[] }]
 },
 {
   "name":"com.sun.glass.ui.Application",
@@ -171,15 +168,6 @@
   ]
 },
 {
-  "name":"com.sun.javafx.font.freetype.FT_Matrix",
-  "fields":[
-    {"name":"xx"}, 
-    {"name":"xy"}, 
-    {"name":"yx"}, 
-    {"name":"yy"}
-  ]
-},
-{
   "name":"com.sun.jna.Callback"
 },
 {
@@ -312,10 +300,6 @@
     {"name":"fwkMakeAllDirectories","parameterTypes":["java.lang.String"] }, 
     {"name":"fwkPathByAppendingComponent","parameterTypes":["java.lang.String","java.lang.String"] }
   ]
-},
-{
-  "name":"com.sun.webkit.LocalizedStrings",
-  "methods":[{"name":"getLocalizedProperty","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"com.sun.webkit.MainThread",

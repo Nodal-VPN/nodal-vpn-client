@@ -186,16 +186,16 @@
       "locales":[""]
     }, 
     {
+      "name":"com.sun.org.apache.xml.internal.serializer.XMLEntities",
+      "locales":[""]
+    }, 
+    {
       "name":"com.sun.swing.internal.plaf.basic.resources.basic",
       "classNames":["com.sun.swing.internal.plaf.basic.resources.basic"]
     }, 
     {
       "name":"com.sun.swing.internal.plaf.synth.resources.synth",
       "classNames":["com.sun.swing.internal.plaf.synth.resources.synth"]
-    }, 
-    {
-      "name":"com.sun.webkit.LocalizedStrings",
-      "locales":[""]
     }, 
     {
       "name":"sun.awt.resources.awt",

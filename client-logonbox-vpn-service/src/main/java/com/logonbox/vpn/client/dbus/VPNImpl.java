@@ -80,6 +80,12 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 	}
 
 	@Override
+	public long importConfiguration(String configuration) {
+		assertRegistered();
+		return ctx.getClientService().importConfiguration(getOwner(), configuration).getId();
+	}
+
+	@Override
 	public void register(String username, boolean interactive, boolean supportsAuthorization) {
 		VPNFrontEnd frontEnd = null;
 		String source = DBusConnection.getCallInfo().getSource();

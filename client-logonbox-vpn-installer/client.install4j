@@ -922,6 +922,9 @@ return console.askYesNo(message, true);
             </add>
           </property>
           <property name="executableName" type="string">updater</property>
+          <property name="executionMode" type="enum" class="com.install4j.runtime.beans.applications.ExecutionMode" value="UNATTENDED_WITH_PROGRESS" />
+          <property name="splashMessage" type="string">Downloading LogonBox VPN Client</property>
+          <property name="unattendedAlerts" type="boolean" value="true" />
           <property name="useCustomIcon" type="boolean" value="true" />
           <property name="windowTitle" type="string">${i18n:updater.WindowTitle("${compiler:sys.fullName}")}</property>
         </serializedBean>

@@ -176,6 +176,28 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
+	public Connection importConfiguration(String owner, String configuration) {
+		Connection connection;
+		connection = connectionRepository.importConfiguration(configuration);
+		connection.setOwner(owner);
+		
+		try {
+			context.sendMessage(new VPN.ConnectionAdding("/com/logonbox/vpn"));
+		} catch (DBusException e) {
+			throw new IllegalStateException("Failed to create.", e);
+		}
+		Connection newConnection = doSave(connection);
+		try {
+			context.getConnection().exportObject(String.format("/com/logonbox/vpn/%d", connection.getId()),
+					new VPNConnectionImpl(context, connection));
+			context.sendMessage(new VPN.ConnectionAdded("/com/logonbox/vpn", connection.getId()));
+		} catch (DBusException e) {
+			throw new IllegalStateException("Failed to create.", e);
+		}
+		return newConnection;
+	}
+
+	@Override
 	public Connection create(String uri, String owner, boolean connectAtStartup, Mode mode, boolean stayConnected) {
 		Connection connection;
 		try {

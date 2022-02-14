@@ -56,15 +56,7 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 			var id = connection.getId();
 			try {
 				if (id == null || id == -1) {
-					id = 0l;
-					try (var stream = Files.newDirectoryStream(dir())) {
-						for (var p : stream) {
-							var n = p.getFileName().toString();
-							if (n.endsWith(".conf")) {
-								id = Math.max(id, Long.parseLong(n.substring(0, n.length() - 5)) + 1);
-							}
-						}
-					}
+					id = getNextId();
 					connection.setId(id);
 				}
 				var f = resolve(id);
@@ -81,6 +73,19 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 				throw new IllegalStateException("Failed to save connection.", ioe);
 			}
 		}
+	}
+
+	protected Long getNextId() throws IOException {
+		var id = 0l;
+		try (var stream = Files.newDirectoryStream(dir())) {
+			for (var p : stream) {
+				var n = p.getFileName().toString();
+				if (n.endsWith(".conf")) {
+					id = Math.max(id, Long.parseLong(n.substring(0, n.length() - 5)) + 1);
+				}
+			}
+		}
+		return id;
 	}
 
 	@Override
@@ -147,6 +152,27 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 
 	@Override
 	public void close() throws IOException {
+	}
+
+	@Override
+	public Connection importConfiguration(String configuration) {
+		synchronized (session) {
+			try {
+				var id = getNextId();
+				var f = resolve(id);
+				try (var w = Files.newBufferedWriter(f)) {
+					w.write(configuration);
+					w.flush();
+				}
+				
+				/* Only readable / writable by current user, i.e. administrator */ 
+				FileSecurity.restrictToUser(f);
+				
+				return getConnection(id);
+			} catch (IOException ioe) {
+				throw new IllegalStateException("Failed to import connection.", ioe);
+			}
+		}
 	}
 
 }

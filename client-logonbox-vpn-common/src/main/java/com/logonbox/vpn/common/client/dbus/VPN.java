@@ -27,6 +27,8 @@ public interface VPN extends DBusInterface {
 	void ping();
 
 	void shutdown(boolean restart);
+	
+	long importConfiguration(String configuration);
 
 	long getConnectionIdForURI(String uri);
 

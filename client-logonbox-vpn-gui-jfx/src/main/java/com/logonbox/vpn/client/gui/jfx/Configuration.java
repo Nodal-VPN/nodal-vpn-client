@@ -26,6 +26,7 @@ public class Configuration {
 	private StringProperty trayMode = new SimpleStringProperty();
 	private StringProperty darkMode = new SimpleStringProperty();
 	private StringProperty logLevel = new SimpleStringProperty();
+	private StringProperty configurationFileDirectory = new SimpleStringProperty();
 	private IntegerProperty w = new SimpleIntegerProperty();
 	private IntegerProperty h = new SimpleIntegerProperty();
 	private IntegerProperty x = new SimpleIntegerProperty();
@@ -111,6 +112,9 @@ public class Configuration {
 		darkMode.set(node.get("darkMode", DARK_MODE_AUTO));
 		darkMode.addListener(new StringPreferenceUpdateChangeListener(node, "darkMode"));
 
+		configurationFileDirectory.set(node.get("configurationFileDirectory", System.getProperty("user.home")));
+		configurationFileDirectory.addListener(new StringPreferenceUpdateChangeListener(node, "configurationFileDirectory"));
+
 		logLevel.set(node.get("logLevel", null));
 		logLevel.addListener(new StringPreferenceUpdateChangeListener(node, "logLevel"));
 
@@ -127,6 +131,10 @@ public class Configuration {
 	
 	public BooleanProperty saveCookiesProperty() {
 		return saveCookies;
+	}
+
+	public StringProperty configurationFileProperty() {
+		return configurationFileDirectory;
 	}
 
 	public IntegerProperty wProperty() {

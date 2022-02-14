@@ -7,7 +7,7 @@ import java.util.List;
 public interface Connection {
 	
 	public enum Mode {
-		CLIENT, SERVICE, NODE, PROVIDER
+		CLIENT, SERVICE, NODE, PROVIDER, PEER
 	}
 	
 	Mode getMode();
@@ -55,9 +55,15 @@ public interface Connection {
 			uri = "";
 		else if(!uri.equals(""))
 			uri += "@";
-		uri += getHostname();
-		if (getPort() != 443) {
-			uri += ":" + getPort();
+		if(getHostname() == null || getHostname().length() == 0) {
+			uri += getEndpointAddress();
+			uri += ":" + getEndpointPort();
+		}
+		else {
+			uri += getHostname();
+			if (getPort() != 443) {
+				uri += ":" + getPort();
+			}
 		}
 		return uri;
 	}

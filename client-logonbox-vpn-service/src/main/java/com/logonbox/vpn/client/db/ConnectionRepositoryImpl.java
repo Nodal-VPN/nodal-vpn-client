@@ -87,11 +87,8 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 				query = query.select(root);
 			else
 				query = query.select(root)
-						.where(builder.or(
-								builder.equal(root.get("owner"), owner),
-								builder.isTrue(root.get("shared")) 
-										));
-			
+						.where(builder.or(builder.equal(root.get("owner"), owner), builder.isTrue(root.get("shared"))));
+
 			TypedQuery<Connection> typeQuery = session.createQuery(query);
 			return typeQuery.getResultList();
 		}
@@ -108,7 +105,7 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 				query = query.select(root).where(builder.equal(root.get("id"), con.getId()));
 				TypedQuery<Connection> typeQuery = session.createQuery(query);
 				List<Connection> results = typeQuery.getResultList();
-				if(!results.isEmpty()) {
+				if (!results.isEmpty()) {
 					session.delete(results.get(0));
 				}
 				session.flush();
@@ -137,11 +134,17 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 	@Override
 	public void close() throws IOException {
 		log.info("Shutting down database.");
-		try(java.sql.Connection c = DriverManager.getConnection("jdbc:derby:data;shutdown=true")) {
+		try (java.sql.Connection c = DriverManager.getConnection("jdbc:derby:data;shutdown=true")) {
 		} catch (SQLException e) {
 			log.warn("Failed to close database.");
 		}
-		
+
+	}
+
+	@Override
+	public Connection importConfiguration(String configuration) {
+		throw new UnsupportedOperationException(
+				"Importing not supported by this backend. Please use the 'dbconvert' utility included to convert to the new file based backend.");
 	}
 
 }

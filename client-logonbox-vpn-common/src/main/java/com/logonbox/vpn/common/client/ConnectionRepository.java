@@ -19,4 +19,6 @@ public interface ConnectionRepository extends Closeable {
 	List<Connection> getConnections(String owner);
 
 	void delete(Connection con);
+
+	Connection importConfiguration(String configuration);
 }

@@ -55,17 +55,11 @@
   "name":"com.logonbox.vpn.client.gui.jfx.UI",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"evtBack","parameterTypes":[] }
-  ]
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"com.logonbox.vpn.client.gui.jfx.UI$ServerBridge",
-  "methods":[
-    {"name":"getConnections","parameterTypes":[] }, 
-    {"name":"log","parameterTypes":["java.lang.String"] }
-  ]
+  "methods":[{"name":"getConnections","parameterTypes":[] }]
 },
 {
   "name":"com.logonbox.vpn.common.client.AbstractDBusClient",
@@ -205,6 +199,10 @@
   "methods":[{"name":"getPlatformInstance","parameterTypes":[] }]
 },
 {
+  "name":"com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -313,12 +311,6 @@
 {
   "name":"dorkbox.jna.linux.Gtk3VersionInfo",
   "queryAllDeclaredMethods":true
-},
-{
-  "name":"dorkbox.jna.linux.structs.GdkEventButton",
-  "allDeclaredFields":true,
-  "queryAllPublicConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"dorkbox.jna.linux.structs.GtkRequisition",
@@ -715,9 +707,6 @@
 {
   "name":"javafx.scene.web.WebView",
   "queryAllDeclaredMethods":true
-},
-{
-  "name":"javafx.stage.PopupWindow"
 },
 {
   "name":"javafx.stage.Stage"

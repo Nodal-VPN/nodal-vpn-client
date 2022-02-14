@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +43,7 @@ public class ConnectionImpl implements Connection, Serializable {
 	private String hostname;
 	private Integer port = Integer.valueOf(443);
 	private String path = "/app";
-	private Mode mode = Mode.CLIENT;
+	private Mode mode = Mode.PEER;
 	private boolean stayConnected;
 	private boolean connectAtStartup;
 	private boolean routeAll;
@@ -243,13 +245,23 @@ public class ConnectionImpl implements Connection, Serializable {
 
 	@Override
 	public String getUri(boolean withUsername) {
-		String uri = "https://";
-		uri += getHostname();
-		if (getPort() != 443) {
-			uri += ":" + getPort();
+		if(getHostname() == null) {
+			try {
+				if(withUsername)
+					return "wg://" + URLEncoder.encode(getUserPublicKey(), "UTF-8") + "@" + getEndpointAddress() + ":" + getEndpointPort();
+			} catch (UnsupportedEncodingException e) {
+			}
+			return "wg://" + getEndpointAddress() + ":" + getEndpointPort();
 		}
-		uri += getPath();
-		return uri;
+		else {
+			String uri = "https://";
+			uri += getHostname();
+			if (getPort() != 443) {
+				uri += ":" + getPort();
+			}
+			uri += getPath();
+			return uri;
+		}
 	}
 
 	public ConnectionImpl() {

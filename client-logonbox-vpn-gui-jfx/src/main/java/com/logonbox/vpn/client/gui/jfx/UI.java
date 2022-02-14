@@ -121,6 +121,7 @@ import javafx.scene.text.Font;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -246,17 +247,23 @@ public class UI implements BusLifecycleListener {
 	}
 
 	/**
-	 * This object is exposed to the local HTML/Javascript that runs in the browse.
+	 * This object is exposed to the local HTML/Javascript that runs in the browser.
 	 */
 	public class ServerBridge {
 
-		public void addConnection(JSObject o) throws URISyntaxException {
-			Boolean connectAtStartup = (Boolean) o.getMember("connectAtStartup");
-			Boolean stayConnected = (Boolean) o.getMember("stayConnected");
-			String server = (String) o.getMember("serverUrl");
-			if (StringUtils.isBlank(server))
-				throw new IllegalArgumentException(bundle.getString("error.invalidUri"));
-			UI.this.addConnection(stayConnected, connectAtStartup, server);
+		public void addConnection(JSObject o) throws URISyntaxException, IOException {
+			String configurationFile = (String)o.getMember("configurationFile");
+			if(configurationFile == null) {
+				Boolean connectAtStartup = (Boolean) o.getMember("connectAtStartup");
+				Boolean stayConnected = (Boolean) o.getMember("stayConnected");
+				String server = (String) o.getMember("serverUrl");
+				if (StringUtils.isBlank(server))
+					throw new IllegalArgumentException(bundle.getString("error.invalidUri"));
+				UI.this.addConnection(stayConnected, connectAtStartup, server);
+			}
+			else {
+				UI.this.importConnection(Paths.get(configurationFile));
+			}
 		}
 
 		public void setAsFavourite(long id) {
@@ -265,6 +272,20 @@ public class UI implements BusLifecycleListener {
 
 		public void confirmDelete(long id) {
 			UI.this.confirmDelete(context.getDBus().getVPNConnection(id));
+		}
+		
+		public String browse() {
+			var fileChooser = new FileChooser();
+			var cfgDir = Configuration.getDefault().configurationFileProperty();
+			fileChooser.setInitialDirectory(new File(cfgDir.get()));
+			fileChooser.setTitle(bundle.getString("chooseConfigurationFile"));
+			var file = fileChooser.showOpenDialog(getStage());
+			if(file == null)
+				return "";
+			else {
+				cfgDir.set(file.getParentFile().getAbsolutePath());
+				return file == null ? "" : file.getAbsolutePath();
+			}
 		}
 
 		public void configure(String usernameHint, String configIniFile) {
@@ -680,7 +701,10 @@ public class UI implements BusLifecycleListener {
 											maybeRunLater(() -> {
 												reapplyColors();
 												reapplyLogo();
-												authorize(addedConnection);
+												if(addedConnection.isAuthorized())
+													joinNetwork(addedConnection);
+												else
+													authorize(addedConnection);
 											});
 										});
 									});
@@ -854,7 +878,7 @@ public class UI implements BusLifecycleListener {
 							return;
 						maybeRunLater(() -> {
 							UI.this.notify(sig.getId(), MessageFormat.format(bundle.getString("connected"),
-									connection.getName(), connection.getHostname()), ToastType.INFO);
+									connection.getDisplayName(), connection.getHostname()), ToastType.INFO);
 							connecting.remove(connection);
 							if (Main.getInstance().isExitOnConnection()) {
 								context.exitApp();
@@ -996,6 +1020,20 @@ public class UI implements BusLifecycleListener {
 				showError("Failed to add connection.", e);
 			}
 		});
+	}
+
+	protected void importConnection(Path file)
+			throws IOException {
+		try(var r = Files.newBufferedReader(file)) {
+			String content = IOUtils.toString(r);
+			context.getOpQueue().execute(() -> {
+				try {
+					context.getDBus().getVPN().importConfiguration(content);
+				} catch (Exception e) {
+					showError("Failed to add connection.", e);
+				}
+			});	
+		}
 	}
 
 	protected void changeHtmlPage(String htmlPage) {
