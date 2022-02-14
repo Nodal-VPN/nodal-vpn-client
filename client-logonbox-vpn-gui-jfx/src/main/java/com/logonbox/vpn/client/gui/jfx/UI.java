@@ -377,10 +377,12 @@ public class UI implements BusLifecycleListener {
 		}
 
 		public VPNConnection[] getConnections() {
-			var l = context.getDBus().getVPNConnections();
-			var f = getFavouriteConnection();
-			l.remove(f);
-			l.add(0, f);
+			var l = getAllConnections();
+			var f = getFavouriteConnection(l);
+			if(f != null) {
+				l.remove(f);
+				l.add(0, f);
+			}
 			return l.toArray(new VPNConnection[0]);
 		}
 	}
@@ -880,6 +882,7 @@ public class UI implements BusLifecycleListener {
 							connecting.remove(connection);
 							showError("Failed to connect.", s, sig.getTrace());
 							UI.this.notify(sig.getId(), s, ToastType.ERROR);
+							uiRefresh();
 						});
 					}
 				}));
@@ -1195,12 +1198,16 @@ public class UI implements BusLifecycleListener {
 	}
 
 	protected VPNConnection getFavouriteConnection() {
-		List<VPNConnection> alls = getAllConnections();
-		for (VPNConnection connection : alls) {
-			if (connection.isFavourite())
+		return getFavouriteConnection(getAllConnections());
+	}
+
+	protected VPNConnection getFavouriteConnection(Collection<VPNConnection> list) {
+		var fav = list.isEmpty() ? 0l : context.getDBus().getVPN().getLongValue(ConfigurationItem.FAVOURITE.getKey());
+		for (var connection : list) {
+			if (list.size() == 1 || connection.getId() == fav)
 				return connection;
 		}
-		return alls.isEmpty() ? null : alls.get(0);
+		return list.isEmpty() ? null : list.iterator().next();
 	}
 
 	protected VPNConnection getPriorityConnection() {
@@ -1450,11 +1457,15 @@ public class UI implements BusLifecycleListener {
 				setAvailable();
 			}
 		} else {
-			try {
-				webView.getEngine().executeScript("uiRefresh();");
-			} catch (Exception e) {
-				log.debug(String.format("Page %s failed to execute uiRefresh() functions.", htmlPage), e);
-			}
+			uiRefresh();
+		}
+	}
+
+	protected void uiRefresh() {
+		try {
+			webView.getEngine().executeScript("uiRefresh();");
+		} catch (Exception e) {
+			log.debug(String.format("Page failed to execute uiRefresh()."), e);
 		}
 	}
 

@@ -201,7 +201,7 @@ public class AWTTaskbarTray extends AbstractTray implements AutoCloseable, Tray,
 
 	private void setImage(boolean connected, List<VPNConnection> devs) {
 		if (context.getDBus().isBusAvailable()) {
-			taskbar.setIconImage(overlay(Main.class.getResource("logonbox-icon128x128.png"), 128, devs));
+			taskbar.setIconImage(overlay(Main.class.getResource("mac-logo128px.png"), 128, devs));
 		} else {
 			taskbar.setIconImage(createAwesomeIcon(FontAwesome.EXCLAMATION_CIRCLE, 48, 100, Color.RED, 0));
 		}

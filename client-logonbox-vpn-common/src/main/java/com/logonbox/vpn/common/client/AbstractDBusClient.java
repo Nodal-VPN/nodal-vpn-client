@@ -162,7 +162,10 @@ public abstract class AbstractDBusClient implements DBusClient {
 	public List<VPNConnection> getVPNConnections() {
 		List<VPNConnection> l = new ArrayList<>();
 		for (String id : getVPN().getConnections()) {
-			l.add(getVPNConnection(Long.parseLong(id)));
+			var c = getVPNConnection(Long.parseLong(id));
+			if(c == null)
+				log.warn(String.format("Connection %d is null!", id));
+			l.add(c);
 		}
 		return l;
 	}
