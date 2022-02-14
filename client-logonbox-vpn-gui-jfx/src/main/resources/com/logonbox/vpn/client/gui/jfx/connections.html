@@ -46,7 +46,7 @@
 						data-i18n="options">Options</span></a>
 				</div>
 				<div class="col-6 text-end">
-					<a href="addLogonBoxVPN.html" class="align-middle"><i
+					<a id="add" href="addLogonBoxVPN.html" class="align-middle"><i
 						class="fa fa-plus-circle fa-3x"></i></a>
 				</div>
 			</div>
@@ -155,6 +155,21 @@
 				
 				alert(e);
 			}
+            $('#add').off('mousedown').on('mousedown', function() {
+            	$('#add').data('timer', window.setTimeout(function() {
+            		
+            		// TODO not ready yet
+            		/* window.location = 'addAdvanced.html'; */
+            		
+            	}, 1000));
+            });
+            $('#add').off('mouseup').on('mouseup', function(e) {
+            	var t = $(this).data('timer');
+            	if(t) {
+            		window.clearTimeout(t);
+                    e.preventDefault();
+            	}
+            });
 			$('.row').off('mouseenter').on('mouseenter', function() {
 				$(this).addClass('active');
 			});

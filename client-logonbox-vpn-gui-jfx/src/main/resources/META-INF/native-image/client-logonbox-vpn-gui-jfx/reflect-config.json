@@ -63,10 +63,8 @@
 {
   "name":"com.logonbox.vpn.client.gui.jfx.UI$ServerBridge",
   "methods":[
-    {"name":"details","parameterTypes":["long"] }, 
-    {"name":"getConnection","parameterTypes":[] }, 
     {"name":"getConnections","parameterTypes":[] }, 
-    {"name":"setAsFavourite","parameterTypes":["long"] }
+    {"name":"log","parameterTypes":["java.lang.String"] }
   ]
 },
 {
@@ -94,18 +92,12 @@
   ]
 },
 {
-  "name":"com.logonbox.vpn.common.client.dbus.VPN$GlobalConfigChange",
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String","java.lang.String"] }]
-},
-{
   "name":"com.logonbox.vpn.common.client.dbus.VPNConnection",
   "methods":[
     {"name":"getDisplayName","parameterTypes":[] }, 
     {"name":"getId","parameterTypes":[] }, 
     {"name":"getLastError","parameterTypes":[] }, 
-    {"name":"getStatus","parameterTypes":[] }, 
-    {"name":"isFavourite","parameterTypes":[] }
+    {"name":"getStatus","parameterTypes":[] }
   ]
 },
 {
@@ -232,7 +224,19 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"com.sun.prism.shader.DrawCircle_Color_Loader",
+  "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
+},
+{
+  "name":"com.sun.prism.shader.FillCircle_Color_Loader",
+  "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
+},
+{
   "name":"com.sun.prism.shader.FillPgram_Color_Loader",
+  "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
+},
+{
+  "name":"com.sun.prism.shader.FillRoundRect_Color_Loader",
   "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
 },
 {
@@ -914,10 +918,6 @@
 },
 {
   "name":"sun.security.x509.BasicConstraintsExtension",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
-},
-{
-  "name":"sun.security.x509.CRLDistributionPointsExtension",
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {

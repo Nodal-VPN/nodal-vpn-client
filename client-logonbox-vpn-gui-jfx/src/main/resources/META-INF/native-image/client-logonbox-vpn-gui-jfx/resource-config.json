@@ -26,9 +26,6 @@
       "pattern":"\\Qcom/logonbox/vpn/client/gui/jfx/connections.html\\E"
     }, 
     {
-      "pattern":"\\Qcom/logonbox/vpn/client/gui/jfx/details.html\\E"
-    }, 
-    {
       "pattern":"\\Qcom/logonbox/vpn/client/gui/jfx/light-logonbox-icon64x64.png\\E"
     }, 
     {
@@ -62,7 +59,16 @@
       "pattern":"\\Qcom/sun/jna/linux-x86-64/libjnidispatch.so\\E"
     }, 
     {
+      "pattern":"\\Qcom/sun/prism/es2/glsl/DrawCircle_Color.frag\\E"
+    }, 
+    {
+      "pattern":"\\Qcom/sun/prism/es2/glsl/FillCircle_Color.frag\\E"
+    }, 
+    {
       "pattern":"\\Qcom/sun/prism/es2/glsl/FillPgram_Color.frag\\E"
+    }, 
+    {
+      "pattern":"\\Qcom/sun/prism/es2/glsl/FillRoundRect_Color.frag\\E"
     }, 
     {
       "pattern":"\\Qcom/sun/prism/es2/glsl/Mask_TextureRGB.frag\\E"
@@ -160,11 +166,15 @@
       "locales":[""]
     }, 
     {
-      "name":"com.logonbox.vpn.client.gui.jfx.connections",
+      "name":"com.logonbox.vpn.client.gui.jfx.addAdvanced",
       "locales":[""]
     }, 
     {
-      "name":"com.logonbox.vpn.client.gui.jfx.details",
+      "name":"com.logonbox.vpn.client.gui.jfx.addWireGuard",
+      "locales":[""]
+    }, 
+    {
+      "name":"com.logonbox.vpn.client.gui.jfx.connections",
       "locales":[""]
     }, 
     {
@@ -182,6 +192,10 @@
     {
       "name":"com.sun.swing.internal.plaf.synth.resources.synth",
       "classNames":["com.sun.swing.internal.plaf.synth.resources.synth"]
+    }, 
+    {
+      "name":"com.sun.webkit.LocalizedStrings",
+      "locales":[""]
     }, 
     {
       "name":"sun.awt.resources.awt",

@@ -16,35 +16,18 @@
 		<div id="main" class="container clear-top">
 			<div id="alerts">
 			</div>
-			<h1 data-i18n="addConnection">Add Connection</h1>
-			<form id="addConnectionForm">
+			<h1 data-i18n="addWireGuard">Add WireGuard</h1>
+			<form id="addWireGuardForm">
 				<div class="form-group">
-					<label for="serverUrl" data-i18n="serverAddress">Server	address</label> 
-					<input type="text" class="form-control" id="serverUrl"
-						aria-describedby="serverAddressHelp"> 
-					<small id="serverAddressHelp" data-i18n="serverAddressHelp" class="form-text text-muted">Help</small>
+					<label for="configurationFile" data-i18n="configurationFile">Configuration File</label> 
+					<input type="file" class="form-control mt-3 mb-3" id="configurationFile"
+						aria-describedby="configurationFileHelp"> 
+					<small id="configurationFileHelp" data-i18n="configurationFileHelp" class="form-text text-muted">Help</small>
 				</div>
-				<div class="form-group mt-3">
-					<div class="form-check">
-						<input type="checkbox" class="form-check-input"
-							id="connectAtStartup"> 
-						<label class="form-check-label"
-							for="connectAtStartup" data-i18n="connectAtStartup">Connect to this network when LogonBox VPN Client starts.</label>
-					</div>
-				</div>
-				<div class="form-group mb-3">
-					<div class="form-check">
-						<input type="checkbox" class="form-check-input" checked
-							id="stayConnected"> 
-						<label class="form-check-label"
-							for="stayConnected" data-i18n="stayConnected">Stay connected to this network.</label>
-					</div>
-				</div>
-
-				<div class="container">
+				<div class="container-fluid mt-3">
 					<div class="row">
 						<div class="col-md-6 align-left">
-							<button id="addConnectionFormSubmit" type="submit" class="btn btn-primary has-spinner" data-i18n="connect">Connect</button>
+							<button id="addWireGuardFormSubmit" type="submit" class="btn btn-primary has-spinner" data-i18n="connect">Connect</button>
 						</div>
 						<!-- <div class="col-md-6 align-right">
 							<button type="button" onclick="window.history.back()" class="btn btn-secondary" data-i18n="back">Back</button>
@@ -57,18 +40,18 @@
 
 	<script type="text/javascript">
 		function uiReady() {
-			$("#addConnectionForm").submit(function(event) {
+			$("#addWireGuardForm").submit(function(event) {
 				try {
-					$('#addConnectionFormSubmit').buttonLoader('start');
+					$('#addWireGuardFormSubmit').buttonLoader('start');
 					$('#alerts').empty();
-					bridge.addConnection({
+					/* bridge.addConnection({
 						'serverUrl' : $('#serverUrl').val(),
 						'connectAtStartup' : $('#connectAtStartup').is(':checked'),
 						'stayConnected' : $('#stayConnected').is(':checked')
-					});
+					}); */
 				}
 				catch(e) {
-					$('#addConnectionFormSubmit').buttonLoader('stop');
+					$('#addWireGuardFormSubmit').buttonLoader('stop');
 					$('#alerts').append($('<div class="alert alert-danger">' + e.getMessage() + '</div>'));
 				}
 				event.preventDefault();

@@ -576,10 +576,6 @@ public class UI implements BusLifecycleListener {
 		putNotificationForConnection(id, Toast.toast(toastType, resources.getString("appName"), msg));
 	}
 
-//	public void notify(String msg, ToastType toastType, ToastActionListener action) {
-//		Toast.toast(toastType, resources.getString("appName"), msg, action);
-//	}
-
 	private void putNotificationForConnection(Long id, Slice slice) {
 		if (id != null) {
 			notificationsForConnections.put(id, slice);
