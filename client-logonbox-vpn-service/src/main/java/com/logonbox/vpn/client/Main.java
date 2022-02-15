@@ -438,9 +438,9 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 						} catch (InterruptedException e) {
 						}
 					}
-					if(conn == null)
-						throw lastDbe;
 				}
+				if(conn == null)
+					throw lastDbe;
 
 				startedBus = true;
 				
