@@ -2,9 +2,7 @@ package com.logonbox.vpn.client;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -419,27 +417,29 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 				daemon.setSaslAuthMode(authMode);
 				daemon.startInBackground();
 				
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e1) {
-				}
+//				try {
+//					Thread.sleep(5000);
+//				} catch (InterruptedException e1) {
+//				}
 
 				log.info(String.format("Started embedded bus on address %s", listenBusAddress.getRawAddress()));				
 				
 				log.info(String.format("Connecting to embedded DBus %s", busAddress.getRawAddress()));
+				DBusException lastDbe = null;
 				for (int i = 0; i < 60; i++) {
 					try {
 						conn = DBusConnection.getConnection(busAddress.getRawAddress());
 						log.info(String.format("Connected to embedded DBus %s", busAddress.getRawAddress()));
 						break;
 					} catch (DBusException dbe) {
-						if (i > 4)
-							throw dbe;
+						lastDbe = dbe;
 						try {
 							Thread.sleep(500);
 						} catch (InterruptedException e) {
 						}
 					}
+					if(conn == null)
+						throw lastDbe;
 				}
 
 				startedBus = true;
