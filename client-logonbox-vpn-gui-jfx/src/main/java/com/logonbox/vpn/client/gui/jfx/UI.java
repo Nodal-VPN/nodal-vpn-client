@@ -252,8 +252,8 @@ public class UI implements BusLifecycleListener {
 	public class ServerBridge {
 
 		public void addConnection(JSObject o) throws URISyntaxException, IOException {
-			String configurationFile = (String)o.getMember("configurationFile");
-			if(configurationFile == null) {
+			String configurationFile = memberOrDefault(o, "configurationFile", String.class, "");
+			if(configurationFile.equals("")) {
 				Boolean connectAtStartup = (Boolean) o.getMember("connectAtStartup");
 				Boolean stayConnected = (Boolean) o.getMember("stayConnected");
 				String server = (String) o.getMember("serverUrl");
