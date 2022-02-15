@@ -39,9 +39,10 @@ import org.freedesktop.dbus.bin.EmbeddedDBusDaemon;
 import org.freedesktop.dbus.connections.BusAddress;
 import org.freedesktop.dbus.connections.IDisconnectCallback;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
-import org.freedesktop.dbus.connections.impl.DBusConnection.DBusBusType;
+import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.connections.transports.TransportBuilder;
 import org.freedesktop.dbus.connections.transports.TransportBuilder.SaslAuthMode;
+import org.freedesktop.dbus.errors.AccessDenied;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.messages.Message;
 import org.freedesktop.dbus.utils.Util;
@@ -315,23 +316,23 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 		if (SystemUtils.IS_OS_LINUX && !embeddedBus) {
 			if (newAddress != null) {
 				log.info(String.format("Connectin to DBus @%s", newAddress));
-				conn = DBusConnection.getConnection(newAddress, true, true);
+				conn = DBusConnectionBuilder.forAddress(newAddress).withRegisterSelf(true).withShared(true).build();
 				log.info(String.format("Ready on DBus @%s", newAddress));
 			} else if (OS.isAdministrator()) {
 				if (sessionBus) {
 					log.info("Per configuration, connecting to Session DBus");
-					conn = DBusConnection.getConnection(DBusBusType.SESSION);
+					conn = DBusConnectionBuilder.forSessionBus().build();
 					log.info("Ready on Session DBus");
 					newAddress = conn.getAddress().getRawAddress();
 				} else {
 					log.info("Connecting to System DBus");
-					conn = DBusConnection.getConnection(DBusBusType.SYSTEM);
+					conn = DBusConnectionBuilder.forSystemBus().build();
 					log.info("Ready on System DBus");
 					newAddress = conn.getAddress().getRawAddress();
 				}
 			} else {
 				log.info("Not administrator, connecting to Session DBus");
-				conn = DBusConnection.getConnection(DBusBusType.SESSION);
+				conn = DBusConnectionBuilder.forSessionBus().build();
 				log.info("Ready on Session DBus");
 				newAddress = conn.getAddress().getRawAddress();
 			}
@@ -428,7 +429,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 				DBusException lastDbe = null;
 				for (int i = 0; i < 60; i++) {
 					try {
-						conn = DBusConnection.getConnection(busAddress.getRawAddress());
+						conn = DBusConnectionBuilder.forAddress(busAddress.getRawAddress()).build();
 						log.info(String.format("Connected to embedded DBus %s", busAddress.getRawAddress()));
 						break;
 					} catch (DBusException dbe) {
@@ -448,7 +449,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 			else {
 
 				log.info(String.format("Connecting to embedded DBus %s", busAddress.getRawAddress()));
-				conn = DBusConnection.getConnection(busAddress.getRawAddress());
+				conn = DBusConnectionBuilder.forAddress(busAddress.getRawAddress()).build();
 			}
 
 			/*
@@ -508,7 +509,18 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 //				});
 
 		try {
-			conn.requestBusName("com.logonbox.vpn");
+			/* NOTE: Work around for Hello message not having been completely sent before trying to request name */
+			while(true) {
+				try {
+					conn.requestBusName("com.logonbox.vpn");
+					break;
+				}
+				catch(DBusException dbe) {
+					if(!(dbe.getCause() instanceof AccessDenied))
+						throw dbe;
+					Thread.sleep(500);
+				}
+			}
 			return true;
 		} catch (Exception e) {
 			log.error("Failed to connect to DBus. No remote state monitoring or management.", e);
