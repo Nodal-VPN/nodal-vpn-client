@@ -1,5 +1,8 @@
 package com.logonbox.vpn.common.client.dbus;
 
+import java.util.List;
+
+import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.DBusInterface;
@@ -12,7 +15,7 @@ public interface VPN extends DBusInterface {
 
 	String[] getMissingPackages();
 
-	String[] getConnections();
+	List<DBusPath> getConnections();
 	
 	long getMaxMemory();
 	

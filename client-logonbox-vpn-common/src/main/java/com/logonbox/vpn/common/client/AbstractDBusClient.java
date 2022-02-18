@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -72,7 +73,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 	private ScheduledFuture<?> pingTask;
 	private boolean supportsAuthorization;
 	private PromptingCertManager certManager;
-	private UpdateService  updateService;
+	private UpdateService updateService;
 	private CookieStore cookieStore;
 	/**
 	 * Matches the identifier in logonbox VPN server
@@ -97,21 +98,20 @@ public abstract class AbstractDBusClient implements DBusClient {
 		});
 		try {
 			updateService = new Install4JUpdateServiceImpl(this);
-		}
-		catch(Throwable t) {
+		} catch (Throwable t) {
 			System.out.println("FALLBACK");
 			t.printStackTrace();
 			updateService = new DummyUpdateService(this);
 		}
 	}
-	
+
 	public CookieStore getCookieStore() {
-		if(cookieStore == null) {
+		if (cookieStore == null) {
 			cookieStore = new CustomCookieStore();
 		}
 		return cookieStore;
 	}
-	
+
 	public UpdateService getUpdateService() {
 		return updateService;
 	}
@@ -160,14 +160,13 @@ public abstract class AbstractDBusClient implements DBusClient {
 	}
 
 	public List<VPNConnection> getVPNConnections() {
-		List<VPNConnection> l = new ArrayList<>();
-		for (String id : getVPN().getConnections()) {
-			var c = getVPNConnection(Long.parseLong(id));
-			if(c == null)
-				log.warn(String.format("Connection %d is null!", id));
-			l.add(c);
-		}
-		return l;
+		return getVPN().getConnections().stream().map(p -> {
+			try {
+				return conn.getRemoteObject(BUS_NAME, p.getPath(), VPNConnection.class);
+			} catch (DBusException e) {
+				throw new IllegalStateException(String.format("Failed to get connection %s.", p.getPath()));
+			}
+		}).collect(Collectors.toList());
 	}
 
 	public PromptingCertManager getCertManager() {
@@ -193,29 +192,29 @@ public abstract class AbstractDBusClient implements DBusClient {
 			getLog().debug("Call to init when already have bus.");
 			return;
 		}
-		
-		if(getLog().isDebugEnabled())
+
+		if (getLog().isDebugEnabled())
 			getLog().debug(String.format("Using update service %s", updateService.getClass().getName()));
 
 		if (conn == null || !conn.isConnected()) {
 			String busAddress = this.busAddress;
 			if (StringUtils.isNotBlank(busAddress)) {
-				if(getLog().isDebugEnabled())
+				if (getLog().isDebugEnabled())
 					getLog().debug("Getting bus. " + this.busAddress);
 				conn = DBusConnection.getConnection(busAddress);
 			} else {
 				if (sessionBus) {
-					if(getLog().isDebugEnabled())
+					if (getLog().isDebugEnabled())
 						getLog().debug("Getting session bus.");
 					conn = DBusConnection.getConnection(DBusBusType.SESSION);
 				} else {
 					String fixedAddress = getServerDBusAddress(addressFile);
 					if (fixedAddress == null) {
-						if(getLog().isDebugEnabled())
+						if (getLog().isDebugEnabled())
 							getLog().debug("Getting system bus.");
 						conn = DBusConnection.getConnection(DBusBusType.SYSTEM);
 					} else {
-						if(getLog().isDebugEnabled())
+						if (getLog().isDebugEnabled())
 							getLog().debug("Getting fixed bus " + fixedAddress);
 						conn = DBusConnection.getConnection(fixedAddress);
 					}
@@ -227,14 +226,14 @@ public abstract class AbstractDBusClient implements DBusClient {
 		}
 
 		conn.setDisconnectCallback(new IDisconnectCallback() {
-		    public void disconnectOnError(IOException _ex) {
+			public void disconnectOnError(IOException _ex) {
 				busGone();
-		    }
+			}
 		});
 
 		/* Load the VPN object */
 		loadRemote();
-		
+
 		updateService.checkIfBusAvailable();
 
 		for (BusLifecycleListener i : busLifecycleListeners)
@@ -360,7 +359,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 	}
 
 	protected abstract PromptingCertManager createCertManager();
-	
+
 	protected abstract String getVersion();
 
 	protected abstract boolean isConsole();

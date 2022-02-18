@@ -1,9 +1,10 @@
 package com.logonbox.vpn.client.dbus;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.slf4j.Logger;
@@ -102,17 +103,14 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 	}
 
 	@Override
-	public String[] getConnections() {
+	public List<DBusPath> getConnections() {
 		assertRegistered();
-		List<String> connections = new ArrayList<>();
 		try {
-			for (ConnectionStatus conx : ctx.getClientService().getStatus(getOwner())) {
-				connections.add(String.valueOf(conx.getConnection().getId()));
-			}
-		} catch (Exception e) {
+			return ctx.getClientService().getStatus(getOwner()).stream()
+					.map(c -> new DBusPath(String.format("/com/logonbox/vpn/%d", c.getConnection().getId()))).collect(Collectors.toList());
+		} catch (Exception e) {	
 			throw new IllegalStateException("Failed to get connections.", e);
 		}
-		return connections.toArray(new String[0]);
 	}
 
 	@Override
