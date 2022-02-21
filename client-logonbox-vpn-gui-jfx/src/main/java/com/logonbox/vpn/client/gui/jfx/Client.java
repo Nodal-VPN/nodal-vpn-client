@@ -278,8 +278,7 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 	protected void updateCookieHandlerState() {
 		CookieHandler default1 = CookieHandler.getDefault();
 		boolean isPersistJar = default1 instanceof CookieManager;
-//		boolean wantsPeristJar = Configuration.getDefault().saveCookiesProperty().get();
-		boolean wantsPeristJar = false;
+		boolean wantsPeristJar = Configuration.getDefault().saveCookiesProperty().get();
 		if (isPersistJar != wantsPeristJar) {
 			if (wantsPeristJar) {
 				log.info("Using in custom cookie manager");

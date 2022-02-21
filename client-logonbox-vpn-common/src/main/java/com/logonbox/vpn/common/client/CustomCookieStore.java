@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CustomCookieStore implements CookieStore {
-    public static final String DOMAIN_ATTR     = "domain";
-    
+	public static final String DOMAIN_ATTR = "domain";
+
 	static Logger log = LoggerFactory.getLogger(CustomCookieStore.class);
 
 	public static class CookieWrapper implements Serializable {
@@ -174,7 +175,7 @@ public class CustomCookieStore implements CookieStore {
 			c.setPortlist(portlist);
 			c.setSecure(secure);
 			c.setVersion(version);
-			
+
 			return c;
 		}
 	}
@@ -223,12 +224,13 @@ public class CustomCookieStore implements CookieStore {
 	@Override
 	public boolean remove(URI uri, HttpCookie cookie) {
 		synchronized (cookies) {
-			List<CookieWrapper> l = cookies.get(uri);
+			var k = getEffectiveURI(uri);
+			List<CookieWrapper> l = cookies.get(k);
 			CookieWrapper cookieW = new CookieWrapper(cookie);
 			if (l != null && l.contains(cookieW)) {
 				l.remove(cookieW);
 				if (l.isEmpty())
-					cookies.remove(uri);
+					cookies.remove(k);
 				save();
 				return true;
 			}
@@ -255,8 +257,9 @@ public class CustomCookieStore implements CookieStore {
 	@Override
 	public List<HttpCookie> get(URI uri) {
 		synchronized (cookies) {
-			return cookies.containsKey(uri)
-					? cookies.get(uri).stream().map(o -> o.toHttpCookie()).collect(Collectors.toList())
+			var k = getEffectiveURI(uri);
+			return cookies.containsKey(k)
+					? cookies.get(k).stream().map(o -> o.toHttpCookie()).collect(Collectors.toList())
 					: Collections.emptyList();
 		}
 	}
@@ -264,6 +267,7 @@ public class CustomCookieStore implements CookieStore {
 	@Override
 	public void add(URI uri, HttpCookie cookie) {
 		synchronized (cookies) {
+			uri = getEffectiveURI(uri);
 			List<CookieWrapper> l = cookies.get(uri);
 			if (l == null) {
 				l = new ArrayList<>();
@@ -272,5 +276,15 @@ public class CustomCookieStore implements CookieStore {
 			l.add(new CookieWrapper(cookie));
 			save();
 		}
+	}
+
+	private URI getEffectiveURI(URI uri) {
+		URI eu = null;
+		try {
+			eu = new URI("http", uri.getHost(), null, null, null);
+		} catch (URISyntaxException e) {
+			eu = uri;
+		}
+		return eu;
 	}
 }

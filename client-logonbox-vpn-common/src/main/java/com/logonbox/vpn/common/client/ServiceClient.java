@@ -117,7 +117,8 @@ public class ServiceClient {
 
 	protected HttpClient getHttpClient(VPNConnection connection) {
 		if (cookieHandler == null) {
-			cookieHandler = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
+//			cookieHandler = CookieManager.getDefault();
+			cookieHandler = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ALL);
 			HttpCookie cookie = new HttpCookie(AbstractDBusClient.DEVICE_IDENTIFIER, authenticator.getUUID());
 			cookie.setSecure(true);
 			cookie.setPath("/");
@@ -193,7 +194,12 @@ public class ServiceClient {
 				} else
 					throw new IOException("Failed to query for existing peers. " + result.getMessage());
 			} finally {
-				doGet(connection, "/api/logoff?token=" + URLEncoder.encode(session.getCsrfToken(), "UTF-8"));
+				try {
+					doGet(connection, "/api/logoff?token=" + URLEncoder.encode(session.getCsrfToken(), "UTF-8"));
+				}
+				catch(Exception e) {
+					log.warn("Failed to logoff session from server. Continuing, but the session may still exist on the server until it times-out.", e);
+				}
 			}
 		} catch (InterruptedException ie) {
 			throw new IOException("Interrupted.", ie);

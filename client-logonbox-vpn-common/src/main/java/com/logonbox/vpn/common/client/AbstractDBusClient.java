@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.freedesktop.dbus.connections.IDisconnectCallback;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
-import org.freedesktop.dbus.connections.impl.DBusConnection.DBusBusType;
+import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.errors.ServiceUnknown;
 import org.freedesktop.dbus.errors.UnknownObject;
 import org.freedesktop.dbus.exceptions.DBusException;
@@ -201,22 +201,22 @@ public abstract class AbstractDBusClient implements DBusClient {
 			if (StringUtils.isNotBlank(busAddress)) {
 				if (getLog().isDebugEnabled())
 					getLog().debug("Getting bus. " + this.busAddress);
-				conn = DBusConnection.getConnection(busAddress);
+				conn = DBusConnectionBuilder.forAddress(busAddress).build();
 			} else {
 				if (sessionBus) {
 					if (getLog().isDebugEnabled())
 						getLog().debug("Getting session bus.");
-					conn = DBusConnection.getConnection(DBusBusType.SESSION);
+					conn = DBusConnectionBuilder.forSessionBus().build();
 				} else {
 					String fixedAddress = getServerDBusAddress(addressFile);
 					if (fixedAddress == null) {
 						if (getLog().isDebugEnabled())
 							getLog().debug("Getting system bus.");
-						conn = DBusConnection.getConnection(DBusBusType.SYSTEM);
+						conn = DBusConnectionBuilder.forSystemBus().build();
 					} else {
 						if (getLog().isDebugEnabled())
 							getLog().debug("Getting fixed bus " + fixedAddress);
-						conn = DBusConnection.getConnection(fixedAddress);
+						conn = DBusConnectionBuilder.forAddress(fixedAddress).build();
 					}
 				}
 			}

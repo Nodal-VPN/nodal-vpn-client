@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -259,7 +260,8 @@ public class UI implements BusLifecycleListener {
 				String server = (String) o.getMember("serverUrl");
 				if (StringUtils.isBlank(server))
 					throw new IllegalArgumentException(bundle.getString("error.invalidUri"));
-				UI.this.addConnection(stayConnected, connectAtStartup, server);
+				Mode mode = Mode.valueOf(memberOrDefault(o, "mode", String.class, Mode.CLIENT.name()));
+				UI.this.addConnection(stayConnected, connectAtStartup, server, mode);
 			}
 			else {
 				UI.this.importConnection(Paths.get(configurationFile));
@@ -1009,13 +1011,13 @@ public class UI implements BusLifecycleListener {
 		});
 	}
 
-	protected void addConnection(Boolean stayConnected, Boolean connectAtStartup, String unprocessedUri)
+	protected void addConnection(Boolean stayConnected, Boolean connectAtStartup, String unprocessedUri, Mode mode)
 			throws URISyntaxException {
 		URI uriObj = Util.getUri(unprocessedUri);
 		context.getOpQueue().execute(() -> {
 			try {
 				context.getDBus().getVPN().createConnection(uriObj.toASCIIString(), connectAtStartup, stayConnected,
-						Mode.CLIENT.name());
+						mode.name());
 			} catch (Exception e) {
 				showError("Failed to add connection.", e);
 			}
@@ -1426,7 +1428,7 @@ public class UI implements BusLifecycleListener {
 			pageBundle = null;
 			try {
 
-				CookieHandler cookieHandler = java.net.CookieHandler.getDefault();
+				CookieHandler cookieHandler = CookieManager.getDefault();
 				if (htmlPage.startsWith("http://") || htmlPage.startsWith("https://")) {
 
 					/* Set the device UUID cookie for all web access */
