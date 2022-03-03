@@ -184,6 +184,7 @@
 									<goal>get-artifacts</goal>
 								</goals>
 								<configuration>
+								    <includeVersion>false</includeVersion>
 									<output>${project.build.directory}/cli</output>
 									<artifacts>
 										<artifact>com.logonbox:client-logonbox-vpn-cli:${project.version}</artifact>
@@ -197,6 +198,7 @@
                                     <goal>get-artifacts</goal>
                                 </goals>
                                 <configuration>
+                                    <includeVersion>false</includeVersion>
                                     <output>${project.build.directory}/converter</output>
                                     <artifacts>
                                         <artifact>com.logonbox:client-logonbox-vpn-dbconvert:${project.version}</artifact>
@@ -211,6 +213,7 @@
 								</goals>
 								<configuration>
 									<output>${project.build.directory}/gui</output>
+                                    <includeVersion>false</includeVersion>
 									<artifacts>
 										<artifact>com.logonbox:client-logonbox-vpn-gui-jfx:${project.version}</artifact>
 									</artifacts>
@@ -232,6 +235,7 @@
                                     <goal>get-artifacts</goal>
                                 </goals>
                                 <configuration>
+                                    <includeVersion>false</includeVersion>
                                     <output>${project.build.directory}/gui/win</output>
                                     <transitive>false</transitive>
                                     <artifacts>
@@ -251,6 +255,7 @@
                                     <goal>get-artifacts</goal>
                                 </goals>
                                 <configuration>
+                                    <includeVersion>false</includeVersion>
                                     <output>${project.build.directory}/gui/linux</output>
                                     <transitive>false</transitive>
                                     <artifacts>
@@ -270,6 +275,7 @@
                                     <goal>get-artifacts</goal>
                                 </goals>
                                 <configuration>
+                                    <includeVersion>false</includeVersion>
                                     <output>${project.build.directory}/gui/linux-arm32-monocle</output>
                                     <transitive>false</transitive>
                                     <artifacts>
@@ -289,6 +295,7 @@
                                     <goal>get-artifacts</goal>
                                 </goals>
                                 <configuration>
+                                    <includeVersion>false</includeVersion>
                                     <output>${project.build.directory}/gui/linux-aarch64</output>
                                     <transitive>false</transitive>
                                     <artifacts>
@@ -308,6 +315,7 @@
                                     <goal>get-artifacts</goal>
                                 </goals>
                                 <configuration>
+                                    <includeVersion>false</includeVersion>
                                     <output>${project.build.directory}/gui/mac</output>
                                     <transitive>false</transitive>
                                     <artifacts>
@@ -327,6 +335,7 @@
                                     <goal>get-artifacts</goal>
                                 </goals>
                                 <configuration>
+                                    <includeVersion>false</includeVersion>
                                     <output>${project.build.directory}/gui/mac-aarch64</output>
                                     <transitive>false</transitive>
                                     <artifacts>
@@ -346,6 +355,7 @@
 									<goal>get-artifacts</goal>
 								</goals>
 								<configuration>
+                                    <includeVersion>false</includeVersion>
 									<output>${project.build.directory}/service</output>
 									<artifacts>
 										<artifact>com.logonbox:client-logonbox-vpn-service:${project.version}</artifact>
