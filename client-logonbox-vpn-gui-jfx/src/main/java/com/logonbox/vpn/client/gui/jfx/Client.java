@@ -722,7 +722,7 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		// Highlight
 		if (backgroundColour.getSaturation() == 0) {
 			// Greyscale, so just use HS blue
-			bui.append("-fx-lbvpn-accent: 1e0c51;\n");
+			bui.append("-fx-lbvpn-accent: 000033;\n");
 			bui.append("-fx-lbvpn-accent2: 0e0041;\n");
 		} else {
 			// A colour, so choose the next adjacent colour in the HSB colour

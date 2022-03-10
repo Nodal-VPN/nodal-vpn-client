@@ -6,7 +6,7 @@ import java.io.Serializable;
 public class BrandingInfo implements Serializable {
 
 	public static final String DEFAULT_FOREGROUND = "#ffffff";
-	public static final String DEFAULT_BACKGROUND = "#1e0c51";
+	public static final String DEFAULT_BACKGROUND = "#000033";
 	
 	private String foreground = DEFAULT_FOREGROUND;
 	private String background = DEFAULT_BACKGROUND;
