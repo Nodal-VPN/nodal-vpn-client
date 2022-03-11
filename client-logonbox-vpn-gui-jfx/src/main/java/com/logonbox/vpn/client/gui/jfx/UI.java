@@ -1753,11 +1753,13 @@ public class UI implements BusLifecycleListener {
 				}
 				logoFile = null;
 			}
-			try {
-				Files.delete(splashFile);
-			}
-			catch(IOException ioe) {
-				log.warn("Failed to delete.", ioe);
+			if(Files.exists(splashFile)) {
+				try {
+					Files.delete(splashFile);
+				}
+				catch(IOException ioe) {
+					log.warn("Failed to delete.", ioe);
+				}
 			}
 			updateVMOptions(null);
 		} else {

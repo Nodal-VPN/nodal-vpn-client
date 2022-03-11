@@ -79,8 +79,10 @@
 				}
 				for (var i = 0; i < connections.length; i++) {
 					var connection = connections[i];
-					if(!connection)
-						throw 'Index ' + i + ' is null? (in ' + connections.length + ')';
+					if(!connection) {
+						bridge = null;
+						throw 'Missing connection object, suggests page was interrupted. Forcing refresh.';	
+					}
 					var connectionEl = template.clone();
 					connectionEl.prop('id', 'connection' + connection.getId());
 					connectionEl.attr('data-connection', connection.getId());
@@ -149,7 +151,7 @@
 					// the page and hope it works again
 					window.setTimeout(function() {
 						window.location.reload();
-					}, 1000);
+					}, 500);
 				    return;
 				}
 				
