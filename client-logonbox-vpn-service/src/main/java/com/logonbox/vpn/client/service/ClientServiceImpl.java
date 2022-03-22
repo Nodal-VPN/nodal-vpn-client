@@ -32,12 +32,15 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hypersocket.json.utils.HypersocketUtils;
+import com.hypersocket.json.version.HypersocketVersion;
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.dbus.VPNConnectionImpl;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
@@ -52,6 +55,7 @@ import com.logonbox.vpn.common.client.Keys;
 import com.logonbox.vpn.common.client.Keys.KeyPair;
 import com.logonbox.vpn.common.client.StatusDetail;
 import com.logonbox.vpn.common.client.UserCancelledException;
+import com.logonbox.vpn.common.client.Util;
 import com.logonbox.vpn.common.client.dbus.VPN;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
 import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
@@ -801,6 +805,20 @@ public class ClientServiceImpl implements ClientService {
 		for (VPNSession session : toStart) {
 			activeSessions.put(session.getConnection(), session);
 		}
+		
+		timer.scheduleWithFixedDelay(() -> {
+			try {
+				resolveRemoteDependencies(Util.checkEndsWithSlash(getExtensionStoreRoot()) + "api/store/repos2",
+						new String[] { "logonbox-vpn-client" }, HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-service"), HypersocketVersion.getSerial(),
+						"VPN Client", getCustomerInfo(), "CLIENT_SERVICE");
+			} catch (Exception e) {
+				if (log.isDebugEnabled()) {
+					log.error("Failed to ping extension store.", e);
+				}
+			}	
+		}, 0, 1, TimeUnit.DAYS);
+
+		
 	}
 
 	public boolean startSavedConnections() {
@@ -1097,11 +1115,77 @@ public class ClientServiceImpl implements ClientService {
 		}
 	}
 
+	private String getCustomerInfo() {
+		try {
+			var l = getConnections(null);
+			if (l.isEmpty()) {
+				return "New Install";
+			} else {
+				return l.iterator().next().getHostname();
+			}
+		} catch (Throwable t) {
+			return "Default Install";
+		}
+	}
+
 	private void generateKeys(Connection connection) {
 		log.info("Generating private key");
 		KeyPair key = Keys.genkey();
 		connection.setUserPrivateKey(key.getBase64PrivateKey());
 		connection.setUserPublicKey(key.getBase64PublicKey());
 		log.info(String.format("Public key is %s", connection.getUserPublicKey()));
+	}
+
+	static String getExtensionStoreRoot() {
+		String url = System.getProperty("hypersocket.archivesURL", "https://updates2.hypersocket.com/hypersocket/");
+		return url.endsWith("/") ? url : url + "/";
+	}
+
+	public static void resolveRemoteDependencies(String url, String[] repos, String version, String serial,
+			String product, String customer, String... targets) throws IOException {
+
+		HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2)
+				.connectTimeout(Duration.ofSeconds(15)).followRedirects(HttpClient.Redirect.NORMAL).build();
+		try {
+
+			String additionalRepos = System.getProperty("hypersocket.privateRepos");
+			if (additionalRepos != null) {
+				if (log.isInfoEnabled()) {
+					log.info(String.format("Adding private repos %s", additionalRepos));
+				}
+				repos = ArrayUtils.addAll(repos, additionalRepos.split(","));
+			}
+			if (StringUtils.isBlank(additionalRepos)) {
+				additionalRepos = System.getProperty("hypersocket.additionalRepos");
+				if (additionalRepos != null) {
+					if (log.isInfoEnabled()) {
+						log.info(String.format("Adding additional repos %s", additionalRepos));
+					}
+					repos = ArrayUtils.addAll(repos, additionalRepos.split(","));
+				}
+			}
+			String updateUrl = String.format("%s/%s/%s/%s/%s", url, version, HypersocketUtils.csv(repos), serial,
+					HypersocketUtils.csv(targets));
+
+			if (log.isInfoEnabled()) {
+				log.info("Checking for updates from " + updateUrl);
+			}
+
+			Map<String, String> params = new HashMap<String, String>();
+			params.put("product", product);
+			params.put("customer", customer);
+
+			HttpRequest request = HttpRequest.newBuilder(new URI(updateUrl)).header("Accept", "application/json")
+					.header("Content-Type", "application/x-www-form-urlencoded").POST(Util.ofMap(params)).build();
+
+			var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+			if (log.isDebugEnabled()) {
+				log.debug(HypersocketUtils.prettyPrintJson(response.body()));
+			}
+
+		} catch (Exception ex) {
+			throw new IOException("Failed to resolve remote extensions. " + ex.getMessage(), ex);
+		}
 	}
 }
