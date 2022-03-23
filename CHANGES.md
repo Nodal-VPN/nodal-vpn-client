@@ -1,5 +1,9 @@
 # Changes
 
+## 2.4.0-???
+
+In progress.
+
 ## 2.4.0-692
 
  * Update server is now pinged from service, not the GUI
