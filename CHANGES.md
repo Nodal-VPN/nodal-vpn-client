@@ -1,6 +1,12 @@
 # Changes
 
-## 2.4.0-????
+## 2.4.0-692
+
+ * Update server is now pinged from service, not the GUI
+ * Icon and theme update
+ * Fix for "Index 1 i null" error that appeared sometimes when there was more than one connection.
+
+## 2.4.0-677
 
  * Dark branding colours for links in dark mode were hard to read
  * Better transition to remote authorisation page on first load.
@@ -9,7 +15,7 @@
  * Alternative configuration storage mechanism (to replace Derby in a later release)
  * Tool to convert to new storage mechanism.
 
-## 2.4.0-690
+## 2.4.0-609
 
  * DBus path on Mac could still be incorrect. 
  * Hack for bridge loss in UI when Mac coming out of hibernate.
