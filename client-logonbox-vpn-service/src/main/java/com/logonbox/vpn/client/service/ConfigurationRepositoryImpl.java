@@ -22,7 +22,17 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
 	@Override
 	public <V> V getValue(String owner, ConfigurationItem<V> key) {
+		
 		Preferences node = getNode(owner, key);
+		
+		if(StringUtils.isNotBlank(owner)) {
+			/* For backwards compatibility before scoped configuration was introduced */
+			var oldVal = NODE.get(key.getKey() + "." + owner, ""); 
+			if(!oldVal.equals("")) {
+				NODE.remove(key.getKey() + "." + owner);
+				node.put(key.getKey(), oldVal);
+			}
+		}
 		V v = key.parse(node.get(key.getKey(), null));
 		if(key.getValues() != null && !key.getValues().isEmpty()) {
 			if(!key.getValues().contains(v)) {
@@ -37,6 +47,16 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 	@Override
 	public <V> void setValue(String owner, ConfigurationItem<V> key, V value) {
 		Preferences node = getNode(owner, key);
+		
+		if(StringUtils.isNotBlank(owner)) {
+			/* For backwards compatibility before scoped configuration was introduced.
+			 * It is unlikely the key will be set before it is get, but just in case */
+			var oldVal = NODE.get(key.getKey() + "." + owner, ""); 
+			if(!oldVal.equals("")) {
+				NODE.remove(key.getKey() + "." + owner);
+			}
+		}
+		
 		String was = node.get(key.getKey(), null);
 		if (!Objects.equals(was, value)) {
 			if (value == null) {

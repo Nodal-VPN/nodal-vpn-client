@@ -603,19 +603,13 @@ public class ClientServiceImpl implements ClientService {
 		return timer;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public UUID getUUID(String owner) {
 		UUID deviceUUID;
-		String key = String.format("deviceUUID.%s", owner);
-		ConfigurationItem<String> item;
-		if (!ConfigurationItem.has(key)) {
-			item = ConfigurationItem.add(key, String.class, "");
-		} else {
-			item = (ConfigurationItem<String>) ConfigurationItem.get(key);
-		}
+		var item = ConfigurationItem.DEVICE_UUID;
 		String deviceUUIDString = configurationRepository.getValue(owner, item);
 		if (deviceUUIDString.equals("")) {
+			log.warn("New device UUID, resetting.");
 			deviceUUID = UUID.randomUUID();
 			configurationRepository.setValue(owner, item, deviceUUID.toString());
 		} else {
