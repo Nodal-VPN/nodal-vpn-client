@@ -74,7 +74,7 @@ public abstract class PromptingCertManager implements X509TrustManager, Hostname
 			try {
 				if (log.isDebugEnabled())
 					log.debug(String.format("Validating: %s", c));
-				chainSubjectDN.add(c.getSubjectDN().toString());
+				chainSubjectDN.add(c.getSubjectX500Principal().toString());
 				c.checkValidity();
 			} catch (CertificateExpiredException | CertificateNotYetValidException ce) {
 				/* Already been accepted? */
@@ -92,7 +92,7 @@ public abstract class PromptingCertManager implements X509TrustManager, Hostname
 								: "certificate.certificateNotYetValid.content");
 				if (isToolkitThread()) {
 					boolean ok = promptForCertificate(PromptType.WARNING, title, content, encodedKey,
-							c.getSubjectDN().toString(), ce.getMessage(), PERMANENTLY_ACCEPTED_CERTIFICATES);
+							c.getSubjectX500Principal().toString(), ce.getMessage(), PERMANENTLY_ACCEPTED_CERTIFICATES);
 					if (ok) {
 						ACCEPTED_CERTIFICATES.add(encodedKey);
 					} else
@@ -104,7 +104,7 @@ public abstract class PromptingCertManager implements X509TrustManager, Hostname
 						sem.acquire();
 						runOnToolkitThread(() -> {
 							res.set(promptForCertificate(PromptType.WARNING, title, content, encodedKey,
-									c.getSubjectDN().toString(), ce.getMessage(), PERMANENTLY_ACCEPTED_CERTIFICATES));
+									c.getSubjectX500Principal().toString(), ce.getMessage(), PERMANENTLY_ACCEPTED_CERTIFICATES));
 							sem.release();
 						});
 						sem.acquire();

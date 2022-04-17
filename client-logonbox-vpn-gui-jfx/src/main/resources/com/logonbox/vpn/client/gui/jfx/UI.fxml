@@ -77,21 +77,6 @@
                </children>
             </StackPane>
          </center>
-         <bottom>
-            <BorderPane fx:id="debugBar" BorderPane.alignment="CENTER">
-               <center>
-                  <ButtonBar prefHeight="40.0" prefWidth="200.0">
-                    <buttons>
-                      <Button fx:id="startDebugger" mnemonicParsing="false" onAction="#evtStartDebugger" text="Start" />
-                        <Button fx:id="stopDebugger" disable="true" mnemonicParsing="false" onAction="#evtStopDebugger" text="Stop" />
-                    </buttons>
-                  </ButtonBar>
-               </center>
-               <left>
-                  <Hyperlink fx:id="debuggerLink" onAction="#evtLaunchDebugger" BorderPane.alignment="CENTER" />
-               </left>
-            </BorderPane>
-         </bottom>
 		</BorderPane>
 	</children>
 </StackPane>

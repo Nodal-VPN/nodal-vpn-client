@@ -5,13 +5,7 @@
       "pattern":"\\QMETA-INF/MANIFEST.MF\\E"
     }, 
     {
-      "pattern":"\\QMETA-INF/services/org.freedesktop.dbus.spi.transport.ITransportProvider\\E"
-    }, 
-    {
       "pattern":"\\Qdefault-log4j-cli.properties\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
     }
   ]},
   "bundles":[{

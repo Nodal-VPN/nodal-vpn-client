@@ -1,0 +1,9 @@
+{
+	"resources": {
+		"includes": [
+			{
+				"pattern": "\\Qlib/security/public_suffix_list.dat\\E"
+			}
+		]
+	}
+}

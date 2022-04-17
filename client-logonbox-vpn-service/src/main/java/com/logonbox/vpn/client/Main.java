@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.Security;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -33,8 +31,6 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.PropertyConfigurator;
 import org.freedesktop.dbus.bin.EmbeddedDBusDaemon;
 import org.freedesktop.dbus.connections.BusAddress;
 import org.freedesktop.dbus.connections.IDisconnectCallback;
@@ -46,8 +42,6 @@ import org.freedesktop.dbus.errors.AccessDenied;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.messages.Message;
 import org.freedesktop.dbus.utils.Util;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.logonbox.vpn.client.dbus.VPNConnectionImpl;
 import com.logonbox.vpn.client.dbus.VPNImpl;
@@ -59,6 +53,7 @@ import com.logonbox.vpn.client.wireguard.PlatformService;
 import com.logonbox.vpn.client.wireguard.linux.LinuxPlatformServiceImpl;
 import com.logonbox.vpn.client.wireguard.osx.BrewOSXPlatformServiceImpl;
 import com.logonbox.vpn.client.wireguard.windows.WindowsPlatformServiceImpl;
+import com.logonbox.vpn.common.client.AbstractApp;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
@@ -72,13 +67,14 @@ import com.sshtools.forker.common.OS;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import uk.co.bithatch.nativeimage.annotations.Resource;
 
 @Command(name = "logonbox-vpn-server", mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.")
-public class Main implements Callable<Integer>, LocalContext, X509TrustManager, Listener {
+@Resource({ "macosx-aarch64/.*", "macosx-x86-64/.*", "win32-x86/.*", "win32-x86-64/.*", "hibernate.cfg.xml",
+		"default-log4j-service.properties", "service-plugin.properties" })
+public class Main extends AbstractApp implements LocalContext, X509TrustManager, Listener {
 
 	final static int DEFAULT_TIMEOUT = 10000;
-
-	static Logger log = LoggerFactory.getLogger(Main.class);
 
 	public static void main(String[] args) throws Exception {
 		Main cli = new Main();
@@ -102,7 +98,6 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	private DBusConnection conn;
 	private Map<String, VPNFrontEnd> frontEnds = Collections.synchronizedMap(new HashMap<>());
 	private EmbeddedDBusDaemon daemon;
-	private Level defaultLogLevel;
 	private ScheduledExecutorService queue = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> connTask;
 
@@ -140,6 +135,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	public static final String ARTIFACT_COORDS = "com.logonbox/client-logonbox-vpn-service";
 
 	public Main() throws Exception {
+		super("logs/service-app.log");
 		instance = this;
 		if (SystemUtils.IS_OS_LINUX) {
 			platform = new LinuxPlatformServiceImpl();
@@ -159,10 +155,6 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 		return instance;
 	}
 
-	public Level getDefaultLogLevel() {
-		return defaultLogLevel;
-	}
-
 	@Override
 	public DBusConnection getConnection() {
 		return conn;
@@ -178,41 +170,40 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	}
 
 	@Override
-	public Integer call() throws Exception {
+	protected void onBeforeCall() throws Exception {
+		try {
+			if (!buildServices()) {
+				System.exit(3);
+			}
+		} catch (Exception e) {
+			getLog().error("Failed to start", e);
+			try {
+				Thread.sleep(2500L);
+			} catch (InterruptedException e1) {
+			}
+		}
+		
+	}
+
+	@Override
+	protected java.util.logging.Level getConfiguredLogLevel() {
+		return configurationRepository.getValue(null, ConfigurationItem.LOG_LEVEL);
+	}
+
+	@Override
+	protected Integer onCall() throws Exception {
 
 		File logs = new File("logs");
 		logs.mkdirs();
 
-		String logConfigPath = System.getProperty("hypersocket.logConfiguration", "");
-		if (logConfigPath.equals("")) {
-			/* Load default */
-			PropertyConfigurator.configure(Main.class.getResource("/default-log4j-service.properties"));
-		} else {
-			File logConfigFile = new File(logConfigPath);
-			if (logConfigFile.exists())
-				PropertyConfigurator.configureAndWatch(logConfigPath);
-			else
-				PropertyConfigurator.configure(Main.class.getResource("/default-log4j-service.properties"));
-		}
-
 		try {
-
-			if (!buildServices()) {
-				System.exit(3);
-			}
-
 			/*
 			 * Have database, so enough to get configuration for log level, we can start
 			 * logging now
 			 */
-			Level cfgLevel = configurationRepository.getValue(null, ConfigurationItem.LOG_LEVEL);
-			defaultLogLevel = org.apache.log4j.Logger.getRootLogger().getLevel();
-			if (cfgLevel != null) {
-				org.apache.log4j.Logger.getRootLogger().setLevel(cfgLevel);
-			}
-			log.info(String.format("LogonBox VPN Client, version %s",
+			getLog().info(String.format("LogonBox VPN Client, version %s",
 					HypersocketVersion.getVersion(Main.ARTIFACT_COORDS)));
-			log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch")
+			getLog().info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch")
 					+ " (" + System.getProperty("os.version") + ")"));
 
 			if (!startServices()) {
@@ -234,11 +225,11 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 			});
 
 			if (!clientService.startSavedConnections()) {
-				log.warn("Not all connections started.");
+				getLog().warn("Not all connections started.");
 			}
 
 		} catch (Exception e) {
-			log.error("Failed to start", e);
+			getLog().error("Failed to start", e);
 			try {
 				Thread.sleep(2500L);
 			} catch (InterruptedException e1) {
@@ -271,7 +262,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 			if (fe == null) {
 				throw new IllegalArgumentException(String.format("Front end '%s' not registered.", source));
 			} else
-				log.info(String.format("De-registered front-end %s.", source));
+				getLog().info(String.format("De-registered front-end %s.", source));
 		}
 	}
 
@@ -299,7 +290,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 			try {
 				daemon.close();
 			} catch (IOException e) {
-				log.error("Failed to shutdown DBus service.", e);
+				getLog().error("Failed to shutdown DBus service.", e);
 			} finally {
 				daemon = null;
 			}
@@ -313,26 +304,27 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 		}
 
 		String newAddress = address;
+		var log = getLog();
 		if (SystemUtils.IS_OS_LINUX && !embeddedBus) {
 			if (newAddress != null) {
 				log.info(String.format("Connectin to DBus @%s", newAddress));
-				conn = DBusConnectionBuilder.forAddress(newAddress).withRegisterSelf(true).withShared(true).build();
+				conn = DBusConnectionBuilder.forAddress(newAddress).withShared(false).withRegisterSelf(true).build();
 				log.info(String.format("Ready on DBus @%s", newAddress));
 			} else if (OS.isAdministrator()) {
 				if (sessionBus) {
 					log.info("Per configuration, connecting to Session DBus");
-					conn = DBusConnectionBuilder.forSessionBus().build();
+					conn = DBusConnectionBuilder.forSessionBus().withShared(false).build();
 					log.info("Ready on Session DBus");
 					newAddress = conn.getAddress().getRawAddress();
 				} else {
 					log.info("Connecting to System DBus");
-					conn = DBusConnectionBuilder.forSystemBus().build();
+					conn = DBusConnectionBuilder.forSystemBus().withShared(false).build();
 					log.info("Ready on System DBus");
 					newAddress = conn.getAddress().getRawAddress();
 				}
 			} else {
 				log.info("Not administrator, connecting to Session DBus");
-				conn = DBusConnectionBuilder.forSessionBus().build();
+				conn = DBusConnectionBuilder.forSessionBus().withShared(false).build();
 				log.info("Ready on Session DBus");
 				newAddress = conn.getAddress().getRawAddress();
 			}
@@ -429,7 +421,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 				DBusException lastDbe = null;
 				for (int i = 0; i < 60; i++) {
 					try {
-						conn = DBusConnectionBuilder.forAddress(busAddress.getRawAddress()).build();
+						conn = DBusConnectionBuilder.forAddress(busAddress.getRawAddress()).withShared(false).build();
 						log.info(String.format("Connected to embedded DBus %s", busAddress.getRawAddress()));
 						break;
 					} catch (DBusException dbe) {
@@ -449,7 +441,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 			else {
 
 				log.info(String.format("Connecting to embedded DBus %s", busAddress.getRawAddress()));
-				conn = DBusConnectionBuilder.forAddress(busAddress.getRawAddress()).build();
+				conn = DBusConnectionBuilder.forAddress(busAddress.getRawAddress()).withShared(false).build();
 			}
 
 			/*
@@ -475,7 +467,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 
 		conn.setDisconnectCallback(new IDisconnectCallback() {
 		    public void disconnectOnError(IOException _ex) {
-				log.info("Disconnected from Bus, retrying");
+		    	log.info("Disconnected from Bus, retrying");
 				conn = null;
 				connTask = queue.schedule(() -> {
 					try {
@@ -579,19 +571,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	}
 
 	private boolean buildServices() throws Exception {
-		/* TODO swap these and enable the dbconvert install action in Install4J project
-		 * when ready to make ini files the default.
-		 */
-		Path iniDir = Paths.get("conf").resolve("ini");
-		if(Files.exists(iniDir)) {
-			log.info("Using file data backend");
-			connectionRepository = new com.logonbox.vpn.client.ini.ConnectionRepositoryImpl();
-		}
-		else {
-			log.info("Using Derby data backend");
-			connectionRepository = new com.logonbox.vpn.client.db.ConnectionRepositoryImpl();
-		}
-		
+		connectionRepository = new com.logonbox.vpn.client.ini.ConnectionRepositoryImpl();
 		configurationRepository = new ConfigurationRepositoryImpl();
 		clientService = new ClientServiceImpl(this, connectionRepository, configurationRepository);
 		clientService.addListener(this);
@@ -606,7 +586,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	private File getPropertiesFile(String type) {
 		File file;
 		String path = System.getProperty("hypersocket." + type);
-
+		var log = getLog();
 		if (log.isInfoEnabled()) {
 			log.info(String.format("%s Path: %s", type.toUpperCase(), path));
 		}
@@ -631,23 +611,23 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 
 		try {
 			/* DBus */
-			if (log.isInfoEnabled()) {
-				log.info(String.format("Exporting VPN services to DBus"));
+			if (getLog().isInfoEnabled()) {
+				getLog().info(String.format("Exporting VPN services to DBus"));
 			}
 			conn.exportObject("/com/logonbox/vpn", new VPNImpl(this));
-			if (log.isInfoEnabled()) {
-				log.info(String.format("    VPN"));
+			if (getLog().isInfoEnabled()) {
+				getLog().info(String.format("    VPN"));
 			}
 			for (ConnectionStatus connectionStatus : clientService.getStatus(null)) {
 				Connection connection = connectionStatus.getConnection();
-				log.info(String.format("    Connection %d - %s", connection.getId(), connection.getDisplayName()));
+				getLog().info(String.format("    Connection %d - %s", connection.getId(), connection.getDisplayName()));
 				conn.exportObject(String.format("/com/logonbox/vpn/%d", connection.getId()),
 						new VPNConnectionImpl(this, connection));
 			}
 
 			return true;
 		} catch (Exception e) {
-			log.error("Failed to publish service", e);
+			getLog().error("Failed to publish service", e);
 			return false;
 		}
 	}
@@ -672,12 +652,12 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 		List<String> chainSubjectDN = new ArrayList<>();
 		for (X509Certificate c : chain) {
 			try {
-				if (log.isDebugEnabled())
-					log.debug(String.format("Validating: %s", c));
-				chainSubjectDN.add(c.getSubjectDN().toString());
+				if (getLog().isDebugEnabled())
+					getLog().debug(String.format("Validating: %s", c));
+				chainSubjectDN.add(c.getSubjectX500Principal().toString());
 				c.checkValidity();
 			} catch (CertificateException ce) {
-				log.error("Certificate error. " + String.join(" -> ", chainSubjectDN), ce);
+				getLog().error("Certificate error. " + String.join(" -> ", chainSubjectDN), ce);
 				throw ce;
 			}
 		}
@@ -690,6 +670,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	}
 	
 	protected void cleanUp() {
+		var log = getLog();
 		log.info("Shutdown clean up.");
 		checkForUninstalling();
 		clientService.stopService();
@@ -760,7 +741,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 
 	protected void installAllTrustingCertificateVerifier() {
 
-		log.warn(
+		getLog().warn(
 				"All SSL certificates will be trusted regardless of status. This will change in future versions.");
 
 		Security.insertProviderAt(new ServiceTrustProvider(), 1);
@@ -778,7 +759,7 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 		HostnameVerifier allHostsValid = new HostnameVerifier() {
 			@Override
 			public boolean verify(String hostname, SSLSession session) {
-				log.debug(String.format("Verify hostname %s: %s", hostname, session));
+				getLog().debug(String.format("Verify hostname %s: %s", hostname, session));
 				return true;
 			}
 		};
@@ -789,21 +770,20 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 
 	@Override
 	public void configurationChange(ConfigurationItem<?> item, Object oldValue, Object newValue) {
-
 		if (item == ConfigurationItem.LOG_LEVEL) {
 			String value = (String)newValue;
 			try {
 				if (StringUtils.isBlank(value))
-					org.apache.log4j.Logger.getRootLogger().setLevel(getDefaultLogLevel());
+					setLogLevel(getDefaultLogLevel());
 				else
-					org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.toLevel(value));
+					setLogLevel(parseLogLevel(value));
 			}
 			catch(Exception e) {
-				if(log.isDebugEnabled())
-					log.warn("Invalid log level, setting default. ", e);
+				if(getLog().isDebugEnabled())
+					getLog().warn("Invalid log level, setting default. ", e);
 				else
-					log.warn("Invalid log level, setting default. " + e.getMessage());
-				org.apache.log4j.Logger.getRootLogger().setLevel(getDefaultLogLevel());	
+					getLog().warn("Invalid log level, setting default. " + e.getMessage());
+				setLogLevel(getDefaultLogLevel());	
 			}
 		}
 		

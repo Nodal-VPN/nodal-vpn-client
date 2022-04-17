@@ -1,0 +1,29 @@
+{
+  "name": "client-logonbox-vpn-gui-electron",
+  "version": "2.4.0",
+  "description": "LogonBox VPN Client",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nervepoint/logonbox-desktop-vpn-clients.git"
+  },
+  "keywords": [
+    "vpn",
+    "logonbox",
+    "wireguard",
+    "mfa"
+  ],
+  "author": "Brett Smith",
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "bugs": {
+    "url": "https://github.com/nervepoint/logonbox-desktop-vpn-clients/issues"
+  },
+  "homepage": "https://github.com/nervepoint/logonbox-desktop-vpn-clients#readme",
+  "devDependencies": {
+    "electron": "^18.0.3"
+  }
+}

@@ -1,10 +1,10 @@
 package com.logonbox.vpn.client;
 
 import java.util.Collection;
+import java.util.logging.Level;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.log4j.Level;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.messages.Message;
 

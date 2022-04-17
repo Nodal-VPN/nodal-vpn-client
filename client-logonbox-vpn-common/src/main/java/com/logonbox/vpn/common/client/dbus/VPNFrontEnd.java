@@ -1,5 +1,10 @@
 package com.logonbox.vpn.common.client.dbus;
 
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
+import uk.co.bithatch.nativeimage.annotations.TypeReflect;
+
+@Reflectable
+@TypeReflect(methods = true, constructors = true)
 public class VPNFrontEnd {
 
 	private String source;

@@ -7,16 +7,19 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
-import org.apache.log4j.Level;
+import java.util.logging.Level;
 
 public class ConfigurationItem<T> {
+	
+	public enum TrayMode {
+		DARK, COLOR, LIGHT, AUTO, OFF
+	}
 	
 	public enum Scope {
 		GLOBAL, USER
 	}
 
-	public final static ConfigurationItem<Level> LOG_LEVEL = add("logLevel", Level.class, Level.WARN, Level.ALL, Level.TRACE, Level.DEBUG, Level.WARN, Level.INFO, Level.ERROR, Level.FATAL, Level.OFF);
+	public final static ConfigurationItem<Level> LOG_LEVEL = add("logLevel", Level.class, Level.WARNING, Level.OFF, Level.SEVERE, Level.WARNING, Level.INFO, Level.FINE, Level.FINER, Level.FINEST, Level.ALL);
 	public final static ConfigurationItem<Boolean> IGNORE_LOCAL_ROUTES = add("ignoreLocalRoutes", Boolean.class, true, true, false);
 	public final static ConfigurationItem<DNSIntegrationMethod> DNS_INTEGRATION_METHOD = add("dnsIntegrationMethod", DNSIntegrationMethod.class, DNSIntegrationMethod.AUTO, DNSIntegrationMethod.values());
 	public final static ConfigurationItem<Boolean> AUTOMATIC_UPDATES = add("automaticUpdates", Boolean.class, Scope.USER, true, true, false);
@@ -25,6 +28,7 @@ public class ConfigurationItem<T> {
 	public final static ConfigurationItem<Integer> RECONNECT_DELAY = add("reconnectDelay", Integer.class, 5);
 	public final static ConfigurationItem<Long> FAVOURITE = add("favourite", Long.class, Scope.USER, 0l);
 	public final static ConfigurationItem<String> DEVICE_UUID = add("deviceUUID", String.class, Scope.USER, "");
+	public final static ConfigurationItem<TrayMode> TRAY_MODE = add("trayMode", TrayMode.class, Scope.USER, TrayMode.AUTO, TrayMode.values());
 	
 	private final String key;
 	private final Class<?> type;
@@ -131,7 +135,7 @@ public class ConfigurationItem<T> {
 			else if(type == Boolean.class)
 				return (T)((Boolean)Boolean.parseBoolean(val));
 			else if(type == Level.class)
-				return (T)Level.toLevel(val);
+				return (T)AbstractApp.parseLogLevel(val);
 			else if(type == String.class)
 				return (T)val;
 			else if(Enum.class.isAssignableFrom(type))

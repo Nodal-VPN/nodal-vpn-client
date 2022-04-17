@@ -28,7 +28,7 @@ public abstract class AbstractUpdateService implements UpdateService {
 	protected AbstractDBusClient context;
 	protected ScheduledExecutorService scheduler;
 
-	protected AbstractUpdateService(AbstractDBusClient context) {
+	protected AbstractUpdateService(AbstractUpdateableDBusClient context) {
 		this.context = context;
 		scheduler = Executors.newScheduledThreadPool(1);
 		checkIfBusAvailable();

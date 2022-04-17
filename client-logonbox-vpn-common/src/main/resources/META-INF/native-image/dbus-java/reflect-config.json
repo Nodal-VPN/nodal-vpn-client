@@ -1,0 +1,32 @@
+[
+	{
+		"name": "org.freedesktop.dbus.interfaces.DBus",
+		"allDeclaredClasses": true,
+		"queryAllDeclaredConstructors": true
+	},
+	{
+		"name": "org.freedesktop.dbus.interfaces.DBus$NameAcquired",
+		"allDeclaredConstructors": true
+	},
+	{
+		"name": "org.freedesktop.dbus.interfaces.Introspectable",
+		"allDeclaredClasses": true,
+		"queryAllDeclaredMethods": true
+	},
+	{
+		"name": "org.freedesktop.dbus.errors.ServiceUnknown",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": [
+					"java.lang.String"
+				]
+			}
+		]
+	},
+	{
+		"name": "org.freedesktop.dbus.interfaces.Peer",
+		"allDeclaredClasses": true,
+		"queryAllDeclaredMethods": true
+	}
+]

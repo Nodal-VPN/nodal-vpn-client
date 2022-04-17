@@ -1,8 +1,0 @@
-[
-  {
-    "interfaces":["com.logonbox.vpn.common.client.dbus.VPN"]}
-  ,
-  {
-    "interfaces":["org.freedesktop.dbus.interfaces.DBus"]}
-  
-]

@@ -1,8 +1,6 @@
 package com.logonbox.vpn.client;
 
-import java.security.AccessController;
 import java.security.KeyStore;
-import java.security.PrivilegedAction;
 import java.security.Provider;
 
 import javax.net.ssl.ManagerFactoryParameters;
@@ -16,13 +14,8 @@ public final class ServiceTrustProvider extends Provider {
 
 	public ServiceTrustProvider() {
 		super(TRUST_PROVIDER_ID, "0.1", "Delegates to UI.");
-		AccessController.doPrivileged(new PrivilegedAction<Void>() {
-			public Void run() {
-				put("TrustManagerFactory." + ClientTrustManagerFactory.getAlgorithm(),
-						ClientTrustManagerFactory.class.getName());
-				return null;
-			}
-		});
+		put("TrustManagerFactory." + ClientTrustManagerFactory.getAlgorithm(),
+				ClientTrustManagerFactory.class.getName());
 	}
 
 	public final static class ClientTrustManagerFactory extends TrustManagerFactorySpi {

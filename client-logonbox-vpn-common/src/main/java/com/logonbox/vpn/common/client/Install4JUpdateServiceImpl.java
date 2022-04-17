@@ -17,7 +17,7 @@ public class Install4JUpdateServiceImpl extends AbstractUpdateService {
 
 	static Logger log = LoggerFactory.getLogger(Install4JUpdateServiceImpl.class);
 
-	public Install4JUpdateServiceImpl(AbstractDBusClient context) {
+	public Install4JUpdateServiceImpl(AbstractUpdateableDBusClient context) {
 		super(context);
 	}
 

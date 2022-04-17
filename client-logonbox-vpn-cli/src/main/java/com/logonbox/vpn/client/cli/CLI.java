@@ -1,7 +1,6 @@
 package com.logonbox.vpn.client.cli;
 
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.CookieStore;
@@ -11,13 +10,10 @@ import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.PropertyConfigurator;
 import org.freedesktop.dbus.DBusMatchRule;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.DBusSigHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.logonbox.vpn.client.cli.commands.About;
 import com.logonbox.vpn.client.cli.commands.Config;
@@ -33,7 +29,7 @@ import com.logonbox.vpn.client.cli.commands.Help;
 import com.logonbox.vpn.client.cli.commands.Show;
 import com.logonbox.vpn.client.cli.commands.Shutdown;
 import com.logonbox.vpn.client.cli.commands.Update;
-import com.logonbox.vpn.common.client.AbstractDBusClient;
+import com.logonbox.vpn.common.client.AbstractUpdateableDBusClient;
 import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.UpdateService;
@@ -44,37 +40,22 @@ import com.logonbox.vpn.common.client.dbus.VPNConnection;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.IVersionProvider;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
+import uk.co.bithatch.nativeimage.annotations.Resource;
 
-@Command(name = "logonbox-vpn-cli", usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.", subcommands = {
+@Command(name = "logonbox-vpn-cli", versionProvider = CLI.Version.class, usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.", subcommands = {
 		Connections.class, Connect.class, Create.class, Delete.class, Disconnect.class, Exit.class, Show.class,
 		About.class, Edit.class, Update.class, Debug.class, Config.class, Shutdown.class })
-public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBusClient {
-
-	static Logger log;
+@Resource(siblings = true, value = {"default-log4j-cli\\.properties"})
+public class CLI extends AbstractUpdateableDBusClient implements CLIContext, DBusClient {
 
 	public final static ResourceBundle BUNDLE = ResourceBundle.getBundle(CLI.class.getName());
 
 	public static void main(String[] args) throws Exception {
-
-		String logConfigPath = System.getProperty("hypersocket.logConfiguration", "");
-		if (logConfigPath.equals("")) {
-			/* Load default */
-			PropertyConfigurator.configure(CLI.class.getResource("/default-log4j-cli.properties"));
-		} else {
-			File logConfigFile = new File(logConfigPath);
-			if (logConfigFile.exists())
-				PropertyConfigurator.configureAndWatch(logConfigPath);
-			else
-				PropertyConfigurator.configure(CLI.class.getResource("/default-log4j-cli.properties"));
-		}
-
-		log = LoggerFactory.getLogger(CLI.class);
-		;
-
 		CLI cli = new CLI();
 		try {
 			System.exit(new CommandLine(cli).execute(args));
@@ -87,6 +68,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 	private boolean monitor;
 	@Option(names = { "-q", "--quiet" }, description = "Don't output any messages about current state.")
 	private boolean quiet;
+	
 	@Spec
 	private CommandSpec spec;
 
@@ -97,7 +79,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 	private Thread awaitingServiceStart;
 
 	public CLI() throws DBusException {
-		super();
+		super("%h/.logonbox-vpn-client/cli-app.log");
 		setSupportsAuthorization(true);
 		try {
 			console = new NativeConsoleDevice();
@@ -109,7 +91,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 
 			@Override
 			public void busInitializer(DBusConnection connection) throws DBusException {
-				log.info("Configuring Bus");
+				getLog().info("Configuring Bus");
 
 				giveUpWaitingForServiceStart();
 
@@ -145,7 +127,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 				if (awaitingServiceStop != null) {
 					// Bridge lost as result of update, wait for it to come back
 					giveUpWaitingForServiceStop();
-					log.debug(String.format("Service stopped, awaiting restart"));
+					getLog().debug(String.format("Service stopped, awaiting restart"));
 					awaitingServiceStart = new Thread() {
 						@Override
 						public void run() {
@@ -203,12 +185,13 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 	}
 
 	@Override
-	public void run() {
+	protected Integer onDbusCall() throws Exception {
 		try {
 			about();
 			runPrompt();
 			console.out().println();
 			console.flush();
+			return 0;
 		} catch (Exception e1) {
 			throw new IllegalStateException("Failed to open console.", e1);
 		} finally {
@@ -400,5 +383,12 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 	@Override
 	protected boolean isConsole() {
 		return true;
+	}
+
+	public static class Version implements IVersionProvider {
+		@Override
+		public String[] getVersion() throws Exception {
+			return new String[] { HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-cli") };
+		}
 	}
 }

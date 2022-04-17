@@ -1,0 +1,9 @@
+[
+{
+  "name":"org.eclipse.swt.widgets.Display"
+},
+{
+  "name":"sun.security.provider.SHA2$SHA256",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+}
+]

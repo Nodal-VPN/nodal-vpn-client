@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +20,6 @@ import org.ini4j.Profile.Section;
 
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.Keys;
-import com.logonbox.vpn.common.client.Util;
 
 public class ConnectionImpl implements Connection, Serializable {
 
@@ -275,7 +275,7 @@ public class ConnectionImpl implements Connection, Serializable {
 		/* Interface (us) */
 		Section interfaceSection = ini.get("Interface");
 		setAddress(interfaceSection.get("Address"));
-		setDns(Util.toStringList(interfaceSection, "DNS"));
+		setDns(toStringList(interfaceSection, "DNS"));
 
 		String privateKey = interfaceSection.get("PrivateKey");
 		setUserPrivateKey(privateKey);
@@ -315,7 +315,7 @@ public class ConnectionImpl implements Connection, Serializable {
 			setEndpointAddress(endpoint.substring(0, idx));
 			setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
 			setPeristentKeepalive(Integer.parseInt(peerSection.get("PersistentKeepalive")));
-			setAllowedIps(Util.toStringList(peerSection, "AllowedIPs"));
+			setAllowedIps(toStringList(peerSection, "AllowedIPs"));
 		}
 
 	}
@@ -504,4 +504,15 @@ public class ConnectionImpl implements Connection, Serializable {
 		ini.store(w);
 	}
 
+
+	public static List<String> toStringList(Section section, String key) {
+		List<String> n = new ArrayList<>();
+		String val = section.get(key, "");
+		if (!val.equals("")) {
+			for (String a : val.split(",")) {
+				n.add(a.trim());
+			}
+		}
+		return n;
+	}
 }

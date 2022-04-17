@@ -13,11 +13,20 @@ import org.freedesktop.dbus.interfaces.DBusInterface;
 import com.github.jgonian.ipmath.Ipv4;
 import com.github.jgonian.ipmath.Ipv6;
 
+import uk.co.bithatch.nativeimage.annotations.Proxy;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
+import uk.co.bithatch.nativeimage.annotations.TypeReflect;
+
 @DBusInterfaceName("org.freedesktop.resolve1.Manager")
+@Proxy
+@Reflectable
+@TypeReflect(methods = true, classes = true)
 public interface Resolve1Manager extends DBusInterface {
 	static final int AF_INET6 = 10;
 	static final int AF_INET = 2;
 
+	@Reflectable
+	@TypeReflect(methods = true, fields = true)
 	public class SetLinkDNSStruct extends Struct {
 
 		@Position(0)
@@ -58,11 +67,13 @@ public interface Resolve1Manager extends DBusInterface {
 			return bytes;
 		}
 
-		static  byte[] intToBytes(int myInteger){
-		    return ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(myInteger).array();
+		static byte[] intToBytes(int myInteger) {
+			return ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(myInteger).array();
 		}
 	}
 
+	@Reflectable
+	@TypeReflect(methods = true, fields = true)
 	public class SetLinkDomainsStruct extends Struct {
 		@Position(0)
 		private final String domain;
@@ -133,7 +144,7 @@ public interface Resolve1Manager extends DBusInterface {
 	void RevertLink(int index);
 
 	/**
-	 *  Flush caches
+	 * Flush caches
 	 */
 	void FlushCaches();
 }

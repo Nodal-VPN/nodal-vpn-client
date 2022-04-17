@@ -19,7 +19,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.ini4j.Profile.Section;
 
 public class Util {
 
@@ -97,17 +96,6 @@ public class Util {
 		} catch (Exception e) {
 			throw new IllegalStateException("Failed to hash.", e);
 		}
-	}
-
-	public static List<String> toStringList(Section section, String key) {
-		List<String> n = new ArrayList<>();
-		String val = section.get(key, "");
-		if (!val.equals("")) {
-			for (String a : val.split(",")) {
-				n.add(a.trim());
-			}
-		}
-		return n;
 	}
 	
 	public static String getOS() {

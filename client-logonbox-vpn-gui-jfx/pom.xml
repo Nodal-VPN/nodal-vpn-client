@@ -19,13 +19,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <SplashScreen-Image>com/logonbox/vpn/client/gui/jfx/splash.png</SplashScreen-Image>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.nervepoint</groupId>
@@ -44,21 +37,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.vladsch.boxed-json</groupId>
-            <artifactId>boxed-json</artifactId>
-            <version>0.5.32</version>
-        </dependency>
-        <dependency>
-            <groupId>org.java-websocket</groupId>
-            <artifactId>Java-WebSocket</artifactId>
-            <version>1.3.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>15.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.logonbox</groupId>
             <artifactId>client-logonbox-vpn-common</artifactId>
             <version>${project.version}</version>
@@ -67,16 +45,15 @@
                     <groupId>xml-apis</groupId>
                     <artifactId>xml-apis</artifactId>
                 </exclusion>
+                <exclusion>
+                	<groupId>javax.xml.bind</groupId>
+                	<artifactId>jaxb-api</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <!-- <dependency> <groupId>com.google.code.jgntp</groupId> <artifactId>jgntp</artifactId> 
 			<version>1.2.1</version> </dependency> -->
-        <dependency>
-            <groupId>com.sshtools</groupId>
-            <artifactId>forker-client</artifactId>
-            <version>1.7-SNAPSHOT</version>
-        </dependency>
-        <dependency>
+                <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>1.9</version>
@@ -94,7 +71,7 @@
         <dependency>
             <groupId>uk.co.bithatch</groupId>
             <artifactId>FX-BorderlessScene</artifactId>
-            <version>5.0.4</version>
+            <version>5.0.6-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.openjfx</groupId>
@@ -111,26 +88,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.sshtools</groupId>
-            <artifactId>two-slices</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.github.hypfvieh</groupId>
-                    <artifactId>dbus-java-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.github.hypfvieh</groupId>
-                    <artifactId>dbus-java-transport-native-unixsocket</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.controlsfx</groupId>
-            <artifactId>controlsfx</artifactId>
-            <version>11.1.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.github.hypfvieh</groupId>
             <artifactId>dbus-java-core</artifactId>
             <version>4.1.0-SNAPSHOT</version>
@@ -145,65 +102,6 @@
             <artifactId>ikonli-fontawesome-pack</artifactId>
             <version>12.0.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.Dansoftowner</groupId>
-            <artifactId>jSystemThemeDetector</artifactId>
-            <version>3.7</version>
-        </dependency>
-        <dependency>
-            <groupId>de.jangassen</groupId>
-            <artifactId>jfa</artifactId>
-            <version>1.2.0</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>com.dorkbox</groupId>
-            <artifactId>SystemTray</artifactId>
-            <version>4.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.eclipse.platform</groupId>
-                    <artifactId>org.eclipse.swt</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.platform</groupId>
-                    <artifactId>
-						org.eclipse.swt.gtk.linux.x86_64
-					</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.platform</groupId>
-                    <artifactId>
-						org.eclipse.swt.win32.win32.x86_64
-					</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jetbrains.kotlin</groupId>
-                    <artifactId>kotlin-stdlib-jdk8</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jetbrains.kotlinx</groupId>
-                    <artifactId>kotlin-coroutines-core-jvm</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.github.microutils</groupId>
-                    <artifactId>kotlin-logging-jvm</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.hierynomus</groupId>
-                    <artifactId>sshj</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.tukaani</groupId>
-                    <artifactId>xz</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
     </dependencies>
 
     <repositories>
@@ -282,19 +180,82 @@
     </repositories>
     <profiles>
         <profile>
+            <id>XXnative</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <version>${native.maven.plugin.version}</version>
+                        <extensions>true</extensions>
+                        <executions>
+                            <execution>
+                                <id>build-native</id>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <imageName>logonbox-vpn-gui-jfx</imageName>
+                            <mainClass>com.logonbox.vpn.client.gui.jfx.Main</mainClass>
+                            <buildArgs>
+                                <buildArg>--no-fallback</buildArg>
+                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
+                                <buildArg>--allow-incomplete-classpath</buildArg>
+                                <buildArg>--enable-url-protocols=http,https</buildArg>
+                                <buildArg>-Djava.awt.headless=true</buildArg>
+                            </buildArgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <!-- When natively compiled, must compile this in as well, usally
+                the Install4J launcher would provide it -->            
+                <dependency>
+                    <groupId>com.install4j</groupId>
+                    <artifactId>install4j-runtime</artifactId>
+                    <version>9.0.6</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>native</id>
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <annotationProcessorPaths>
+                                <path>
+                                    <groupId>info.picocli</groupId>
+                                    <artifactId>picocli-codegen</artifactId>
+                                    <version>4.6.1</version>
+                                </path>
+                                <path>
+                                    <groupId>uk.co.bithatch</groupId>
+                                    <artifactId>native-image-annotations</artifactId>
+                                    <version>0.0.1-SNAPSHOT</version>
+                                </path>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </plugin>
+                    <plugin>
                         <groupId>com.gluonhq</groupId>
                         <artifactId>gluonfx-maven-plugin</artifactId>
-                        <version>1.0.12</version>
+                        <version>1.0.13</version>
                         <configuration>
                             <mainClass>com.logonbox.vpn.client.gui.jfx.Main</mainClass>
+                            <javaStaticSdkVersion>17.0.2</javaStaticSdkVersion>
+                            <javafxStaticSdkVersion>${javafx.version}</javafxStaticSdkVersion>
                             <nativeImageArgs>
                                 <nativeImageArg>--no-fallback</nativeImageArg>
                                 <nativeImageArg>--report-unsupported-elements-at-runtime</nativeImageArg>
-                                <nativeImageArg>--allow-incomplete-classpath</nativeImageArg>
+                                <nativeImageArg>--allow-incomplete-classpath</nativeImageArg>1
+                                <nativeImageArg>--enable-url-protocols=http,https</nativeImageArg>
                             </nativeImageArgs>
                         </configuration>
                         <executions>
@@ -309,6 +270,15 @@
                     </plugin>
                 </plugins>
             </build>
+            <dependencies>
+                <!-- When natively compiled, must compile this in as well, usally
+                the Install4J launcher would provide it -->            
+                <dependency>
+                    <groupId>com.install4j</groupId>
+                    <artifactId>install4j-runtime</artifactId>
+                    <version>9.0.6</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 </project>

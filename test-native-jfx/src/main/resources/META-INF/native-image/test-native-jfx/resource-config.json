@@ -1,0 +1,8 @@
+{
+  "resources":{
+  "includes":[]},
+  "bundles":[{
+      "name":"org.eclipse.swt.internal.SWTMessages",
+      "locales":[""]
+    }]
+}

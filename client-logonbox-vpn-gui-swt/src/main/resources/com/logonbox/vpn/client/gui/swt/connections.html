@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="web.css" rel="stylesheet">
+<link href="fontawesome/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+	<script src="jquery-3.5.1.min.js"></script>
+	<script src="bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
+	<script src="web.js"></script>
+	<div>
+	    <div id="noConnections" class="full-container" Xstyle="display: none;">
+	        <div id="main" class="container clear-top">
+	            <div class="row text-center">
+	                <div class="col-md-12">
+	                    <p id="noConnectionsText"></p>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+		<div id="connections" class="container grid-striped">
+			<div id="connectionTemplate" class="row connection pt-3 pb-3">
+				<div class="col status-icon end-column"></div>
+				<div class="col middle-column">
+					<strong> <small style="text-overflow: ellipsis;" class="connection-name">Connection Name</small>
+					</strong><br /> <small class="status"></small><br /> <small
+						class="subText"></small>
+				</div>
+				<div class="col end-column">
+					<div class="form-check form-switch">
+						<input class="toggle-connection form-check-input" type="checkbox" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<footer class="fixed-bottom m-3">
+		<div class="container">
+			<div class="row">
+				<div class="col-6 pt-2">
+					<a href="options.html"><i class="fa fa-cogs"></i><span
+						data-i18n="options">Options</span></a>
+				</div>
+				<div class="col-6 text-end">
+					<a id="add" href="addLogonBoxVPN.html" class="align-middle"><i
+						class="fa fa-plus-circle fa-3x"></i></a>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+
+	<script type="text/javascript">
+	   var template = false;
+	
+		function rebuildConnections() {
+			$('.row').off('mouseenter');
+			$('.row').off('mouseleave');
+			$('.row').off('click');
+			try {
+				var connections = bridge.getConnections();
+                var connectionsEl = $('#connections');
+				if(!template) {
+				    template = $('#connectionTemplate').clone();
+				    $('#connectionTemplate').remove();
+				}
+				else {
+					connectionsEl.empty();
+				}
+				if(connections.length == 0) {
+					$('#noConnections').show();
+				}
+				else {
+                    $('#noConnections').hide();	
+				}
+                bridge.log('L ' + connections.length);
+				for (var i = 0; i < connections.length; i++) {
+					var connection = connections[i];
+					bridge.log('I = ' + i + ' ' + connection);
+					if(!connection) {
+						bridge = null;
+						throw 'Missing connection object, suggests page was interrupted. Forcing refresh.';	
+					}
+					var connectionEl = template.clone();
+					connectionEl.prop('id', 'connection' + connection.getId());
+					connectionEl.attr('data-connection', connection.getId());
+					var nameEl = connectionEl.find('.connection-name')[0];
+					/* Name */
+					$(nameEl).html(connection.getDisplayName());
+
+					/* Icon */
+					var connected = false;
+					var iconName = 'fa-exclamation-triangle text-error';
+					var statusName = connection.getStatus();
+					var textStyle = '';
+					var subText = '';
+					if (statusName === 'DISCONNECTING') {
+						iconName = 'fa-spinner fa-spin';
+					} else if (statusName === 'DISCONNECTED') {
+						iconName = 'fa-power-off';
+						textStyle = 'text-danger';
+						subText = connection.getLastError();
+					} else if (statusName === 'TEMPORARILY_OFFLINE') {
+						iconName = 'fa-exclamation-triangle';
+						connected = true;
+						textStyle = 'text-warning';
+					} else if (statusName === 'AUTHORIZING') {
+						iconName = 'fa-spinner fa-spin';
+						connected = true;
+						textStyle = 'text-info';
+					} else if (statusName === 'CONNECTING') {
+						iconName = 'fa-spinner fa-spin';
+						connected = true; 
+						textStyle = 'text-info';
+					} else if (statusName === 'CONNECTED') {
+						iconName = 'fa-check-circle';
+						connected = true;
+						textStyle = 'text-success';
+					}
+					var iconEl = $('<i class="fa ' + iconName + ' ' + textStyle + ' fa-3x"></i>');
+					iconEl.appendTo(connectionEl.find('.status-icon')[0]);
+
+					/* Connected switch */
+					var cbEl = connectionEl.find('.toggle-connection');
+		            var status = connection.getStatus();
+					cbEl.prop('checked', connected);
+
+					/* Status text */
+					var statusEl = $(connectionEl.find('.status')[0]);
+					statusEl.addClass(textStyle);
+					statusEl.html(pageBundle.getString('status.' + statusName));
+
+					/* Sub text */
+					var subTextEl = $(connectionEl.find('.subText')[0]);
+					if (subText.length > 0) {
+						subTextEl.addClass(textStyle);
+						subTextEl.html(subText);
+					}
+
+					connectionEl.appendTo(connectionsEl);
+				}
+			} catch (e) {
+				try {
+					bridge.getOS();
+				}
+				catch(e2) {
+					// HACK: The Mac looses the bridge object somehow coming out of hibernate. I can only
+					// guess this is some weird webkit bug. If that appears to happen, wait one second and refresh
+					// the page and hope it works again
+					window.setTimeout(function() {
+						window.location.reload();
+					}, 500);
+				    return;
+				}
+				
+				alert(e);
+			}
+            $('#add').off('mousedown').on('mousedown', function() {
+            	$('#add').data('timer', window.setTimeout(function() {
+            		
+            		// TODO not ready yet
+            		window.location = 'addAdvanced.html';
+            		 
+            	}, 1000));
+            });
+            $('#add').off('mouseup').on('mouseup', function(e) {
+            	var t = $(this).data('timer');
+            	if(t) {
+            		window.clearTimeout(t);
+                    e.preventDefault();
+            	}
+            });
+			$('.row').off('mouseenter').on('mouseenter', function() {
+				$(this).addClass('active');
+			});
+			$('.row').off('mouseleave').on('mouseleave', function() {
+				$(this).removeClass('active');
+			});
+            $('.row strong').off('click').on('click', function(evt) {
+                bridge.details(parseInt($(this).parent().parent().attr('data-connection')));
+                evt.preventDefault();
+            });
+			$('.row').off('dblclick').on('dblclick', function(evt) {
+				bridge.details(parseInt($(this).attr('data-connection')));
+				evt.preventDefault();
+			});
+			$('.toggle-connection').change(function(e) {
+                console.log(this);
+                if (this.checked) {
+                    bridge.connectTo(parseInt($($(this).parents('.connection')).attr('data-connection')));
+                    rebuildConnections();
+                } else {
+                    bridge.disconnectFrom(parseInt($($(this).parents('.connection')).attr('data-connection')));
+                    rebuildConnections();
+                }
+                e.preventDefault();
+            });
+            /* TODO: cant get text with links from i18n resources for some reason. Fix in Quark */
+            $('#noConnectionsText').html(pageBundle.getString('noConnections'));
+        }
+
+        function uiRefresh() {
+            rebuildConnections();
+        }
+
+        function uiReady() {
+            rebuildConnections();
+        }
+	</script>
+</body>
+</html>

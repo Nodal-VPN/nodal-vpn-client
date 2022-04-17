@@ -23,7 +23,6 @@ public class Configuration {
 	public static final String DARK_MODE_ALWAYS = "always";
 	public static final String DARK_MODE_NEVER = "never";
 
-	private StringProperty trayMode = new SimpleStringProperty();
 	private StringProperty darkMode = new SimpleStringProperty();
 	private StringProperty logLevel = new SimpleStringProperty();
 	private StringProperty configurationFileDirectory = new SimpleStringProperty();
@@ -106,9 +105,6 @@ public class Configuration {
 			node.putInt("h", n.intValue());
 		});
 
-		trayMode.set(node.get("trayMode", TRAY_MODE_AUTO));
-		trayMode.addListener(new StringPreferenceUpdateChangeListener(node, "trayMode"));
-
 		darkMode.set(node.get("darkMode", DARK_MODE_AUTO));
 		darkMode.addListener(new StringPreferenceUpdateChangeListener(node, "darkMode"));
 
@@ -151,10 +147,6 @@ public class Configuration {
 
 	public IntegerProperty yProperty() {
 		return y;
-	}
-
-	public StringProperty trayModeProperty() {
-		return trayMode;
 	}
 
 	public StringProperty darkModeProperty() {

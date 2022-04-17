@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public class DummyUpdateService extends AbstractUpdateService {
 
-	public DummyUpdateService(AbstractDBusClient context) {
+	public DummyUpdateService(AbstractUpdateableDBusClient context) {
 		super(context);
 	}
 

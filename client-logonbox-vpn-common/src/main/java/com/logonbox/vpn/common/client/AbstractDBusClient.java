@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,9 +20,6 @@ import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.errors.ServiceUnknown;
 import org.freedesktop.dbus.errors.UnknownObject;
 import org.freedesktop.dbus.exceptions.DBusException;
-//import org.freedesktop.dbus.interfaces.Local;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.logonbox.vpn.common.client.dbus.DBusClient;
 import com.logonbox.vpn.common.client.dbus.VPN;
@@ -30,8 +28,12 @@ import com.logonbox.vpn.common.client.dbus.VPNConnection;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
+import uk.co.bithatch.nativeimage.annotations.TypeReflect;
 
-public abstract class AbstractDBusClient implements DBusClient {
+@Reflectable
+@TypeReflect(classes = true, fields = true, methods = true)
+public abstract class AbstractDBusClient extends AbstractApp implements DBusClient {
 
 	public final static File CLIENT_HOME = new File(
 			System.getProperty("user.home") + File.separator + ".logonbox-vpn-client");
@@ -45,7 +47,6 @@ public abstract class AbstractDBusClient implements DBusClient {
 	}
 
 	final static int DEFAULT_TIMEOUT = 10000;
-	static Logger log;
 
 	private static final String BUS_NAME = "com.logonbox.vpn";
 
@@ -73,18 +74,28 @@ public abstract class AbstractDBusClient implements DBusClient {
 	private ScheduledFuture<?> pingTask;
 	private boolean supportsAuthorization;
 	private PromptingCertManager certManager;
-	private UpdateService updateService;
 	private CookieStore cookieStore;
+	private DBusConnection altConn;
 	/**
 	 * Matches the identifier in logonbox VPN server
 	 * PeerConfigurationAuthenticationProvider.java
 	 */
 	public static final String DEVICE_IDENTIFIER = "LBVPNDID";
 
-	protected AbstractDBusClient() {
-		certManager = createCertManager();
-		certManager.installCertificateVerifier();
+	protected AbstractDBusClient(String defaultLogFilePattern) {
+		super(defaultLogFilePattern);
 		scheduler = Executors.newScheduledThreadPool(1);
+	}
+
+	@Override
+	protected void onBeforeCall() throws Exception {
+	}
+
+	@Override
+	protected final Integer onCall() throws Exception {
+		certManager = createCertManager();
+		if (certManager != null)
+			certManager.installCertificateVerifier();
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				if (vpn != null) {
@@ -96,24 +107,16 @@ public abstract class AbstractDBusClient implements DBusClient {
 				}
 			}
 		});
-		try {
-			updateService = new Install4JUpdateServiceImpl(this);
-		} catch (Throwable t) {
-			System.out.println("FALLBACK");
-			t.printStackTrace();
-			updateService = new DummyUpdateService(this);
-		}
+		return onDbusCall();
 	}
+
+	protected abstract Integer onDbusCall() throws Exception;
 
 	public CookieStore getCookieStore() {
 		if (cookieStore == null) {
 			cookieStore = new CustomCookieStore();
 		}
 		return cookieStore;
-	}
-
-	public UpdateService getUpdateService() {
-		return updateService;
 	}
 
 	public boolean isSupportsAuthorization() {
@@ -137,6 +140,24 @@ public abstract class AbstractDBusClient implements DBusClient {
 
 	public DBusConnection getBus() {
 		return conn;
+	}
+
+	public DBusConnection getAltBus() {
+		synchronized (initLock) {
+			lazyInit();
+			if (conn != null && conn.isConnected() && altConn == null) {
+				if (conn.getAddress().getBusType().equals(DBusConnection.DBusBusType.SYSTEM.name())) {
+					try {
+						altConn = conn = DBusConnectionBuilder.forSessionBus().withShared(false).build();
+					} catch (DBusException e) {
+						throw new IllegalStateException("Could not get alternate bus.");
+					}
+				} else {
+					altConn = conn;
+				}
+			}
+			return altConn;
+		}
 	}
 
 	public boolean isBusAvailable() {
@@ -179,11 +200,15 @@ public abstract class AbstractDBusClient implements DBusClient {
 
 	public void exit() {
 		scheduler.shutdown();
-		updateService.shutdown();
 	}
 
 	protected void disconnectFromBus() {
 		conn.disconnect();
+	}
+
+	@Override
+	protected Level getConfiguredLogLevel() {
+		return isBusAvailable() ? parseLogLevel(getVPN().getValue(ConfigurationItem.LOG_LEVEL.getKey())) : Level.WARNING;
 	}
 
 	protected final void init() throws Exception {
@@ -193,30 +218,28 @@ public abstract class AbstractDBusClient implements DBusClient {
 			return;
 		}
 
-		if (getLog().isDebugEnabled())
-			getLog().debug(String.format("Using update service %s", updateService.getClass().getName()));
-
 		String fixedAddress = getServerDBusAddress(addressFile);
-		if (conn == null || !conn.isConnected() || (StringUtils.isNotBlank(fixedAddress) && !fixedAddress.equals(conn.getAddress().toString()) )) {
+		if (conn == null || !conn.isConnected()
+				|| (StringUtils.isNotBlank(fixedAddress) && !fixedAddress.equals(conn.getAddress().toString()))) {
 			String busAddress = this.busAddress;
 			if (StringUtils.isNotBlank(busAddress)) {
 				if (getLog().isDebugEnabled())
 					getLog().debug("Getting bus. " + this.busAddress);
-				conn = DBusConnectionBuilder.forAddress(busAddress).build();
+				conn = DBusConnectionBuilder.forAddress(busAddress).withShared(false).build();
 			} else {
 				if (sessionBus) {
 					if (getLog().isDebugEnabled())
 						getLog().debug("Getting session bus.");
-					conn = DBusConnectionBuilder.forSessionBus().build();
+					conn = DBusConnectionBuilder.forSessionBus().withShared(false).build();
 				} else {
 					if (fixedAddress == null) {
 						if (getLog().isDebugEnabled())
 							getLog().debug("Getting system bus.");
-						conn = DBusConnectionBuilder.forSystemBus().build();
+						conn = DBusConnectionBuilder.forSystemBus().withShared(false).build();
 					} else {
 						if (getLog().isDebugEnabled())
 							getLog().debug("Getting fixed bus " + fixedAddress);
-						conn = DBusConnectionBuilder.forAddress(fixedAddress).build();
+						conn = DBusConnectionBuilder.forAddress(fixedAddress).withShared(false).build();
 					}
 				}
 			}
@@ -232,9 +255,18 @@ public abstract class AbstractDBusClient implements DBusClient {
 		});
 
 		/* Load the VPN object */
-		loadRemote();
+		try {
+			loadRemote();
+		} catch (DBusException | ServiceUnknown dbe) {
+			conn.disconnect();
+			throw dbe;
+		}
 
-		updateService.checkIfBusAvailable();
+		if (getLogLevelArgument() == null) {
+			/* Configuration might be available now connected to DBus */
+			setLogLevel(getConfiguredLogLevel());
+		}
+		onInit();
 
 		for (BusLifecycleListener i : busLifecycleListeners)
 			i.busInitializer(conn);
@@ -243,20 +275,21 @@ public abstract class AbstractDBusClient implements DBusClient {
 		getLog().info(String.format("Cert manager: %s", getCertManager()));
 	}
 
-	protected abstract boolean isInteractive();
-
-	protected Logger getLog() {
-		if (log == null) {
-			log = LoggerFactory.getLogger(AbstractDBusClient.class);
-		}
-		return log;
+	protected void onInit() {
 	}
+
+	protected abstract boolean isInteractive();
 
 	protected void lazyInit() {
 		synchronized (initLock) {
+			try {
+				initLogging();
+			} catch (IOException e1) {
+				throw new IllegalStateException("Failed to initialize.", e1);
+			}
 			if (vpn == null) {
-				getLog().info("Trying connect to DBus");
 				try {
+					getLog().info("Trying connect to DBus");
 					init();
 				} catch (UnknownObject | DBusException | ServiceUnknown dbe) {
 					busGone();
@@ -264,11 +297,16 @@ public abstract class AbstractDBusClient implements DBusClient {
 					re.printStackTrace();
 					throw re;
 				} catch (Exception e) {
-					e.printStackTrace();
 					throw new IllegalStateException("Failed to initialize.", e);
 				}
 			}
 		}
+	}
+
+	protected void onBusGone() {
+	}
+
+	protected void onLoadRemote() {
 	}
 
 	private void loadRemote() throws DBusException {
@@ -289,6 +327,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 				}
 			}
 		}, 5, 5, TimeUnit.SECONDS);
+		onLoadRemote();
 	}
 
 	protected final String getEffectiveUser() {
@@ -323,38 +362,46 @@ public abstract class AbstractDBusClient implements DBusClient {
 		synchronized (initLock) {
 			cancelPingTask();
 
-			if (busAvailable) {
-				busAvailable = false;
-				vpn = null;
-				if (conn != null) {
-					conn.disconnect();
-					conn = null;
-				}
-				updateService.checkIfBusAvailable();
-				for (BusLifecycleListener b : busLifecycleListeners) {
-					b.busGone();
-				}
-			}
-
-			/*
-			 * Only really likely to happen with the embedded bus. As the service itself
-			 * hosts it.
-			 */
-			scheduler.schedule(() -> {
-				synchronized (initLock) {
-					try {
-						init();
-					} catch (DBusException | ServiceUnknown dbe) {
-						if (getLog().isDebugEnabled())
-							getLog().debug("Init() failed, retrying");
-						busGone();
-					} catch (RuntimeException re) {
-						throw re;
-					} catch (Exception e) {
-						throw new IllegalStateException("Failed to schedule new connection.", e);
+			try {
+				if (busAvailable) {
+					busAvailable = false;
+					vpn = null;
+					if (conn != null) {
+						conn.disconnect();
+						conn = null;
+					}
+					if (altConn != null) {
+						altConn.disconnect();
+						altConn = null;
+					}
+					onBusGone();
+					for (BusLifecycleListener b : busLifecycleListeners) {
+						b.busGone();
 					}
 				}
-			}, 5, TimeUnit.SECONDS);
+			} catch (Exception e) {
+			} finally {
+
+				/*
+				 * Only really likely to happen with the embedded bus. As the service itself
+				 * hosts it.
+				 */
+				scheduler.schedule(() -> {
+					synchronized (initLock) {
+						try {
+							init();
+						} catch (DBusException | ServiceUnknown dbe) {
+							if (getLog().isDebugEnabled())
+								getLog().debug("Init() failed, retrying");
+							busGone();
+						} catch (RuntimeException re) {
+							throw re;
+						} catch (Exception e) {
+							throw new IllegalStateException("Failed to schedule new connection.", e);
+						}
+					}
+				}, 5, TimeUnit.SECONDS);
+			}
 		}
 	}
 

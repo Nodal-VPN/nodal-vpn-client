@@ -1,11 +1,8 @@
 package com.logonbox.vpn.client.gui.jfx;
 
-import java.awt.SplashScreen;
-import java.awt.Taskbar;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,38 +14,26 @@ import java.net.CookieStore;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.ServiceLoader;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.log4j.PropertyConfigurator;
-import org.freedesktop.dbus.utils.Util;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.goxr3plus.fxborderlessscene.borderless.BorderlessScene;
-import com.jthemedetecor.OsThemeDetector;
-import com.logonbox.vpn.client.gui.jfx.PowerMonitor.Listener;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.CustomCookieStore;
 import com.logonbox.vpn.common.client.api.Branding;
 import com.logonbox.vpn.common.client.api.BrandingInfo;
-import com.sshtools.twoslices.ToasterFactory;
-import com.sshtools.twoslices.ToasterSettings.SystemTrayIconMode;
-import com.sshtools.twoslices.impl.JavaFXToaster;
-import com.vladsch.boxed.json.BoxedJsObject;
-import com.vladsch.boxed.json.BoxedJson;
-import com.vladsch.javafx.webview.debugger.JfxScriptStateProvider;
+import com.logonbox.vpn.common.client.dbus.RemoteUI;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -76,8 +61,10 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import uk.co.bithatch.nativeimage.annotations.Bundle;
 
-public class Client extends Application implements JfxScriptStateProvider, Listener {
+@Bundle
+public class Client extends Application implements RemoteUI {
 
 	static final boolean allowBranding = System.getProperty("logonbox.vpn.allowBranding", "true").equals("true");
 
@@ -90,19 +77,6 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 
 	private CookieHandler originalCookieHander;
 	private static Client instance;
-
-	static private BoxedJsObject jsstate = BoxedJson.of(); // start with empty state
-
-	@NotNull
-	@Override
-	public BoxedJsObject getState() {
-		return jsstate;
-	}
-
-	@Override
-	public void setState(@NotNull final BoxedJsObject state) {
-		jsstate = state;
-	}
 
 	public static Alert createAlertWithOptOut(AlertType type, String title, String headerText, String message,
 			String optOutMessage, Consumer<Boolean> optOutAction, ButtonType... buttonTypes) {
@@ -134,40 +108,6 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		return instance;
 	}
 
-	static String toHex(Color color) {
-		return toHex(color, -1);
-	}
-
-	static String toHex(Color color, boolean opacity) {
-		return toHex(color, opacity ? color.getOpacity() : -1);
-	}
-
-	static String toHex(Color color, double opacity) {
-		if (opacity > -1)
-			return String.format("#%02x%02x%02x%02x", (int) (color.getRed() * 255), (int) (color.getGreen() * 255),
-					(int) (color.getBlue() * 255), (int) (opacity * 255));
-		else
-			return String.format("#%02x%02x%02x", (int) (color.getRed() * 255), (int) (color.getGreen() * 255),
-					(int) (color.getBlue() * 255));
-	}
-
-	static String toRgb(Color color) {
-		return toRgba(color, -1);
-	}
-
-	static String toRgba(Color color, boolean opacity) {
-		return toRgba(color, opacity ? color.getOpacity() : -1);
-	}
-	
-	static String toRgba(Color color, double opacity) {
-		if (opacity > -1)
-			return String.format("rgba(%3f,%3f,%3f,%3f)", color.getRed(), color.getGreen(),
-					color.getBlue(), opacity);
-		else
-			return String.format("rgba(%3f,%3f,%3f)", color.getRed(), color.getGreen(),
-					color.getBlue());
-	}
-
 	static URL toUri(File tmpFile) {
 		try {
 			return tmpFile.toURI().toURL();
@@ -177,63 +117,68 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 	}
 
 	private Branding branding;
-
-	private OsThemeDetector detector;
-
+//	private OsThemeDetector detector;
 	private ExecutorService opQueue = Executors.newSingleThreadExecutor();
-
 	private Stage primaryStage;
-
-	private Tray tray;
-
 	private boolean waitingForExitChoice;
 
 	private UI ui;
+
+	private ServiceLoader<ClientExtension> extensions;
 
 	public void clearLoadQueue() {
 		opQueue.shutdownNow();
 		opQueue = Executors.newSingleThreadExecutor();
 	}
 
+	@Override
 	public void confirmExit() {
-		int active = 0;
-		try {
-			active = getDBus().getVPN().getActiveButNonPersistentConnections();
-		} catch (Exception e) {
-			exitApp();
-		}
-
-		if (active > 0) {
-			Alert alert = new Alert(AlertType.CONFIRMATION);
-			alert.initModality(Modality.APPLICATION_MODAL);
-			alert.initOwner(getStage());
-			alert.setTitle(BUNDLE.getString("exit.confirm.title"));
-			alert.setHeaderText(BUNDLE.getString("exit.confirm.header"));
-			alert.setContentText(BUNDLE.getString("exit.confirm.content"));
-
-			ButtonType disconnect = new ButtonType(BUNDLE.getString("exit.confirm.disconnect"));
-			ButtonType stayConnected = new ButtonType(BUNDLE.getString("exit.confirm.stayConnected"));
-			ButtonType cancel = new ButtonType(BUNDLE.getString("exit.confirm.cancel"), ButtonData.CANCEL_CLOSE);
-
-			alert.getButtonTypes().setAll(disconnect, stayConnected, cancel);
-			waitingForExitChoice = true;
+		Platform.runLater(() -> {
+			int active = 0;
 			try {
-				Optional<ButtonType> result = alert.showAndWait();
-
-				if (result.get() == disconnect) {
-					opQueue.execute(() -> {
-						getDBus().getVPN().disconnectAll();
-						exitApp();
-					});
-				} else if (result.get() == stayConnected) {
-					exitApp();
-				}
-			} finally {
-				waitingForExitChoice = false;
+				active = getDBus().getVPN().getActiveButNonPersistentConnections();
+				log.info("{} non-persistent connections", active);
+			} catch (Exception e) {
+				exitApp();
 			}
-		} else {
-			exitApp();
-		}
+
+			if (active > 0) {
+				var alert = new Alert(AlertType.CONFIRMATION);
+				alert.initModality(Modality.APPLICATION_MODAL);
+				alert.initOwner(getStage());
+				alert.setTitle(BUNDLE.getString("exit.confirm.title"));
+				alert.setHeaderText(BUNDLE.getString("exit.confirm.header"));
+				alert.setContentText(BUNDLE.getString("exit.confirm.content"));
+
+				var disconnect = new ButtonType(BUNDLE.getString("exit.confirm.disconnect"));
+				var stayConnected = new ButtonType(BUNDLE.getString("exit.confirm.stayConnected"));
+				var cancel = new ButtonType(BUNDLE.getString("exit.confirm.cancel"), ButtonData.CANCEL_CLOSE);
+
+				alert.getButtonTypes().setAll(disconnect, stayConnected, cancel);
+				waitingForExitChoice = true;
+				try {
+					var result = alert.showAndWait();
+					opQueue.execute(() -> {
+						if (result.get() == disconnect) {
+							getDBus().getVPN().disconnectAll();
+						}
+
+						if (result.get() == disconnect || result.get() == stayConnected) {
+							try {
+								getDBus().getBus().sendMessage(new ConfirmedExit(RemoteUI.OBJECT_PATH));
+								Thread.sleep(1000);
+							} catch (Exception e) {
+							}
+							exitApp();
+						}
+					});
+				} finally {
+					waitingForExitChoice = false;
+				}
+			} else {
+				exitApp();
+			}
+		});
 	}
 
 	public AbstractDBusClient getDBus() {
@@ -250,6 +195,8 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 
 	@Override
 	public void init() throws Exception {
+		extensions = ServiceLoader.load(ClientExtension.class);
+		
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
@@ -259,20 +206,14 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 
 		Platform.setImplicitExit(false);
 		instance = this;
-		PropertyConfigurator.configureAndWatch(
-				System.getProperty("hypersocket.logConfiguration", "conf" + File.separator + "log4j.properties"));
 	}
 
 	public boolean isMinimizeAllowed() {
-		return tray == null || tray instanceof AWTTaskbarTray;
+		return true;
 	}
 
 	public boolean isTrayConfigurable() {
-		return tray != null && tray.isConfigurable();
-	}
-
-	public Tray getTray() {
-		return tray;
+		return true;
 	}
 
 	protected void updateCookieHandlerState() {
@@ -302,13 +243,10 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 	}
 
 	public void maybeExit() {
-		if (tray == null || !tray.isActive()) {
-			confirmExit();
-		} else {
-			Platform.runLater(() -> primaryStage.hide());
-		}
+		confirmExit();
 	}
 
+	@Override
 	public void open() {
 		log.info("Open request");
 		Platform.runLater(() -> {
@@ -320,8 +258,7 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 	}
 
 	public UI openScene() throws IOException {
-		URL resource = UI.class
-				.getResource("UI.fxml");
+		URL resource = UI.class.getResource("UI.fxml");
 		FXMLLoader loader = new FXMLLoader();
 		ResourceBundle resources = ResourceBundle.getBundle(UI.class.getName());
 		loader.setResources(resources);
@@ -336,6 +273,7 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		return controllerInst;
 	}
 
+	@Override
 	public void options() {
 		open();
 		Platform.runLater(() -> ui.options());
@@ -343,26 +281,12 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		PowerMonitor powerMonitor = PowerMonitor.get();
-		powerMonitor.addListener(this);
-		powerMonitor.start();
-		
-		this.primaryStage = primaryStage;
-		detector = OsThemeDetector.getDetector();
-		
-        try {
-            File stateFile = new File(getTempDir(), "debug.json");
-            if (stateFile.exists()) {
-                FileReader stateReader = new FileReader(stateFile);
-                jsstate = BoxedJson.boxedFrom(stateReader);
-                stateReader.close();
-            }
-        } catch (IOException e) {
-        }
 
-        if (!jsstate.isValid()) {
-            jsstate = BoxedJson.of();
-        }
+		this.primaryStage = primaryStage;
+//		detector = OsThemeDetector.getDetector();
+		
+		for(var ext : extensions)
+			ext.start(this);
 
 		// Setup the window
 //		if (Platform.isSupported(ConditionalFeature.TRANSPARENT_WINDOW)) {
@@ -391,16 +315,14 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 			w = 457;
 			h = 768;
 		}
-		if(w < 256) {
+		if (w < 256) {
 			w = 256;
-		}
-		else if(w > 1024) {
+		} else if (w > 1024) {
 			w = 1024;
 		}
-		if(h < 256) {
+		if (h < 256) {
 			h = 256;
-		}
-		else if(h  > 1024) {
+		} else if (h > 1024) {
 			h = 1024;
 		}
 		if (StringUtils.isNotBlank(main.getSize())) {
@@ -430,13 +352,13 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		cfg.darkModeProperty().addListener((c, o, n) -> {
 			reapplyColors();
 		});
-		detector.registerListener(isDark -> {
-			Platform.runLater(() -> {
-				log.info("Dark mode is now " + isDark);
-				reapplyColors();
-				ui.reload();
-			});
-		});
+//		detector.registerListener(isDark -> {
+//			Platform.runLater(() -> {
+//				log.info("Dark mode is now " + isDark);
+//				reapplyColors();
+//				ui.reload();
+//			});
+//		});
 
 		primaryStage.onCloseRequestProperty().set(we -> {
 			if (!main.isNoClose())
@@ -444,21 +366,7 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 			we.consume();
 		});
 
-		if (!main.isNoSystemTray()) {
-			if (Taskbar.isTaskbarSupported() && SystemUtils.IS_OS_MAC_OSX) {
-				tray = new AWTTaskbarTray(this);
-			} else if (System.getProperty("logonbox.vpn.useAWTTray", "false").equals("true")
-					|| (Util.isMacOs() && isHidpi()) || Util.isWindows())
-				tray = new AWTTray(this);
-			else
-				tray = new DorkBoxTray(this);
-		}
 		ui.setAvailable();
-
-		final SplashScreen splash = SplashScreen.getSplashScreen();
-		if (splash != null) {
-			splash.close();
-		}
 
 		keepInBounds(primaryStage);
 		Screen.getScreens().addListener(new ListChangeListener<Screen>() {
@@ -471,6 +379,7 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		this.originalCookieHander = CookieHandler.getDefault();
 		updateCookieHandlerState();
 		Configuration.getDefault().saveCookiesProperty().addListener((e) -> updateCookieHandlerState());
+		log.info("Stage ready.");
 
 	}
 
@@ -480,16 +389,25 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		Screen screen = screens.isEmpty() ? Screen.getPrimary() : screens.get(0);
 		Rectangle2D bounds = screen.getVisualBounds();
 		log.info(String.format("Moving into bounds %s from %f,%f", bounds, primaryStage.getX(), primaryStage.getY()));
+		boolean moved = false;
 		if (primaryStage.getX() < bounds.getMinX()) {
 			primaryStage.setX(bounds.getMinX());
+			moved = true;
 		} else if (primaryStage.getX() + primaryStage.getWidth() > bounds.getMaxX()) {
 			primaryStage.setX(bounds.getMaxX() - primaryStage.getWidth());
+			moved = true;
 		}
 		if (primaryStage.getY() < bounds.getMinY()) {
 			primaryStage.setY(bounds.getMinY());
+			moved = true;
 		} else if (primaryStage.getY() + primaryStage.getHeight() > bounds.getMaxY()) {
 			primaryStage.setY(bounds.getMaxY() - primaryStage.getHeight());
+			moved = true;
 		}
+		if(moved)
+			log.info(String.format("Moved into bounds %s from %f,%f", bounds, primaryStage.getX(), primaryStage.getY()));
+		else
+			log.info("No movement required");
 	}
 
 	protected Scene createWindows(Stage primaryStage) throws IOException {
@@ -504,7 +422,7 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 
 		applyColors(branding, node);
 
-		if (isUndecoratedWindow()) {
+		if (!Main.getInstance().isWindowDecorations()) {
 
 			/* Anchor to stretch the content across the borderless window */
 			AnchorPane anchor = new AnchorPane(node);
@@ -533,35 +451,18 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		}
 	}
 
-	public boolean isUndecoratedWindow() {
-		return System.getProperty("logonbox.vpn.undecoratedWindow", "true").equals("true");
+	@Override
+	public String getObjectPath() {
+		return RemoteUI.OBJECT_PATH;
 	}
 
 	protected void cleanUp() {
-        File stateFile = new File(getTempDir(), "debug.json");
-        if (jsstate.isEmpty()) {
-            stateFile.delete();
-        } else {
-            // save state for next run
-            try {
-                FileWriter stateWriter = new FileWriter(stateFile);
-                stateWriter.write(jsstate.toString());
-                stateWriter.flush();
-                stateWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        
-		if (tray != null) {
-			try {
-				tray.close();
-			} catch (Exception e) {
-			}
-		}
+		for(var ext : extensions)
+			ext.cleanUp();
 	}
 
-	protected void exitApp() {
+	@Override
+	public void exitApp() {
 		Main.getInstance().exit();
 		opQueue.shutdown();
 		Platform.exit();
@@ -632,37 +533,27 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 			log.debug(String.format("Using custom JavaFX stylesheet %s", tmpFile));
 		var uri = toUri(tmpFile).toExternalForm();
 		ss.add(0, uri);
-
-		var settings = ToasterFactory.getSettings();
-		var properties = settings.getProperties();
-		settings.setAppName(BUNDLE.getString("appName")); 
-		settings.setSystemTrayIconMode(SystemTrayIconMode.HIDDEN);
 		var css = Client.class.getResource(Client.class.getSimpleName() + ".css").toExternalForm();
-		if(SystemUtils.IS_OS_MAC_OSX) {
-			settings.setPreferredToasterClassName(JavaFXToaster.class.getName());
-		}
-		properties.put(JavaFXToaster.DARK, isDarkMode());
-		properties.put(JavaFXToaster.STYLESHEETS, Arrays.asList(uri, css));
-		properties.put(JavaFXToaster.COLLAPSE_MESSAGE, BUNDLE.getString("collapse"));
-		properties.put(JavaFXToaster.THRESHOLD, 6);
 		ss.add(css);
 
 	}
-	
-	File getTempDir() {
+
+	public File getTempDir() {
 		if (System.getProperty("hypersocket.bootstrap.distDir") == null)
 			return new File(System.getProperty("java.io.tmpdir"));
 		else
 			return new File(System.getProperty("hypersocket.bootstrap.distDir")).getParentFile();
 	}
+	
+	public ServiceLoader<ClientExtension> getExtensions() {
+		return extensions;
+	}
 
 	File getCustomJavaFXCSSFile() {
 		if (System.getProperty("hypersocket.bootstrap.distDir") == null)
-			return new File(getTempDir(),
-					System.getProperty("user.name") + "-lbvpn-jfx.css");
+			return new File(getTempDir(), System.getProperty("user.name") + "-lbvpn-jfx.css");
 		else
-			return new File(getTempDir(),
-					"lbvpn-jfx.css");
+			return new File(getTempDir(), "lbvpn-jfx.css");
 	}
 
 	String getCustomJavaFXCSSResource(Branding branding) {
@@ -679,19 +570,18 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 			backgroundColour = new Color(backgroundColour.getRed(), backgroundColour.getGreen(),
 					backgroundColour.getBlue(), 1f / 255f);
 		}
-		
+
 		Color baseColor = getBase();
 		Color linkColor;
 
-		if(contrast(baseColor, backgroundColour) < 3) {
+		if (Colors.contrast(baseColor, backgroundColour) < 3) {
 			/* Brightness is similar, use foreground as basic of link color */
 			var b3 = foregroundColour.getBrightness();
-			if(b3 > 0.5)
+			if (b3 > 0.5)
 				linkColor = foregroundColour.deriveColor(0, 0, 0.75, 1.0);
 			else
 				linkColor = foregroundColour.deriveColor(0, 0, 1.25, 1.0);
-		}
-		else {
+		} else {
 			/* Brightness is dissimilar, use foreground as basic of link color */
 			linkColor = backgroundColour;
 		}
@@ -699,23 +589,23 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		bui.append("* {\n");
 
 		bui.append("-fx-lbvpn-background: ");
-		bui.append(toHex(backgroundColour));
+		bui.append(Colors.toHex(backgroundColour));
 		bui.append(";\n");
 
 		bui.append("-fx-lbvpn-foreground: ");
-		bui.append(toHex(foregroundColour));
+		bui.append(Colors.toHex(foregroundColour));
 		bui.append(";\n");
 
 		bui.append("-fx-lbvpn-base: ");
-		bui.append(toHex(getBase()));
+		bui.append(Colors.toHex(getBase()));
 		bui.append(";\n");
 
 		bui.append("-fx-lbvpn-base-inverse: ");
-		bui.append(toHex(getBaseInverse()));
+		bui.append(Colors.toHex(getBaseInverse()));
 		bui.append(";\n");
 
 		bui.append("-fx-lbvpn-link: ");
-		bui.append(toHex(linkColor));
+		bui.append(Colors.toHex(linkColor));
 		bui.append(";\n");
 
 //
@@ -727,8 +617,8 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		} else {
 			// A colour, so choose the next adjacent colour in the HSB colour
 			// wheel (45 degrees)
-			bui.append("-fx-lbvpn-accent: " + toHex(backgroundColour.deriveColor(45f, 1f, 1f, 1f)) + ";\n");
-			bui.append("-fx-lbvpn-accent: " + toHex(backgroundColour.deriveColor(-45f, 1f, 1f, 1f)) + ";\n");
+			bui.append("-fx-lbvpn-accent: " + Colors.toHex(backgroundColour.deriveColor(45f, 1f, 1f, 1f)) + ";\n");
+			bui.append("-fx-lbvpn-accent: " + Colors.toHex(backgroundColour.deriveColor(-45f, 1f, 1f, 1f)) + ";\n");
 		}
 
 		// End
@@ -771,7 +661,8 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 	boolean isDarkMode() {
 		String mode = Configuration.getDefault().darkModeProperty().get();
 		if (mode.equals(Configuration.DARK_MODE_AUTO))
-			return detector.isDark();
+			//return detector.isDark();
+			return true;
 		else if (mode.equals(Configuration.DARK_MODE_ALWAYS))
 			return true;
 		else
@@ -791,29 +682,29 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		Color baseColor = getBase();
 		Color linkColor;
 
-		if(contrast(baseColor, bgColor) < 3) {
+		if (Colors.contrast(baseColor, bgColor) < 3) {
 			/* Brightness is similar, use foreground as basic of link color */
 			var b3 = fgColor.getBrightness();
-			if(b3 > 0.5)
+			if (b3 > 0.5)
 				linkColor = fgColor.deriveColor(0, 0, 0.75, 1.0);
 			else
 				linkColor = fgColor.deriveColor(0, 0, 1.25, 1.0);
-		}
-		else {
+		} else {
 			/* Brightness is dissimilar, use foreground as basic of link color */
 			linkColor = bgColor;
 		}
-		
-		String accent1Str = toHex(bgColor.deriveColor(0, 1, 0.85, 1));
-		String accent2Str = toHex(bgColor.deriveColor(0, 1, 1.15, 1));
-		String baseStr = toHex(baseColor);
-		String baseInverseStr = toHex(getBaseInverse());
-		String linkStr = toHex(linkColor);
-		String baseInverseRgbStr = toRgba(getBaseInverse(), 0.05f);
+
+		String accent1Str = Colors.toHex(bgColor.deriveColor(0, 1, 0.85, 1));
+		String accent2Str = Colors.toHex(bgColor.deriveColor(0, 1, 1.15, 1));
+		String baseStr = Colors.toHex(baseColor);
+		String baseInverseStr = Colors.toHex(getBaseInverse());
+		String linkStr = Colors.toHex(linkColor);
+		String baseInverseRgbStr = Colors.toRgba(getBaseInverse(), 0.05f);
 		try (PrintWriter output = new PrintWriter(new FileWriter(tmpFile))) {
-			try (BufferedReader input = new BufferedReader(new InputStreamReader(UI.class.getResource("local.css").openStream()))) {
+			try (BufferedReader input = new BufferedReader(
+					new InputStreamReader(UI.class.getResource("local.css").openStream()))) {
 				String line;
-				while(( line = input.readLine()) != null) {
+				while ((line = input.readLine()) != null) {
 					line = line.replace("${lbvpnBackground}", bgStr);
 					line = line.replace("${lbvpnForeground}", fgStr);
 					line = line.replace("${lbvpnAccent}", accent1Str);
@@ -828,33 +719,5 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		} catch (IOException ioe) {
 			throw new IllegalStateException("Failed to load local style sheet template.", ioe);
 		}
-	}
-
-	private boolean isHidpi() {
-		return Screen.getPrimary().getDpi() >= 300;
-	}
-
-	public boolean isChromeDebug() {
-		return Boolean.getBoolean("logonbox.vpn.chromeDebug");
-	}
-
-	@Override
-	public void wake() {
-		// TODO Auto-generated method stub
-		log.info("Got Wake event.");
-		ui.refresh();
-	}
-
-	static double lum(Color c) {
-		List<Double> a = Arrays.asList(c.getRed(), c.getGreen(), c.getBlue()).stream()
-				.map(v -> v <= 0.03925 ? v / 12.92f : Math.pow((v + 0.055f) / 1.055f, 2.4f)).collect(Collectors.toList());
-		return a.get(0) * 0.2126 + a.get(1) * 0.7152 + a.get(2) * 0.0722;
-	}
-	
-	static double contrast(Color c1, Color c2) {
-		var brightest = Math.max(lum(c1), lum(c2));
-	    var darkest = Math.min(lum(c1), lum(c2));
-	    return (brightest + 0.05f)
-	         / (darkest + 0.05f);
 	}
 }

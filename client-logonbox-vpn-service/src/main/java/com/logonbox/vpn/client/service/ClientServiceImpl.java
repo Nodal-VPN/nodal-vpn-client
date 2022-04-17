@@ -781,6 +781,15 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
+	public <V> void resetValue(String owner, ConfigurationItem<V> key) {
+		V was = configurationRepository.getValue(owner, key);
+		configurationRepository.setValue(owner, key, null);
+		for (int i = listeners.size() - 1; i >= 0; i--) {
+			listeners.get(i).configurationChange(key, was, null);
+		}
+	}
+
+	@Override
 	public <V> void setValue(String owner, ConfigurationItem<V> key, V value) {
 		V was = configurationRepository.getValue(owner, key);
 		if (!Objects.equals(was, value)) {

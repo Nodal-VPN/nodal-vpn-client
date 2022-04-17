@@ -1,0 +1,84 @@
+/* Stylesheet for dynamic styles used by local HTML pages. The simple variables in
+ these are replaced. Sadly, these need to be important, as the "user local stylesheet" is
+ loaded before others */
+ 
+ body, html {
+    background-color: ${lbvpnBase} !important;
+    color: ${lbvpnBaseInverse} !important;
+ }
+
+.navbar-inverse {
+  background-color: ${lbvpnBackground} !important;
+}
+
+#footer, #header { 
+  background-color: ${lbvpnBackground} !important;
+  color: ${lbvpnForeground} !important;
+}
+
+.large-button-active {
+   color: ${lbvpnBackground} !important;
+}
+
+.large-button:hover {
+  color: ${lbvpnBackground} !important;
+}
+
+.progress-bar {
+  background-color: ${lbvpnBackground} !important; 
+}
+
+.slider-handle {
+    background-color: ${lbvpnBackground} !important;
+    background-image: linear-gradient(to bottom, ${lbvpnBackground}, ${lbvpnBackground}) !important;
+}
+
+a:focus, a:hover {
+    color: ${lbvpnLink} !important;
+    text-decoration: underline !important;
+    cursor: pointer;  
+}
+
+.busySpinner {
+    color: ${lbvpnLink} !important;
+}
+
+a {
+    color: ${lbvpnLink} !important;
+    text-decoration: none !important;
+}
+
+.btn-primary, .btn-primary:active, .btn-primary:hover {
+	color: ${lbvpnForeground} !important;
+	background: ${lbvpnBackground} !important;
+	border-color: ${lbvpnAccent} !important; 
+}
+
+.nav-link {
+   color: ${lbvpnLink}  !important;
+}
+
+.connection.active {
+    /* background: ${lbvpnBackground} !important;
+    color: ${lbvpnForeground} !important; */
+    cursor: pointer; 
+}
+
+.connection.active strong {
+    text-decoration: underline;	
+}
+
+.end-column {
+    -ms-flex: 0 0 64px !important;	
+    flex: 0 0 64px !important;
+}
+
+.middle-column {
+    min-width: 10em !important;	
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.grid-striped .row:nth-of-type(odd) {
+    background-color: ${lbvpnBaseInverseRgb};
+}

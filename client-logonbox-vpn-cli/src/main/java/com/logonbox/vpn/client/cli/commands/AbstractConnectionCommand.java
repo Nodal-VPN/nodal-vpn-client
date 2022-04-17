@@ -4,7 +4,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
-import java.rmi.RemoteException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,14 +28,16 @@ import com.logonbox.vpn.client.cli.CLIContext;
 import com.logonbox.vpn.client.cli.ConsoleProvider;
 import com.logonbox.vpn.client.cli.StateHelper;
 import com.logonbox.vpn.common.client.ConnectionStatus.Type;
+import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.ServiceClient;
 import com.logonbox.vpn.common.client.ServiceClient.NameValuePair;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
 
+import picocli.CommandLine.IVersionProvider;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
 
-public abstract class AbstractConnectionCommand implements Callable<Integer> {
+public abstract class AbstractConnectionCommand implements Callable<Integer>, IVersionProvider {
 	static Logger log = LoggerFactory.getLogger(AbstractConnectionCommand.class);
 
 	@Spec
@@ -45,6 +46,11 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 	protected AbstractConnectionCommand() {
 	}
 
+	@Override
+	public String[] getVersion() {
+		return new String[] { HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-cli") };
+	}
+	
 	protected CLIContext getCLI() {
 		return (CLIContext) spec.parent().userObject();
 	}
@@ -60,11 +66,11 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 		return pattern;
 	}
 
-	protected boolean isSingleConnection(CLIContext cli) throws RemoteException {
+	protected boolean isSingleConnection(CLIContext cli)  {
 		return cli.getVPN().getNumberOfConnections() == 1;
 	}
 
-	protected List<VPNConnection> getConnectionsMatching(String pattern, CLIContext cli) throws RemoteException {
+	protected List<VPNConnection> getConnectionsMatching(String pattern, CLIContext cli) {
 		List<VPNConnection> l = new ArrayList<>();
 		try {
 			long id = Long.parseLong(pattern);
@@ -84,7 +90,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 	}
 
 	protected void disconnect(VPNConnection c, CLIContext cli)
-			throws RemoteException, InterruptedException, IOException, DBusException {
+			throws InterruptedException, IOException, DBusException {
 		ConsoleProvider console = cli.getConsole();
 		if (!cli.isQuiet())
 			console.out().println(String.format("Disconnecting from %s", c.getUri(true)));

@@ -5,7 +5,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.freedesktop.dbus.DBusPath;
-import org.freedesktop.dbus.annotations.DBusInterfaceName;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,11 @@ import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.dbus.VPN;
 import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
 
-@DBusInterfaceName("com.logonbox.vpn.VPN")
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
+import uk.co.bithatch.nativeimage.annotations.TypeReflect;
+
+@Reflectable
+@TypeReflect(methods = true, fields = true)
 public class VPNImpl extends AbstractVPNComponent implements VPN {
 	static Logger log = LoggerFactory.getLogger(VPNImpl.class);
 
@@ -160,6 +163,12 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 		ConfigurationItem<?> item = ConfigurationItem.get(name);
 		Object val = ctx.getClientService().getValue(getOwner(), item); 
 		return val.toString();
+	}
+
+	@Override
+	public void resetValue(String name) {
+		assertRegistered();
+		ctx.getClientService().resetValue(getOwner(), ConfigurationItem.get(name));
 	}
 
 	@SuppressWarnings("unchecked")

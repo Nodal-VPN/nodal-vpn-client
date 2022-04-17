@@ -5,7 +5,14 @@ import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.DBusInterface;
 import org.freedesktop.dbus.messages.DBusSignal;
 
+import uk.co.bithatch.nativeimage.annotations.Proxy;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
+import uk.co.bithatch.nativeimage.annotations.TypeReflect;
+
 @DBusInterfaceName("com.logonbox.vpn.Connection")
+@Proxy
+@Reflectable
+@TypeReflect(methods = true, classes = true)
 public interface VPNConnection extends DBusInterface {
 
 	void update(String name, String uri, boolean connectAtStartup, boolean stayConnected);
@@ -154,7 +161,10 @@ public interface VPNConnection extends DBusInterface {
 	
 	String getAuthorizeUri();
 
+	@Reflectable
+	@TypeReflect(methods = true, constructors = true)
 	public static class Connected extends DBusSignal {
+		
 		public Connected(String path) throws DBusException {
 			super(path);
 		}
@@ -164,6 +174,8 @@ public interface VPNConnection extends DBusInterface {
 		}
 	}
 
+	@Reflectable
+	@TypeReflect(methods = true, constructors = true)
 	public static class Connecting extends DBusSignal {
 		public Connecting(String path) throws DBusException {
 			super(path);
@@ -174,6 +186,8 @@ public interface VPNConnection extends DBusInterface {
 		}
 	}
 
+	@Reflectable
+	@TypeReflect(methods = true, constructors = true)
 	public class Failed extends DBusSignal {
 
 		private final String reason;
@@ -204,6 +218,8 @@ public interface VPNConnection extends DBusInterface {
 		}
 	}
 
+	@Reflectable
+	@TypeReflect(methods = true, constructors = true)
 	public static class TemporarilyOffline extends DBusSignal {
 
 		private final String reason;
@@ -222,6 +238,8 @@ public interface VPNConnection extends DBusInterface {
 		}
 	}
 
+	@Reflectable
+	@TypeReflect(methods = true, constructors = true)
 	public static class Disconnected extends DBusSignal {
 
 		private final String reason;
@@ -252,6 +270,8 @@ public interface VPNConnection extends DBusInterface {
 		}
 	}
 
+	@Reflectable
+	@TypeReflect(methods = true, constructors = true)
 	public static class Disconnecting extends DBusSignal {
 
 		private final String reason;
@@ -270,6 +290,8 @@ public interface VPNConnection extends DBusInterface {
 		}
 	}
 
+	@Reflectable
+	@TypeReflect(methods = true, constructors = true)
 	public static class Authorize extends DBusSignal {
 
 		private final String uri;

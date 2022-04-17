@@ -1,363 +1,452 @@
 [
-{
-  "name":"com.logonbox.vpn.client.cli.CLI",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.logonbox.vpn.client.cli.commands.About",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.logonbox.vpn.client.cli.commands.AbstractConnectionCommand",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.logonbox.vpn.client.cli.commands.Config",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.logonbox.vpn.client.cli.commands.Connect",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.logonbox.vpn.client.cli.commands.Connections",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.logonbox.vpn.client.cli.commands.Create",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.logonbox.vpn.client.cli.commands.Debug",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.logonbox.vpn.client.cli.commands.Delete",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.logonbox.vpn.client.cli.commands.Disconnect",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.logonbox.vpn.client.cli.commands.Edit",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.logonbox.vpn.client.cli.commands.Exit",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.logonbox.vpn.client.cli.commands.Show",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.logonbox.vpn.client.cli.commands.Shutdown",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.logonbox.vpn.client.cli.commands.Update",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.logonbox.vpn.common.client.AbstractDBusClient",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"com.sun.crypto.provider.AESCipher$General",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.ARCFOURCipher",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.ChaCha20Cipher$ChaCha20Poly1305",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.DESCipher",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.DESedeCipher",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.DHParameters",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.GaloisCounterMode$AESGCM",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"java.beans.PropertyVetoException"
-},
-{
-  "name":"java.lang.Object",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllPublicMethods":true
-},
-{
-  "name":"java.lang.String"
-},
-{
-  "name":"java.lang.Thread",
-  "methods":[{"name":"getContextClassLoader","parameterTypes":[] }]
-},
-{
-  "name":"java.nio.file.Path"
-},
-{
-  "name":"java.nio.file.Paths",
-  "queriedMethods":[{"name":"get","parameterTypes":["java.lang.String","java.lang.String[]"] }]
-},
-{
-  "name":"java.security.AlgorithmParametersSpi"
-},
-{
-  "name":"java.security.SecureRandomParameters"
-},
-{
-  "name":"java.sql.Connection"
-},
-{
-  "name":"java.sql.Driver"
-},
-{
-  "name":"java.sql.DriverManager",
-  "queriedMethods":[
-    {"name":"getConnection","parameterTypes":["java.lang.String"] }, 
-    {"name":"getDriver","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"java.sql.Time",
-  "queriedMethods":[{"name":"<init>","parameterTypes":["long"] }]
-},
-{
-  "name":"java.sql.Timestamp",
-  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.time.Duration",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.Instant",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.LocalDate",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.LocalDateTime",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.LocalTime",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.MonthDay",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.OffsetDateTime",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.OffsetTime",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.Period",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.Year",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.YearMonth",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"java.time.ZoneId",
-  "queriedMethods":[{"name":"of","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.time.ZoneOffset",
-  "queriedMethods":[{"name":"of","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.time.ZonedDateTime",
-  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
-},
-{
-  "name":"org.apache.log4j.Appender"
-},
-{
-  "name":"org.apache.log4j.AppenderSkeleton",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"org.apache.log4j.Category"
-},
-{
-  "name":"org.apache.log4j.CategoryKey"
-},
-{
-  "name":"org.apache.log4j.FileAppender",
-  "queryAllPublicMethods":true,
-  "methods":[
-    {"name":"setAppend","parameterTypes":["boolean"] }, 
-    {"name":"setFile","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"org.apache.log4j.Layout",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"org.apache.log4j.Logger"
-},
-{
-  "name":"org.apache.log4j.PatternLayout",
-  "queryAllPublicMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setConversionPattern","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"org.apache.log4j.RollingFileAppender",
-  "queryAllPublicMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setMaxBackupIndex","parameterTypes":["int"] }, 
-    {"name":"setMaxFileSize","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"org.apache.log4j.WriterAppender",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"org.apache.log4j.helpers.Loader"
-},
-{
-  "name":"org.apache.log4j.spi.OptionHandler"
-},
-{
-  "name":"org.freedesktop.dbus.interfaces.DBus$NameAcquired",
-  "queryAllDeclaredConstructors":true
-},
-{
-  "name":"org.freedesktop.dbus.interfaces.Introspectable",
-  "allDeclaredClasses":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"org.freedesktop.dbus.interfaces.Peer",
-  "allDeclaredClasses":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"picocli.CommandLine$AutoHelpMixin",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"sun.security.provider.DSA$SHA224withDSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.DSA$SHA256withDSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.NativePRNG",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.NativePRNG$NonBlocking",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA2$SHA224",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA2$SHA256",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA5$SHA384",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA5$SHA512",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.PSSParameters",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSAPSSSignature",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSASignature$SHA224withRSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.ssl.SSLContextImpl$TLSContext",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-}
+	{
+		"name": "com.sun.crypto.provider.AESCipher$General",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "com.sun.crypto.provider.ARCFOURCipher",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "com.sun.crypto.provider.ChaCha20Cipher$ChaCha20Poly1305",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "com.sun.crypto.provider.DESCipher",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "com.sun.crypto.provider.DESedeCipher",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "com.sun.crypto.provider.DHParameters",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "com.sun.crypto.provider.GaloisCounterMode$AESGCM",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "com.sun.crypto.provider.TlsMasterSecretGenerator",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "java.beans.PropertyVetoException"
+	},
+	{
+		"name": "java.lang.Object",
+		"allDeclaredFields": true,
+		"queryAllDeclaredMethods": true,
+		"queryAllPublicMethods": true
+	},
+	{
+		"name": "com.logonbox.vpn.common.client.Install4JUpdateServiceImpl",
+		"allDeclaredFields": true,
+		"queryAllDeclaredMethods": true,
+		"queryAllPublicMethods": true
+	},
+	{
+		"name": "java.lang.String"
+	},
+	{
+		"name": "java.lang.Thread",
+		"methods": [
+			{
+				"name": "getContextClassLoader",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "java.nio.file.Path"
+	},
+	{
+		"name": "java.nio.file.Paths",
+		"queriedMethods": [
+			{
+				"name": "get",
+				"parameterTypes": [
+					"java.lang.String",
+					"java.lang.String[]"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.security.AlgorithmParametersSpi"
+	},
+	{
+		"name": "java.security.SecureRandomParameters"
+	},
+	{
+		"name": "java.sql.Connection"
+	},
+	{
+		"name": "java.sql.Driver"
+	},
+	{
+		"name": "java.sql.DriverManager",
+		"queriedMethods": [
+			{
+				"name": "getConnection",
+				"parameterTypes": [
+					"java.lang.String"
+				]
+			},
+			{
+				"name": "getDriver",
+				"parameterTypes": [
+					"java.lang.String"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.sql.Time",
+		"queriedMethods": [
+			{
+				"name": "<init>",
+				"parameterTypes": [
+					"long"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.sql.Timestamp",
+		"queriedMethods": [
+			{
+				"name": "valueOf",
+				"parameterTypes": [
+					"java.lang.String"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.time.Duration",
+		"queriedMethods": [
+			{
+				"name": "parse",
+				"parameterTypes": [
+					"java.lang.CharSequence"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.time.Instant",
+		"queriedMethods": [
+			{
+				"name": "parse",
+				"parameterTypes": [
+					"java.lang.CharSequence"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.time.LocalDate",
+		"queriedMethods": [
+			{
+				"name": "parse",
+				"parameterTypes": [
+					"java.lang.CharSequence"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.time.LocalDateTime",
+		"queriedMethods": [
+			{
+				"name": "parse",
+				"parameterTypes": [
+					"java.lang.CharSequence"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.time.LocalTime",
+		"queriedMethods": [
+			{
+				"name": "parse",
+				"parameterTypes": [
+					"java.lang.CharSequence"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.time.MonthDay",
+		"queriedMethods": [
+			{
+				"name": "parse",
+				"parameterTypes": [
+					"java.lang.CharSequence"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.time.OffsetDateTime",
+		"queriedMethods": [
+			{
+				"name": "parse",
+				"parameterTypes": [
+					"java.lang.CharSequence"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.time.OffsetTime",
+		"queriedMethods": [
+			{
+				"name": "parse",
+				"parameterTypes": [
+					"java.lang.CharSequence"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.time.Period",
+		"queriedMethods": [
+			{
+				"name": "parse",
+				"parameterTypes": [
+					"java.lang.CharSequence"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.time.Year",
+		"queriedMethods": [
+			{
+				"name": "parse",
+				"parameterTypes": [
+					"java.lang.CharSequence"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.time.YearMonth",
+		"queriedMethods": [
+			{
+				"name": "parse",
+				"parameterTypes": [
+					"java.lang.CharSequence"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.time.ZoneId",
+		"queriedMethods": [
+			{
+				"name": "of",
+				"parameterTypes": [
+					"java.lang.String"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.time.ZoneOffset",
+		"queriedMethods": [
+			{
+				"name": "of",
+				"parameterTypes": [
+					"java.lang.String"
+				]
+			}
+		]
+	},
+	{
+		"name": "java.time.ZonedDateTime",
+		"queriedMethods": [
+			{
+				"name": "parse",
+				"parameterTypes": [
+					"java.lang.CharSequence"
+				]
+			}
+		]
+	},
+	{
+		"name": "picocli.CommandLine$AutoHelpMixin",
+		"allDeclaredFields": true,
+		"queryAllDeclaredMethods": true
+	},
+	{
+		"name": "sun.security.provider.DSA$SHA224withDSA",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "sun.security.provider.DSA$SHA256withDSA",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "sun.security.provider.NativePRNG",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "sun.security.provider.NativePRNG$NonBlocking",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "sun.security.provider.SHA",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "sun.security.provider.SHA2$SHA224",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "sun.security.provider.SHA2$SHA256",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "sun.security.provider.SHA5$SHA384",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "sun.security.provider.SHA5$SHA512",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "sun.security.rsa.PSSParameters",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "sun.security.rsa.RSAPSSSignature",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "sun.security.rsa.RSASignature$SHA224withRSA",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	},
+	{
+		"name": "sun.security.ssl.SSLContextImpl$TLSContext",
+		"methods": [
+			{
+				"name": "<init>",
+				"parameterTypes": []
+			}
+		]
+	}
 ]

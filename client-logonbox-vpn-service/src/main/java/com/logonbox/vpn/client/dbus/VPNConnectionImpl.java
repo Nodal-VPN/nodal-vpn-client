@@ -5,20 +5,23 @@ import java.io.StringReader;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
-import org.freedesktop.dbus.annotations.DBusInterfaceName;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
 import com.logonbox.vpn.client.LocalContext;
+import com.logonbox.vpn.client.ini.ConnectionImpl;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.ConnectionStatus;
 import com.logonbox.vpn.common.client.Keys;
 import com.logonbox.vpn.common.client.StatusDetail;
-import com.logonbox.vpn.common.client.Util;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
 
-@DBusInterfaceName("com.logonbox.vpn.Connection")
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
+import uk.co.bithatch.nativeimage.annotations.TypeReflect;
+
+@Reflectable
+@TypeReflect(methods = true, fields = true)
 public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnection {
 	static final String PRIVATE_KEY_NOT_AVAILABLE = "PRIVATE_KEY_NOT_AVAILABLE";
 
@@ -39,7 +42,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 			/* Interface (us) */
 			Section interfaceSection = ini.get("Interface");
 			setAddress(interfaceSection.get("Address"));
-			setDns(Util.toStringList(interfaceSection, "DNS").toArray(new String[0]));
+			setDns(ConnectionImpl.toStringList(interfaceSection, "DNS").toArray(new String[0]));
 	
 			String privateKey = interfaceSection.get("PrivateKey");
 			if (privateKey != null && hasPrivateKey() && !privateKey.equals(PRIVATE_KEY_NOT_AVAILABLE)) {
@@ -71,7 +74,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 			setEndpointAddress(endpoint.substring(0, idx));
 			setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
 			setPeristentKeepalive(Integer.parseInt(peerSection.get("PersistentKeepalive")));
-			setAllowedIps(Util.toStringList(peerSection, "AllowedIPs").toArray(new String[0]));
+			setAllowedIps(ConnectionImpl.toStringList(peerSection, "AllowedIPs").toArray(new String[0]));
 			
 			return "";
 		}

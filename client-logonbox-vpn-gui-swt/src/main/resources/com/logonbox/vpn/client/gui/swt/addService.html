@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="bootstrap-5.0.2-dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link href="web.css" rel="stylesheet">
+<link href="fontawesome/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+	<script src="jquery-3.5.1.min.js"></script>
+	<script src="bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
+	<script src="web.js"></script>
+	<div id="wrap" class="m-3">
+		<div id="main" class="container clear-top">
+			<div id="alerts">
+			</div>
+			<h1 data-i18n="addConnection">Add Connection</h1>
+            <small id="help" data-i18n="help" class="form-text text-muted">Help</small>
+			<form id="addConnectionForm">
+				<div class="form-group">
+					<label for="serverUrl" data-i18n="serverAddress">Server	address</label> 
+					<input type="text" class="form-control" id="serverUrl"
+						aria-describedby="serverAddressHelp"> 
+					<small id="serverAddressHelp" data-i18n="serverAddressHelp" class="form-text text-muted">Help</small>
+				</div>
+				<div class="container">
+					<div class="row">
+						<div class="col-md-6 align-left">
+							<button id="addConnectionFormSubmit" type="submit" class="btn btn-primary has-spinner" data-i18n="connect">Connect</button>
+						</div>
+						<!-- <div class="col-md-6 align-right">
+							<button type="button" onclick="window.history.back()" class="btn btn-secondary" data-i18n="back">Back</button>
+						</div> -->
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		function uiReady() {
+			$("#addConnectionForm").submit(function(event) {
+				try {
+					$('#addConnectionFormSubmit').buttonLoader('start');
+					$('#alerts').empty();
+					bridge.addConnection({
+						'serverUrl' : $('#serverUrl').val(),
+						'connectAtStartup' : true,
+						'stayConnected' : true,
+						'mode' : 'SERVICE'
+					});
+				}
+				catch(e) {
+					$('#addConnectionFormSubmit').buttonLoader('stop');
+					$('#alerts').append($('<div class="alert alert-danger">' + e.getMessage() + '</div>'));
+				}
+				event.preventDefault();
+			});
+		};
+	</script>
+
+</body>
+</html>
