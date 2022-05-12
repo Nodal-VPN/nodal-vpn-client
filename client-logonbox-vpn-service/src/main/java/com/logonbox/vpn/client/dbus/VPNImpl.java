@@ -250,4 +250,24 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 		ctx.shutdown(restart);
 		
 	}
+
+	@Override
+	public boolean isCertAccepted(String encodedKey) {
+		return ctx.getCertManager().isAccepted(encodedKey);
+	}
+
+	@Override
+	public void acceptCert(String encodedKey) {
+		ctx.getCertManager().accept(encodedKey);
+	}
+
+	@Override
+	public void saveCert(String encodedKey) {
+		ctx.getCertManager().save(encodedKey);
+	}
+
+	@Override
+	public void rejectCert(String encodedKey) {
+		ctx.getCertManager().reject(encodedKey);
+	}
 }

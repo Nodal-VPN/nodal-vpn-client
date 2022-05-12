@@ -10,13 +10,10 @@ import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.prefs.Preferences;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -24,6 +21,7 @@ import javax.naming.ldap.Rdn;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
@@ -36,19 +34,17 @@ public abstract class PromptingCertManager implements X509TrustManager, Hostname
 
 	static Logger log = LoggerFactory.getLogger(PromptingCertManager.class);
 
-	static Set<String> ACCEPTED_CERTIFICATES = new HashSet<>();
-	static Preferences PERMANENTLY_ACCEPTED_CERTIFICATES = Preferences.userNodeForPackage(PromptingCertManager.class)
-			.node("certificates");
-
 	public static enum PromptType {
         NONE,
         INFORMATION,
         WARNING,
         CONFIRMATION,
         ERROR
-    }
+    } 
 
 	private ResourceBundle bundle;
+	private SSLContext sslContext;
+	private SSLParameters sslParameters;
 
 	public PromptingCertManager(ResourceBundle bundle) {
 		this.bundle = bundle;
@@ -79,8 +75,7 @@ public abstract class PromptingCertManager implements X509TrustManager, Hostname
 			} catch (CertificateExpiredException | CertificateNotYetValidException ce) {
 				/* Already been accepted? */
 				String encodedKey = Util.hash(c.getPublicKey().getEncoded());
-				if (ACCEPTED_CERTIFICATES.contains(encodedKey)
-						|| PERMANENTLY_ACCEPTED_CERTIFICATES.getBoolean(encodedKey, false)) {
+				if (isAccepted(encodedKey)) {
 					log.debug(String.format("Accepting server certificate, it has previously been accepted."));
 					return;
 				}
@@ -90,12 +85,14 @@ public abstract class PromptingCertManager implements X509TrustManager, Hostname
 				String content = bundle
 						.getString(ce instanceof CertificateExpiredException ? "certificate.certificateExpired.content"
 								: "certificate.certificateNotYetValid.content");
+				
 				if (isToolkitThread()) {
 					boolean ok = promptForCertificate(PromptType.WARNING, title, content, encodedKey,
-							c.getSubjectDN().toString(), ce.getMessage(), PERMANENTLY_ACCEPTED_CERTIFICATES);
+							c.getSubjectDN().toString(), ce.getMessage());
 					if (ok) {
-						ACCEPTED_CERTIFICATES.add(encodedKey);
+						accept(encodedKey);
 					} else
+						reject(encodedKey);
 						throw ce;
 				} else {
 					AtomicBoolean res = new AtomicBoolean();
@@ -104,14 +101,14 @@ public abstract class PromptingCertManager implements X509TrustManager, Hostname
 						sem.acquire();
 						runOnToolkitThread(() -> {
 							res.set(promptForCertificate(PromptType.WARNING, title, content, encodedKey,
-									c.getSubjectDN().toString(), ce.getMessage(), PERMANENTLY_ACCEPTED_CERTIFICATES));
+									c.getSubjectDN().toString(), ce.getMessage()));
 							sem.release();
 						});
 						sem.acquire();
 						sem.release();
 						boolean ok = res.get();
 						if (ok) {
-							ACCEPTED_CERTIFICATES.add(encodedKey);
+							accept(encodedKey);
 						}
 						return;
 					} catch (InterruptedException ie) {
@@ -122,6 +119,12 @@ public abstract class PromptingCertManager implements X509TrustManager, Hostname
 			}
 		}
 	}
+
+	public abstract boolean isAccepted(String encodedKey);
+
+	public abstract void accept(String encodedKey);
+
+	public abstract void reject(String encodedKey);
 
 	public void installCertificateVerifier() {
 
@@ -134,16 +137,22 @@ public abstract class PromptingCertManager implements X509TrustManager, Hostname
 		Security.setProperty("ssl.TrustManagerFactory.algorithm", ClientTrustProvider.TRUST_PROVIDER_ALG);
 
 		try {
-			SSLContext sc = SSLContext.getInstance("SSL");
-			sc.init(null, new TrustManager[] { this }, new java.security.SecureRandom());
-			sc.getDefaultSSLParameters().setEndpointIdentificationAlgorithm("CUSTOM");
-			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-			SSLContext.setDefault(sc);
+			sslContext = SSLContext.getInstance("SSL");
+			sslContext.init(null, new TrustManager[] { this }, new java.security.SecureRandom());
+			sslParameters = sslContext.getDefaultSSLParameters();
+			sslParameters.setEndpointIdentificationAlgorithm("CUSTOM");
+			HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+			SSLContext.setDefault(sslContext);
 		} catch (GeneralSecurityException e) {
+			throw new IllegalStateException("Could not initialise SSL.", e);
 		}
 
 		// Install the all-trusting host verifier
 		HttpsURLConnection.setDefaultHostnameVerifier(this);
+	}
+
+	public SSLContext getSSLContext() {
+		return sslContext;
 	}
 
 	@Override
@@ -168,8 +177,7 @@ public abstract class PromptingCertManager implements X509TrustManager, Hostname
 		}
 
 		try {
-			if (ACCEPTED_CERTIFICATES.contains(encodedKey)
-					|| PERMANENTLY_ACCEPTED_CERTIFICATES.getBoolean(encodedKey, false)) {
+			if (isAccepted(encodedKey)) {
 				log.debug(String.format(
 						"Accepting certificate for hostname %s, it has previously been accepted: %s", hostname,
 						session));
@@ -183,10 +191,12 @@ public abstract class PromptingCertManager implements X509TrustManager, Hostname
 				boolean ok = promptForCertificate(PromptType.WARNING,
 						bundle.getString("certificate.invalidCertificate.title"),
 						bundle.getString("certificate.invalidCertificate.content"), encodedKey, hostname,
-						sslpue.getMessage(), PERMANENTLY_ACCEPTED_CERTIFICATES);
+						sslpue.getMessage());
 				if (ok) {
-					ACCEPTED_CERTIFICATES.add(encodedKey);
+					accept(encodedKey);
 				}
+				else
+					reject(encodedKey);
 				return ok;
 			} else {
 				AtomicBoolean res = new AtomicBoolean();
@@ -197,14 +207,14 @@ public abstract class PromptingCertManager implements X509TrustManager, Hostname
 						res.set(promptForCertificate(PromptType.WARNING,
 								bundle.getString("certificate.invalidCertificate.title"),
 								bundle.getString("certificate.invalidCertificate.content"), encodedKey,
-								hostname, sslpue.getMessage(), PERMANENTLY_ACCEPTED_CERTIFICATES));
+								hostname, sslpue.getMessage()));
 						sem.release();
 					});
 					sem.acquire();
 					sem.release();
 					boolean ok = res.get();
 					if (ok) {
-						ACCEPTED_CERTIFICATES.add(encodedKey);
+						accept(encodedKey);
 					}
 					return ok;
 				} catch (InterruptedException ie) {
@@ -357,6 +367,12 @@ public abstract class PromptingCertManager implements X509TrustManager, Hostname
 
 	protected abstract void runOnToolkitThread(Runnable r);
 
-	protected abstract boolean promptForCertificate(PromptType alertType, String title, String content, String key,
-			String hostname, String message, Preferences preference);
+	public abstract boolean promptForCertificate(PromptType alertType, String title, String content, String key,
+			String hostname, String message);
+	
+	public abstract void save(String encodedKey);
+
+	public SSLParameters getSSLParameters() {
+		return sslParameters;
+	}
 }

@@ -230,7 +230,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 				cli.getConsole().flush();
 
 			}
-		});
+		}, getCLI().getCertManager());
 		sc.register(connection);
 	}
 }

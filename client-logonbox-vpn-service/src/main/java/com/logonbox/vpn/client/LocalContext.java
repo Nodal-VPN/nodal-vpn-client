@@ -3,6 +3,7 @@ package com.logonbox.vpn.client;
 import java.util.Collection;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 
 import org.apache.log4j.Level;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
@@ -10,6 +11,7 @@ import org.freedesktop.dbus.messages.Message;
 
 import com.logonbox.vpn.client.service.ClientService;
 import com.logonbox.vpn.client.wireguard.PlatformService;
+import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
 
 public interface LocalContext {
@@ -37,6 +39,10 @@ public interface LocalContext {
 	Level getDefaultLogLevel();
 
 	void shutdown(boolean restart);
-
 	SSLContext getSSLContext();
+
+	PromptingCertManager getCertManager();
+
+	SSLParameters getSSLParameters();
+	
 }

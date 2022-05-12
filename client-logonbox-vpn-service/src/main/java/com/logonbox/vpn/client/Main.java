@@ -6,30 +6,22 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.GeneralSecurityException;
-import java.security.Security;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
+import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.SSLParameters;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -65,6 +57,7 @@ import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.ConnectionRepository;
 import com.logonbox.vpn.common.client.ConnectionStatus;
 import com.logonbox.vpn.common.client.HypersocketVersion;
+import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.dbus.VPN;
 import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
 import com.sshtools.forker.common.OS;
@@ -74,8 +67,10 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "logonbox-vpn-server", mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.")
-public class Main implements Callable<Integer>, LocalContext, X509TrustManager, Listener {
+public class Main implements Callable<Integer>, LocalContext, Listener {
 
+	public final static ResourceBundle BUNDLE = ResourceBundle.getBundle(Main.class.getName());
+	
 	final static int DEFAULT_TIMEOUT = 10000;
 
 	static Logger log = LoggerFactory.getLogger(Main.class);
@@ -133,9 +128,12 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	private SaslAuthMode authMode = SaslAuthMode.AUTH_ANONYMOUS;
 
 	private ConfigurationRepositoryImpl configurationRepository;
-	private SSLContext sslContext;
 	private BusAddress busAddress;
 	private ConnectionRepository connectionRepository;
+
+	private PromptingCertManager promptingCertManager;
+
+	private VPN vpn;
 
 	public static final String ARTIFACT_COORDS = "com.logonbox/client-logonbox-vpn-service";
 
@@ -175,6 +173,10 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	@Override
 	public PlatformService<?> getPlatformService() {
 		return platform;
+	}
+
+	public PromptingCertManager getCertManager() {
+		return promptingCertManager;
 	}
 
 	@Override
@@ -529,45 +531,12 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	}
 
 	private boolean configureDBus() throws Exception {
-		
-		// TODO: I hope this isn't needed any more, the next windows build will tell us
-		
-//		/*
-//		 * Workaround for windows. It's unlikely there will be a 'machine id' available,
-//		 * so create one if it appears that this will cause an issue. <p> Better fixes
-//		 * are going to require patching java DBC or extracting when DBusConnection does
-//		 * (fortunately this is only called in a few places)
-//		 */
-//		try {
-//			DBusConnection.getDbusMachineId();
-//		} catch (Exception e) {
-//			File etc = new File(File.separator + "etc");
-//			if (!etc.exists()) {
-//				etc.mkdirs();
-//			}
-//			File machineId = new File(etc, "machine-id");
-//			if (machineId.exists())
-//				throw e;
-//			else {
-//				Random randomService = new Random();
-//				StringBuilder sb = new StringBuilder();
-//				while (sb.length() < 32) {
-//					sb.append(Integer.toHexString(randomService.nextInt()));
-//				}
-//				sb.setLength(32);
-//				try (PrintWriter w = new PrintWriter(new FileWriter(machineId), true)) {
-//					w.println(sb.toString());
-//				} catch (IOException ioe) {
-//					throw new RuntimeException(String.format("Failed to create machine ID file %s.", machineId), ioe);
-//				}
-//			}
-//		}
-
 		return connect();
 	}
 
 	private boolean startServices() {
-		installAllTrustingCertificateVerifier();
+		promptingCertManager = new ServicePromptingCertManager(BUNDLE, this);
+		promptingCertManager.installCertificateVerifier();
 
 		try {
 			clientService.start();
@@ -626,6 +595,10 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 		file.getParentFile().mkdirs();
 		return file;
 	}
+	
+	public VPN getVPN() {
+		return vpn;
+	}
 
 	private boolean publishDefaultServices() {
 
@@ -634,7 +607,8 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 			if (log.isInfoEnabled()) {
 				log.info(String.format("Exporting VPN services to DBus"));
 			}
-			conn.exportObject("/com/logonbox/vpn", new VPNImpl(this));
+			vpn = new VPNImpl(this);
+			conn.exportObject("/com/logonbox/vpn", vpn);
 			if (log.isInfoEnabled()) {
 				log.info(String.format("    VPN"));
 			}
@@ -660,33 +634,6 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 	@Override
 	public Collection<VPNFrontEnd> getFrontEnds() {
 		return frontEnds.values();
-	}
-
-	@Override
-	public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-		List<String> chainSubjectDN = new ArrayList<>();
-		for (X509Certificate c : chain) {
-			try {
-				if (log.isDebugEnabled())
-					log.debug(String.format("Validating: %s", c));
-				chainSubjectDN.add(c.getSubjectDN().toString());
-				c.checkValidity();
-			} catch (CertificateException ce) {
-				log.error("Certificate error. " + String.join(" -> ", chainSubjectDN), ce);
-				throw ce;
-			}
-		}
-	}
-
-	@Override
-	public X509Certificate[] getAcceptedIssuers() {
-		X509Certificate[] NO_CERTS = new X509Certificate[0];
-		return NO_CERTS;
 	}
 	
 	protected void cleanUp() {
@@ -758,35 +705,6 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 		flagFile.delete();
 	}
 
-	protected void installAllTrustingCertificateVerifier() {
-
-		log.warn(
-				"All SSL certificates will be trusted regardless of status. This will change in future versions.");
-
-		Security.insertProviderAt(new ServiceTrustProvider(), 1);
-		Security.setProperty("ssl.TrustManagerFactory.algorithm", ServiceTrustProvider.TRUST_PROVIDER_ALG);
-
-		try {
-			sslContext = SSLContext.getInstance("SSL");
-			sslContext.init(null, new TrustManager[] { this }, new java.security.SecureRandom());
-			HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-			SSLContext.setDefault(sslContext);
-		} catch (GeneralSecurityException e) {
-		}
-
-		// Create all-trusting host name verifier
-		HostnameVerifier allHostsValid = new HostnameVerifier() {
-			@Override
-			public boolean verify(String hostname, SSLSession session) {
-				log.debug(String.format("Verify hostname %s: %s", hostname, session));
-				return true;
-			}
-		};
-
-		// Install the all-trusting host verifier
-		HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-	}
-
 	@Override
 	public void configurationChange(ConfigurationItem<?> item, Object oldValue, Object newValue) {
 
@@ -819,10 +737,15 @@ public class Main implements Callable<Integer>, LocalContext, X509TrustManager, 
 
 	@Override
 	public SSLContext getSSLContext() {
-		return sslContext;
+		return promptingCertManager.getSSLContext();
 	}
 
 	protected boolean isStrictSSL() {
 		return "true".equals(System.getProperty("logonbox.vpn.strictSSL", "true"));
+	}
+
+	@Override
+	public SSLParameters getSSLParameters() {
+		return promptingCertManager.getSSLParameters();
 	}
 }

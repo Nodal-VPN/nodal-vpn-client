@@ -8,7 +8,6 @@ import java.net.CookieStore;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.prefs.Preferences;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.PropertyConfigurator;
@@ -34,6 +33,7 @@ import com.logonbox.vpn.client.cli.commands.Show;
 import com.logonbox.vpn.client.cli.commands.Shutdown;
 import com.logonbox.vpn.client.cli.commands.Update;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
+import com.logonbox.vpn.common.client.ClientPromptingCertManager;
 import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.UpdateService;
@@ -245,7 +245,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 
 	@Override
 	protected PromptingCertManager createCertManager() {
-		return new PromptingCertManager(BUNDLE) {
+		return new ClientPromptingCertManager(BUNDLE, this) {
 
 			@Override
 			protected boolean isToolkitThread() {
@@ -258,8 +258,8 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 			}
 
 			@Override
-			protected boolean promptForCertificate(PromptType alertType, String title, String content, String key,
-					String hostname, String message, Preferences preference) {
+			public boolean promptForCertificate(PromptType alertType, String title, String content, String key,
+					String hostname, String message) {
 
 				try {
 
@@ -291,7 +291,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 						throw new IllegalStateException("Aborted.");
 
 					if (saveAbbrev.equalsIgnoreCase(reply)) {
-						preference.putBoolean(key, true);
+						save(key);
 						return true;
 					} else if (yesAbbrev.equalsIgnoreCase(reply)) {
 						return true;

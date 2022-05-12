@@ -19,12 +19,15 @@ import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.errors.ServiceUnknown;
 import org.freedesktop.dbus.errors.UnknownObject;
 import org.freedesktop.dbus.exceptions.DBusException;
+import org.freedesktop.dbus.interfaces.DBusSigHandler;
 //import org.freedesktop.dbus.interfaces.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.logonbox.vpn.common.client.PromptingCertManager.PromptType;
 import com.logonbox.vpn.common.client.dbus.DBusClient;
 import com.logonbox.vpn.common.client.dbus.VPN;
+import com.logonbox.vpn.common.client.dbus.VPN.CertificatePrompt;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
 
 import picocli.CommandLine.Model.CommandSpec;
@@ -75,6 +78,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 	private PromptingCertManager certManager;
 	private UpdateService updateService;
 	private CookieStore cookieStore;
+	private DBusSigHandler<CertificatePrompt> certPromptHandler;
 	/**
 	 * Matches the identifier in logonbox VPN server
 	 * PeerConfigurationAuthenticationProvider.java
@@ -289,6 +293,29 @@ public abstract class AbstractDBusClient implements DBusClient {
 				}
 			}
 		}, 5, 5, TimeUnit.SECONDS);
+		
+		certPromptHandler = new DBusSigHandler<VPN.CertificatePrompt>() {
+			@Override
+			public void handle(VPN.CertificatePrompt sig) {
+				handleCertPromptRequest(sig);
+			}
+		};
+		conn.addSigHandler(VPN.CertificatePrompt.class, vpn,
+				certPromptHandler);
+	}
+
+	protected void handleCertPromptRequest(VPN.CertificatePrompt sig) {
+		var cm = getCertManager();
+		if(cm.isToolkitThread()) {
+			if(cm.promptForCertificate(PromptType.valueOf(sig.getAlertType()), sig.getTitle(), sig.getContent(), sig.getKey(), sig.getHostname(), sig.getMessage())) {
+				cm.accept(sig.getKey());
+			}
+			else {
+				cm.reject(sig.getKey());
+			}
+		}
+		else
+			cm.runOnToolkitThread(() -> handleCertPromptRequest(sig));
 	}
 
 	protected final String getEffectiveUser() {
@@ -324,12 +351,20 @@ public abstract class AbstractDBusClient implements DBusClient {
 			cancelPingTask();
 
 			if (busAvailable) {
+				
 				busAvailable = false;
-				vpn = null;
 				if (conn != null) {
+					if(certPromptHandler != null) {
+						try {
+							conn.removeSigHandler(VPN.CertificatePrompt.class, vpn,
+									certPromptHandler);
+						} catch (DBusException e) {
+						}
+					}
 					conn.disconnect();
 					conn = null;
 				}
+				vpn = null;
 				updateService.checkIfBusAvailable();
 				for (BusLifecycleListener b : busLifecycleListeners) {
 					b.busGone();

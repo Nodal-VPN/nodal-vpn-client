@@ -9,6 +9,8 @@ import com.logonbox.vpn.common.client.AbstractDBusClient;
 
 public interface DBusClient {
 
+	VPN getVPN();
+
 	default String getServerDBusAddress(String addressFile) {
 		Properties properties = new Properties();
 		String path;

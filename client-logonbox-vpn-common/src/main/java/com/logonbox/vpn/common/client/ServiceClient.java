@@ -87,11 +87,13 @@ public class ServiceClient {
 	private CookieHandler cookieHandler;
 	private Authenticator authenticator;
 	private CookieStore cookieStore;
+	private PromptingCertManager certManager;
 
-	public ServiceClient(CookieStore cookieStore, Authenticator authenticator) {
+	public ServiceClient(CookieStore cookieStore, Authenticator authenticator, PromptingCertManager certManager) {
 		mapper = new ObjectMapper();
 		this.cookieStore = cookieStore;
 		this.authenticator = authenticator;
+		this.certManager = certManager;
 	}
 
 	protected String doGet(VPNConnection connection, String url, NameValuePair... headers)
@@ -131,7 +133,8 @@ public class ServiceClient {
 			}
 		}
 
-		return HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).cookieHandler(cookieHandler)
+		return HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).
+				cookieHandler(cookieHandler).sslContext(certManager.getSSLContext()).sslParameters(certManager.getSSLParameters())
 				.connectTimeout(Duration.ofSeconds(15)).followRedirects(HttpClient.Redirect.NORMAL).build();
 
 	}

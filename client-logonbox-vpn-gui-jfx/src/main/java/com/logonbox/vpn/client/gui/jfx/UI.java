@@ -1581,7 +1581,7 @@ public class UI implements BusLifecycleListener {
 
 			ServiceClientAuthenticator authenticator = new ServiceClientAuthenticator(context, engine, authorizedLock);
 			jsobj.setMember("authenticator", authenticator);
-			final ServiceClient serviceClient = new ServiceClient(Main.getInstance().getCookieStore(), authenticator);
+			final ServiceClient serviceClient = new ServiceClient(Main.getInstance().getCookieStore(), authenticator, Main.getInstance().getCertManager());
 			jsobj.setMember("serviceClient", serviceClient);
 			jsobj.setMember("register", new Register(selectedConnection, serviceClient, this));
 		}
@@ -2155,7 +2155,11 @@ public class UI implements BusLifecycleListener {
 	}
 
 	private void showError(String error, String cause, String exception) {
-		showError(error, cause, exception, "error.html");
+		if(cause.startsWith("No subject alternative names matching IP address ")) {
+			showError(error, cause, exception, "sanError.html");
+		}
+		else
+			showError(error, cause, exception, "error.html");
 	}
 
 	private void showError(String error, String cause, String exception, String page) {
@@ -2188,7 +2192,12 @@ public class UI implements BusLifecycleListener {
 				exception.printStackTrace(new PrintWriter(w));
 				lastException = w.toString();
 			}
-			setHtmlPage("error.html");
+			if(cause.startsWith("No subject alternative names matching IP address ")) {
+				setHtmlPage("error.html");
+			}
+			else {
+				setHtmlPage("sanError.html");
+			}
 		});
 	}
 

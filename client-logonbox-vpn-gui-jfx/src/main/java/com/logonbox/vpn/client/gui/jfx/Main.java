@@ -4,7 +4,6 @@ import java.awt.Taskbar;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
-import java.util.prefs.Preferences;
 
 import javax.swing.UIManager;
 
@@ -16,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.logonbox.vpn.common.client.AbstractDBusClient;
+import com.logonbox.vpn.common.client.ClientPromptingCertManager;
 import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.PromptingCertManager;
 
@@ -243,7 +243,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer> {
 
 	@Override
 	protected PromptingCertManager createCertManager() {
-		return new PromptingCertManager(Client.BUNDLE) {
+		return new ClientPromptingCertManager(Client.BUNDLE, this) {
 
 			@Override
 			protected boolean isToolkitThread() {
@@ -256,9 +256,9 @@ public class Main extends AbstractDBusClient implements Callable<Integer> {
 			}
 
 			@Override
-			protected boolean promptForCertificate(PromptType alertType, String title,
-					String content, String key, String hostname, String message, Preferences preference) {
-				return Client.get().promptForCertificate(AlertType.valueOf(alertType.name()), title, content, key, hostname, message, preference);
+			public boolean promptForCertificate(PromptType alertType, String title,
+					String content, String key, String hostname, String message) {
+				return Client.get().promptForCertificate(AlertType.valueOf(alertType.name()), title, content, key, hostname, message, this);
 			}
 			
 		};
