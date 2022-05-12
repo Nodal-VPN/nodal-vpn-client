@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Writer;
+import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.nio.file.Files;
@@ -104,11 +105,10 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 	@Override
 	protected String getDefaultGateway() throws IOException {
 		String gw = null;
-		for (String line : OSCommand.adminCommandAndIterateOutput("ip", "route")) {
-			if (gw == null && line.startsWith("default via")) {
-				String[] args = line.split("\\s+");
-				if (args.length > 2)
-					gw = args[2];
+		for (String line : OSCommand.runCommandAndIterateOutput("route", "get", "default")) {
+			line = line.trim();
+			if (gw == null && line.startsWith("gateway:")) {
+				gw = InetAddress.getByName(line.substring(9)).getHostAddress();
 			}
 		}
 		if (gw == null)
