@@ -98,19 +98,7 @@ public class VPNSession implements Closeable {
 			runHook(preUp);  
 		}
 		
-		try {
-			ip = getLocalContext().getPlatformService().connect(this, vpnConnection);
-		}
-		catch(ReauthorizeException re) {
-			/* Probe for the reason we did not get a handshake by testing
-			 * the HTTP service.
-			 */
-			IOException ioe = cctx.getClientService().getConnectionError(vpnConnection);
-			if(ioe == null)
-				throw re;
-			else
-				throw ioe;
-		}
+		ip = getLocalContext().getPlatformService().connect(this, vpnConnection);
 		
 		String postUp = vpnConnection.getPostUp();
 		if(StringUtils.isNotBlank(postUp)) {
