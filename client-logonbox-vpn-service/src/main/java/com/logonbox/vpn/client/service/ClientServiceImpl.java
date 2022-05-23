@@ -489,6 +489,16 @@ public class ClientServiceImpl implements ClientService {
 		return connectionRepository.getConnections(owner);
 	}
 
+	@Override
+	public boolean isMatchesAnyServerURI(String owner, String uri) {
+		for(Connection c : getConnections(owner)) {
+			if(uri.startsWith(c.getUri(false))) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public LocalContext getContext() {
 		return context;
 	}

@@ -270,4 +270,10 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 	public void rejectCert(String encodedKey) {
 		ctx.getCertManager().reject(encodedKey);
 	}
+
+	@Override
+	public boolean isMatchesAnyServerURI(String uri) {
+		assertRegistered();
+		return ctx.getClientService().isMatchesAnyServerURI(getOwner(), uri);
+	}
 }

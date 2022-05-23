@@ -73,6 +73,8 @@ public interface VPN extends DBusInterface {
 
 	String[] getKeys();
 
+	boolean isMatchesAnyServerURI(String uri);
+
 //
 	public class CertificatePrompt extends DBusSignal {
 
