@@ -158,17 +158,26 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 	}
 	
 	protected void checkWGCommand() {
+		boolean reextract = false;
+		/* It is possible the temp directory these are stored gets cleaned out
+		 * by OS at some point. Re-extract if this appears to happen.
+		 */
 		if(wgCommandPath != null) {
-			/* It is possible the temp directory these are stored gets cleaned out
-			 * by OS at some point. Re-extract if this appears to happen.
-			 */
 			if(!Files.exists(wgCommandPath) || !Files.isReadable(wgCommandPath)) {
 				wgCommandPath = null;
-				LOG.warn("It looks like the Wireguard binaries have disappeared. Attempting to re-extract.");
-				extractExecutables();
-				if(wgCommandPath == null) {
-					throw new IllegalStateException("WireGuard userspace daemon cannot be found.");
-				}
+			}
+		}
+		if(wgGoCommandPath != null) {
+			if(!Files.exists(wgGoCommandPath) || !Files.isReadable(wgGoCommandPath)) {
+				wgGoCommandPath = null;
+			}
+		}
+
+		if(wgCommandPath == null || wgGoCommandPath == null) {
+			LOG.warn("It looks like the Wireguard binaries have disappeared. Attempting to re-extract.");
+			extractExecutables();
+			if(wgCommandPath == null || wgGoCommandPath == null) {
+				throw new IllegalStateException("WireGuard userspace daemon cannot be found.");
 			}
 		}
 	}
@@ -249,7 +258,7 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 			return new String[] {"wireguard" };
 		else if(wgCommandPath == null)
 			return new String[] {"wg" };
-		else if(wgCommandPath == null)
+		else if(wgGoCommandPath == null)
 			return new String[] {"wireguard-go" };
 		return new String[0];
 	}
