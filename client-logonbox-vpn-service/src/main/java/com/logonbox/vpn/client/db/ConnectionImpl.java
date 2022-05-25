@@ -111,6 +111,9 @@ public class ConnectionImpl implements Connection, Serializable {
 
     @Column(columnDefinition="varchar(10240)", nullable = true)
 	private String error;
+    
+	@Column
+	private String flag;
 
 	@Override
 	public boolean isRouteAll() {
@@ -425,6 +428,14 @@ public class ConnectionImpl implements Connection, Serializable {
 	@Override
 	public String getError() {
 		return error;
+	}
+
+	public String getFlag() {
+		return flag;
+	}
+
+	public void setFlag(String flag) {
+		this.flag = flag;
 	}
 
 }

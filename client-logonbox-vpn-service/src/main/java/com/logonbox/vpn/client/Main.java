@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.ServiceLoader;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,6 +42,7 @@ import org.freedesktop.dbus.utils.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.logonbox.vpn.ConnectionRepository;
 import com.logonbox.vpn.client.dbus.VPNConnectionImpl;
 import com.logonbox.vpn.client.dbus.VPNImpl;
 import com.logonbox.vpn.client.service.ClientService;
@@ -54,7 +56,6 @@ import com.logonbox.vpn.client.wireguard.windows.WindowsPlatformServiceImpl;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
-import com.logonbox.vpn.common.client.ConnectionRepository;
 import com.logonbox.vpn.common.client.ConnectionStatus;
 import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.PromptingCertManager;
@@ -548,19 +549,25 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 	}
 
 	private boolean buildServices() throws Exception {
-		/* TODO swap these and enable the dbconvert install action in Install4J project
-		 * when ready to make ini files the default.
-		 */
-		Path iniDir = Paths.get("conf").resolve("ini");
-		if(Files.exists(iniDir)) {
-			log.info("Using file data backend");
-			connectionRepository = new com.logonbox.vpn.client.ini.ConnectionRepositoryImpl();
+		for(var impl : ServiceLoader.load(ConnectionRepository.class)) {
+			log.info("Using extension backend, {}", impl.getClass().getName());
+			connectionRepository = impl;
 		}
-		else {
-			log.info("Using Derby data backend");
-			connectionRepository = new com.logonbox.vpn.client.db.ConnectionRepositoryImpl();
+		if(connectionRepository == null) {
+			Path iniDir = Paths.get("conf").resolve("ini");
+			/* TODO swap these and enable the dbconvert install action in Install4J project
+			 * when ready to make ini files the default.
+			 */
+			if(Files.exists(iniDir)) {
+				log.info("Using file data backend");
+				connectionRepository = new com.logonbox.vpn.client.ini.ConnectionRepositoryImpl();
+			}
+			else {
+				log.info("Using Derby data backend");
+				connectionRepository = new com.logonbox.vpn.client.db.ConnectionRepositoryImpl();
+			}
 		}
-		
+		connectionRepository.init(this);
 		configurationRepository = new ConfigurationRepositoryImpl();
 		clientService = new ClientServiceImpl(this, connectionRepository, configurationRepository);
 		clientService.addListener(this);

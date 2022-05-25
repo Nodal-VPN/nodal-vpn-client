@@ -13,9 +13,10 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.logonbox.vpn.ConnectionRepository;
 import com.logonbox.vpn.client.FileSecurity;
+import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.common.client.Connection;
-import com.logonbox.vpn.common.client.ConnectionRepository;
 import com.logonbox.vpn.common.client.Util;
 
 public class ConnectionRepositoryImpl implements ConnectionRepository {
@@ -23,6 +24,7 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 	static Logger log = LoggerFactory.getLogger(ConnectionRepositoryImpl.class);
 
 	private Object session = new Object();
+	protected LocalContext context;
 
 	public ConnectionRepositoryImpl() {
 		try {
@@ -30,6 +32,11 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 		} catch (IOException e) {
 			throw new IllegalStateException("Could not create configuration directory.", e);
 		}
+	}
+
+	@Override
+	public void init(LocalContext context) {
+		this.context = context;
 	}
 
 	@Override

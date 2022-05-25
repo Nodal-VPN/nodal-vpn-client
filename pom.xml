@@ -62,6 +62,7 @@
 		<module>client-logonbox-vpn-service</module>
 		<module>client-logonbox-vpn-gui-jfx</module>
 		<module>client-logonbox-vpn-cli</module>
+		<module>client-logonbox-vpn-provider</module>
 		<module>client-logonbox-vpn-dbconvert</module>
 		<module>client-logonbox-vpn-installer</module>
 		<!-- <module>client-logonbox-vpn-winsrv</module> -->

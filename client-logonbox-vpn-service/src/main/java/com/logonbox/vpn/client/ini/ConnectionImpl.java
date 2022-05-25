@@ -52,6 +52,7 @@ public class ConnectionImpl implements Connection, Serializable {
 	private String preDown;
 	private String postDown;
 	private String error;
+	private String flag;
 
 	@Override
 	public boolean isRouteAll() {
@@ -301,6 +302,7 @@ public class ConnectionImpl implements Connection, Serializable {
 			setPath(logonBoxSection.get("Path"));
 			setError(logonBoxSection.get("Error"));
 			setName(logonBoxSection.get("Name"));
+			setFlag(logonBoxSection.get("Flag"));
 			setPort(Integer.parseInt(logonBoxSection.get("Port")));
 			if (logonBoxSection.containsKey("MTU"))
 				setMtu(Integer.parseInt(logonBoxSection.get("MTU")));
@@ -450,6 +452,16 @@ public class ConnectionImpl implements Connection, Serializable {
 		return error;
 	}
 
+	@Override
+	public String getFlag() {
+		return flag;
+	}
+
+	@Override
+	public void setFlag(String flag) {
+		this.flag = flag;
+	}
+
 	public static void write(BufferedWriter w, Connection connection) throws IOException {
 		Ini ini = new Ini();
 
@@ -487,6 +499,8 @@ public class ConnectionImpl implements Connection, Serializable {
 			logonBoxSection.put("Error", connection.getError());
 		if (StringUtils.isNotBlank(connection.getName()))
 			logonBoxSection.put("Name", connection.getName());
+		if (StringUtils.isNotBlank(connection.getFlag()))
+			logonBoxSection.put("Flag", connection.getFlag());
 		logonBoxSection.put("Port", connection.getPort());
 		if (connection.getMtu() > 0)
 			logonBoxSection.put("MTU", connection.getMtu());

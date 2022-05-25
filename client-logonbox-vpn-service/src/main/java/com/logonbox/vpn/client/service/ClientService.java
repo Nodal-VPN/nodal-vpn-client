@@ -88,4 +88,8 @@ public interface ClientService  {
 	Connection importConfiguration(String owner, String configuration);
 
 	boolean isMatchesAnyServerURI(String owner, String uri);
+
+	void generateKeys(Connection connection);
+
+	boolean isReadOnly();
 }

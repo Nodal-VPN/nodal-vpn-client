@@ -224,7 +224,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 					}
 				}
 			}
-			getLog().info("Got bus connection.");
+			getLog().info("Got bus connection {} [{}].", conn.getAddress(), conn.getAddress().getBusType());
 		} else {
 			getLog().info("Already have bus connection.");
 		}

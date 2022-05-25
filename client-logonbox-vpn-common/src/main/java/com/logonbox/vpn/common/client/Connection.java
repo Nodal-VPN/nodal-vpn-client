@@ -80,6 +80,10 @@ public interface Connection {
 
 	Long getId();
 
+	void setFlag(String flag);
+
+	String getFlag();
+
 	String getUserPrivateKey();
 
 	void setUserPrivateKey(String privateKey);

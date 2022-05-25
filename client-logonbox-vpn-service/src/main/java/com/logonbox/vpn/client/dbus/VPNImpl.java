@@ -276,4 +276,10 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 		assertRegistered();
 		return ctx.getClientService().isMatchesAnyServerURI(getOwner(), uri);
 	}
+
+	@Override
+	public boolean isReadOnly() {
+		assertRegistered();
+		return ctx.getClientService().isReadOnly();
+	}
 }

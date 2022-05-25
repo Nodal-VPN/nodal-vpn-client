@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hypersocket.json.utils.HypersocketUtils;
 import com.hypersocket.json.version.HypersocketVersion;
+import com.logonbox.vpn.ConnectionRepository;
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.dbus.VPNConnectionImpl;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
@@ -48,7 +49,6 @@ import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.ConfigurationRepository;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.Connection.Mode;
-import com.logonbox.vpn.common.client.ConnectionRepository;
 import com.logonbox.vpn.common.client.ConnectionStatus;
 import com.logonbox.vpn.common.client.ConnectionStatus.Type;
 import com.logonbox.vpn.common.client.Keys;
@@ -150,7 +150,12 @@ public class ClientServiceImpl implements ClientService {
 			if (log.isInfoEnabled()) {
 				log.info("Scheduling connect for connection id " + c.getId() + "/" + c.getHostname());
 			}
-
+			if(connectionRepository.isSingleConnection()) {
+				while(activeSessions.size() > 0) {
+					disconnect(activeSessions.values().iterator().next().getConnection(), "Switching to another server.");	
+				}
+			}
+			connectionRepository.prepare(c);
 			c.setError(null);
 			save(c);
 			
@@ -731,6 +736,7 @@ public class ClientServiceImpl implements ClientService {
 			 * client queried it.
 			 */
 			cancelAuthorize(connection);
+			connectionRepository.prepare(connection);
 			log.info(String.format("Setting up authorize timeout for %s", connection.getDisplayName()));
 			authorizingClients.put(connection, timer.schedule(() -> {
 				disconnect(connection, "Authorization timeout.");
@@ -1153,7 +1159,13 @@ public class ClientServiceImpl implements ClientService {
 		}
 	}
 
-	private void generateKeys(Connection connection) {
+	@Override
+	public boolean isReadOnly() {
+		return connectionRepository.isReadOnly();
+	}
+
+	@Override
+	public void generateKeys(Connection connection) {
 		log.info("Generating private key");
 		KeyPair key = Keys.genkey();
 		connection.setUserPrivateKey(key.getBase64PrivateKey());

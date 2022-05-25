@@ -10,6 +10,8 @@ import org.freedesktop.dbus.messages.DBusSignal;
 
 @DBusInterfaceName("com.logonbox.vpn.VPN")
 public interface VPN extends DBusInterface {
+	
+	boolean isReadOnly();
 
 	void register(String username, boolean interactive, boolean supportsAuthorization);
 

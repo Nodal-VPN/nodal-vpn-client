@@ -291,8 +291,7 @@ public class UI implements BusLifecycleListener {
 		}
 
 		public void configure(String usernameHint, String configIniFile) {
-			if (LOG.isDebugEnabled())
-				LOG.debug(String.format("Connect user: %s, Config: %s", usernameHint, configIniFile));
+			LOG.info(String.format("Connect user: %s, Config: %s", usernameHint, configIniFile));
 			UI.this.configure(usernameHint, configIniFile, UI.this.getForegroundConnection());
 		}
 

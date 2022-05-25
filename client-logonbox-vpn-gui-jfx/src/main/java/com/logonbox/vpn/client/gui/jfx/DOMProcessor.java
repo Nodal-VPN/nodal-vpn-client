@@ -82,6 +82,7 @@ public class DOMProcessor {
 		replacements.put("maxMemory", Util.toHumanSize(maxMemory));
 		replacements.put("usedMemory", Util.toHumanSize(maxMemory - freeMemory));
 		replacements.put("errorMessage", errorText);
+		replacements.put("readOnly", String.valueOf(vpn == null ? true : vpn.isReadOnly()));
 		replacements.put("errorCauseMessage", errorCauseText);
 		replacements.put("exception", exceptionText);
 		String version = HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx");

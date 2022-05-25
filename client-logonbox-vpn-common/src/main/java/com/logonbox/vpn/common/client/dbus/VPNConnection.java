@@ -53,6 +53,8 @@ public interface VPNConnection extends DBusInterface {
 	void authorized();
 
 	void deauthorize();
+	
+	String getFlag();
 
 	String getUsernameHint();
 
@@ -97,6 +99,8 @@ public interface VPNConnection extends DBusInterface {
 	void setName(String name);
 
 	void setHostname(String host);
+
+	void setFlag(String flag);
 
 	void setPort(int port);
 	

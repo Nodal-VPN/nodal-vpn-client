@@ -225,6 +225,12 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	}
 
 	@Override
+	public String getFlag() {
+		assertRegistered();
+		return StringUtils.defaultIfBlank(connection.getFlag(), "");
+	}
+
+	@Override
 	public String getInterfaceName() {
 		assertRegistered(); 
 		return ctx.getClientService().getStatus(getId()).getDetail().getInterfaceName();
@@ -344,6 +350,12 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	}
 
 	@Override
+	public void setFlag(String flag) {
+		assertRegistered();
+		connection.setFlag(StringUtils.isBlank(flag) ? null : flag);
+	}
+
+	@Override
 	public void setPeristentKeepalive(int peristentKeepalive) {
 		assertRegistered();
 		connection.setPeristentKeepalive(peristentKeepalive);
@@ -398,71 +410,85 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 
 	@Override
 	public boolean isShared() {
+		assertRegistered();
 		return connection.isShared();
 	}
 
 	@Override
 	public String getOwner() {
+		assertRegistered();
 		return connection.getOwner();
 	}
 
 	@Override
 	public void setOwner(String owner) {
+		assertRegistered();
 		connection.setOwner(owner.equals("") ? null : owner);		
 	}
 
 	@Override
 	public void setShared(boolean shared) {
+		assertRegistered();
 		connection.setShared(shared);		
 	}
 
 	@Override
 	public void setPreUp(String preUp) {
+		assertRegistered();
 		connection.setPreUp(preUp);		
 	}
 
 	@Override
 	public void setPostUp(String postUp) {
+		assertRegistered();
 		connection.setPostUp(postUp);				
 	}
 
 	@Override
 	public void setPreDown(String preDown) {
+		assertRegistered();
 		connection.setPreDown(preDown);		
 	}
 
 	@Override
 	public void setPostDown(String postDown) {
+		assertRegistered();
 		connection.setPostDown(postDown);		
 	}
 
 	@Override
 	public void setRouteAll(boolean routeAll) {
+		assertRegistered();
 		connection.setRouteAll(routeAll);		
 	}
 
 	@Override
 	public boolean isRouteAll() {
+		assertRegistered();
 		return connection.isRouteAll();
 	}
 
 	@Override
 	public String getPreUp() {
+		assertRegistered();
 		return connection.getPreUp();
 	}
 
 	@Override
 	public String getPostUp() {
+		assertRegistered();
 		return connection.getPostUp();
 	}
 
 	@Override
 	public String getPreDown() {
+		assertRegistered();
 		return connection.getPreDown();
 	}
 
 	@Override
 	public String getPostDown() {
+		assertRegistered();
 		return connection.getPostDown();
 	}
 

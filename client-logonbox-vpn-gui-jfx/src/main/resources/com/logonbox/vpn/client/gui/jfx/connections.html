@@ -45,7 +45,7 @@
 					<a href="options.html"><i class="fa fa-cogs"></i><span
 						data-i18n="options">Options</span></a>
 				</div>
-				<div class="col-6 text-end">
+				<div class="col-6 text-end" data-conditional="!readOnly">
 					<a id="add" href="addLogonBoxVPN.html" class="align-middle"><i
 						class="fa fa-plus-circle fa-3x"></i></a>
 				</div>
@@ -119,8 +119,16 @@
 						connected = true;
 						textStyle = 'text-success';
 					}
-					var iconEl = $('<i class="fa ' + iconName + ' ' + textStyle + ' fa-3x"></i>');
-					iconEl.appendTo(connectionEl.find('.status-icon')[0]);
+					
+					var flag = connection.getFlag(); 
+					if(flag === '' || statusName !== 'DISCONNECTED') {
+						var iconEl = $('<i class="fa ' + iconName + ' ' + textStyle + ' fa-3x"></i>');
+						iconEl.appendTo(connectionEl.find('.status-icon')[0]);
+					}
+					else {
+						var flagEl = $('<img class="fa-3x" src="flags/4x3/' + flag + '.svg"/>');
+						flagEl.appendTo(connectionEl.find('.status-icon')[0]);
+					}
 
 					/* Connected switch */
 					var cbEl = connectionEl.find('.toggle-connection');

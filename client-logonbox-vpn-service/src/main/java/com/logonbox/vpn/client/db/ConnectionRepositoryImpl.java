@@ -16,8 +16,9 @@ import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.logonbox.vpn.ConnectionRepository;
+import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.common.client.Connection;
-import com.logonbox.vpn.common.client.ConnectionRepository;
 import com.logonbox.vpn.common.client.Util;
 
 @Deprecated
@@ -145,6 +146,10 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 	public Connection importConfiguration(String configuration) {
 		throw new UnsupportedOperationException(
 				"Importing not supported by this backend. Please use the 'dbconvert' utility included to convert to the new file based backend.");
+	}
+
+	@Override
+	public void init(LocalContext context) {
 	}
 
 }
