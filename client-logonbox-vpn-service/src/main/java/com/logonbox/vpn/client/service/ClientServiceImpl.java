@@ -32,6 +32,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.net.ssl.SSLHandshakeException;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -1098,6 +1100,13 @@ public class ClientServiceImpl implements ClientService {
 						}
 					}
 					else {
+						if(reason instanceof SSLHandshakeException) {
+							/* Work around for SAN errors */
+							if(reason.getMessage().indexOf("No subject alternative") != -1) {
+								/* Return original error */
+								e = reason;
+							}
+						}
 						failedToConnect(connection, e);
 						if (log.isErrorEnabled()) {
 							log.error("Failed to connect " + connection, e);

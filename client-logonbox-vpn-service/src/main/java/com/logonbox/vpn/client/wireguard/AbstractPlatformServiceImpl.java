@@ -360,7 +360,7 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 		catch(Exception e) {
 			LOG.error("Failed to stop after timeout.", e);
 		}
-		throw new ReauthorizeException(String.format("No timeout received for %s within %d seconds.", ip.getName(), ClientService.CONNECT_TIMEOUT));
+		throw new ReauthorizeException(String.format("No handshake received for %s within %d seconds.", ip.getName(), ClientService.CONNECT_TIMEOUT));
 	}
 	
 	protected void write(Connection configuration, Writer writer) {
