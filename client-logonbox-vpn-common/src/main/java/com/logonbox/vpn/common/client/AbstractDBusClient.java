@@ -206,21 +206,21 @@ public abstract class AbstractDBusClient implements DBusClient {
 			if (StringUtils.isNotBlank(busAddress)) {
 				if (getLog().isDebugEnabled())
 					getLog().debug("Getting bus. " + this.busAddress);
-				conn = DBusConnectionBuilder.forAddress(busAddress).build();
+				conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress)).build();
 			} else {
 				if (sessionBus) {
 					if (getLog().isDebugEnabled())
 						getLog().debug("Getting session bus.");
-					conn = DBusConnectionBuilder.forSessionBus().build();
+					conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
 				} else {
 					if (fixedAddress == null) {
 						if (getLog().isDebugEnabled())
 							getLog().debug("Getting system bus.");
-						conn = DBusConnectionBuilder.forSystemBus().build();
+						conn = configureBuilder(DBusConnectionBuilder.forSystemBus()).build();
 					} else {
 						if (getLog().isDebugEnabled())
 							getLog().debug("Getting fixed bus " + fixedAddress);
-						conn = DBusConnectionBuilder.forAddress(fixedAddress).build();
+						conn = configureBuilder(DBusConnectionBuilder.forAddress(fixedAddress)).build();
 					}
 				}
 			}
@@ -245,6 +245,12 @@ public abstract class AbstractDBusClient implements DBusClient {
 
 		/* Create cert manager */
 		getLog().info(String.format("Cert manager: %s", getCertManager()));
+	}
+	
+	protected DBusConnectionBuilder configureBuilder(DBusConnectionBuilder builder) {
+		builder.withShared(false);
+		builder.withRegisterSelf(true);
+		return builder;
 	}
 
 	protected abstract boolean isInteractive();
@@ -384,8 +390,10 @@ public abstract class AbstractDBusClient implements DBusClient {
 							getLog().debug("Init() failed, retrying");
 						busGone();
 					} catch (RuntimeException re) {
+						re.printStackTrace();
 						throw re;
 					} catch (Exception e) {
+						e.printStackTrace();
 						throw new IllegalStateException("Failed to schedule new connection.", e);
 					}
 				}
