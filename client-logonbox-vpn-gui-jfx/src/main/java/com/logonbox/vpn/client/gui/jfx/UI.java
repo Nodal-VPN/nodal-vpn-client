@@ -1560,10 +1560,12 @@ public class UI implements BusLifecycleListener {
 		WebEngine engine = webView.getEngine();
 		JSObject jsobj = (JSObject) engine.executeScript("window");
 		jsobj.setMember("bridge", bridge);
-		try {
-			jsobj.setMember("vpn", Main.getInstance().getVPN());
-		} catch (IllegalStateException ise) {
-			/* No bus */
+		if(Main.getInstance().isBusAvailable()) {
+			try {
+				jsobj.setMember("vpn", Main.getInstance().getVPN());
+			} catch (IllegalStateException ise) {
+				/* No bus */
+			}
 		}
 		VPNConnection selectedConnection = getForegroundConnection();
 		jsobj.setMember("connection", selectedConnection);

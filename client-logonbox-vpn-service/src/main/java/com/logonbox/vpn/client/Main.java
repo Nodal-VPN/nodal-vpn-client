@@ -101,6 +101,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 	private Level defaultLogLevel;
 	private ScheduledExecutorService queue = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> connTask;
+	private ScheduledFuture<?> checkTask;
 
 	@Option(names = { "-a", "--address" }, description = "Address of Bus.")
 	private String address;
@@ -297,9 +298,14 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 			conn.sendMessage(message);
 	}
 
-	private void shutdownEmbeddeDaemon() {
+	private void shutdownEmbeddedDaemon() {
+		if (checkTask != null) {
+			checkTask.cancel(false);
+			checkTask = null;
+		}
 		if (daemon != null) {
 			try {
+				log.info("Shutting down embedded dbus daemon.");
 				daemon.close();
 			} catch (IOException e) {
 				log.error("Failed to shutdown DBus service.", e);
@@ -319,23 +325,23 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 		if (SystemUtils.IS_OS_LINUX && !embeddedBus) {
 			if (newAddress != null) {
 				log.info(String.format("Connectin to DBus @%s", newAddress));
-				conn = DBusConnectionBuilder.forAddress(newAddress).withRegisterSelf(true).withShared(true).build();
+				conn = configureBuilder(DBusConnectionBuilder.forAddress(newAddress)).build();
 				log.info(String.format("Ready on DBus @%s", newAddress));
 			} else if (OS.isAdministrator()) {
 				if (sessionBus) {
 					log.info("Per configuration, connecting to Session DBus");
-					conn = DBusConnectionBuilder.forSessionBus().build();
+					conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
 					log.info("Ready on Session DBus");
 					newAddress = conn.getAddress().getRawAddress();
 				} else {
 					log.info("Connecting to System DBus");
-					conn = DBusConnectionBuilder.forSystemBus().build();
+					conn = configureBuilder(DBusConnectionBuilder.forSystemBus()).build();
 					log.info("Ready on System DBus");
 					newAddress = conn.getAddress().getRawAddress();
 				}
 			} else {
 				log.info("Not administrator, connecting to Session DBus");
-				conn = DBusConnectionBuilder.forSessionBus().build();
+				conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
 				log.info("Ready on Session DBus");
 				newAddress = conn.getAddress().getRawAddress();
 			}
@@ -432,7 +438,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 				DBusException lastDbe = null;
 				for (int i = 0; i < 60; i++) {
 					try {
-						conn = DBusConnectionBuilder.forAddress(busAddress.getRawAddress()).build();
+						conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress.getRawAddress())).build();
 						log.info(String.format("Connected to embedded DBus %s", busAddress.getRawAddress()));
 						break;
 					} catch (DBusException dbe) {
@@ -452,7 +458,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 			else {
 
 				log.info(String.format("Connecting to embedded DBus %s", busAddress.getRawAddress()));
-				conn = DBusConnectionBuilder.forAddress(busAddress.getRawAddress()).build();
+				conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress.getRawAddress())).build();
 			}
 
 			/*
@@ -463,7 +469,16 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 			 */
 			if (startedBus) {
 				if (busAddress.getBusType().equals("UNIX")) {
-					FileSecurity.openToEveryone(Paths.get(busAddress.getPath()));
+					var busPath = Paths.get(busAddress.getPath());
+					FileSecurity.openToEveryone(busPath);
+					log.info("Monitoring {}", busPath);
+					checkTask = queue.scheduleAtFixedRate(() -> {
+						if(!Files.exists(busPath)) {
+							log.warn("DBus socket file {} has gone missing, restarting.");
+							shutdownEmbeddedDaemon();
+							disconnectAndRetry();
+						}
+					}, 10, 10, TimeUnit.SECONDS);
 				}
 			}
 		}
@@ -475,18 +490,10 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 		try (FileOutputStream out = new FileOutputStream(dbusPropertiesFile)) {
 			properties.store(out, "LogonBox VPN Client Service");
 		}
-
+		
 		conn.setDisconnectCallback(new IDisconnectCallback() {
 		    public void disconnectOnError(IOException _ex) {
-				log.info("Disconnected from Bus, retrying");
-				conn = null;
-				connTask = queue.schedule(() -> {
-					try {
-						connect();
-						publishDefaultServices();
-					} catch (DBusException | IOException e) {
-					}
-				}, 10, TimeUnit.SECONDS);
+				disconnectAndRetry();
 		    }
 		});
 //		conn.addSigHandler(org.freedesktop.dbus.interfaces.Local.Disconnected.class,
@@ -529,6 +536,24 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 			log.error("Failed to connect to DBus. No remote state monitoring or management.", e);
 			return false;
 		}
+	}
+	
+	private DBusConnectionBuilder configureBuilder(DBusConnectionBuilder builder) {
+		builder.withShared(false);
+		builder.withRegisterSelf(true);
+		return builder;
+	}
+
+	private void disconnectAndRetry() {
+		log.info("Disconnected from Bus, retrying");
+		conn = null;
+		connTask = queue.schedule(() -> {
+			try {
+				connect();
+				publishDefaultServices();
+			} catch (DBusException | IOException e) {
+			}
+		}, 10, TimeUnit.SECONDS);
 	}
 
 	private boolean configureDBus() throws Exception {
@@ -660,7 +685,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 				}
 			}
 			try {
-				shutdownEmbeddeDaemon();
+				shutdownEmbeddedDaemon();
 			}
 			finally {
 				if(busAddress != null) {
