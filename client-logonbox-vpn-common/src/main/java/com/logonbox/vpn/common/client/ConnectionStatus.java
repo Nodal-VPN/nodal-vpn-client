@@ -11,6 +11,8 @@ public interface ConnectionStatus {
 		CONNECTED;	
 	}
 	
+	float getPing();
+	
 	StatusDetail getDetail();
 	
 	Connection getConnection();

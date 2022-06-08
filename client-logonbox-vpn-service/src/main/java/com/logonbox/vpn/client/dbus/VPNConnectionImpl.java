@@ -499,6 +499,12 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	}
 
 	@Override
+	public float getPing() {
+		assertRegistered();
+		return ctx.getClientService().getStatus(connection.getId()).getPing();
+	}
+
+	@Override
 	public long getRx() {
 		assertRegistered();
 		return ctx.getClientService().getStatus(connection.getId()).getDetail().getRx();

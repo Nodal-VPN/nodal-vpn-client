@@ -173,6 +173,12 @@ public abstract class AbstractTray implements AutoCloseable, Tray, BusLifecycleL
 	public void busInitializer(DBusConnection connection) {
 
 		try {
+			connection.addSigHandler(VPN.Refresh.class, new DBusSigHandler<VPN.Refresh>() {
+				@Override
+				public void handle(VPN.Refresh sig) {
+					reload();
+				}
+			});
 			connection.addSigHandler(VPN.ConnectionAdded.class, new DBusSigHandler<VPN.ConnectionAdded>() {
 				@Override
 				public void handle(VPN.ConnectionAdded sig) {

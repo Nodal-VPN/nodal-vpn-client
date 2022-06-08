@@ -92,4 +92,8 @@ public interface ClientService  {
 	void generateKeys(Connection connection);
 
 	boolean isReadOnly();
+
+	boolean isSingleConnection();
+
+	void remotesAvailable();
 }

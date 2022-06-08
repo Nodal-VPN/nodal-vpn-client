@@ -32,7 +32,8 @@
 				</div>
 				<div class="col end-column">
 					<div class="form-check form-switch">
-						<input class="toggle-connection form-check-input" type="checkbox" />
+						<input class="toggle-connection form-check-input" data-conditional="!singleConnection" type="checkbox" />
+                        <input class="toggle-connection form-check-radio" data-conditional="singleConnection" type="radio" />
 					</div>
 				</div>
 			</div>
@@ -42,13 +43,17 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-6 pt-2">
-					<a href="options.html"><i class="fa fa-cogs"></i><span
+					<a href="options.html"><i class="fa fa-cogs d-inline-block mx-2"></i><span
 						data-i18n="options">Options</span></a>
 				</div>
 				<div class="col-6 text-end" data-conditional="!readOnly">
 					<a id="add" href="addLogonBoxVPN.html" class="align-middle"><i
 						class="fa fa-plus-circle fa-3x"></i></a>
 				</div>
+                <div class="col-6 pt-2 text-end" data-conditional="singleConnection">
+                    <a id="disconnect" href="#"><i
+                        class="fa fa-power-off d-inline-block mx-2"></i><span data-i18n="disconnect">Disconnect</span></a>
+                </div>
 			</div>
 		</div>
 	</footer>
@@ -61,6 +66,7 @@
 			$('.row').off('mouseenter');
 			$('.row').off('mouseleave');
 			$('.row').off('click');
+            var totalConnected = 0;
 			try {
 				var connections = bridge.getConnections();
                 var connectionsEl = $('#connections');
@@ -120,6 +126,11 @@
 						textStyle = 'text-success';
 					}
 					
+					var ping = connection.getPing();
+					if(ping != -1) {
+					   subText += 'Ping ' + ( connection.getPing() * 1000 ) + 'ms';
+					}
+					
 					var flag = connection.getFlag(); 
 					if(flag === '' || statusName !== 'DISCONNECTED') {
 						var iconEl = $('<i class="fa ' + iconName + ' ' + textStyle + ' fa-3x"></i>');
@@ -148,6 +159,9 @@
 					}
 
 					connectionEl.appendTo(connectionsEl);
+					
+					if(connected)
+						totalConnected++;
 				}
 			} catch (e) {
 				try {
@@ -165,6 +179,10 @@
 				
 				alert(e);
 			}
+		    if(totalConnected == 0)
+		    	$('#disconnect').hide();
+		    else
+                $('#disconnect').show();
             $('#add').off('mousedown').on('mousedown', function() {
             	$('#add').data('timer', window.setTimeout(function() {
             		
@@ -214,6 +232,9 @@
         }
 
         function uiReady() {
+        	$('#disconnect').off('click').on('click', function() {
+        		bridge.disconnect();
+        	});
             rebuildConnections();
         }
 	</script>

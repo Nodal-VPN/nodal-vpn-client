@@ -10,12 +10,14 @@ public class ConnectionStatusImpl implements ConnectionStatus {
 	private Connection connection;
 	private StatusDetail detail;
 	private String authorizeUri;
+	private float ping;
 
-	public ConnectionStatusImpl(Connection connection, StatusDetail detail, Type status, String authorizeUri) {
+	public ConnectionStatusImpl(Connection connection, float ping, StatusDetail detail, Type status, String authorizeUri) {
 		this.connection = connection;
 		this.status = status;
 		this.detail = detail;
 		this.authorizeUri = authorizeUri;
+		this.ping = ping;
 	}
 
 	@Override
@@ -36,5 +38,10 @@ public class ConnectionStatusImpl implements ConnectionStatus {
 	@Override
 	public StatusDetail getDetail() {
 		return detail;
+	}
+
+	@Override
+	public float getPing() {
+		return ping;
 	}
 }

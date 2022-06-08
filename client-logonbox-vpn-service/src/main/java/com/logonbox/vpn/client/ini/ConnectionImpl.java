@@ -280,7 +280,7 @@ public class ConnectionImpl implements Connection, Serializable {
 
 		String privateKey = interfaceSection.get("PrivateKey");
 		setUserPrivateKey(privateKey);
-		setUserPublicKey(Keys.pubkey(privateKey).getBase64PublicKey());
+		setUserPublicKey(privateKey == null ? null : Keys.pubkey(privateKey).getBase64PublicKey());
 		setPreUp(interfaceSection.containsKey("PreUp") ? String.join("\n", interfaceSection.getAll("PreUp")) : "");
 		setPostUp(interfaceSection.containsKey("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
 		setPreDown(
@@ -512,7 +512,7 @@ public class ConnectionImpl implements Connection, Serializable {
 			peerSection.put("Endpoint", connection.getEndpointAddress() + ":" + connection.getEndpointPort());
 			peerSection.put("PersistentKeepalive", connection.getPersistentKeepalive());
 			if (!connection.getAllowedIps().isEmpty())
-				peerSection.put("AllowedIps", String.join(", ", connection.getAllowedIps()));
+				peerSection.put("AllowedIPs", String.join(", ", connection.getAllowedIps()));
 		}
 
 		ini.store(w);

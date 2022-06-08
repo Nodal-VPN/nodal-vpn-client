@@ -88,6 +88,8 @@ public interface VPNConnection extends DBusInterface {
 	
 	String getOwner();
 	
+	float getPing();
+	
 	long getLastHandshake();
 	
 	long getRx();

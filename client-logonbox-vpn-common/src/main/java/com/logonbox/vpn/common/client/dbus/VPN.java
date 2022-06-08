@@ -12,6 +12,8 @@ import org.freedesktop.dbus.messages.DBusSignal;
 public interface VPN extends DBusInterface {
 	
 	boolean isReadOnly();
+	
+	boolean isSingleConnection();
 
 	void register(String username, boolean interactive, boolean supportsAuthorization);
 
@@ -135,6 +137,13 @@ public interface VPN extends DBusInterface {
 
 		public Long getId() {
 			return id;
+		}
+	}
+
+	public class Refresh extends DBusSignal {
+
+		public Refresh(String path) throws DBusException {
+			super(path);
 		}
 	}
 

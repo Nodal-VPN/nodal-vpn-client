@@ -1,6 +1,7 @@
 package com.logonbox.vpn.client.wireguard;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Collection;
 import java.util.List;
 
@@ -105,5 +106,29 @@ public interface PlatformService<I extends VirtualInetAddress<?>> {
 	 * @return method
 	 */
 	DNSIntegrationMethod dnsMethod();
+	
+	/**
+	 * Ping an an IP address to get latency. {@link Float#MAX_VALUE} will
+	 * be returned if the host is not reachable down. See {@link InetAddress#isReachable(int)}
+	 * for description of how addresses are probed.
+	 * 
+	 * @param address address to ping
+	 * @return latency in seconds
+	 */
+	default float ping(InetAddress address, int timeoutSec) {
+		long now = System.currentTimeMillis();
+		long end = now;
+		try {
+			if(!address.isReachable(timeoutSec * 1000)) {
+				return -1;
+			}
+		} catch (IOException e) {
+			return -1;
+		}
+		finally {
+			end = System.currentTimeMillis();
+		}
+		return (float)((double)(end - now) / 1000d);
+	}
 
 }

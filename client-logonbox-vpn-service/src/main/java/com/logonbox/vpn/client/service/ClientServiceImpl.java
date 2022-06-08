@@ -37,6 +37,7 @@ import javax.net.ssl.SSLHandshakeException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +79,7 @@ public class ClientServiceImpl implements ClientService {
 	protected Map<Connection, VPNSession> activeSessions = new HashMap<>();
 	protected Map<Connection, ScheduledFuture<?>> authorizingClients = new HashMap<>();
 	protected Map<Connection, VPNSession> connectingSessions = new HashMap<>();
+	protected Map<String, Float> pingTimes = new HashMap<>();
 	protected Set<Connection> disconnectingClients = new HashSet<>();
 	protected Set<Connection> temporarilyOffline = new HashSet<>();
 
@@ -119,6 +121,9 @@ public class ClientServiceImpl implements ClientService {
 				context.deregisterFrontEnd(fe.getSource());
 			}
 		}, 5, 5, TimeUnit.SECONDS);
+		timer.scheduleAtFixedRate(() -> {
+			checkPingTimes();
+		}, 1, 1, TimeUnit.MINUTES);
 	}
 
 	@Override
@@ -154,7 +159,7 @@ public class ClientServiceImpl implements ClientService {
 			}
 			if(connectionRepository.isSingleConnection()) {
 				while(activeSessions.size() > 0) {
-					disconnect(activeSessions.values().iterator().next().getConnection(), "Switching to another server.");	
+					disconnect(activeSessions.values().iterator().next().getConnection(), "");	
 				}
 			}
 			connectionRepository.prepare(c);
@@ -921,7 +926,12 @@ public class ClientServiceImpl implements ClientService {
 								e);
 					}
 				}
-				ret.add(new ConnectionStatusImpl(c, status, getStatusType(c), AUTHORIZE_URI));
+				float pingTime = -1;
+				synchronized(pingTimes) {
+					if(pingTimes.containsKey(c.getHostname()))
+						pingTime = pingTimes.get(c.getHostname());
+				}
+				ret.add(new ConnectionStatusImpl(c, pingTime, status, getStatusType(c), AUTHORIZE_URI));
 				added.add(c);
 			}
 		}
@@ -1024,6 +1034,26 @@ public class ClientServiceImpl implements ClientService {
 			log.error("Failed to send message.", e);
 		}
 	}
+	
+	private void checkPingTimes() {
+		var processed = new HashMap<String, Float>();
+		for(Connection c : connectionRepository.getConnections(null)) {
+			if(processed.containsKey(c.getHostname()))
+				continue;
+			try {
+				var address = InetAddress.getByName(c.getHostname());
+				processed.put(c.getHostname(), context.getPlatformService().ping(address, 10));
+			}
+			catch(Exception e) {
+				processed.put(c.getHostname(), -1f);
+			}
+		}
+		synchronized(pingTimes) {
+			pingTimes.clear();
+			pingTimes.putAll(processed);
+		}
+	}
+	
 
 	private void checkValidConnect(Connection c) {
 		synchronized (activeSessions) {
@@ -1171,6 +1201,39 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	public boolean isReadOnly() {
 		return connectionRepository.isReadOnly();
+	}
+
+	@Override
+	public boolean isSingleConnection() {
+		return connectionRepository.isSingleConnection();
+	}
+
+	@Override
+	public void remotesAvailable() {
+		try {
+			var dbus = context.getConnection();
+			for(Connection connection : getConnections(null)) {
+				var path = String.format("/com/logonbox/vpn/%d", connection.getId());
+				if(!isExported(dbus, path)) {
+					dbus.exportObject(path,
+							new VPNConnectionImpl(context, connection));
+				}
+			}
+			context.sendMessage(new VPN.Refresh("/com/logonbox/vpn"));
+		} catch (DBusException e) {
+			throw new IllegalStateException("Failed to create.", e);
+		}
+	}
+	
+	static boolean isExported(DBusConnection connection, String path) {
+		try {
+			// TODO request something like this be added upstream
+			connection.getExportedObject(null, path);
+			return true;
+		}
+		catch(DBusException dbe) {
+			return false;
+		}
 	}
 
 	@Override
