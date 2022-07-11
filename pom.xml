@@ -208,8 +208,8 @@
 					<configuration>
 						<apikey>${googleAPIKey}</apikey>
 						<cacheTag>main</cacheTag>
-						<sourceDirectory>${basedir}/src/main/resources/i18n</sourceDirectory>
-						<targetDirectory>${basedir}/target/classes/i18n</targetDirectory>
+						<sourceDirectory>${basedir}/src/main/resources</sourceDirectory>
+						<targetDirectory>${basedir}/target/classes</targetDirectory>
 						<languages>${hypersocket.translations}</languages>
 						<failOnMissingSourceDir>false</failOnMissingSourceDir>
 						<noTranslatePattern>
