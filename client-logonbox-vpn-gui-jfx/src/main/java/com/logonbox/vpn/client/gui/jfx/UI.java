@@ -1446,7 +1446,7 @@ public class UI implements BusLifecycleListener {
 				if (htmlPage.startsWith("http://") || htmlPage.startsWith("https://")) {
 					
 					var isServer = context.getDBus().getVPN().isMatchesAnyServerURI(htmlPage);
-					var isLBA = htmlPage.indexOf("/api/authenticator/sign");
+					var isLBA = htmlPage.indexOf("app/logonBoxVPNClient");
 					
 					if(isServer) {
 						/* Set the device UUID cookie for all web access */
