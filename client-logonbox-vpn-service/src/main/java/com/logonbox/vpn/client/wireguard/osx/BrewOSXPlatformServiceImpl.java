@@ -336,6 +336,12 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 	}
 
 	@Override
+	protected Collection<VPNSession> onStart(LocalContext ctx, List<VPNSession> sessions) {
+		OSXNetworksetupDNS.get().start(ctx);
+		return super.onStart(ctx, sessions);
+	}
+
+	@Override
 	protected BrewOSXIP onConnect(VPNSession session, Connection configuration) throws IOException {
 		BrewOSXIP ip = null;
 
