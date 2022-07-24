@@ -1,7 +1,10 @@
 package com.logonbox.vpn.common.client;
 
+import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.List;
 
 public interface Connection {
@@ -13,6 +16,10 @@ public interface Connection {
 	Mode getMode();
 	
 	void setMode(Mode mode);
+	
+	void setLastKnownServerIpAddress(String lastKnownServerIpAddress);
+	
+	String getLastKnownServerIpAddress();
 
 	default boolean isTransient() {
 		return getId() == null || getId() < 0;
@@ -70,7 +77,36 @@ public interface Connection {
 
 	void setName(String name);
 
-	String getUri(boolean withUsername);
+	default String getUri(boolean withUsername) {
+		if(getHostname() == null) {
+			try {
+				if(withUsername)
+					return "wg://" + URLEncoder.encode(getUserPublicKey(), "UTF-8") + "@" + getEndpointAddress() + ":" + getEndpointPort();
+			} catch (UnsupportedEncodingException e) {
+			}
+			return "wg://" + getEndpointAddress() + ":" + getEndpointPort();
+		}
+		else {
+			String uri = "https://";
+			uri += getHostname();
+			if (getPort() != 443) {
+				uri += ":" + getPort();
+			}
+			uri += getPath();
+			return uri;
+		}
+	}
+
+	default String getConnectionTestUri(boolean withUsername) {
+		String uri = "https://";
+		var lastKnownServerIpAddress = getLastKnownServerIpAddress();
+		uri += lastKnownServerIpAddress == null || lastKnownServerIpAddress.equals("") ? getHostname() : lastKnownServerIpAddress;
+		if (getPort() != 443) {
+			uri += ":" + getPort();
+		}
+		uri += getPath();
+		return uri;
+	}
 
 	String getUsernameHint();
 
@@ -146,6 +182,11 @@ public interface Connection {
 		try {
 			URI uriObj = Util.getUri(uri);
 			setHostname(uriObj.getHost());
+			try {
+				setLastKnownServerIpAddress(InetAddress.getByName(getHostname()).getHostAddress());
+			}
+			catch(Exception e) {
+			}
 			setPort(uriObj.getPort() >= 0 ? uriObj.getPort() : 443);
 			setPath(uriObj.getPath());
 		} catch (URISyntaxException e) {

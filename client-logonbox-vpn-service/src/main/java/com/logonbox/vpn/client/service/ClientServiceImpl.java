@@ -418,7 +418,7 @@ public class ClientServiceImpl implements ClientService {
 		/* A simple ping first. This is mainly for backwards compatibility with servers
 		 * prior to version 2.3.12. 
 		 */
-		String uri = connection.getUri(false) + "/api/server/ping";
+		String uri = connection.getConnectionTestUri(false) + "/api/server/ping";
 		log.info(String.format("Testing if a connection to %s should be retried using %s.",
 				connection.getDisplayName(), uri));
 		UUID uuid = getUUID(connection.getOwner());
@@ -1051,6 +1051,11 @@ public class ClientServiceImpl implements ClientService {
 				job.open();
 				if (log.isInfoEnabled()) {
 					log.info("Ready to " + connection);
+				}
+				
+				if(Util.setLastKnownServerIpAddress(connection)) {
+					if(!connection.isTransient())
+						connection = doSave(connection);
 				}
 
 				synchronized (activeSessions) {

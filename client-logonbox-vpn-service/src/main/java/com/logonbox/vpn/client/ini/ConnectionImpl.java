@@ -52,6 +52,17 @@ public class ConnectionImpl implements Connection, Serializable {
 	private String preDown;
 	private String postDown;
 	private String error;
+	private String lastKnownServerIpAddress;
+
+	@Override
+	public void setLastKnownServerIpAddress(String lastKnownServerIpAddress) {
+		this.lastKnownServerIpAddress = lastKnownServerIpAddress;
+	}
+
+	@Override
+	public String getLastKnownServerIpAddress() {
+		return lastKnownServerIpAddress;
+	}
 
 	@Override
 	public boolean isRouteAll() {
@@ -243,27 +254,6 @@ public class ConnectionImpl implements Connection, Serializable {
 		out.defaultWriteObject();
 	}
 
-	@Override
-	public String getUri(boolean withUsername) {
-		if(getHostname() == null) {
-			try {
-				if(withUsername)
-					return "wg://" + URLEncoder.encode(getUserPublicKey(), "UTF-8") + "@" + getEndpointAddress() + ":" + getEndpointPort();
-			} catch (UnsupportedEncodingException e) {
-			}
-			return "wg://" + getEndpointAddress() + ":" + getEndpointPort();
-		}
-		else {
-			String uri = "https://";
-			uri += getHostname();
-			if (getPort() != 443) {
-				uri += ":" + getPort();
-			}
-			uri += getPath();
-			return uri;
-		}
-	}
-
 	public ConnectionImpl() {
 	}
 
@@ -304,6 +294,7 @@ public class ConnectionImpl implements Connection, Serializable {
 			setPort(Integer.parseInt(logonBoxSection.get("Port")));
 			if (logonBoxSection.containsKey("MTU"))
 				setMtu(Integer.parseInt(logonBoxSection.get("MTU")));
+			setLastKnownServerIpAddress(logonBoxSection.get("LastKnownServerIpAddress"));
 		}
 
 		/* Peer (them) */
@@ -487,6 +478,8 @@ public class ConnectionImpl implements Connection, Serializable {
 			logonBoxSection.put("Error", connection.getError());
 		if (StringUtils.isNotBlank(connection.getName()))
 			logonBoxSection.put("Name", connection.getName());
+		if (StringUtils.isNotBlank(connection.getLastKnownServerIpAddress()))
+			logonBoxSection.put("LastKnownServerIpAddress", connection.getLastKnownServerIpAddress());
 		logonBoxSection.put("Port", connection.getPort());
 		if (connection.getMtu() > 0)
 			logonBoxSection.put("MTU", connection.getMtu());

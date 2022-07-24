@@ -112,6 +112,19 @@ public class ConnectionImpl implements Connection, Serializable {
     @Column(columnDefinition="varchar(10240)", nullable = true)
 	private String error;
 
+    @Column(columnDefinition="varchar(255)")
+	private String lastKnownServerIpAddress;
+
+	@Override
+	public void setLastKnownServerIpAddress(String lastKnownServerIpAddress) {
+		this.lastKnownServerIpAddress = lastKnownServerIpAddress;
+	}
+
+	@Override
+	public String getLastKnownServerIpAddress() {
+		return lastKnownServerIpAddress;
+	}
+
 	@Override
 	public boolean isRouteAll() {
 		return routeAll;
@@ -281,17 +294,6 @@ public class ConnectionImpl implements Connection, Serializable {
 
 	private void writeObject(ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
-	}
-
-	@Override
-	public String getUri(boolean withUsername) {
-		String uri = "https://";
-		uri += getHostname();
-		if (getPort() != 443) {
-			uri += ":" + getPort();
-		}
-		uri += getPath();
-		return uri;
 	}
 
 	public ConnectionImpl() {
