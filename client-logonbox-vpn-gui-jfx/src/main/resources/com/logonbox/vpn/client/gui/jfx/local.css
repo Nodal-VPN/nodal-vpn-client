@@ -92,3 +92,7 @@ a {
 .grid-striped > .row:nth-of-type(odd) {
     background-color: ${lbvpnBaseInverseRgb};
 }
+
+.iconLink > i.fa {
+	margin-right: 0.5em;
+}
