@@ -3,6 +3,7 @@ package com.logonbox.vpn.client;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.CookieStore;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -56,6 +57,7 @@ import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.ConnectionRepository;
 import com.logonbox.vpn.common.client.ConnectionStatus;
+import com.logonbox.vpn.common.client.CustomCookieStore;
 import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.dbus.VPN;
@@ -136,6 +138,8 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 
 	private VPN vpn;
 
+	private CookieStore cookieStore;
+
 	public static final String ARTIFACT_COORDS = "com.logonbox/client-logonbox-vpn-service";
 
 	public Main() throws Exception {
@@ -152,6 +156,14 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 		} else
 			throw new UnsupportedOperationException(
 					String.format("%s not currently supported.", System.getProperty("os.name")));
+	}
+
+	@Override
+	public CookieStore getCookieStore() {
+		if (cookieStore == null) {
+			cookieStore = new CustomCookieStore();
+		}
+		return cookieStore;
 	}
 
 	public static Main get() {

@@ -68,6 +68,15 @@ a {
     text-decoration: underline;	
 }
 
+.connection-name {
+    font-size: 0.9em;
+	font-weight: bold;
+}
+
+.status, .subText {
+    font-size: 0.8em;
+}
+
 .end-column {
     -ms-flex: 0 0 64px !important;	
     flex: 0 0 64px !important;
@@ -75,10 +84,11 @@ a {
 
 .middle-column {
     min-width: 10em !important;	
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    text-overflow: clip;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 
-.grid-striped .row:nth-of-type(odd) {
+.grid-striped > .row:nth-of-type(odd) {
     background-color: ${lbvpnBaseInverseRgb};
 }

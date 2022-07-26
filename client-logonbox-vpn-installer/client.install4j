@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="9.0.6" transformSequenceNumber="9">
+<install4j version="9.0.7" transformSequenceNumber="9">
   <directoryPresets config="./target" />
   <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" pack200Compression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="16" javaMaxVersion="17" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
@@ -109,7 +109,7 @@
   <launchers>
     <launcher name="logonbox-vpn-service" id="583" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientService">
       <executable name="logonbox-vpn-service" stderrFile="logs/service-forker-launcher.err" redirectStdout="true" stdoutFile="logs/service-forker-launcher.out" failOnStderrOutput="false" executableMode="service" dpiAware="false" />
-      <java mainClass="com.logonbox.vpn.client.Main" vmParameters="-Xmx64m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Djna.nosys=true -Dhypersocket.logConfiguration=conf/log4j-service.properties">
+      <java mainClass="com.logonbox.vpn.client.Main" vmParameters="-Xmx64m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Djna.nosys=true -Dhypersocket.logConfiguration=conf/log4j-service.properties -Djdk.internal.httpclient.disableHostnameVerification=true">
         <classPath>
           <scanDirectory location="service" failOnError="false" />
         </classPath>

@@ -88,4 +88,6 @@ public interface ClientService  {
 	Connection importConfiguration(String owner, String configuration);
 
 	boolean isMatchesAnyServerURI(String owner, String uri);
+
+	Connection getConnectionStatus(Connection connection) throws IOException;
 }
