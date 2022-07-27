@@ -182,9 +182,11 @@ public class CustomCookieStore implements CookieStore {
 
 	private Map<URI, List<CookieWrapper>> cookies = new HashMap<>();
 
+	private File file;
+
 	@SuppressWarnings("unchecked")
-	public CustomCookieStore() {
-		File file = getFile();
+	public CustomCookieStore(File file) {
+		this.file = file;
 		if (file.exists()) {
 			try (ObjectInputStream oin = new ObjectInputStream(new FileInputStream(file))) {
 				cookies = (Map<URI, List<CookieWrapper>>) oin.readObject();
@@ -196,19 +198,14 @@ public class CustomCookieStore implements CookieStore {
 	}
 
 	void save() {
-		File f = getFile();
-		File p = f.getParentFile();
+		File p = file.getParentFile();
 		if (!p.exists() && !p.mkdirs())
 			throw new IllegalStateException("Could not create directory for cookie jar. " + p);
-		try (ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(f))) {
+		try (ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(file))) {
 			oout.writeObject(cookies);
 		} catch (IOException ioe) {
 			throw new IllegalStateException("Could not save cookie jar.", ioe);
 		}
-	}
-
-	public File getFile() {
-		return new File(AbstractDBusClient.CLIENT_HOME, "web-cookies.dat");
 	}
 
 	@Override

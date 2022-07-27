@@ -237,6 +237,12 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	}
 
 	@Override
+	public String getConnectionTestUri(boolean withUsername) {
+		assertRegistered();
+		return connection.getConnectionTestUri(withUsername);
+	}
+
+	@Override
 	public String getUsernameHint() {
 		assertRegistered();
 		return StringUtils.defaultIfBlank(connection.getUsernameHint(), "");

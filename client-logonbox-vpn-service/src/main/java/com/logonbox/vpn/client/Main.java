@@ -161,7 +161,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 	@Override
 	public CookieStore getCookieStore() {
 		if (cookieStore == null) {
-			cookieStore = new CustomCookieStore();
+			cookieStore = new CustomCookieStore(new File(AbstractDBusClient.CLIENT_HOME, "service-cookies.dat"));
 		}
 		return cookieStore;
 	}
