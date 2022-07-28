@@ -1219,14 +1219,14 @@ public class ClientServiceImpl implements ClientService {
 			}
 			
 			/* Check status up front */
-			if(connection.isAuthorized()) {
-				try {
-					connection = getConnectionStatus(connection);
-				}
-				catch(Exception e) {
-					log.error("Failed up-front connection test. Will continue for now.", e);
-				}
-			}
+//			if(connection.isAuthorized()) {
+//				try {
+//					connection = getConnectionStatus(connection);
+//				}
+//				catch(Exception e) {
+//					log.error("Failed up-front connection test. Will continue for now.", e);
+//				}
+//			}
 			
 			try {
 
