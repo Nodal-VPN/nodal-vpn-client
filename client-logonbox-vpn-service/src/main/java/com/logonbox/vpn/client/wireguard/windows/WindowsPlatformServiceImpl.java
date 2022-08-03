@@ -58,7 +58,7 @@ import com.sun.jna.ptr.PointerByReference;
 
 public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<WindowsIP> {
 	
-	public final static String SID_ADMINISTRATORS_GROUP = "S-1-5-32-54";
+	public final static String SID_ADMINISTRATORS_GROUP = "S-1-5-32-544";
 	public final static String SID_WORLD = "S-1-1-0";
 	public final static String SID_USERS = "S-1-5-32-545";
 	public final static String SID_SYSTEM = "S-1-5-18";
