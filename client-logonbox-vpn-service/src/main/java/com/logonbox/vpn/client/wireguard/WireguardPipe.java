@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.logonbox.vpn.client.FileSecurity;
+import com.logonbox.vpn.client.wireguard.windows.WindowsPlatformServiceImpl;
 import com.logonbox.vpn.common.client.Keys;
 import com.logonbox.vpn.common.client.StatusDetail;
 import com.logonbox.vpn.common.client.Util;
@@ -79,12 +80,12 @@ public class WireguardPipe implements StatusDetail {
 
 	protected List<String> command(String command) throws IOException {
 		synchronized (lock) {
-			pipeName = "\\\\.\\pipe\\ProtectedPrefix\\" + FileSecurity.BUNDLE.getString("Administrators") + "\\WireGuard\\" + name;
+			pipeName = "\\\\.\\pipe\\ProtectedPrefix\\" + WindowsPlatformServiceImpl.getBestRealName(WindowsPlatformServiceImpl.SID_ADMINISTRATORS_GROUP, "Administrators") + "\\WireGuard\\" + name;
 			if(LOG.isDebugEnabled())
 				LOG.debug(String.format("Opening named pipe %s", pipeName));
 			List<String> l = new ArrayList<String>();
 			try (Socket pipe = new DefaultPipeFactory()
-					.createPipe("ProtectedPrefix\\Administrators\\WireGuard\\" + name)) {
+					.createPipe("ProtectedPrefix\\" + WindowsPlatformServiceImpl.getBestRealName(WindowsPlatformServiceImpl.SID_ADMINISTRATORS_GROUP, "Administrators") + "\\WireGuard\\" + name)) {
 				try (BufferedReader in = new BufferedReader(new InputStreamReader(pipe.getInputStream()))) {
 					try (OutputStream out = pipe.getOutputStream()) {
 						out.write((command + "\n\n").getBytes("UTF-8"));
