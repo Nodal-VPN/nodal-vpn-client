@@ -100,12 +100,17 @@ public abstract class AbstractDBusClient implements DBusClient {
 				}
 			}
 		});
+	}
+ 
+	protected UpdateService createUpdateService() {
 		try {
-			updateService = new Install4JUpdateServiceImpl(this);
+			 return new Install4JUpdateServiceImpl(this);
 		} catch (Throwable t) {
-			System.out.println("FALLBACK");
-			t.printStackTrace();
-			updateService = new DummyUpdateService(this);
+			if(log.isDebugEnabled())
+				log.info("Failed to create Install4J update service, using dummy service.", t);
+			else
+				log.info("Failed to create Install4J update service, using dummy service. {}", t.getMessage());
+			return new DummyUpdateService(this);
 		}
 	}
 
@@ -117,6 +122,8 @@ public abstract class AbstractDBusClient implements DBusClient {
 	}
 
 	public UpdateService getUpdateService() {
+		if(updateService == null)
+			updateService = createUpdateService();
 		return updateService;
 	}
 
@@ -183,7 +190,8 @@ public abstract class AbstractDBusClient implements DBusClient {
 
 	public void exit() {
 		scheduler.shutdown();
-		updateService.shutdown();
+		if(updateService != null)
+			getUpdateService().shutdown();
 	}
 
 	protected void disconnectFromBus() {
@@ -196,9 +204,9 @@ public abstract class AbstractDBusClient implements DBusClient {
 			getLog().debug("Call to init when already have bus.");
 			return;
 		}
-
+		
 		if (getLog().isDebugEnabled())
-			getLog().debug(String.format("Using update service %s", updateService.getClass().getName()));
+			getLog().debug(String.format("Using update service %s", getUpdateService().getClass().getName()));
 
 		String fixedAddress = getServerDBusAddress(addressFile);
 		if (conn == null || !conn.isConnected() || (StringUtils.isNotBlank(fixedAddress) && !fixedAddress.equals(conn.getAddress().toString()) )) {
@@ -238,7 +246,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 		/* Load the VPN object */
 		loadRemote();
 
-		updateService.checkIfBusAvailable();
+		getUpdateService().checkIfBusAvailable();
 
 		for (BusLifecycleListener i : busLifecycleListeners)
 			i.busInitializer(conn);
@@ -371,7 +379,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 					conn = null;
 				}
 				vpn = null;
-				updateService.checkIfBusAvailable();
+				getUpdateService().checkIfBusAvailable();
 				for (BusLifecycleListener b : busLifecycleListeners) {
 					b.busGone();
 				}

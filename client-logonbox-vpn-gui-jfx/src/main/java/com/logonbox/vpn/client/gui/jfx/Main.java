@@ -3,6 +3,7 @@ package com.logonbox.vpn.client.gui.jfx;
 import java.awt.Taskbar;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 import javax.swing.UIManager;
@@ -17,7 +18,10 @@ import org.slf4j.LoggerFactory;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.ClientPromptingCertManager;
 import com.logonbox.vpn.common.client.HypersocketVersion;
+import com.logonbox.vpn.common.client.NoUpdateService;
 import com.logonbox.vpn.common.client.PromptingCertManager;
+import com.logonbox.vpn.common.client.UpdateService;
+import com.sshtools.forker.client.OSCommand;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -218,6 +222,36 @@ public class Main extends AbstractDBusClient implements Callable<Integer> {
 	public void shutdown() {
 		exit();
 		System.exit(0);
+	}
+
+	@Override
+	protected UpdateService createUpdateService() {
+		if(isElevatableToAdministrator())
+			return super.createUpdateService();
+		else
+			return new NoUpdateService(this);
+	}
+	
+	boolean isElevatableToAdministrator() {
+		if(SystemUtils.IS_OS_WINDOWS) {
+			// TODO
+			throw new UnsupportedOperationException();
+		}
+		else if(SystemUtils.IS_OS_LINUX) {
+			try {
+				return Arrays.asList(String.join(" ", OSCommand.runCommandAndCaptureOutput("id", "-Gn")).split("\\s+")).contains("sudo");
+			} catch (IOException e) {
+				getLog().error("Failed to test for user groups, assuming can elevate.", e);
+			}
+		}
+		else if(SystemUtils.IS_OS_MAC_OSX) {
+			try {
+				return Arrays.asList(String.join(" ", OSCommand.runCommandAndCaptureOutput("id", "-Gn")).split("\\s+")).contains("admin");
+			} catch (IOException e) {
+				getLog().error("Failed to test for user groups, assuming can elevate.", e);
+			}
+		}
+		return true;
 	}
 
 	@Override
