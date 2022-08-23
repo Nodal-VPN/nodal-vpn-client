@@ -58,6 +58,16 @@
             <artifactId>annotations</artifactId>
             <version>15.0</version>
         </dependency>
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna-platform</artifactId>
+			<version>5.12.1</version>
+		</dependency>
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna-platform</artifactId>
+			<version>5.12.1</version>
+		</dependency>
         <dependency>
             <groupId>com.logonbox</groupId>
             <artifactId>client-logonbox-vpn-common</artifactId>
@@ -75,6 +85,16 @@
             <groupId>com.sshtools</groupId>
             <artifactId>forker-client</artifactId>
             <version>1.7-SNAPSHOT</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>net.java.dev.jna</groupId>
+            		<artifactId>jna</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>net.java.dev.jna</groupId>
+            		<artifactId>jna-platform</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -107,6 +127,14 @@
                 <exclusion>
                     <groupId>org.openjfx</groupId>
                     <artifactId>javafx-fxml</artifactId>
+                </exclusion>
+                <exclusion>
+                	<groupId>net.java.dev.jna</groupId>
+                	<artifactId>jna</artifactId>
+                </exclusion>
+                <exclusion>
+                	<groupId>net.java.dev.jna</groupId>
+                	<artifactId>jna-platform</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -149,12 +177,28 @@
             <groupId>com.github.Dansoftowner</groupId>
             <artifactId>jSystemThemeDetector</artifactId>
             <version>3.7</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>net.java.dev.jna</groupId>
+            		<artifactId>jna</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>net.java.dev.jna</groupId>
+            		<artifactId>jna-platform</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>de.jangassen</groupId>
             <artifactId>jfa</artifactId>
             <version>1.2.0</version>
             <optional>true</optional>
+            <exclusions>
+            	<exclusion>
+            		<groupId>net.java.dev.jna</groupId>
+            		<artifactId>jna</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.dorkbox</groupId>
@@ -200,6 +244,14 @@
                 <exclusion>
                     <groupId>org.tukaani</groupId>
                     <artifactId>xz</artifactId>
+                </exclusion>
+                <exclusion>
+                	<groupId>net.java.dev.jna</groupId>
+                	<artifactId>jna</artifactId>
+                </exclusion>
+                <exclusion>
+                	<groupId>net.java.dev.jna</groupId>
+                	<artifactId>jna-platform</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
