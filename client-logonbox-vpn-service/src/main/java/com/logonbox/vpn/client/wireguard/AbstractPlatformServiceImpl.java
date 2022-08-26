@@ -360,7 +360,13 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 		catch(Exception e) {
 			LOG.error("Failed to stop after timeout.", e);
 		}
-		throw new ReauthorizeException(String.format("No handshake received for %s within %d seconds.", ip.getName(), ClientService.CONNECT_TIMEOUT));
+		var endpointName = configuration.getEndpointAddress();
+		try {
+			endpointName = InetAddress.getByName(endpointName).getHostName();
+		}
+		catch(Exception e) {
+		}
+		throw new ReauthorizeException(String.format("No handshake received from %s (%s) for %s within %d seconds.", configuration.getEndpointAddress(), endpointName, ip.getName(), ClientService.CONNECT_TIMEOUT));
 	}
 	
 	protected void write(Connection configuration, Writer writer) {
