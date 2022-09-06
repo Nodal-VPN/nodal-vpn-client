@@ -306,8 +306,8 @@
         
         <!-- Temporarily needed for dbus-java 4.2.1-SNAPSHOT -->
         <repository>
-            <id>ext-snapshots</id>
-            <url>https://artifactory.jadaptive.com/ext-snapshots</url>
+            <id>ext-snapshots-local</id>
+            <url>https://artifactory.jadaptive.com/ext-snapshots-local</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
