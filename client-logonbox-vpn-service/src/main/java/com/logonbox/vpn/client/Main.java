@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
@@ -345,18 +344,18 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 					log.info("Per configuration, connecting to Session DBus");
 					conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
 					log.info("Ready on Session DBus");
-					newAddress = conn.getAddress().getRawAddress();
+					newAddress = conn.getAddress().toString();
 				} else {
 					log.info("Connecting to System DBus");
 					conn = configureBuilder(DBusConnectionBuilder.forSystemBus()).build();
 					log.info("Ready on System DBus");
-					newAddress = conn.getAddress().getRawAddress();
+					newAddress = conn.getAddress().toString();
 				}
 			} else {
 				log.info("Not administrator, connecting to Session DBus");
 				conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
 				log.info("Ready on Session DBus");
-				newAddress = conn.getAddress().getRawAddress();
+				newAddress = conn.getAddress().toString();
 			}
 			
 		} else {
@@ -379,17 +378,17 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 				}
 			}
 
-			busAddress = new BusAddress(newAddress);
-			if (!busAddress.hasGuid()) {
+			busAddress = BusAddress.of(newAddress);
+			if (!busAddress.getParameters().containsKey("guid")) {
 				/* Add a GUID if user supplied bus address without one */
 				newAddress += ",guid=" + Util.genGUID();
-				busAddress = new BusAddress(newAddress);
+				busAddress = BusAddress.of(newAddress);
 			}
 
 			if (busAddress.isListeningSocket()) {
 				/* Strip listen=true to get the address to uses as a client */
 				newAddress = newAddress.replace(",listen=true", "");
-				busAddress = new BusAddress(newAddress);
+				busAddress = BusAddress.of(newAddress);
 			}
 			
 			/* Work around for Windows. We need the domain socket file to be created
@@ -407,7 +406,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 					newAddress = newAddress.replace("path=" + System.getProperty("java.io.tmpdir"),
 							"path=" + vpnAppData.getAbsolutePath().replace('/', '\\') + "\\");
 					log.info(String.format("Adjusting DBus path from %s to %s (%s)", busAddress, newAddress, System.getProperty("java.io.tmpdir")));
-					busAddress = new BusAddress(newAddress);
+					busAddress = BusAddress.of(newAddress);
 				}
 			}
 			else if (SystemUtils.IS_OS_MAC_OSX && busAddress.getBusType().equals("UNIX")) {
@@ -424,21 +423,21 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 					newAddress = newAddress.replace("path=" + System.getProperty("java.io.tmpdir"),
 							"path=" + vpnAppData.getAbsolutePath() + "/");
 					log.info(String.format("Adjusting DBus path from %s to %s (%s)", busAddress, newAddress, System.getProperty("java.io.tmpdir")));
-					busAddress = new BusAddress(newAddress);
+					busAddress = BusAddress.of(newAddress);
 				}
 			}
 
 			boolean startedBus = false;
 			if (daemon == null) {
-				BusAddress listenBusAddress = new BusAddress(newAddress);
+				BusAddress listenBusAddress = BusAddress.of(newAddress);
 				String listenAddress = newAddress;
 				if (!listenBusAddress.isListeningSocket()) {
 					listenAddress = newAddress + ",listen=true";
-					listenBusAddress = new BusAddress(listenAddress);
+					listenBusAddress = BusAddress.of(listenAddress);
 				}
 
 				log.info(String.format("Starting embedded bus on address %s (auth types: %s)",
-						listenBusAddress.getRawAddress(), authMode));
+						listenBusAddress.toString(), authMode));
 				daemon = new EmbeddedDBusDaemon(listenBusAddress);
 				daemon.setSaslAuthMode(authMode);
 				daemon.startInBackground();
@@ -448,14 +447,14 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 //				} catch (InterruptedException e1) {
 //				}
 
-				log.info(String.format("Started embedded bus on address %s", listenBusAddress.getRawAddress()));				
+				log.info(String.format("Started embedded bus on address %s", listenBusAddress));				
 				
-				log.info(String.format("Connecting to embedded DBus %s", busAddress.getRawAddress()));
+				log.info(String.format("Connecting to embedded DBus %s", busAddress));
 				DBusException lastDbe = null;
 				for (int i = 0; i < 60; i++) {
 					try {
-						conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress.getRawAddress())).build();
-						log.info(String.format("Connected to embedded DBus %s", busAddress.getRawAddress()));
+						conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress)).build();
+						log.info(String.format("Connected to embedded DBus %s", busAddress));
 						break;
 					} catch (DBusException dbe) {
 						lastDbe = dbe;
@@ -473,8 +472,8 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 			}
 			else {
 
-				log.info(String.format("Connecting to embedded DBus %s", busAddress.getRawAddress()));
-				conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress.getRawAddress())).build();
+				log.info(String.format("Connecting to embedded DBus %s", busAddress));
+				conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress)).build();
 			}
 
 			/*
@@ -485,7 +484,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 			 */
 			if (startedBus) {
 				if (busAddress.getBusType().equals("UNIX")) {
-					var busPath = Paths.get(busAddress.getPath());
+					var busPath = Paths.get(busAddress.getParameterValue("path"));
 					FileSecurity.openToEveryone(busPath);
 					log.info("Monitoring {}", busPath);
 					checkTask = queue.scheduleAtFixedRate(() -> {
@@ -701,7 +700,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 				if(busAddress != null) {
 					for(int i = 0 ; i < 10 ; i++) {
 						try {
-							Files.delete(Paths.get(busAddress.getPath()));
+							Files.delete(Paths.get(busAddress.getParameterValue("path")));
 							break;
 						} catch (IOException e) {
 							log.warn("Failed to delete bus socket file, trying again.");
