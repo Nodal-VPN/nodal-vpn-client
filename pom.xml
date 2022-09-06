@@ -210,7 +210,7 @@
 						<cacheTag>main</cacheTag>
 						<sourceDirectory>${basedir}/src/main/resources</sourceDirectory>
 						<targetDirectory>${basedir}/target/classes</targetDirectory>
-						<languages>${hypersocket.translations}</languages>
+						<languages>${hypersocket.languages}</languages>
 						<failOnMissingSourceDir>false</failOnMissingSourceDir>
 						<noTranslatePattern>
 							<param><![CDATA[<a.*href.*>.*</a>]]></param>
