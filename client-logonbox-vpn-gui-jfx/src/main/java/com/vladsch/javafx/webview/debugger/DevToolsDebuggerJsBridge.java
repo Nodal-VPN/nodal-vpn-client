@@ -35,14 +35,14 @@ import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.json.JsonValue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -54,7 +54,7 @@ public class DevToolsDebuggerJsBridge {
     final @NotNull DevToolsDebugProxy myDebugger;
     final @Nullable JfxScriptStateProvider myStateProvider;
     @Nullable String myJSEventHandledBy;
-    final Logger LOG = System.getLogger(DevToolsDebuggerJsBridge.class.getName());
+    final Logger LOG = LoggerFactory.getLogger(DevToolsDebuggerJsBridge.class.getName());
 
     private final long myNanos = System.nanoTime();
     private final long myMilliNanos = System.currentTimeMillis() * 1000000;
@@ -116,7 +116,7 @@ public class DevToolsDebuggerJsBridge {
                 myWebView.getEngine().executeScript("markdownNavigator.setJsBridge(window.__MarkdownNavigator);");
             }
         } catch (JSException e) {
-        	LOG.log(Level.WARNING, "jsBridgeHelperScript: exception", e);
+        	LOG.warn("jsBridgeHelperScript: exception", e);
         }
         jsObject.removeMember("__MarkdownNavigator");
     }
@@ -369,7 +369,7 @@ public class DevToolsDebuggerJsBridge {
                 reader.close();
                 inputStream.close();
             } catch (IOException e) {
-            	LOG.log(Level.ERROR, "jsBridgeHelperScript: exception", e);
+            	LOG.error("jsBridgeHelperScript: exception", e);
             }
 
             DevToolsDebuggerJsBridge.this.jsBridgeHelperScriptSuffix(writer);
@@ -400,7 +400,7 @@ public class DevToolsDebuggerJsBridge {
                     sb.append("markdownNavigator.setState(\"").append(entry.getKey()).append("\", ").append(entry.getValue().toString()).append(");\n");
                 }
             } catch (IOException e) {
-            	LOG.log(Level.ERROR, "appendStateString: exception", e);
+            	LOG.error("appendStateString: exception", e);
             }
         }
     }
@@ -473,7 +473,7 @@ public class DevToolsDebuggerJsBridge {
                     myDebuggerServer.log(type, timestamp, args);
                 }
             } catch (Throwable e) {
-            	LOG.log(Level.DEBUG, String.format("[%d] Exception in consoleLog: ", myInstance), e);
+            	LOG.error(String.format("[%d] Exception in consoleLog: ", myInstance), e);
             }
         }
 
@@ -533,7 +533,7 @@ public class DevToolsDebuggerJsBridge {
                             scriptState.put(name, value);
                         }
                     } catch (Throwable e) {
-                    	LOG.log(Level.ERROR, "Failed.", e); 
+                    	LOG.error("Failed.", e); 
                     }
                 }
 

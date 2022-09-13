@@ -32,9 +32,9 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.NotYetConnectedException;
@@ -52,7 +52,7 @@ public class JfxWebSocketServer extends WebSocketServer {
     private Consumer<Throwable> onFailure;
     private Consumer<JfxWebSocketServer> onStart;
     private final AtomicInteger myServerUseCount = new AtomicInteger(0);
-    final Logger LOG = System.getLogger(JfxWebSocketServer.class.getName());
+    final Logger LOG = LoggerFactory.getLogger(JfxWebSocketServer.class.getName());
 
     public JfxWebSocketServer(InetSocketAddress address, @Nullable Consumer<Throwable> onFailure, @Nullable Consumer<JfxWebSocketServer> onStart) {
         super(address, 4);
@@ -74,7 +74,7 @@ public class JfxWebSocketServer extends WebSocketServer {
             return false;
         }
 
-        LOG.log(Level.DEBUG, "sending to " + conn.getRemoteSocketAddress() + ": " + data);
+        LOG.info("sending to " + conn.getRemoteSocketAddress() + ": " + data);
         try {
             conn.send(data);
         } catch (WebsocketNotConnectedException e) {
@@ -92,7 +92,7 @@ public class JfxWebSocketServer extends WebSocketServer {
 
     public void addServer(JfxDebuggerConnector debugServer, int instanceID) {
         String resourceId = instanceID == 0 ? "/" : String.format(WEB_SOCKET_RESOURCE, instanceID);
-        LOG.log(Level.INFO, "Adding debug server " + resourceId);
+        LOG.info("Adding debug server " + resourceId);
         if (myServers.containsKey(resourceId)) {
             throw new IllegalStateException("Resource id " + resourceId + " is already handled by " + myServers.get(resourceId));
         }
@@ -115,7 +115,7 @@ public class JfxWebSocketServer extends WebSocketServer {
             myServers.remove(resourceId);
             int serverUseCount = myServerUseCount.decrementAndGet();
             if (serverUseCount < 0) {
-            	LOG.log(Level.ERROR, "Internal error: server use count <0");
+            	LOG.info("Internal error: server use count <0");
                 myServerUseCount.set(0);
             }
         }
@@ -127,15 +127,13 @@ public class JfxWebSocketServer extends WebSocketServer {
         String resourceId = conn.getResourceDescriptor();
 
         if (!myConnections.containsKey(resourceId)) {
-            System.out.println("new connection to " + conn.getRemoteSocketAddress() + " rejected");
-            LOG.log(Level.DEBUG, "new connection to " + conn.getRemoteSocketAddress() + " rejected");
+            LOG.info("new connection to " + conn.getRemoteSocketAddress() + " rejected");
             conn.close(CloseFrame.REFUSE, "No JavaFX WebView Debugger Instance");
         } else {
             WebSocket otherConn = myConnections.get(resourceId);
             if (otherConn != null) {
                 // We will disconnect the other
-                System.out.println("closing old connection to " + conn.getRemoteSocketAddress());
-                LOG.log(Level.DEBUG, "closing old connection to " + conn.getRemoteSocketAddress());
+                LOG.info("closing old connection to " + conn.getRemoteSocketAddress());
                 otherConn.close(CloseFrame.GOING_AWAY, "New Dev Tools connected");
             }
 
@@ -143,8 +141,7 @@ public class JfxWebSocketServer extends WebSocketServer {
             if (myServers.containsKey(resourceId)) {
                 myServers.get(resourceId).onOpen();
             }
-            System.out.println("new connection to " + conn.getRemoteSocketAddress());
-            LOG.log(Level.DEBUG, "new connection to " + conn.getRemoteSocketAddress());
+            LOG.info("new connection to " + conn.getRemoteSocketAddress());
         }
     }
 
@@ -158,8 +155,7 @@ public class JfxWebSocketServer extends WebSocketServer {
             if (myServers.containsKey(resourceId)) {
                 myServers.get(resourceId).onClosed(code, reason, remote);
             }
-            System.out.println("closed " + conn.getRemoteSocketAddress() + " with exit code " + code + " additional info: " + reason);
-            LOG.log(Level.DEBUG, "closed " + conn.getRemoteSocketAddress() + " with exit code " + code + " additional info: " + reason);
+            LOG.info("closed " + conn.getRemoteSocketAddress() + " with exit code " + code + " additional info: " + reason);
         }
     }
 
@@ -169,17 +165,16 @@ public class JfxWebSocketServer extends WebSocketServer {
 
         if (myServers.containsKey(resourceId)) {
             myServers.get(resourceId).sendMessageToBrowser(message);
-            LOG.log(Level.DEBUG, "received from " + conn.getRemoteSocketAddress() + ": " + message);
+            LOG.info("received from " + conn.getRemoteSocketAddress() + ": " + message);
         } else {
-            System.out.println("connection to " + conn.getRemoteSocketAddress() + " closed");
-            LOG.log(Level.DEBUG, "connection to " + conn.getRemoteSocketAddress() + " closed");
+            LOG.info("connection to " + conn.getRemoteSocketAddress() + " closed");
             conn.close();
         }
     }
 
     @Override
     public void onMessage(WebSocket conn, ByteBuffer message) {
-    	LOG.log(Level.DEBUG, "received ByteBuffer from " + conn.getRemoteSocketAddress());
+    	LOG.info("received ByteBuffer from " + conn.getRemoteSocketAddress());
     }
 
     @Override
@@ -194,9 +189,9 @@ public class JfxWebSocketServer extends WebSocketServer {
     @Override
     public void onError(WebSocket conn, Exception ex) {
         if (conn == null) {
-                LOG.log(Level.DEBUG, "an error occurred on connection null :", ex);
+                LOG.info("an error occurred on connection null :", ex);
         } else {
-                LOG.log(Level.DEBUG, "an error occurred on connection " + conn.getRemoteSocketAddress() + ":", ex);
+                LOG.info("an error occurred on connection " + conn.getRemoteSocketAddress() + ":", ex);
         }
 
         onStart = null;
@@ -215,6 +210,6 @@ public class JfxWebSocketServer extends WebSocketServer {
             onStart = null;
             start.accept(this);
         }
-        LOG.log(Level.DEBUG, "server started successfully");
+        LOG.info("server started successfully");
     }
 }

@@ -30,9 +30,9 @@ import javafx.application.Platform;
 import netscape.javascript.JSObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.net.InetSocketAddress;
 import java.nio.channels.NotYetConnectedException;
 import java.util.HashMap;
@@ -43,7 +43,7 @@ public class DevToolsDebuggerServer implements JfxDebuggerConnector {
 
     final Debugger myDebugger;
     JfxWebSocketServer myServer;
-    final Logger LOG = System.getLogger(DevToolsDebuggerServer.class.getName());
+    final Logger LOG = LoggerFactory.getLogger(DevToolsDebuggerServer.class.getName());
 
     public DevToolsDebuggerServer(@NotNull Debugger debugger, int debuggerPort, final int instanceId, @Nullable Consumer<Throwable> onFailure, @Nullable Runnable onStart) {
         myDebugger = debugger;
@@ -101,7 +101,7 @@ public class DevToolsDebuggerServer implements JfxDebuggerConnector {
             });
 
                 String remoteUrl = getDebugUrl();
-                LOG.log(Level.DEBUG, "Debug session created. Debug URL: " + remoteUrl);
+                LOG.info("Debug session created. Debug URL: " + remoteUrl);
 
             if (onStart != null) {
                 onStart.run();
@@ -124,7 +124,7 @@ public class DevToolsDebuggerServer implements JfxDebuggerConnector {
             Platform.runLater(() -> {
                 Runnable action = () -> {
                         String remoteUrl = getDebugUrl();
-                        LOG.log(Level.DEBUG, "Debug session stopped for URL: " + remoteUrl);
+                        LOG.info("Debug session stopped for URL: " + remoteUrl);
 
                     boolean handled = false;
                     boolean unusedServer;
@@ -141,7 +141,7 @@ public class DevToolsDebuggerServer implements JfxDebuggerConnector {
                         try {
                             myServer.stop(1000);
                             myServer = null;
-                            LOG.log(Level.DEBUG, "WebView debug server shutdown.");
+                            LOG.info("WebView debug server shutdown.");
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         } finally {

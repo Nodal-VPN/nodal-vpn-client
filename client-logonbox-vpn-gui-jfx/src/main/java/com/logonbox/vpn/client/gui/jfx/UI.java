@@ -2015,7 +2015,7 @@ public class UI implements BusLifecycleListener {
 			// can copy debug URL to clipboard
 //             updateDebugOn.run();
 		});
-		startDebugging(null, null);
+//		startDebugging(null, null);
 	}
 
 	@FXML

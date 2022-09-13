@@ -42,12 +42,12 @@ import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.json.JsonValue;
 import javax.swing.SwingUtilities;
 
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,7 +99,7 @@ public class DevToolsDebugProxy implements Debugger, JfxDebuggerProxy, Callback<
     private boolean myIsShuttingDown;
     private HashMap<Integer, BoxedJsObject> myNodeIdMap = new HashMap<>(); // node id to params of DOM.setChildNodes method from webView with "parentId" added to each node and "ordinal" position in parent's children
     private int myRootNodeId = 0; // this is the document node id
-    final Logger LOG = System.getLogger(DevToolsDebugProxy.class.getName());
+    final Logger LOG = LoggerFactory.getLogger(DevToolsDebugProxy.class.getName());
 
     // reflects the last command received for debugger
     // needed so that after pausing for console log stack trace, we can use the same
@@ -188,7 +188,7 @@ public class DevToolsDebugProxy implements Debugger, JfxDebuggerProxy, Callback<
     }
 
     private void logMessage(final String message) {
-    	LOG.log(Level.INFO,message); 
+    	LOG.info(message); 
     }
 
     @Override
