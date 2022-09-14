@@ -91,6 +91,17 @@
         </dependency>
         <dependency>
             <groupId>com.sshtools</groupId>
+            <artifactId>maverick-base</artifactId>
+            <version>3.0.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.whispersystems</groupId>
+            <artifactId>curve25519-java</artifactId>
+            <version>0.5.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sshtools</groupId>
             <artifactId>forker-services</artifactId>
             <version>1.7-SNAPSHOT</version>
             <exclusions>

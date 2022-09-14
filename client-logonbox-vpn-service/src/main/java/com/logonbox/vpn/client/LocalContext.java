@@ -1,5 +1,6 @@
 package com.logonbox.vpn.client;
 
+import java.net.CookieStore;
 import java.util.Collection;
 import java.util.logging.Level;
 
@@ -44,5 +45,7 @@ public interface LocalContext {
 	PromptingCertManager getCertManager();
 
 	SSLParameters getSSLParameters();
+
+	CookieStore getCookieStore();
 	
 }

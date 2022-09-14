@@ -22,13 +22,15 @@
 	            </div>
 	        </div>
 	    </div>
-		<div id="connections" class="container grid-striped">
+		<div id="connections" class="container-fluid grid-striped">
 			<div id="connectionTemplate" class="row connection pt-3 pb-3">
 				<div class="col status-icon end-column"></div>
 				<div class="col middle-column">
-					<strong> <small style="text-overflow: ellipsis;" class="connection-name">Connection Name</small>
-					</strong><br /> <small class="status"></small><br /> <small
-						class="subText"></small>
+				   <div class="container-fluid">
+					    <div class="row"><div class="col connection-name">Connection Name</div></div>
+	                    <div class="row"><div class="col status"></div></div>
+	                    <div class="row"><div class="col subText"></div></div>
+				   </div>
 				</div>
 				<div class="col end-column">
 					<div class="form-check form-switch">
@@ -178,8 +180,8 @@
 			$('.row').off('mouseleave').on('mouseleave', function() {
 				$(this).removeClass('active');
 			});
-            $('.row strong').off('click').on('click', function(evt) {
-                bridge.details(parseInt($(this).parent().parent().attr('data-connection')));
+            $('.row .connection-name').off('click').on('click', function(evt) {
+                bridge.details(parseInt($(this).parent().parent().parent().parent().attr('data-connection')));
                 evt.preventDefault();
             });
 			$('.row').off('dblclick').on('dblclick', function(evt) {
