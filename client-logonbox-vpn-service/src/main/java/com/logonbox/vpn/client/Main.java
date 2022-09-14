@@ -338,6 +338,7 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 		String newAddress = address;
 		var log = getLog();
 		if (SystemUtils.IS_OS_LINUX && !embeddedBus) {
+			log.info("Will use built-in Linux DBus");
 			if (newAddress != null) {
 				log.info(String.format("Connectin to DBus @%s", newAddress));
 				conn = configureBuilder(DBusConnectionBuilder.forAddress(newAddress)).build();
@@ -362,6 +363,7 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 			}
 			
 		} else {
+			log.info(String.format("Creating new DBus broker. Initial address is %s", StringUtils.isBlank(newAddress) ? "BLANK" : newAddress));
 			if (newAddress == null) {
 				/*
 				 * If no user supplied bus address, create one for an embedded daemon. All
@@ -372,9 +374,11 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 				if (!tcpBus || unixBus) {
 					log.info("Using UNIX domain socket bus");
 					newAddress = TransportBuilder.createDynamicSession("unix", true);
+					log.info(String.format("DBus-Java gave us %s", newAddress));
 				} else {
 					log.info("Using TCP bus");
 					newAddress = TransportBuilder.createDynamicSession("tcp", true);
+					log.info(String.format("DBus-Java gave us %s", newAddress));
 				}
 			}
 
