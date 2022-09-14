@@ -53,6 +53,7 @@ import com.logonbox.vpn.common.client.ConnectionStatus;
 import com.logonbox.vpn.common.client.ConnectionStatus.Type;
 import com.logonbox.vpn.common.client.Keys;
 import com.logonbox.vpn.common.client.Keys.KeyPair;
+import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.StatusDetail;
 import com.logonbox.vpn.common.client.UserCancelledException;
 import com.logonbox.vpn.common.client.Util;
@@ -403,6 +404,7 @@ public class ClientServiceImpl implements ClientService {
 	public IOException getConnectionError(Connection connection) {
 		
 		HttpClient client = HttpClient.newBuilder()
+				.sslParameters(context.getSSLParameters())
 				.sslContext(context.getSSLContext())
 		        .version(Version.HTTP_1_1)
 		        .followRedirects(Redirect.NORMAL)
@@ -811,7 +813,7 @@ public class ClientServiceImpl implements ClientService {
 		
 		timer.scheduleWithFixedDelay(() -> {
 			try {
-				resolveRemoteDependencies(Util.checkEndsWithSlash(getExtensionStoreRoot()) + "api/store/repos2",
+				resolveRemoteDependencies(context.getCertManager(), Util.checkEndsWithSlash(getExtensionStoreRoot()) + "api/store/repos2",
 						new String[] { "logonbox-vpn-client" }, HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-service"), HypersocketVersion.getSerial(),
 						"VPN Client", getCustomerInfo(), "CLIENT_SERVICE");
 			} catch (Exception e) {
@@ -1144,10 +1146,11 @@ public class ClientServiceImpl implements ClientService {
 		return url.endsWith("/") ? url : url + "/";
 	}
 
-	public static void resolveRemoteDependencies(String url, String[] repos, String version, String serial,
+	public static void resolveRemoteDependencies(PromptingCertManager certManager, String url, String[] repos, String version, String serial,
 			String product, String customer, String... targets) throws IOException {
 
 		HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2)
+				.sslContext(certManager.getSSLContext()).sslParameters(certManager.getSSLParameters())
 				.connectTimeout(Duration.ofSeconds(15)).followRedirects(HttpClient.Redirect.NORMAL).build();
 		try {
 

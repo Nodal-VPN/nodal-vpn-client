@@ -236,7 +236,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer>, IV
 				cli.getConsole().flush();
 
 			}
-		});
+		}, getCLI().getCertManager());
 		sc.register(connection);
 	}
 }

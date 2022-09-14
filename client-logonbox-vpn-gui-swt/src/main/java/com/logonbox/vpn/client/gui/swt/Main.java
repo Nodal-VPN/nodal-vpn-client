@@ -3,12 +3,12 @@ package com.logonbox.vpn.client.gui.swt;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
-import java.util.prefs.Preferences;
 
 import org.eclipse.swt.widgets.Display;
 import org.freedesktop.dbus.exceptions.DBusException;
 
 import com.logonbox.vpn.common.client.AbstractUpdateableDBusClient;
+import com.logonbox.vpn.common.client.ClientPromptingCertManager;
 import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.dbus.RemoteUI;
@@ -196,7 +196,7 @@ public class Main extends AbstractUpdateableDBusClient implements Callable<Integ
 
 	@Override
 	protected PromptingCertManager createCertManager() {
-		return new PromptingCertManager(Client.BUNDLE) {
+		return new ClientPromptingCertManager(Client.BUNDLE, this) {
 
 			@Override
 			protected boolean isToolkitThread() {
@@ -207,13 +207,12 @@ public class Main extends AbstractUpdateableDBusClient implements Callable<Integ
 			protected void runOnToolkitThread(Runnable r) {
 				display.asyncExec(r);
 			}
-
+			
 			@Override
-			protected boolean promptForCertificate(PromptType alertType, String title, String content, String key,
-					String hostname, String message, Preferences preference) {
-				return client.promptForCertificate(alertType, title, content, key, hostname, message, preference);
+			public boolean promptForCertificate(PromptType alertType, String title,
+					String content, String key, String hostname, String message) {
+				return client.promptForCertificate(alertType, title, content, key, hostname, message, this);
 			}
-
 		};
 	}
 

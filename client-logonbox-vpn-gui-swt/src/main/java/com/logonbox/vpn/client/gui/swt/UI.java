@@ -338,7 +338,7 @@ public class UI implements BusLifecycleListener {
 			ServiceClientAuthenticator authenticator = new ServiceClientAuthenticator(main, display, context, browser,
 					authorizedLock);
 			jsobj.put("authenticator", authenticator);
-			final ServiceClient serviceClient = new ServiceClient(main.getCookieStore(), authenticator);
+			final ServiceClient serviceClient = new ServiceClient(main.getCookieStore(), authenticator, main.getCertManager());
 			jsobj.put("serviceClient", serviceClient);
 			jsobj.put("register", new Register(display, pageModel.getConnection(), serviceClient, this));
 			return jsobj;

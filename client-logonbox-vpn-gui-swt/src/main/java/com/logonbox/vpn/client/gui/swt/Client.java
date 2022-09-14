@@ -17,7 +17,6 @@ import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.prefs.Preferences;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -47,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.CustomCookieStore;
+import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.PromptingCertManager.PromptType;
 import com.logonbox.vpn.common.client.api.Branding;
 import com.logonbox.vpn.common.client.dbus.RemoteUI;
@@ -525,7 +525,7 @@ public class Client implements RemoteUI {
 	}
 
 	protected boolean promptForCertificate(PromptType alertType, String title, String content, String key,
-			String hostname, String message, Preferences preference) {
+			String hostname, String message, PromptingCertManager mgr) {
 		var alert = new TitledMessageBoxWithCheckbox(shell) {
 			@Override
 			protected void createButtonsForButtonBar(Composite parent) {
@@ -551,7 +551,7 @@ public class Client implements RemoteUI {
 				return alert.getReturnCode() == TitledMessageBox.OK;
 			}
 		} finally {
-			preference.putBoolean(key, true);
+			mgr.save(key);
 		}
 		return false;
 	}

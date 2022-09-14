@@ -71,10 +71,63 @@ public interface VPN extends DBusInterface {
 	int getActiveButNonPersistentConnections();
 
 	void deregister();
+	
+	boolean isCertAccepted(String encodedKey);
+	
+	void acceptCert(String encodedKey);
+	
+	void rejectCert(String encodedKey);
+	
+	void saveCert(String encodedKey);
 
 	String[] getKeys();
 
 //
+	public class CertificatePrompt extends DBusSignal {
+
+		private final String alertType;
+		private final String title;
+		private final String content;
+		private final String key;
+		private final String hostname;
+		private final String message;
+
+		public CertificatePrompt(String path, String alertType, String title, String content, String key,
+				String hostname, String message) throws DBusException {
+			super(path, alertType, title, content, key,
+					hostname, message);
+			this.alertType = alertType;
+			this.title = title;
+			this.content = content;
+			this.hostname = hostname;
+			this.message = message;
+			this.key = key;
+		}
+
+		public String getAlertType() {
+			return alertType;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public String getContent() {
+			return content;
+		}
+
+		public String getKey() {
+			return key;
+		}
+
+		public String getHostname() {
+			return hostname;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+	}
 
 	@Reflectable
 	@TypeReflect(methods = true, constructors = true)

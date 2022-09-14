@@ -21,7 +21,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.goxr3plus.fxborderlessscene.borderless.BorderlessScene;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.CustomCookieStore;
+import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.api.Branding;
 import com.logonbox.vpn.common.client.api.BrandingInfo;
 import com.logonbox.vpn.common.client.dbus.RemoteUI;
@@ -488,14 +489,14 @@ public class Client extends Application implements RemoteUI {
 	}
 
 	protected boolean promptForCertificate(AlertType alertType, String title, String content, String key,
-			String hostname, String message, Preferences preference) {
+			String hostname, String message, PromptingCertManager mgr) {
 		ButtonType reject = new ButtonType(BUNDLE.getString("certificate.confirm.reject"));
 		ButtonType accept = new ButtonType(BUNDLE.getString("certificate.confirm.accept"));
 		Alert alert = createAlertWithOptOut(alertType, title, BUNDLE.getString("certificate.confirm.header"),
 				MessageFormat.format(content, hostname, message),
 				BUNDLE.getString("certificate.confirm.savePermanently"), param -> {
 					if (param)
-						preference.putBoolean(key, true);
+						mgr.save(key);
 				}, accept, reject);
 		alert.initModality(Modality.APPLICATION_MODAL);
 		Stage stage = getStage();
