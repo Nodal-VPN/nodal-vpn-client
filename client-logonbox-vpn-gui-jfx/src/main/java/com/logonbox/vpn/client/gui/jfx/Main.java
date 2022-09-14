@@ -25,9 +25,13 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
+import  com.sun.jna.platform.win32.Advapi32Util;
+
 @Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.")
 public class Main extends AbstractUpdateableDBusClient implements Callable<Integer> {
 
+	
+	public final static String SID_ADMINISTRATORS_GROUP = "S-1-5-32-544";
 	/**
 	 * Used to get version from Maven meta-data
 	 */
@@ -171,8 +175,12 @@ public class Main extends AbstractUpdateableDBusClient implements Callable<Integ
 	
 	boolean isElevatableToAdministrator() {
 		if(SystemUtils.IS_OS_WINDOWS) {
-			// TODO
-			throw new UnsupportedOperationException();
+			for(var grp : Advapi32Util.getCurrentUserGroups()) {
+				if(SID_ADMINISTRATORS_GROUP.equals(grp.sidString)) {
+					return true;
+				}
+			}
+			return false;
 		}
 		else if(SystemUtils.IS_OS_LINUX) {
 			try {
