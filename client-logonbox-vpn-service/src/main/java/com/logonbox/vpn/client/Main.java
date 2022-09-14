@@ -105,6 +105,7 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 	private EmbeddedDBusDaemon daemon;
 	private ScheduledExecutorService queue = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> connTask;
+	private ScheduledFuture<?> checkTask;
 
 	@Option(names = { "-a", "--address" }, description = "Address of Bus.")
 	private String address;
@@ -299,9 +300,14 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 			conn.sendMessage(message);
 	}
 
-	private void shutdownEmbeddeDaemon() {
+	private void shutdownEmbeddedDaemon() {
+		if (checkTask != null) {
+			checkTask.cancel(false);
+			checkTask = null;
+		}
 		if (daemon != null) {
 			try {
+				log.info("Shutting down embedded dbus daemon.");
 				daemon.close();
 			} catch (IOException e) {
 				getLog().error("Failed to shutdown DBus service.", e);
@@ -466,7 +472,16 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 			 */
 			if (startedBus) {
 				if (busAddress.getBusType().equals("UNIX")) {
-					FileSecurity.openToEveryone(Paths.get(busAddress.getPath()));
+					var busPath = Paths.get(busAddress.getPath());
+					FileSecurity.openToEveryone(busPath);
+					log.info("Monitoring {}", busPath);
+					checkTask = queue.scheduleAtFixedRate(() -> {
+						if(!Files.exists(busPath)) {
+							log.warn("DBus socket file {} has gone missing, restarting.");
+							shutdownEmbeddedDaemon();
+							disconnectAndRetry();
+						}
+					}, 10, 10, TimeUnit.SECONDS);
 				}
 			}
 		}
@@ -478,18 +493,10 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 		try (FileOutputStream out = new FileOutputStream(dbusPropertiesFile)) {
 			properties.store(out, "LogonBox VPN Client Service");
 		}
-
+		
 		conn.setDisconnectCallback(new IDisconnectCallback() {
 		    public void disconnectOnError(IOException _ex) {
-		    	log.info("Disconnected from Bus, retrying");
-				conn = null;
-				connTask = queue.schedule(() -> {
-					try {
-						connect();
-						publishDefaultServices();
-					} catch (DBusException | IOException e) {
-					}
-				}, 10, TimeUnit.SECONDS);
+				disconnectAndRetry();
 		    }
 		});
 //		conn.addSigHandler(org.freedesktop.dbus.interfaces.Local.Disconnected.class,
@@ -532,6 +539,24 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 			log.error("Failed to connect to DBus. No remote state monitoring or management.", e);
 			return false;
 		}
+	}
+	
+	private DBusConnectionBuilder configureBuilder(DBusConnectionBuilder builder) {
+		builder.withShared(false);
+		builder.withRegisterSelf(true);
+		return builder;
+	}
+
+	private void disconnectAndRetry() {
+		log.info("Disconnected from Bus, retrying");
+		conn = null;
+		connTask = queue.schedule(() -> {
+			try {
+				connect();
+				publishDefaultServices();
+			} catch (DBusException | IOException e) {
+			}
+		}, 10, TimeUnit.SECONDS);
 	}
 
 	private boolean configureDBus() throws Exception {
@@ -673,7 +698,7 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 				}
 			}
 			try {
-				shutdownEmbeddeDaemon();
+				shutdownEmbeddedDaemon();
 			}
 			finally {
 				if(busAddress != null) {

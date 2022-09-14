@@ -278,6 +278,12 @@ public abstract class AbstractDBusClient extends AbstractApp implements DBusClie
 		/* Create cert manager */
 		getLog().info(String.format("Cert manager: %s", getCertManager()));
 	}
+	
+	protected DBusConnectionBuilder configureBuilder(DBusConnectionBuilder builder) {
+		builder.withShared(false);
+		builder.withRegisterSelf(true);
+		return builder;
+	}
 
 	protected void onInit() {
 	}
@@ -391,46 +397,48 @@ public abstract class AbstractDBusClient extends AbstractApp implements DBusClie
 		synchronized (initLock) {
 			cancelPingTask();
 
-			try {
-				if (busAvailable) {
-					busAvailable = false;
-					vpn = null;
-					if (conn != null) {
-						conn.disconnect();
-						conn = null;
-					}
-					if (altConn != null) {
-						altConn.disconnect();
-						altConn = null;
-					}
-					onBusGone();
-					for (BusLifecycleListener b : busLifecycleListeners) {
-						b.busGone();
-					}
-				}
-			} catch (Exception e) {
-			} finally {
-
-				/*
-				 * Only really likely to happen with the embedded bus. As the service itself
-				 * hosts it.
-				 */
-				scheduler.schedule(() -> {
-					synchronized (initLock) {
+			if (busAvailable) {
+				
+				busAvailable = false;
+				if (conn != null) {
+					if(certPromptHandler != null) {
 						try {
-							init();
-						} catch (DBusException | ServiceUnknown dbe) {
-							if (getLog().isDebugEnabled())
-								getLog().debug("Init() failed, retrying");
-							busGone();
-						} catch (RuntimeException re) {
-							throw re;
-						} catch (Exception e) {
-							throw new IllegalStateException("Failed to schedule new connection.", e);
+							conn.removeSigHandler(VPN.CertificatePrompt.class, vpn,
+									certPromptHandler);
+						} catch (DBusException e) {
 						}
 					}
-				}, 5, TimeUnit.SECONDS);
+					conn.disconnect();
+					conn = null;
+				}
+				vpn = null;
+				updateService.checkIfBusAvailable();
+				for (BusLifecycleListener b : busLifecycleListeners) {
+					b.busGone();
+				}
 			}
+
+			/*
+			 * Only really likely to happen with the embedded bus. As the service itself
+			 * hosts it.
+			 */
+			scheduler.schedule(() -> {
+				synchronized (initLock) {
+					try {
+						init();
+					} catch (DBusException | ServiceUnknown dbe) {
+						if (getLog().isDebugEnabled())
+							getLog().debug("Init() failed, retrying");
+						busGone();
+					} catch (RuntimeException re) {
+						re.printStackTrace();
+						throw re;
+					} catch (Exception e) {
+						e.printStackTrace();
+						throw new IllegalStateException("Failed to schedule new connection.", e);
+					}
+				}
+			}, 5, TimeUnit.SECONDS);
 		}
 	}
 
