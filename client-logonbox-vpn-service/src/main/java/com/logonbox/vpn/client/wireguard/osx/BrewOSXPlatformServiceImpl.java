@@ -158,7 +158,6 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 	}
 	
 	protected void checkWGCommand() {
-		boolean reextract = false;
 		/* It is possible the temp directory these are stored gets cleaned out
 		 * by OS at some point. Re-extract if this appears to happen.
 		 */
