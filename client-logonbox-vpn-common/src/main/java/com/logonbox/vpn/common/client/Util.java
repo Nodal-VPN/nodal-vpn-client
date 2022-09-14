@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -212,9 +213,21 @@ public class Util {
 		}
 
 		connection.setHostname(uriObj.getHost());
+		setLastKnownServerIpAddress(connection);
 		connection.setPort(uriObj.getPort() <= 0 ? 443 : uriObj.getPort());
 		connection.setConnectAtStartup(false);
 		connection.setPath(uriObj.getPath());
+	}
+
+	public static boolean setLastKnownServerIpAddress(Connection connection) {
+		var was = connection.getLastKnownServerIpAddress();
+		try {
+			connection.setLastKnownServerIpAddress(InetAddress.getByName(connection.getHostname()).getHostAddress());
+		}
+		catch(Exception e) {
+			connection.setLastKnownServerIpAddress(null);
+		}
+		return !Objects.equals(was, connection.getLastKnownServerIpAddress());
 	}
 
 	public static URI getUri(String uriString) throws URISyntaxException {
