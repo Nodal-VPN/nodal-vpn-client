@@ -162,7 +162,7 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 			/* It is possible the temp directory these are stored gets cleaned out
 			 * by OS at some point. Re-extract if this appears to happen.
 			 */
-			if(!Files.exists(wgCommandPath)) {
+			if(!Files.exists(wgCommandPath) || !Files.isReadable(wgCommandPath)) {
 				wgCommandPath = null;
 				LOG.warn("It looks like the Wireguard binaries have disappeared. Attempting to re-extract.");
 				extractExecutables();
