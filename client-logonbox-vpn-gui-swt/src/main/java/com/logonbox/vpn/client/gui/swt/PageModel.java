@@ -557,7 +557,9 @@ visit(document);
 
 	private void disposeJavascript() {
 		if (jsobj != null) {
+			LOG.info("Disposing previous jsobj");
 			jsobj.dispose();
+			LOG.info("Disposed previous jsobj");
 			jsobj = null;
 		}
 	}

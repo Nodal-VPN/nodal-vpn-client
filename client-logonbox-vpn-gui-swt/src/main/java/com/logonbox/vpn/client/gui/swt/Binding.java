@@ -190,15 +190,32 @@ public class Binding {
 				var l = new ArrayList<Object>();
 				for (int i = 0; i < arguments.length; i++) {
 					var o = arguments[i];
-					if (method.getParameters()[i].getType().equals(JsonObject.class)) {
+					var param = method.getParameters()[i];
+					Class<?> ptype = param.getType();
+					if((ptype == int.class || ptype.equals(Integer.class)) && o instanceof Number) {
+						l.add(((Number)o).intValue());
+					}
+					else if((ptype == float.class || ptype.equals(Float.class)) && o instanceof Number) {
+						l.add(((Number)o).floatValue());
+					}
+					else if((ptype == double.class || ptype.equals(Double.class)) && o instanceof Number) {
+						l.add(((Number)o).doubleValue());
+					}
+					else if(( ptype.equals(Long.class) || ptype.equals(long.class) ) && o instanceof Number) {
+						l.add(((Number)o).longValue());
+					}
+					else if((ptype ==short.class || ptype.equals(Short.class)) && o instanceof Number) {
+						l.add(((Number)o).shortValue());
+					}
+					else if (ptype.equals(JsonObject.class)) {
 						l.add(JsonParser.parseString((String) o).getAsJsonObject());
 					} else
 						l.add(o);
 				}
 				return checkObject(method.invoke(object, l.toArray(new Object[0])));
 			} catch (Exception e) {
-				LOG.error("Failed to execute Java method from Javascript.", e);
-				throw new IllegalStateException("Failed to execute Java method from Javascript.", e);
+				LOG.error("Failed to execute Java method " + method.getName() + "' from Javascript.", e);
+				throw new IllegalStateException("Failed to execute Java method '" + method.getName() + "' from Javascript.", e);
 			}
 		}
 

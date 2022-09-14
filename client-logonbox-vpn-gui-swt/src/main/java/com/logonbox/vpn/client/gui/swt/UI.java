@@ -1391,13 +1391,15 @@ public class UI implements BusLifecycleListener {
 
 	private void processDOM(URL url, Document doc, boolean workOnDocument) {
 		if (workOnDocument)
-			LOG.info("Processing DOM, output to DOM");
+			LOG.info("Processing DOM, output to DOM on thread " + Thread.currentThread().getName());
 		else
-			LOG.info("Processing DOM, output as Javascript");
+			LOG.info("Processing DOM, output as Javascript on thread " + Thread.currentThread().getName());
 		pageModel.setDocument(doc);
 		pageModel.setUrl(url);
 		pageModel.setConnection(getForegroundConnection());
+		LOG.info("Setup DOM processing");
 		pageModel.process(workOnDocument);
+		LOG.info("Processed DOM");
 	}
 
 	private void connectToUri(String unprocessedUri) {
