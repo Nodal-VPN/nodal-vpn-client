@@ -531,7 +531,7 @@ public class ClientServiceImpl implements ClientService {
 						return save(connection);
 					}
 					else {
-						log.info("Server appeared to be a 2.4.0 server, but it did not response to a configuration update request.");
+						log.info("Server appeared to be a 2.4.0 server, but it did not response to a configuration update request. Assuming no config change.");
 					}
 				}
 				return connection;
@@ -1216,8 +1216,14 @@ public class ClientServiceImpl implements ClientService {
 			}
 			
 			/* Check status up front */
-			if(connection.isAuthorized())
-				connection = getConnectionStatus(connection);
+			if(connection.isAuthorized()) {
+				try {
+					connection = getConnectionStatus(connection);
+				}
+				catch(Exception e) {
+					log.error("Failed up-front connection test. Will continue for now.", e);
+				}
+			}
 			
 			try {
 
