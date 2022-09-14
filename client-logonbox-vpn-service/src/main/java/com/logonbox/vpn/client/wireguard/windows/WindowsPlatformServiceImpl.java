@@ -29,6 +29,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.logonbox.vpn.client.FileSecurity;
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.service.ClientService;
 import com.logonbox.vpn.client.service.VPNSession;
@@ -47,6 +48,7 @@ import com.sshtools.forker.services.Services;
 import com.sshtools.forker.services.impl.Win32ServiceService;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Advapi32;
+import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinNT;
@@ -55,6 +57,11 @@ import com.sun.jna.platform.win32.Winsvc.SC_HANDLE;
 import com.sun.jna.ptr.PointerByReference;
 
 public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<WindowsIP> {
+	
+	public final static String SID_ADMINISTRATORS_GROUP = "S-1-5-32-54";
+	public final static String SID_WORLD = "S-1-1-0";
+	public final static String SID_USERS = "S-1-5-32-545";
+	public final static String SID_SYSTEM = "S-1-5-18";
 
 	public static final String TUNNEL_SERVICE_NAME_PREFIX = "LogonBoxVPNTunnel";
 
@@ -73,6 +80,20 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 
 	public static Preferences getInterfacesNode() {
 		return getPreferences().node("interfaces");
+	}
+	
+	public static String getBestRealName(String sid, String name) {
+		try {
+			if(sid == null)
+				throw new NullPointerException();
+			var acc = Advapi32Util.getAccountBySid(sid);
+			return acc.name;
+		}
+		catch(Exception e) {
+			/* Fallback to i18n */
+			LOG.warn("Falling back to I18N strings to determine best real group name for {}", name);
+			return FileSecurity.BUNDLE.getString(name);
+		}
 	}
 
 	public static Preferences getPreferences() {

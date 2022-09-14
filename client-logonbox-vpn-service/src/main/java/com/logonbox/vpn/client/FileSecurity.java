@@ -21,6 +21,7 @@ import org.freedesktop.dbus.utils.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.logonbox.vpn.client.wireguard.windows.WindowsPlatformServiceImpl;
 import com.sshtools.forker.common.OS;
 import com.sun.jna.Platform;
 
@@ -54,12 +55,12 @@ public class FileSecurity {
 				List<AclEntry> acl = new ArrayList<>();
 				if (OS.isAdministrator()) {
 					try {
-						acl.add(set(true, path, "Administrators", AclEntryType.ALLOW, AclEntryPermission.values()));
+						acl.add(set(true, path, "Administrators", WindowsPlatformServiceImpl.SID_ADMINISTRATORS_GROUP, AclEntryType.ALLOW, AclEntryPermission.values()));
 					} catch (Throwable upnfe2) {
 						log.debug("Failed to add administrators permission.", upnfe2);
 					}
 					try {
-						acl.add(set(true, path, "SYSTEM", AclEntryType.ALLOW, AclEntryPermission.values()));
+						acl.add(set(true, path, "SYSTEM", WindowsPlatformServiceImpl.SID_SYSTEM, AclEntryType.ALLOW, AclEntryPermission.values()));
 					} catch (Throwable upnfe2) {
 						log.debug("Failed to add administrators permission.", upnfe2);
 					}
@@ -85,23 +86,23 @@ public class FileSecurity {
 			List<AclEntry> acl = new ArrayList<>();
 			if (OS.isAdministrator()) {
 				try {
-					acl.add(set(true, path, "Administrators", AclEntryType.ALLOW, AclEntryPermission.values()));
+					acl.add(set(true, path, "Administrators", WindowsPlatformServiceImpl.SID_ADMINISTRATORS_GROUP, AclEntryType.ALLOW, AclEntryPermission.values()));
 				} catch (Throwable upnfe2) {
 					log.debug("Failed to add administrators permission.", upnfe2);
 				}
 				try {
-					acl.add(set(true, path, "SYSTEM", AclEntryType.ALLOW, AclEntryPermission.values()));
+					acl.add(set(true, path, "SYSTEM", WindowsPlatformServiceImpl.SID_SYSTEM, AclEntryType.ALLOW, AclEntryPermission.values()));
 				} catch (Throwable upnfe2) {
 					log.debug("Failed to add administrators permission.", upnfe2);
 				}
 			}
 			try {
-				acl.add(set(true, path, "Everyone", AclEntryType.ALLOW, AclEntryPermission.READ_DATA,
+				acl.add(set(true, path, "Everyone", WindowsPlatformServiceImpl.SID_WORLD, AclEntryType.ALLOW, AclEntryPermission.READ_DATA,
 						AclEntryPermission.WRITE_DATA));
 			} catch (Throwable upnfe) {
 			}
 			try {
-				acl.add(set(true, path, "Users", AclEntryType.ALLOW, AclEntryPermission.READ_DATA,
+				acl.add(set(true, path, "Users", WindowsPlatformServiceImpl.SID_USERS, AclEntryType.ALLOW, AclEntryPermission.READ_DATA,
 						AclEntryPermission.WRITE_DATA));
 			} catch (Throwable upnfe2) {
 			}
@@ -119,10 +120,10 @@ public class FileSecurity {
 					"Cannot open permissions for %s on this platform, clients may not be able to connect.", path));
 	}
 
-	protected static AclEntry set(boolean asGroup, Path path, String name, AclEntryType type,
+	protected static AclEntry set(boolean asGroup, Path path, String name, String sid,  AclEntryType type,
 			AclEntryPermission... perms) throws IOException {
 		try {
-			return perms(asGroup, path, name, type, perms);
+			return perms(asGroup, path, WindowsPlatformServiceImpl.getBestRealName(sid, name), type, perms);
 		}
 		catch(Throwable t) {
 			return perms(asGroup, path, BUNDLE.getString(name), type, perms);
