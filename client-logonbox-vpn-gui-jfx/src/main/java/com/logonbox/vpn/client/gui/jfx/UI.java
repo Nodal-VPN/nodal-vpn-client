@@ -1274,7 +1274,6 @@ public class UI implements BusLifecycleListener {
 				if (htmlPage.startsWith("http://") || htmlPage.startsWith("https://")) {
 					
 					var isServer = context.getDBus().getVPN().isMatchesAnyServerURI(htmlPage);
-					var isLBA = htmlPage.indexOf("app/logonBoxVPNClient");
 					
 					if(isServer) {
 						/* Set the device UUID cookie for all web access */
@@ -1289,7 +1288,7 @@ public class UI implements BusLifecycleListener {
 						}
 					}
 
-					if(isLBA == -1 && isServer) {
+					if(isServer) {
 						webView.getEngine().setUserStyleSheetLocation(UI.class.getResource("remote.css").toExternalForm());
 						if (htmlPage.contains("?"))
 							htmlPage += "&_=" + Math.random();
