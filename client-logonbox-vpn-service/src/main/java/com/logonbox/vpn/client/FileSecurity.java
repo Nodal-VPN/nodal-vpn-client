@@ -10,12 +10,12 @@ import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.UserPrincipal;
 import java.nio.file.attribute.UserPrincipalLookupService;
-import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.freedesktop.dbus.utils.Util;
 import org.slf4j.Logger;
@@ -32,6 +32,8 @@ import com.sun.jna.Platform;
  *
  */
 public class FileSecurity {
+
+	public final static ResourceBundle BUNDLE = ResourceBundle.getBundle(FileSecurity.class.getName());
 
 	static Logger log = LoggerFactory.getLogger(FileSecurity.class);
 
@@ -53,12 +55,12 @@ public class FileSecurity {
 				if (OS.isAdministrator()) {
 					try {
 						acl.add(set(true, path, "Administrators", AclEntryType.ALLOW, AclEntryPermission.values()));
-					} catch (UserPrincipalNotFoundException upnfe2) {
+					} catch (Throwable upnfe2) {
 						log.debug("Failed to add administrators permission.", upnfe2);
 					}
 					try {
 						acl.add(set(true, path, "SYSTEM", AclEntryType.ALLOW, AclEntryPermission.values()));
-					} catch (UserPrincipalNotFoundException upnfe2) {
+					} catch (Throwable upnfe2) {
 						log.debug("Failed to add administrators permission.", upnfe2);
 					}
 				}
@@ -84,24 +86,24 @@ public class FileSecurity {
 			if (OS.isAdministrator()) {
 				try {
 					acl.add(set(true, path, "Administrators", AclEntryType.ALLOW, AclEntryPermission.values()));
-				} catch (UserPrincipalNotFoundException upnfe2) {
+				} catch (Throwable upnfe2) {
 					log.debug("Failed to add administrators permission.", upnfe2);
 				}
 				try {
 					acl.add(set(true, path, "SYSTEM", AclEntryType.ALLOW, AclEntryPermission.values()));
-				} catch (UserPrincipalNotFoundException upnfe2) {
+				} catch (Throwable upnfe2) {
 					log.debug("Failed to add administrators permission.", upnfe2);
 				}
 			}
 			try {
 				acl.add(set(true, path, "Everyone", AclEntryType.ALLOW, AclEntryPermission.READ_DATA,
 						AclEntryPermission.WRITE_DATA));
-			} catch (UserPrincipalNotFoundException upnfe) {
+			} catch (Throwable upnfe) {
 			}
 			try {
 				acl.add(set(true, path, "Users", AclEntryType.ALLOW, AclEntryPermission.READ_DATA,
 						AclEntryPermission.WRITE_DATA));
-			} catch (UserPrincipalNotFoundException upnfe2) {
+			} catch (Throwable upnfe2) {
 			}
 			if (acl.isEmpty()) {
 
@@ -118,6 +120,16 @@ public class FileSecurity {
 	}
 
 	protected static AclEntry set(boolean asGroup, Path path, String name, AclEntryType type,
+			AclEntryPermission... perms) throws IOException {
+		try {
+			return perms(asGroup, path, name, type, perms);
+		}
+		catch(Throwable t) {
+			return perms(asGroup, path, BUNDLE.getString(name), type, perms);
+		}
+	}
+
+	protected static AclEntry perms(boolean asGroup, Path path, String name, AclEntryType type,
 			AclEntryPermission... perms) throws IOException {
 		UserPrincipalLookupService upls = path.getFileSystem().getUserPrincipalLookupService();
 		UserPrincipal user = asGroup ? upls.lookupPrincipalByGroupName(name) : upls.lookupPrincipalByName(name);
