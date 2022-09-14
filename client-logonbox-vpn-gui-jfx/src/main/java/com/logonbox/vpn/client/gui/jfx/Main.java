@@ -2,20 +2,15 @@ package com.logonbox.vpn.client.gui.jfx;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.concurrent.Callable;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.freedesktop.dbus.exceptions.DBusException;
 
 import com.logonbox.vpn.common.client.AbstractUpdateableDBusClient;
 import com.logonbox.vpn.common.client.ClientPromptingCertManager;
 import com.logonbox.vpn.common.client.HypersocketVersion;
-import com.logonbox.vpn.common.client.NoUpdateService;
 import com.logonbox.vpn.common.client.PromptingCertManager;
-import com.logonbox.vpn.common.client.UpdateService;
 import com.logonbox.vpn.common.client.dbus.RemoteUI;
-import com.sshtools.forker.client.OSCommand;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -25,13 +20,10 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-import  com.sun.jna.platform.win32.Advapi32Util;
 
 @Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.")
 public class Main extends AbstractUpdateableDBusClient implements Callable<Integer> {
 
-	
-	public final static String SID_ADMINISTRATORS_GROUP = "S-1-5-32-544";
 	/**
 	 * Used to get version from Maven meta-data
 	 */
@@ -163,40 +155,6 @@ public class Main extends AbstractUpdateableDBusClient implements Callable<Integ
 	public void shutdown() {
 		exit();
 		System.exit(0);
-	}
-
-	@Override
-	protected UpdateService createUpdateService() {
-		if(isElevatableToAdministrator())
-			return super.createUpdateService();
-		else
-			return new NoUpdateService(this);
-	}
-	
-	boolean isElevatableToAdministrator() {
-		if(SystemUtils.IS_OS_WINDOWS) {
-			for(var grp : Advapi32Util.getCurrentUserGroups()) {
-				if(SID_ADMINISTRATORS_GROUP.equals(grp.sidString)) {
-					return true;
-				}
-			}
-			return false;
-		}
-		else if(SystemUtils.IS_OS_LINUX) {
-			try {
-				return Arrays.asList(String.join(" ", OSCommand.runCommandAndCaptureOutput("id", "-Gn")).split("\\s+")).contains("sudo");
-			} catch (IOException e) {
-				getLog().error("Failed to test for user groups, assuming can elevate.", e);
-			}
-		}
-		else if(SystemUtils.IS_OS_MAC_OSX) {
-			try {
-				return Arrays.asList(String.join(" ", OSCommand.runCommandAndCaptureOutput("id", "-Gn")).split("\\s+")).contains("admin");
-			} catch (IOException e) {
-				getLog().error("Failed to test for user groups, assuming can elevate.", e);
-			}
-		}
-		return true;
 	}
 
 	@Override

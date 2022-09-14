@@ -42,6 +42,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.ini4j.Ini;
+import org.ini4j.Profile.Section;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -508,7 +509,7 @@ public class ClientServiceImpl implements ClientService {
 				
 						/* Interface (us) */
 						var interfaceSection = ini.get("Interface");
-						connection.setDns(Util.toStringList(interfaceSection, "DNS"));
+						connection.setDns(toStringList(interfaceSection, "DNS"));
 				
 						connection.setPreUp(interfaceSection.containsKey("PreUp") ?  String.join("\n", interfaceSection.getAll("PreUp")) : "");
 						connection.setPostUp(interfaceSection.containsKey("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
@@ -528,7 +529,7 @@ public class ClientServiceImpl implements ClientService {
 						connection.setEndpointAddress(endpoint.substring(0, idx));
 						connection.setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
 						connection.setPeristentKeepalive(Integer.parseInt(peerSection.get("PersistentKeepalive")));
-						connection.setAllowedIps(Util.toStringList(peerSection, "AllowedIPs"));
+						connection.setAllowedIps(toStringList(peerSection, "AllowedIPs"));
 								
 						return save(connection);
 					}
@@ -1423,5 +1424,17 @@ public class ClientServiceImpl implements ClientService {
 		} catch (Exception ex) {
 			throw new IOException("Failed to resolve remote extensions. " + ex.getMessage(), ex);
 		}
+	}
+
+
+	public static List<String> toStringList(Section section, String key) {
+		List<String> n = new ArrayList<>();
+		String val = section.get(key, "");
+		if (!val.equals("")) {
+			for (String a : val.split(",")) {
+				n.add(a.trim());
+			}
+		}
+		return n;
 	}
 }

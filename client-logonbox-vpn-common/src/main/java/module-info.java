@@ -13,6 +13,7 @@ module com.logonbox.vpn.common {
 	requires com.install4j.runtime;
 	requires transitive java.naming;
 	requires transitive java.logging;
+	requires transitive com.sun.jna.platform;
 	exports com.logonbox.vpn.common.client;
 	exports com.logonbox.vpn.common.client.api;
 	exports com.logonbox.vpn.common.client.dbus;

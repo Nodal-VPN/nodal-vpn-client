@@ -9,7 +9,6 @@ import java.io.PrintWriter;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
-import java.net.CookieStore;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -45,7 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.logonbox.vpn.common.client.AbstractDBusClient;
-import com.logonbox.vpn.common.client.CustomCookieStore;
 import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.PromptingCertManager.PromptType;
 import com.logonbox.vpn.common.client.api.Branding;
@@ -210,9 +208,7 @@ public class Client implements RemoteUI {
 	}
 
 	protected CookieManager createCookieManager() {
-		CookieStore store = new CustomCookieStore();
-		CookieManager mgr = new CookieManager(store, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
-		return mgr;
+		return new CookieManager(main.getCookieStore(), CookiePolicy.ACCEPT_ORIGINAL_SERVER);
 	}
 
 	public boolean isWaitingForExitChoice() {

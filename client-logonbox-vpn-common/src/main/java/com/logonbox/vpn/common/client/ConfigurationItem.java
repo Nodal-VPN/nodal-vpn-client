@@ -19,7 +19,7 @@ public class ConfigurationItem<T> {
 		GLOBAL, USER
 	}
 
-	public final static ConfigurationItem<Level> LOG_LEVEL = add("logLevel", Level.class, Level.INFO, Level.ALL, Level.TRACE, Level.DEBUG, Level.WARN, Level.INFO, Level.ERROR, Level.FATAL, Level.OFF);
+	public final static ConfigurationItem<Level> LOG_LEVEL = add("logLevel", Level.class, Level.INFO, Level.ALL, Level.FINEST, Level.FINER, Level.FINE, Level.INFO, Level.WARNING, Level.SEVERE, Level.OFF);
 	public final static ConfigurationItem<Boolean> IGNORE_LOCAL_ROUTES = add("ignoreLocalRoutes", Boolean.class, true, true, false);
 	public final static ConfigurationItem<DNSIntegrationMethod> DNS_INTEGRATION_METHOD = add("dnsIntegrationMethod", DNSIntegrationMethod.class, DNSIntegrationMethod.AUTO, DNSIntegrationMethod.values());
 	public final static ConfigurationItem<Boolean> AUTOMATIC_UPDATES = add("automaticUpdates", Boolean.class, Scope.USER, true, true, false);

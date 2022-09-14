@@ -1,5 +1,9 @@
 package com.logonbox.vpn.common.client;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,7 +17,9 @@ import java.security.MessageDigest;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -228,6 +234,43 @@ public class Util {
 			connection.setLastKnownServerIpAddress(null);
 		}
 		return !Objects.equals(was, connection.getLastKnownServerIpAddress());
+	}
+
+	public static Collection<String> runCommandAndCaptureOutput(String... args) throws IOException {
+		return runCommandAndCaptureOutput(null, args);
+	}
+	
+	public static Collection<String> runCommandAndCaptureOutput(File cwd, String... args) throws IOException {
+		File askPass = null;
+		try {
+			List<String> largs = new ArrayList<String>(Arrays.asList(args));
+			var pb = new ProcessBuilder(largs);
+			if (cwd != null) {
+				pb.directory(cwd);
+			}
+			pb.redirectErrorStream(true);
+			Process p = pb.start();
+			Collection<String> lines = new ArrayList<>();
+			try {
+				String line = null;
+				try(var in = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+					while((line = in.readLine()) != null)
+						lines.add(line);
+				}
+				int ret = p.waitFor();
+				if (ret != 0) {
+					throw new IOException("Command '" + String.join(" ", largs)
+							+ "' returned non-zero status. Returned " + ret + ". " + String.join("\n", lines));
+				}
+			} catch (InterruptedException e) {
+				throw new IOException(e.getMessage(), e);
+			}
+			return lines;
+		} finally {
+			if (askPass != null) {
+				askPass.delete();
+			}
+		}
 	}
 
 	public static URI getUri(String uriString) throws URISyntaxException {
