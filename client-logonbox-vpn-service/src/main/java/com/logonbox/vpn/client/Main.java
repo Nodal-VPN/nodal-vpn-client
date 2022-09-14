@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
@@ -373,11 +373,11 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 				 */
 				if (!tcpBus || unixBus) {
 					log.info("Using UNIX domain socket bus");
-					newAddress = TransportBuilder.createDynamicSession("unix", true);
+					newAddress = TransportBuilder.createDynamicSession("UNIX", true);
 					log.info(String.format("DBus-Java gave us %s", newAddress));
 				} else {
 					log.info("Using TCP bus");
-					newAddress = TransportBuilder.createDynamicSession("tcp", true);
+					newAddress = TransportBuilder.createDynamicSession("TCP", true);
 					log.info(String.format("DBus-Java gave us %s", newAddress));
 				}
 			}

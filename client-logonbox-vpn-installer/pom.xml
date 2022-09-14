@@ -82,7 +82,7 @@
 						<phase>initialize</phase>
 						<configuration>
 
-							<!-- String off -SNAPSHOT (or other suffix) -->
+							<!-- Strip off -SNAPSHOT (or other suffix) -->
 
 							<name>build.number</name>
 							<value>0${env.BUILD_NUMBER}</value>
