@@ -337,17 +337,8 @@ public class LinuxPlatformServiceImpl extends AbstractPlatformServiceImpl<LinuxI
 	void setRoutes(VPNSession session, LinuxIP ip) throws IOException {
 
 		/* Set routes from the known allowed-ips supplies by Wireguard. */
-		session.getAllows().clear();
-
-		for (String s : OSCommand.adminCommandAndCaptureOutput(getWGCommand(), "show", ip.getName(), "allowed-ips")) {
-			StringTokenizer t = new StringTokenizer(s);
-			if (t.hasMoreTokens()) {
-				t.nextToken();
-				while (t.hasMoreTokens())
-					session.getAllows().add(t.nextToken());
-			}
-		}
-
+		rebuildAllows(session, ip);
+		
 		/*
 		 * Sort by network subnet size (biggest first)
 		 */
@@ -364,6 +355,24 @@ public class LinuxPlatformServiceImpl extends AbstractPlatformServiceImpl<LinuxI
 		});
 		/* Actually add routes */
 		ip.setRoutes(session.getAllows());
+	}
+
+	protected void rebuildAllows(VPNSession session, LinuxIP ip) throws IOException {
+		session.getAllows().clear();
+
+		for (String s : OSCommand.adminCommandAndCaptureOutput(getWGCommand(), "show", ip.getName(), "allowed-ips")) {
+			StringTokenizer t = new StringTokenizer(s);
+			if (t.hasMoreTokens()) {
+				t.nextToken();
+				while (t.hasMoreTokens()) {
+					var r = t.nextToken();
+					if(r.equals("(none)")) {
+						return;
+					}
+					session.getAllows().add(r);
+				}
+			}
+		}
 	}
 
 	@Override

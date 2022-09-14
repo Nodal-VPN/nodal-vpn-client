@@ -6,9 +6,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -302,9 +299,11 @@ public class ConnectionImpl implements Connection, Serializable {
 		if (peerSection != null) {
 			setPublicKey(peerSection.get("PublicKey"));
 			String endpoint = peerSection.get("Endpoint");
-			int idx = endpoint.lastIndexOf(':');
-			setEndpointAddress(endpoint.substring(0, idx));
-			setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
+			if(endpoint != null) {
+				int idx = endpoint.lastIndexOf(':');
+				setEndpointAddress(endpoint.substring(0, idx));
+				setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
+			}
 			setPeristentKeepalive(Integer.parseInt(peerSection.get("PersistentKeepalive")));
 			setAllowedIps(toStringList(peerSection, "AllowedIPs"));
 		}
