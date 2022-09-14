@@ -147,7 +147,7 @@ public abstract class PromptingCertManager implements X509TrustManager, Hostname
 			sslContext = SSLContext.getInstance("SSL");
 			sslContext.init(null, new TrustManager[] { this }, new java.security.SecureRandom());
 			sslParameters = sslContext.getDefaultSSLParameters();
-			sslParameters.setEndpointIdentificationAlgorithm("CUSTOM");
+			sslParameters.setEndpointIdentificationAlgorithm(null);
 			HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
 			SSLContext.setDefault(sslContext);
 		} catch (GeneralSecurityException e) {
