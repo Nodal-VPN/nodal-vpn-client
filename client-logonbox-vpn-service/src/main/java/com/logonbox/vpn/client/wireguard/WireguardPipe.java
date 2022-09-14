@@ -13,6 +13,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.logonbox.vpn.client.FileSecurity;
 import com.logonbox.vpn.common.client.Keys;
 import com.logonbox.vpn.common.client.StatusDetail;
 import com.logonbox.vpn.common.client.Util;
@@ -78,7 +79,7 @@ public class WireguardPipe implements StatusDetail {
 
 	protected List<String> command(String command) throws IOException {
 		synchronized (lock) {
-			pipeName = "\\\\.\\pipe\\ProtectedPrefix\\Administrators\\WireGuard\\" + name;
+			pipeName = "\\\\.\\pipe\\ProtectedPrefix\\" + FileSecurity.BUNDLE.getString("Administrators") + "\\WireGuard\\" + name;
 			if(LOG.isDebugEnabled())
 				LOG.debug(String.format("Opening named pipe %s", pipeName));
 			List<String> l = new ArrayList<String>();
