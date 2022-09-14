@@ -340,8 +340,13 @@ public class UI implements BusLifecycleListener {
 			UI.this.showError(error);
 		}
 
+		public void unjoin(String reason) {
+			var sel = getConnection();
+			UI.this.disconnect(sel, reason);
+		}
+
 		public void unjoinAll(String reason) {
-			UI.this.disconnect(null, reason);
+			UI.this.disconnectAll(reason);
 		}
 
 		public void update() {
@@ -515,6 +520,21 @@ public class UI implements BusLifecycleListener {
 		context.getOpQueue().execute(() -> {
 			try {
 				sel.disconnect(StringUtils.defaultIfBlank(reason, ""));
+			} catch (Exception e) {
+				Platform.runLater(() -> showError("Failed to disconnect.", e));
+			}
+		});
+	}
+
+	public void disconnectAll(String reason) {
+		if (reason == null)
+			LOG.info("Requesting disconnect of all, no reason given");
+		else
+			LOG.info(String.format("Requesting disconnect, because '%s'", reason));
+
+		context.getOpQueue().execute(() -> {
+			try {
+				context.getDBus().getVPN().disconnectAll();
 			} catch (Exception e) {
 				Platform.runLater(() -> showError("Failed to disconnect.", e));
 			}
