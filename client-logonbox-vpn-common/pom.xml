@@ -23,17 +23,17 @@
         <dependency>
             <groupId>com.github.hypfvieh</groupId>
             <artifactId>dbus-java-core</artifactId>
-            <version>4.1.0</version>
+            <version>4.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.hypfvieh</groupId>
             <artifactId>dbus-java-transport-tcp</artifactId>
-            <version>4.1.0</version>
+            <version>4.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.hypfvieh</groupId>
             <artifactId>dbus-java-transport-native-unixsocket</artifactId>
-            <version>4.1.0</version>
+            <version>4.2.1</version>
         </dependency>
         <!--
         <dependency>
@@ -106,7 +106,7 @@
         </repository>
 
 
-        <!-- For SNAPSHOT dbus-java -->
+        <!-- For SNAPSHOT dbus-java
         <repository>
             <id>ext-snapshots-local</id>
             <name>ext-snapshots-local</name>
@@ -115,7 +115,7 @@
             <releases>
                 <enabled>false</enabled>
             </releases>
-        </repository>
+        </repository> -->
     </repositories>
     <build>
         <plugins>
