@@ -106,7 +106,7 @@ public class VPNSession implements Closeable {
 			 * the HTTP service.
 			 */
 			IOException ioe = cctx.getClientService().getConnectionError(vpnConnection);
-			if(ioe instanceof ReauthorizeException)
+			if(ioe == null)
 				throw re;
 			else
 				throw ioe;
