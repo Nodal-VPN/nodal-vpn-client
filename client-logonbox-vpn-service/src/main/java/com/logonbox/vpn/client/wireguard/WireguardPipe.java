@@ -80,25 +80,35 @@ public class WireguardPipe implements StatusDetail {
 
 	protected List<String> command(String command) throws IOException {
 		synchronized (lock) {
-			pipeName = "\\\\.\\pipe\\ProtectedPrefix\\" + WindowsPlatformServiceImpl.getBestRealName(WindowsPlatformServiceImpl.SID_ADMINISTRATORS_GROUP, "Administrators") + "\\WireGuard\\" + name;
 			if(LOG.isDebugEnabled())
 				LOG.debug(String.format("Opening named pipe %s", pipeName));
 			List<String> l = new ArrayList<String>();
-			try (Socket pipe = new DefaultPipeFactory()
-					.createPipe("ProtectedPrefix\\" + WindowsPlatformServiceImpl.getBestRealName(WindowsPlatformServiceImpl.SID_ADMINISTRATORS_GROUP, "Administrators") + "\\WireGuard\\" + name)) {
-				try (BufferedReader in = new BufferedReader(new InputStreamReader(pipe.getInputStream()))) {
-					try (OutputStream out = pipe.getOutputStream()) {
-						out.write((command + "\n\n").getBytes("UTF-8"));
-						out.flush();
-						String line;
-						while ((line = in.readLine()) != null) {
-							line = line.trim();
-							if (line.length() == 0)
-								break;
-							l.add(line);
-						}
-						return l;
+			try {
+				return tryPipe(command, l, "ProtectedPrefix\\Administrators\\WireGuard\\" + name);
+			}
+			catch(Exception e) {
+				return tryPipe(command, l, "ProtectedPrefix\\" + WindowsPlatformServiceImpl.getBestRealName(WindowsPlatformServiceImpl.SID_ADMINISTRATORS_GROUP, "Administrators") + "\\WireGuard\\" + name);
+			}
+		}
+	}
+
+	protected List<String> tryPipe(String command, List<String> l, String pipeSuffix)
+			throws IOException, UnsupportedEncodingException {
+		pipeName = "\\\\.\\pipe\\" + pipeSuffix;
+		try (Socket pipe = new DefaultPipeFactory()
+				.createPipe(pipeSuffix)) {
+			try (BufferedReader in = new BufferedReader(new InputStreamReader(pipe.getInputStream()))) {
+				try (OutputStream out = pipe.getOutputStream()) {
+					out.write((command + "\n\n").getBytes("UTF-8"));
+					out.flush();
+					String line;
+					while ((line = in.readLine()) != null) {
+						line = line.trim();
+						if (line.length() == 0)
+							break;
+						l.add(line);
 					}
+					return l;
 				}
 			}
 		}
