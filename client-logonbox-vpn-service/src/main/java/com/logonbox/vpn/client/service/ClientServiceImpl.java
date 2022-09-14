@@ -994,21 +994,25 @@ public class ClientServiceImpl implements ClientService {
 						disconnect(connection, "Re-authorize required");
 					} else {
 						if (connection.isStayConnected()) {
-							log.info("Signalling temporarily offline.");
-							temporarilyOffline.add(connection);
-							try {
-								context.sendMessage(new VPNConnection.TemporarilyOffline(
-										String.format("/com/logonbox/vpn/%d", connection.getId()),
-										reason.getMessage() == null ? "" : reason.getMessage()));
-							} catch (DBusException e) {
-								log.error("Failed to send message.", e);
-							}
+							temporarilyOffline(connection, reason);
 						} else {
 							disconnect(connection, reason.getMessage());
 						}
 					}
 				}
 			}
+		}
+	}
+
+	protected void temporarilyOffline(Connection connection, Exception reason) {
+		log.info("Signalling temporarily offline.");
+		temporarilyOffline.add(connection);
+		try {
+			context.sendMessage(new VPNConnection.TemporarilyOffline(
+					String.format("/com/logonbox/vpn/%d", connection.getId()),
+					reason.getMessage() == null ? "" : reason.getMessage()));
+		} catch (DBusException e) {
+			log.error("Failed to send message.", e);
 		}
 	}
 
@@ -1061,21 +1065,36 @@ public class ClientServiceImpl implements ClientService {
 
 			} catch (Exception e) {
 				if (e instanceof ReauthorizeException) {
-					removeState(connection);
-					log.info(String.format("Requested  reauthorization for %s", connection.getUri(true)));
-					try {
-						/*
-						 * The connection did not get it's first handshake in a timely manner. We don't
-						 * have determined that it is very likely it needs re-authorizing
-						 */
-						if (connection.isAuthorized())
-							deauthorize(connection);
-						requestAuthorize(connection);
-						return;
-					} catch (Exception e1) {
+					IOException reason = getConnectionError(connection);
+					if(reason == null) {
+						failedToConnect(connection, e);
 						if (log.isErrorEnabled()) {
-							log.error("Failed to request authorization.", e1);
+							log.error("Failed to connect " + connection, e);
+						}	
+					}
+					else if(reason instanceof ReauthorizeException) {
+						removeState(connection);
+						log.info(String.format("Requested  reauthorization for %s", connection.getUri(true)));
+						try {
+							/*
+							 * The connection did not get it's first handshake in a timely manner. We don't
+							 * have determined that it is very likely it needs re-authorizing
+							 */
+							if (connection.isAuthorized())
+								deauthorize(connection);
+							requestAuthorize(connection);
+							return;
+						} catch (Exception e1) {
+							if (log.isErrorEnabled()) {
+								log.error("Failed to request authorization.", e1);
+							}
 						}
+					}
+					else {
+						failedToConnect(connection, e);
+						if (log.isErrorEnabled()) {
+							log.error("Failed to connect " + connection, e);
+						}	
 					}
 				} else {
 					failedToConnect(connection, e);
