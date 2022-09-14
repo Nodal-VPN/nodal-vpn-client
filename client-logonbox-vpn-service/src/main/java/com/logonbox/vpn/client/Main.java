@@ -319,7 +319,7 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 		}
 		if (daemon != null) {
 			try {
-				log.info("Shutting down embedded dbus daemon.");
+				getLog().info("Shutting down embedded dbus daemon.");
 				daemon.close();
 			} catch (IOException e) {
 				getLog().error("Failed to shutdown DBus service.", e);
@@ -340,23 +340,23 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 		if (SystemUtils.IS_OS_LINUX && !embeddedBus) {
 			if (newAddress != null) {
 				log.info(String.format("Connectin to DBus @%s", newAddress));
-				conn = DBusConnectionBuilder.forAddress(newAddress).withShared(false).withRegisterSelf(true).build();
+				conn = configureBuilder(DBusConnectionBuilder.forAddress(newAddress)).build();
 				log.info(String.format("Ready on DBus @%s", newAddress));
 			} else if (OS.isAdministrator()) {
 				if (sessionBus) {
 					log.info("Per configuration, connecting to Session DBus");
-					conn = DBusConnectionBuilder.forSessionBus().withShared(false).build();
+					conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
 					log.info("Ready on Session DBus");
 					newAddress = conn.getAddress().getRawAddress();
 				} else {
 					log.info("Connecting to System DBus");
-					conn = DBusConnectionBuilder.forSystemBus().withShared(false).build();
+					conn = configureBuilder(DBusConnectionBuilder.forSystemBus()).build();
 					log.info("Ready on System DBus");
 					newAddress = conn.getAddress().getRawAddress();
 				}
 			} else {
 				log.info("Not administrator, connecting to Session DBus");
-				conn = DBusConnectionBuilder.forSessionBus().withShared(false).build();
+				conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
 				log.info("Ready on Session DBus");
 				newAddress = conn.getAddress().getRawAddress();
 			}
@@ -453,7 +453,7 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 				DBusException lastDbe = null;
 				for (int i = 0; i < 60; i++) {
 					try {
-						conn = DBusConnectionBuilder.forAddress(busAddress.getRawAddress()).withShared(false).build();
+						conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress.getRawAddress())).build();
 						log.info(String.format("Connected to embedded DBus %s", busAddress.getRawAddress()));
 						break;
 					} catch (DBusException dbe) {
@@ -473,7 +473,7 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 			else {
 
 				log.info(String.format("Connecting to embedded DBus %s", busAddress.getRawAddress()));
-				conn = DBusConnectionBuilder.forAddress(busAddress.getRawAddress()).withShared(false).build();
+				conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress.getRawAddress())).build();
 			}
 
 			/*
@@ -560,7 +560,7 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 	}
 
 	private void disconnectAndRetry() {
-		log.info("Disconnected from Bus, retrying");
+		getLog().info("Disconnected from Bus, retrying");
 		conn = null;
 		connTask = queue.schedule(() -> {
 			try {

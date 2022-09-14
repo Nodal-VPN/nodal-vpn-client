@@ -17,32 +17,41 @@ public abstract class AbstractUpdateableDBusClient extends AbstractDBusClient {
 
 	protected AbstractUpdateableDBusClient(String defaultLogFilePattern) {
 		super(defaultLogFilePattern);
+	}
+	 
+	protected UpdateService createUpdateService() {
 		try {
-			updateService = new Install4JUpdateServiceImpl(this);
+			 return new Install4JUpdateServiceImpl(this);
 		} catch (Throwable t) {
-			updateService = new DummyUpdateService(this);
+			if(getLog().isDebugEnabled())
+				getLog().info("Failed to create Install4J update service, using dummy service.", t);
+			else
+				getLog().info("Failed to create Install4J update service, using dummy service. {}", t.getMessage());
+			return new DummyUpdateService(this);
 		}
 	}
 
 	public UpdateService getUpdateService() {
+		if(updateService == null)
+			updateService = createUpdateService();
 		return updateService;
 	}
 
 	public void exit() {
-		updateService.shutdown();
+		getUpdateService().shutdown();
 		super.exit();
 	}
 
 	@Override
 	protected final void onBusGone() {
-		updateService.checkIfBusAvailable();
+		getUpdateService().checkIfBusAvailable();
 	}
 
 	@Override
 	protected void onInit() {
 		if (getLog().isDebugEnabled())
 			getLog().debug(String.format("Using update service %s", updateService.getClass().getName()));
-		updateService.checkIfBusAvailable();
+		getUpdateService().checkIfBusAvailable();
 	}
 
 }
