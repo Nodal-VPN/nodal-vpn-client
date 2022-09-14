@@ -412,7 +412,7 @@ public abstract class AbstractDBusClient extends AbstractApp implements DBusClie
 					conn = null;
 				}
 				vpn = null;
-				updateService.checkIfBusAvailable();
+				onBusGone();
 				for (BusLifecycleListener b : busLifecycleListeners) {
 					b.busGone();
 				}
