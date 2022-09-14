@@ -1252,23 +1252,35 @@ public class UI implements BusLifecycleListener {
 
 				CookieHandler cookieHandler = CookieManager.getDefault();
 				if (htmlPage.startsWith("http://") || htmlPage.startsWith("https://")) {
-
-					/* Set the device UUID cookie for all web access */
-					try {
-						URI uri = new URI(htmlPage);
-						Map<String, List<String>> headers = new LinkedHashMap<String, List<String>>();
-						headers.put("Set-Cookie", Arrays.asList(String.format("%s=%s",
-								AbstractDBusClient.DEVICE_IDENTIFIER, context.getDBus().getVPN().getUUID())));
-						cookieHandler.put(uri.resolve("/"), headers);
-					} catch (Exception e) {
-						throw new IllegalStateException("Failed to set cookie.", e);
+					
+					var isServer = context.getDBus().getVPN().isMatchesAnyServerURI(htmlPage);
+					var isLBA = htmlPage.indexOf("/api/authenticator/sign");
+					
+					if(isServer) {
+						/* Set the device UUID cookie for all web access */
+						try {
+							URI uri = new URI(htmlPage);
+							Map<String, List<String>> headers = new LinkedHashMap<String, List<String>>();
+							headers.put("Set-Cookie", Arrays.asList(String.format("%s=%s",
+									AbstractDBusClient.DEVICE_IDENTIFIER, context.getDBus().getVPN().getUUID())));
+							cookieHandler.put(uri.resolve("/"), headers);
+						} catch (Exception e) {
+							throw new IllegalStateException("Failed to set cookie.", e);
+						}
 					}
-					webView.getEngine().setUserStyleSheetLocation(UI.class.getResource("remote.css").toExternalForm());
-					if (htmlPage.contains("?"))
-						htmlPage += "&_=" + Math.random();
-					else
-						htmlPage += "?_=" + Math.random();
+
+					if(isLBA == -1 && isServer) {
+						webView.getEngine().setUserStyleSheetLocation(UI.class.getResource("remote.css").toExternalForm());
+						if (htmlPage.contains("?"))
+							htmlPage += "&_=" + Math.random();
+						else
+							htmlPage += "?_=" + Math.random();
+					}
+					else {
+						webView.getEngine().setUserStyleSheetLocation(null);
+					}
 					load(htmlPage);
+						
 				} else {
 
 					/*

@@ -88,4 +88,6 @@ public interface ClientService  {
 	Connection create(String uri, String owner, boolean connectAtStartup, Mode mode, boolean stayConnected);
 
 	Connection importConfiguration(String owner, String configuration);
+
+	boolean isMatchesAnyServerURI(String owner, String uri);
 }
