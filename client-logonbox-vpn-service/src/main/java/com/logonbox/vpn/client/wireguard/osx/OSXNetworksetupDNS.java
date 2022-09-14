@@ -12,10 +12,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.wireguard.IpUtil;
 import com.sshtools.forker.client.OSCommand;
 
@@ -241,6 +243,17 @@ public class OSXNetworksetupDNS {
 			if(line.contains("Error"))
 				throw new IOException(line);
 		}
+	}
+
+	public void start(LocalContext ctx) {
+		ctx.getClientService().getTimer().scheduleAtFixedRate(() -> {
+			try {
+				collectNewServiceDns();
+			} catch (IOException e) {
+				LOG.warn("Failed to collect new DNS data.", e);
+			}
+		}, 1, 1, TimeUnit.MINUTES);
+		
 	}
 	
 }
