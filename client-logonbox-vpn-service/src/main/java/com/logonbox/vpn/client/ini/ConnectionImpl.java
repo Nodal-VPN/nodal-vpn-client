@@ -3,7 +3,6 @@ package com.logonbox.vpn.client.ini;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -204,30 +203,6 @@ public class ConnectionImpl implements Connection, Serializable {
 	@Override
 	public void setShared(boolean publicToAll) {
 		this.shared = publicToAll;
-	}
-
-//	@Override
-//	public int hashCode() {
-//		return Objects.hash(hostname, owner, path, port);
-//	}
-//
-//	@Override
-//	public boolean equals(Object obj) {
-//		if (this == obj)
-//			return true;
-//		if (obj == null)
-//			return false;
-//		if (getClass() != obj.getClass())
-//			return false;
-//		ConnectionImpl other = (ConnectionImpl) obj;
-//		return Objects.equals(hostname, other.hostname) && Objects.equals(owner, other.owner)
-//				&& Objects.equals(path, other.path) && Objects.equals(port, other.port);
-//	}
-
-	
-	
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
 	}
 
 	@Override
@@ -490,7 +465,7 @@ public class ConnectionImpl implements Connection, Serializable {
 			peerSection.put("Endpoint", connection.getEndpointAddress() + ":" + connection.getEndpointPort());
 			peerSection.put("PersistentKeepalive", connection.getPersistentKeepalive());
 			if (!connection.getAllowedIps().isEmpty())
-				peerSection.put("AllowedIps", String.join(", ", connection.getAllowedIps()));
+				peerSection.put("AllowedIPs", String.join(", ", connection.getAllowedIps()));
 		}
 
 		ini.store(w);
