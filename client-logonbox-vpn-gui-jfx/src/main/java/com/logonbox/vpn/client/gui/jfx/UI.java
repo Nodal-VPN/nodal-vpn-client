@@ -1921,7 +1921,7 @@ public class UI implements BusLifecycleListener {
 				exception.printStackTrace(new PrintWriter(w));
 				lastException = w.toString();
 			}
-			if(cause.startsWith("No subject alternative")) {
+			if(cause != null && cause.startsWith("No subject alternative")) {
 				setHtmlPage("sanError.html");
 			}
 			else {
