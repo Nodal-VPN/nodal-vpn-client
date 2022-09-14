@@ -169,7 +169,7 @@ public class Main extends AbstractApp implements LocalContext, X509TrustManager,
 	@Override
 	public CookieStore getCookieStore() {
 		if (cookieStore == null) {
-			cookieStore = new CustomCookieStore();
+			cookieStore = new CustomCookieStore(new File(AbstractDBusClient.CLIENT_HOME, "service-cookies.dat"));
 		}
 		return cookieStore;
 	}

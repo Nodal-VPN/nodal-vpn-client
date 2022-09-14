@@ -77,6 +77,12 @@ public abstract class AbstractConnectionCommand implements Callable<Integer>, IV
 			VPNConnection connection = cli.getVPNConnection(id);
 			if (connection == null)
 				throw new IllegalArgumentException(String.format("No connection %d (hint: use 'list' command)", id));
+			try {
+				connection.getId();
+			}
+			catch(Exception e) {
+				throw new IllegalArgumentException(String.format("No connection %d (hint: use 'list' command)", id));
+			}
 			l.add(connection);
 		} catch (NumberFormatException nfe) {
 			for (VPNConnection c : cli.getVPNConnections()) {

@@ -1,6 +1,5 @@
 package com.logonbox.vpn.client.cli;
 
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.CookieStore;
@@ -40,10 +39,12 @@ import com.logonbox.vpn.common.client.dbus.VPNConnection;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.IExecutionExceptionHandler;
 import picocli.CommandLine.IVersionProvider;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.Spec;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 
@@ -171,8 +172,7 @@ public class CLI extends AbstractUpdateableDBusClient implements CLIContext, DBu
 	public void about() throws IOException {
 		ConsoleProvider console = getConsole();
 		PrintWriter writer = console.out();
-		writer.println(String.format("CLI Version: %s",
-				getVersion()));
+		writer.println(String.format("CLI Version: %s", getVersion()));
 		try {
 			VPN vpn = getVPN();
 			writer.println(String.format("Service Version: %s", vpn.getVersion()));
@@ -212,6 +212,17 @@ public class CLI extends AbstractUpdateableDBusClient implements CLIContext, DBu
 					String[] args = newargs.toArray(new String[0]);
 					if (args.length > 0) {
 						CommandLine cl = new CommandLine(new InteractiveConsole());
+						cl.setExecutionExceptionHandler(new IExecutionExceptionHandler() {
+
+							@Override
+							public int handleExecutionException(Exception ex, CommandLine commandLine,
+									ParseResult parseResult) throws Exception {
+								if(ex instanceof IllegalArgumentException) {
+									console.err().println(MessageFormat.format(BUNDLE.getString("error"), ex.getMessage()));
+								}
+								return 1;
+							}
+						});
 						cl.setTrimQuotes(true);
 						cl.setUnmatchedArgumentsAllowed(true);
 						cl.setUnmatchedOptionsAllowedAsOptionParameters(true);

@@ -118,7 +118,7 @@ public abstract class AbstractDBusClient extends AbstractApp implements DBusClie
 
 	public CookieStore getCookieStore() {
 		if (cookieStore == null) {
-			cookieStore = new CustomCookieStore();
+			cookieStore = new CustomCookieStore(new File(AbstractDBusClient.CLIENT_HOME, "web-cookies.dat"));
 		}
 		return cookieStore;
 	}

@@ -6,6 +6,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.net.HttpCookie;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -413,6 +414,9 @@ public class ClientServiceImpl implements ClientService {
 		if(!connection.isAuthorized() || StringUtils.isBlank(connection.getUserPrivateKey()))
 			return connection;
 		
+
+		addConnectionCookie(connection);
+		
 		var prms = context.getSSLParameters();
 		var ctx = context.getSSLContext();
 		var client = HttpClient.newBuilder()
@@ -435,7 +439,6 @@ public class ClientServiceImpl implements ClientService {
 		var uuid = getUUID(connection.getOwner());
 		var request = builder
 		         .uri(URI.create(uri))
-		         .header(COOKIE, AbstractDBusClient.DEVICE_IDENTIFIER + "=" + uuid)
 		         .build();
 
 		try {
@@ -463,7 +466,6 @@ public class ClientServiceImpl implements ClientService {
 					connection.getDisplayName(), uri));
 			request = builder
 			         .uri(URI.create(uri))
-			         .header(COOKIE, AbstractDBusClient.DEVICE_IDENTIFIER + "=" + uuid)
 			         .build();
 
 			response = client.send(request, BodyHandlers.ofString());
@@ -542,7 +544,7 @@ public class ClientServiceImpl implements ClientService {
 			}
 			else {
 				/* TODO This public key DOES NOT exist */
-				log.info(String.format("No peer with the key %s is valid according to the server, so we need to re-authorize.", connection.getUserPublicKey()));
+				log.info(String.format("No peer with the key %s is valid according to the server (error %d), so we need to re-authorize.", connection.getUserPublicKey(), response.statusCode()));
 			}
 			
 		}
@@ -564,8 +566,21 @@ public class ClientServiceImpl implements ClientService {
 		return save(connection);
 	}
 
+	protected void addConnectionCookie(Connection connection) {
+		HttpCookie cookie = new HttpCookie(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwner()).toString());
+		cookie.setSecure(true);
+		cookie.setPath("/");
+		cookie.setDomain(connection.getHostname());
+		try {
+			context.getCookieStore().add(new URI(connection.getUri(false)), cookie);
+		} catch (URISyntaxException e) {
+			throw new IllegalStateException("Failed to add device identifier cookie.");
+		}
+	}
+
 	@Override
 	public IOException getConnectionError(Connection connection) {
+		addConnectionCookie(connection);
 		
 		var client = HttpClient.newBuilder()
 				.sslParameters(context.getSSLParameters())
@@ -584,10 +599,8 @@ public class ClientServiceImpl implements ClientService {
 		var uri = connection.getConnectionTestUri(false) + "/api/server/ping";
 		log.info(String.format("Testing if a connection to %s should be retried using %s.",
 				connection.getDisplayName(), uri));
-		var uuid = getUUID(connection.getOwner());
 		var request = builder
 		         .uri(URI.create(uri))
-		         .header(COOKIE, AbstractDBusClient.DEVICE_IDENTIFIER + "=" + uuid)
 		         .build();
 
 		try {
@@ -611,7 +624,6 @@ public class ClientServiceImpl implements ClientService {
 					connection.getDisplayName(), uri));
 			request = builder
 			         .uri(URI.create(uri))
-			         .header(COOKIE, AbstractDBusClient.DEVICE_IDENTIFIER + "=" + uuid)
 			         .build();
 
 			response = client.send(request, BodyHandlers.ofString());
@@ -626,7 +638,7 @@ public class ClientServiceImpl implements ClientService {
 			}
 			else {
 				/* TODO This public key DOES NOT exist */
-				log.info(String.format("No peer with the key %s is valid according to the server, so we need to re-authorize.", connection.getUserPublicKey()));
+				log.info(String.format("No peer with the key %s is valid according to the server (error %d), so we need to re-authorize.", connection.getUserPublicKey(), response.statusCode()));
 			}
 			
 		}

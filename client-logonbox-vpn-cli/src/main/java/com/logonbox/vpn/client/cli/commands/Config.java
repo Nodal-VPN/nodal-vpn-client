@@ -1,6 +1,7 @@
 package com.logonbox.vpn.client.cli.commands;
 
 import org.apache.commons.lang3.StringUtils;
+import org.freedesktop.dbus.exceptions.DBusExecutionException;
 
 import com.logonbox.vpn.client.cli.CLIContext;
 import com.logonbox.vpn.client.cli.ConsoleProvider;
@@ -31,10 +32,15 @@ public class Config extends AbstractConnectionCommand {
 				console.out().println(String.format("%-30s %s", n, cli.getVPN().getValue(n)));
 			}
 		} else if (StringUtils.isBlank(value)) {
-			if(reset)
-				cli.getVPN().resetValue(name);
-			else
-				console.out().println(cli.getVPN().getValue(name));
+			try {
+				if(reset)
+					cli.getVPN().resetValue(name);
+				else
+					console.out().println(cli.getVPN().getValue(name));
+			}
+			catch(DBusExecutionException dee) {
+				throw new IllegalArgumentException(String.format("No such configuration item %s", name));
+			}
 		} else {
 			cli.getVPN().setValue(name, value);
 		}
