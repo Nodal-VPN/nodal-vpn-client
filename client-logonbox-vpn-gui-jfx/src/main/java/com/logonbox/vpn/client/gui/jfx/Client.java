@@ -10,7 +10,6 @@ import java.io.PrintWriter;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
-import java.net.CookieStore;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -30,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.goxr3plus.fxborderlessscene.borderless.BorderlessScene;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
-import com.logonbox.vpn.common.client.CustomCookieStore;
 import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.api.Branding;
 import com.logonbox.vpn.common.client.api.BrandingInfo;
@@ -220,7 +218,7 @@ public class Client extends Application implements RemoteUI {
 	protected void updateCookieHandlerState() {
 		CookieHandler default1 = CookieHandler.getDefault();
 		boolean isPersistJar = default1 instanceof CookieManager;
-		boolean wantsPeristJar = Configuration.getDefault().saveCookiesProperty().get();
+		boolean wantsPeristJar = Boolean.valueOf(System.getProperty("logonbox.vpn.saveCookies", "false"));
 		if (isPersistJar != wantsPeristJar) {
 			if (wantsPeristJar) {
 				log.info("Using in custom cookie manager");
@@ -234,9 +232,7 @@ public class Client extends Application implements RemoteUI {
 	}
 
 	protected CookieManager createCookieManager() {
-		CookieStore store = new CustomCookieStore();
-		CookieManager mgr = new CookieManager(store, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
-		return mgr;
+		return new CookieManager(Main.getInstance().getCookieStore(), CookiePolicy.ACCEPT_ORIGINAL_SERVER);
 	}
 
 	public boolean isWaitingForExitChoice() {
@@ -379,8 +375,6 @@ public class Client extends Application implements RemoteUI {
 
 		this.originalCookieHander = CookieHandler.getDefault();
 		updateCookieHandlerState();
-		Configuration.getDefault().saveCookiesProperty().addListener((e) -> updateCookieHandlerState());
-		log.info("Stage ready.");
 
 	}
 

@@ -2,9 +2,7 @@ package com.logonbox.vpn.client.gui.jfx;
 
 import java.util.prefs.Preferences;
 
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -30,7 +28,6 @@ public class Configuration {
 	private IntegerProperty h = new SimpleIntegerProperty();
 	private IntegerProperty x = new SimpleIntegerProperty();
 	private IntegerProperty y = new SimpleIntegerProperty();
-	private BooleanProperty saveCookies = new SimpleBooleanProperty();
 
 	//
 	private final static Configuration DEFAULT_INSTANCE = new Configuration(
@@ -114,21 +111,12 @@ public class Configuration {
 		logLevel.set(node.get("logLevel", null));
 		logLevel.addListener(new StringPreferenceUpdateChangeListener(node, "logLevel"));
 
-		saveCookies.set(node.getBoolean("saveCookies", false));
-		saveCookies
-				.addListener(new BooleanPreferenceUpdateChangeListener(node, "saveCookies"));
-
-		
 	}
 
 	public static Configuration getDefault() {
 		return DEFAULT_INSTANCE;
 	}
 	
-	public BooleanProperty saveCookiesProperty() {
-		return saveCookies;
-	}
-
 	public StringProperty configurationFileProperty() {
 		return configurationFileDirectory;
 	}

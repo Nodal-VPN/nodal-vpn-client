@@ -332,9 +332,8 @@ public class UI implements BusLifecycleListener {
 			String phase = memberOrDefault(o, "phase", String.class, null);
 			Boolean automaticUpdates = memberOrDefault(o, "automaticUpdates", Boolean.class, null);
 			Boolean ignoreLocalRoutes = memberOrDefault(o, "ignoreLocalRoutes", Boolean.class, null);
-			Boolean saveCookies = memberOrDefault(o, "saveCookies", Boolean.class, null);
 			UI.this.saveOptions(trayMode, darkMode, phase, automaticUpdates, logLevel, ignoreLocalRoutes,
-					dnsIntegrationMethod, saveCookies);
+					dnsIntegrationMethod);
 		}
 
 		public void showError(String error) {
@@ -586,7 +585,6 @@ public class UI implements BusLifecycleListener {
 		Configuration config = Configuration.getDefault();
 		beans.put("darkMode", config.darkModeProperty().get());
 		beans.put("logLevel", config.logLevelProperty().get() == null ? "" : config.logLevelProperty().get());
-		beans.put("saveCookies", config.saveCookiesProperty().get());
 
 		return beans;
 	}
@@ -1179,7 +1177,7 @@ public class UI implements BusLifecycleListener {
 	}
 
 	protected void saveOptions(String trayMode, String darkMode, String phase, Boolean automaticUpdates,
-			String logLevel, Boolean ignoreLocalRoutes, String dnsIntegrationMethod, Boolean saveCookies) {
+			String logLevel, Boolean ignoreLocalRoutes, String dnsIntegrationMethod) {
 		try {
 			/* Local per-user GUI specific configuration */
 			Configuration config = Configuration.getDefault();
@@ -1193,10 +1191,6 @@ public class UI implements BusLifecycleListener {
 					Main.getInstance().setLogLevel(Main.getInstance().getDefaultLogLevel());
 				else
 					Main.getInstance().setLogLevel(AbstractApp.parseLogLevel(logLevel));
-			}
-
-			if (saveCookies != null) {
-				config.saveCookiesProperty().set(saveCookies);
 			}
 
 			/* Update configuration stored globally in service */
@@ -1878,7 +1872,7 @@ public class UI implements BusLifecycleListener {
 	}
 
 	private void showError(String error, String cause, String exception) {
-		if(cause.startsWith("No subject alternative names matching IP address ")) {
+		if(cause.startsWith("No subject alternative")) {
 			showError(error, cause, exception, "sanError.html");
 		}
 		else
@@ -1915,11 +1909,11 @@ public class UI implements BusLifecycleListener {
 				exception.printStackTrace(new PrintWriter(w));
 				lastException = w.toString();
 			}
-			if(cause.startsWith("No subject alternative names matching IP address ")) {
-				setHtmlPage("error.html");
+			if(cause.startsWith("No subject alternative")) {
+				setHtmlPage("sanError.html");
 			}
 			else {
-				setHtmlPage("sanError.html");
+				setHtmlPage("error.html");
 			}
 		});
 	}
