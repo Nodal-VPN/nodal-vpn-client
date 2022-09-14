@@ -13,7 +13,7 @@
 			var txt = $(self).text();
 			$(self).attr('data-btn-text', txt);
 			//binding spinner element to button and changing button text
-			$(self).html('<span class="spinner"><i class="fa fa-spinner fa-spin"></i></span>' + txt);
+			$(self).html('<span class="spinner iconLink"><i class="fa fa-spinner fa-spin"></i></span>' + txt);
 			$(self).addClass('active');
 		}
 		//stop loading animation
