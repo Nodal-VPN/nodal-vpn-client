@@ -1,8 +1,9 @@
 # Changes
 
-## 2.4.0-???
+## 2.4.0-812
 
-In progress.
+ * Windows groups are now looked up by SID, not name, this should make it more reliable on
+   non English installations..
 
 ## 2.4.0-692
 
