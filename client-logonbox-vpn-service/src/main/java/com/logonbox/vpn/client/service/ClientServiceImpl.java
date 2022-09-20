@@ -42,6 +42,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.ini4j.Ini;
+import org.ini4j.InvalidFileFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -427,134 +428,43 @@ public class ClientServiceImpl implements ClientService {
 		        .followRedirects(Redirect.NORMAL)
 		        .connectTimeout(Duration.ofSeconds(20))
 		        .build();
-
-		var builder = HttpRequest.newBuilder();
 		
 		/* A simple ping first. This isn't strictly required, but getConnectionError()
 		 * does the same thing, so lets stick with it for now.. 
 		 */
-		var uri = connection.getConnectionTestUri(false) + "/api/server/ping";
-		log.info(String.format("Testing if a connection to %s should be retried using %s.",
-				connection.getDisplayName(), uri));
-		var uuid = getUUID(connection.getOwner());
-		var request = builder
-		         .uri(URI.create(uri))
-		         .build();
 
 		try {
-			var response = client.send(request, BodyHandlers.ofString());
-			if(response.statusCode() != 200) {
-				log.info(String.format("Server for %s appears to exist, but there was an error pinging (error %d).",
-						connection.getDisplayName(), response.statusCode()));
-				throw new IOException("Server returned a non-200 response.");
+			var rootUri = connection.getUri(false);
+			try {
+				var newConnection = getConnectionStatusFromHost(rootUri, connection, client);
+				if(newConnection != null)
+					return newConnection;
 			}
-			
-			/* So the ping was OK (we dont care about the content of the response here, just that it happened), this means we either need to re-authorize, or somehow
-			 * the server is no longer accepting wireguard packets, but is still running and
-			 * accepting HTTP requests.
-			 * 
-			 * It turns out this can happen, so we do need to check if we really need to 
-			 * re-authorize by seeing if our public key is still valid.
-			 * 
-			 * For 2.4 servers, we also expect a X-VPN-Challenge response header, that we
-			 * encrypt with our private key, and send the results in a X-VPN-Response header
-			 * in the /configuration call. 
-			 */
-
-			uri = connection.getConnectionTestUri(false) + "/api/peers/check/" + connection.getUserPublicKey();
-			log.info(String.format("Testing if a configuration is actually valid for %s on %s.",
-					connection.getDisplayName(), uri));
-			request = builder
-			         .uri(URI.create(uri))
-			         .build();
-
-			response = client.send(request, BodyHandlers.ofString());
-			if(response.statusCode() == 200) {
-				/* This public key DOES exist. Let's see if we have any configuration updates */
-				
-				log.info(String.format("A peer with the key %s is still valid according to the server, so the problem is transient.", connection.getUserPublicKey()));
-				
-				var challenge = response.headers().firstValue(X_VPN_CHALLENGE).orElse("");
-				if(challenge.equals("")) {
-					log.info("Server appears to be a pre-2.4.0 server, cannot get configuration updates at this time.");
-				}
-				else {
-					uri = connection.getConnectionTestUri(false) + "/api/peers/configuration/" + connection.getUserPublicKey();
-					log.info(String.format("Asking for latest configuration for %s on %s.",
-							connection.getDisplayName(), uri));
-					
-					/* Calculate the challenges response */
-					log.info("Signing challenge: {} using public key of {}", challenge, connection.getUserPublicKey());
-					
-					//
-					// TODO!!!!
-					// 
-					// This is not secure at all. It is a placeholder until we can get
-					// signature verification working.
-
-					var signature = challenge;
-					log.info("Signature: {}", signature);
-					
-					request = builder
-					         .uri(URI.create(uri))
-					         .header(COOKIE, AbstractDBusClient.DEVICE_IDENTIFIER + "=" + uuid)
-					         .header(X_VPN_RESPONSE, signature)
-					         .build();
-	
-					response = client.send(request, BodyHandlers.ofString());
-					if(response.statusCode() == 200) {
-						
-						var ini = new Ini(new StringReader(response.body()));
-				
-						/* Interface (us) */
-						var interfaceSection = ini.get("Interface");
-						connection.setDns(Util.toStringList(interfaceSection, "DNS"));
-				
-						connection.setPreUp(interfaceSection.containsKey("PreUp") ?  String.join("\n", interfaceSection.getAll("PreUp")) : "");
-						connection.setPostUp(interfaceSection.containsKey("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
-						connection.setPreDown(interfaceSection.containsKey("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
-						connection.setPostDown(interfaceSection.containsKey("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
-				
-						/* Custom LogonBox */
-						var logonBoxSection = ini.get("LogonBox");
-						if (logonBoxSection != null) {
-							connection.setRouteAll("true".equals(logonBoxSection.get("RouteAll")));
-						}
-				
-						/* Peer (them) */
-						var peerSection = ini.get("Peer");
-						var endpoint = peerSection.get("Endpoint");
-						int idx = endpoint.lastIndexOf(':');
-						connection.setEndpointAddress(endpoint.substring(0, idx));
-						connection.setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
-						connection.setPeristentKeepalive(Integer.parseInt(peerSection.get("PersistentKeepalive")));
-						connection.setAllowedIps(Util.toStringList(peerSection, "AllowedIPs"));
-								
-						return save(connection);
+			catch(IOException ex) {
+				// See https://logonboxlimited.slack.com/archives/C01218U3VC6/p1658533276788029
+				try {
+					var testUri = connection.getConnectionTestUri(false);
+					if(Objects.equals(rootUri, testUri)) {
+						/* Same URI, no need to fallback */
+						throw ex;
 					}
 					else {
-						log.info("Server appeared to be a 2.4.0 server, but it did not response to a configuration update request. Assuming no config change.");
+						log.warn("Hostname based URI check failed, falling back to IP address.");
+						var newConnection = getConnectionStatusFromHost(testUri, connection, client);
+						if(newConnection != null)
+							return connection;
 					}
 				}
-				return connection;
+				catch(IOException ex2) {
+					/* Failed to reach Http server, this is a hopefully a transient network error */
+					log.info("Error is retryable.", ex);
+					throw ex;
+				}
+							
 			}
-			else if(response.statusCode() == 404) {
-				/* Server is earlier than version 2.3.12 */
-				log.info(String.format("This is a < 2.3.12 server, assuming re-authorization is needed (please upgrade).", connection.getUserPublicKey()));
-			}
-			else {
-				/* TODO This public key DOES NOT exist */
-				log.info(String.format("No peer with the key %s is valid according to the server (error %d), so we need to re-authorize.", connection.getUserPublicKey(), response.statusCode()));
-			}
-			
 		}
 		catch(InterruptedException ex) {
 			throw new IOException("Interrupted.", ex);
-		}
-		catch(IOException ex) {
-			/* Failed to reach Http server, this is a hopefully a transient network error */
-			log.info("Error is retryable.", ex);
-			throw ex;			
 		}
 			
 		/*
@@ -564,6 +474,123 @@ public class ClientServiceImpl implements ClientService {
 		log.info("Error is not retryable, invalidate configuration. ");
 		connection.deauthorize();
 		return save(connection);
+	}
+
+	private Connection getConnectionStatusFromHost(String rootUri, Connection connection, HttpClient client)
+			throws IOException, InterruptedException, InvalidFileFormatException {
+		var pingUrl = rootUri + "/api/server/ping";
+		log.info(String.format("Testing if a connection to %s should be retried using %s.",
+				connection.getDisplayName(), pingUrl));
+		var uuid = getUUID(connection.getOwner());
+		var builder = HttpRequest.newBuilder();
+		var request = builder
+		         .uri(URI.create(pingUrl))
+		         .build();
+		var response = client.send(request, BodyHandlers.ofString());
+		if(response.statusCode() != 200) {
+			log.info(String.format("Server for %s appears to exist, but there was an error pinging (error %d).",
+					connection.getDisplayName(), response.statusCode()));
+			throw new IOException("Server returned a non-200 response.");
+		}
+		
+		/* So the ping was OK (we dont care about the content of the response here, just that it happened), this means we either need to re-authorize, or somehow
+		 * the server is no longer accepting wireguard packets, but is still running and
+		 * accepting HTTP requests.
+		 * 
+		 * It turns out this can happen, so we do need to check if we really need to 
+		 * re-authorize by seeing if our public key is still valid.
+		 * 
+		 * For 2.4 servers, we also expect a X-VPN-Challenge response header, that we
+		 * encrypt with our private key, and send the results in a X-VPN-Response header
+		 * in the /configuration call. 
+		 */
+
+		var checkUri = rootUri + "/api/peers/check/" + connection.getUserPublicKey();
+		log.info(String.format("Testing if a configuration is actually valid for %s on %s.",
+				connection.getDisplayName(), checkUri));
+		request = builder
+		         .uri(URI.create(checkUri))
+		         .build();
+
+		response = client.send(request, BodyHandlers.ofString());
+		if(response.statusCode() == 200) {
+			/* This public key DOES exist. Let's see if we have any configuration updates */
+			
+			log.info(String.format("A peer with the key %s is still valid according to the server, so the problem is transient.", connection.getUserPublicKey()));
+			
+			var challenge = response.headers().firstValue(X_VPN_CHALLENGE).orElse("");
+			if(challenge.equals("")) {
+				log.info("Server appears to be a pre-2.4.0 server, cannot get configuration updates at this time.");
+			}
+			else {
+				var configUri = rootUri + "/api/peers/configuration/" + connection.getUserPublicKey();
+				log.info(String.format("Asking for latest configuration for %s on %s.",
+						connection.getDisplayName(), configUri));
+				
+				/* Calculate the challenges response */
+				log.info("Signing challenge: {} using public key of {}", challenge, connection.getUserPublicKey());
+				
+				//
+				// TODO!!!!
+				// 
+				// This is not secure at all. It is a placeholder until we can get
+				// signature verification working.
+
+				var signature = challenge;
+				log.info("Signature: {}", signature);
+				
+				request = builder
+				         .uri(URI.create(configUri))
+				         .header(COOKIE, AbstractDBusClient.DEVICE_IDENTIFIER + "=" + uuid)
+				         .header(X_VPN_RESPONSE, signature)
+				         .build();
+
+				response = client.send(request, BodyHandlers.ofString());
+				if(response.statusCode() == 200) {
+					
+					var ini = new Ini(new StringReader(response.body()));
+			
+					/* Interface (us) */
+					var interfaceSection = ini.get("Interface");
+					connection.setDns(Util.toStringList(interfaceSection, "DNS"));
+			
+					connection.setPreUp(interfaceSection.containsKey("PreUp") ?  String.join("\n", interfaceSection.getAll("PreUp")) : "");
+					connection.setPostUp(interfaceSection.containsKey("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
+					connection.setPreDown(interfaceSection.containsKey("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
+					connection.setPostDown(interfaceSection.containsKey("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
+			
+					/* Custom LogonBox */
+					var logonBoxSection = ini.get("LogonBox");
+					if (logonBoxSection != null) {
+						connection.setRouteAll("true".equals(logonBoxSection.get("RouteAll")));
+					}
+			
+					/* Peer (them) */
+					var peerSection = ini.get("Peer");
+					var endpoint = peerSection.get("Endpoint");
+					int idx = endpoint.lastIndexOf(':');
+					connection.setEndpointAddress(endpoint.substring(0, idx));
+					connection.setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
+					connection.setPeristentKeepalive(Integer.parseInt(peerSection.get("PersistentKeepalive")));
+					connection.setAllowedIps(Util.toStringList(peerSection, "AllowedIPs"));
+							
+					return save(connection);
+				}
+				else {
+					log.info("Server appeared to be a 2.4.0 server, but it did not response to a configuration update request. Assuming no config change.");
+				}
+			}
+			return connection;
+		}
+		else if(response.statusCode() == 404) {
+			/* Server is earlier than version 2.3.12 */
+			log.info(String.format("This is a < 2.3.12 server, assuming re-authorization is needed (please upgrade).", connection.getUserPublicKey()));
+		}
+		else {
+			/* This public key DOES NOT exist */
+			log.info(String.format("No peer with the key %s is valid according to the server (error %d), so we need to re-authorize.", connection.getUserPublicKey(), response.statusCode()));
+		}
+		return null;
 	}
 
 	protected void addConnectionCookie(Connection connection) {
