@@ -461,7 +461,7 @@ public class ClientServiceImpl implements ClientService {
 			 * in the /configuration call. 
 			 */
 
-			uri = connection.getUri(false) + "/api/peers/check/" + connection.getUserPublicKey();
+			uri = connection.getConnectionTestUri(false) + "/api/peers/check/" + connection.getUserPublicKey();
 			log.info(String.format("Testing if a configuration is actually valid for %s on %s.",
 					connection.getDisplayName(), uri));
 			request = builder
@@ -479,7 +479,7 @@ public class ClientServiceImpl implements ClientService {
 					log.info("Server appears to be a pre-2.4.0 server, cannot get configuration updates at this time.");
 				}
 				else {
-					uri = connection.getUri(false) + "/api/peers/configuration/" + connection.getUserPublicKey();
+					uri = connection.getConnectionTestUri(false) + "/api/peers/configuration/" + connection.getUserPublicKey();
 					log.info(String.format("Asking for latest configuration for %s on %s.",
 							connection.getDisplayName(), uri));
 					
