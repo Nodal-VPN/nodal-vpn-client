@@ -375,8 +375,14 @@ public abstract class AbstractDBusClient implements DBusClient {
 						} catch (DBusException e) {
 						}
 					}
-					conn.disconnect();
-					conn = null;
+					try {
+						conn.disconnect();
+					}
+					catch(Exception e) {
+					}
+					finally {
+						conn = null;
+					}
 				}
 				vpn = null;
 				getUpdateService().checkIfBusAvailable();

@@ -7,7 +7,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
 import org.apache.log4j.Level;
-import org.freedesktop.dbus.connections.impl.DBusConnection;
+import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.messages.Message;
 
 import com.logonbox.vpn.client.service.ClientService;
@@ -33,7 +33,7 @@ public interface LocalContext {
 	
 	boolean isRegistrationRequired();
 
-	DBusConnection getConnection();
+	AbstractConnection getConnection();
 
 	Collection<VPNFrontEnd> getFrontEnds();
 

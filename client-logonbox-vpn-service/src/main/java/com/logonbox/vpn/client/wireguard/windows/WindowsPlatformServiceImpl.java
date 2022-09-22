@@ -521,7 +521,7 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 	}
 
 	protected boolean isWireGuardInterface(WindowsIP nif) {
-		return isMatchesPrefix(nif) && nif.getDisplayName().startsWith("Wintun Userspace Tunnel");
+		return isMatchesPrefix(nif) && ( nif.getDisplayName().startsWith("Wintun Userspace Tunnel") || nif.getDisplayName().startsWith("WireGuard Tunnel"));
 	}
 
 	protected boolean isMatchesPrefix(WindowsIP nif) {
