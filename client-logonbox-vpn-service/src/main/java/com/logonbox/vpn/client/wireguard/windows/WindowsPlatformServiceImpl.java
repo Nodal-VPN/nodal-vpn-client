@@ -142,7 +142,7 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 					String[] args = line.split(":");
 					if(args.length > 1) {
 						String description = args[1].trim();
-						if(description.equals("WireGuard Tunnel")) {
+						if(description.startsWith("WireGuard Tunnel")) {
 							WindowsIP vaddr = new WindowsIP(name, description, this);
 							configureVirtualAddress(vaddr);
 							ips.add(vaddr);
@@ -151,6 +151,7 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 					}
 				}
 			}
+			
 		} catch (Exception e) {
 			throw new IllegalStateException("Failed to list interfaces.", e);
 		}
@@ -525,7 +526,11 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 	}
 
 	protected boolean isMatchesPrefix(WindowsIP nif) {
-		return nif.getName().startsWith(getInterfacePrefix());
+		return isMatchesPrefix(nif.getName());
+	}
+
+	protected boolean isMatchesPrefix(String name) {
+		return name.startsWith(getInterfacePrefix());
 	}
 
 	@Override
