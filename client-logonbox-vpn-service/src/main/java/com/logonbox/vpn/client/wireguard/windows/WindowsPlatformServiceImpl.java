@@ -140,6 +140,7 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 					s.nextToken(); // Met
 					if(s.hasMoreTokens()) {
 						s.nextToken(); // MTU
+						s.nextToken(); // Status
 						var b = new StringBuilder();
 						while(s.hasMoreTokens()) {
 							if(b.length() > 0)
