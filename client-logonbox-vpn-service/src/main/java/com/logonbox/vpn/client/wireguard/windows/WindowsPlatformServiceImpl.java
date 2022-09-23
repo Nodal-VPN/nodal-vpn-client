@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
@@ -122,7 +123,42 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 	
 	@Override
 	public List<WindowsIP> ips(boolean wireguardInterface) {
-		Set<WindowsIP> ips = new LinkedHashSet<>(super.ips(wireguardInterface));
+		Set<WindowsIP> ips = new LinkedHashSet<>();
+		
+
+		/* netsh first */
+		try {
+			for(String line : OSCommand.adminCommandAndCaptureOutput("netsh", "interface", "ip", "show", "interfaces")) {
+				line = line.trim();
+				if(line.equals("") || line.startsWith("Idx") || line.startsWith("---"))
+					continue;
+				var s = new StringTokenizer(line);
+				s.nextToken(); // Idx
+				if(s.hasMoreTokens()) {
+					s.nextToken(); // Met
+					if(s.hasMoreTokens()) {
+						s.nextToken(); // MTU
+						var b = new StringBuilder();
+						while(s.hasMoreTokens()) {
+							if(b.length() > 0)
+								b.append(' ');
+							b.append(s.nextToken());
+						}
+						var ifName = b.toString();
+						if(isMatchesPrefix(ifName)) {
+							WindowsIP vaddr = new WindowsIP(ifName.toString(), ifName.toString(), this);
+							configureVirtualAddress(vaddr);
+							ips.add(vaddr);
+						}
+					}
+					
+				}
+			}
+		}
+		catch(Exception e) {
+			LOG.error("No netsh?", e);
+		}
+		
 		try {
 			String name = null;
 			
@@ -152,9 +188,13 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 				}
 			}
 			
-		} catch (Exception e) {
-			throw new IllegalStateException("Failed to list interfaces.", e);
 		}
+		catch(Exception e) {
+			LOG.error("Failed to list interfaces via Java.", e);
+		}
+		
+		ips.addAll(super.ips(wireguardInterface));
+		
 		return new ArrayList<WindowsIP>(ips);
 	}
 	
