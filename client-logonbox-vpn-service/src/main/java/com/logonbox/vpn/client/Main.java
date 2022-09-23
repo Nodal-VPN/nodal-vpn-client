@@ -369,6 +369,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 					log.info("Ready on Session DBus");
 					newAddress = conn.getAddress().toString();
 				}
+				busAddress = BusAddress.of(newAddress);
 				
 			} else {
 				log.info(String.format("Creating new DBus broker. Initial address is %s", StringUtils.isBlank(newAddress) ? "BLANK" : newAddress));
