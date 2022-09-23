@@ -128,7 +128,9 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 
 		/* netsh first */
 		try {
+			LOG.info("Trying netsh");
 			for(String line : OSCommand.adminCommandAndCaptureOutput("netsh", "interface", "ip", "show", "interfaces")) {
+				LOG.info(">> " + line);
 				line = line.trim();
 				if(line.equals("") || line.startsWith("Idx") || line.startsWith("---"))
 					continue;
@@ -166,8 +168,10 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 			 * active WireGuard interfaces for some reason, so use ipconfig /all to 
 			 * create a merged list. 
 			 */
+			LOG.info("Trying ipconfig");
 			for(String line : OSCommand.adminCommandAndCaptureOutput("ipconfig", "/all")) {
 				line = line.trim();
+				LOG.info(">> " + line);
 				if(line.startsWith("Unknown adapter")) {
 					String[] args = line.split("\\s+");
 					if(args.length > 1 && args[2].startsWith(getInterfacePrefix())) {
@@ -192,8 +196,13 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 		catch(Exception e) {
 			LOG.error("Failed to list interfaces via Java.", e);
 		}
-		
+
+		LOG.info("Trying defaults");
 		ips.addAll(super.ips(wireguardInterface));
+		
+		for(var f : ips) {
+			LOG.info("Found: " + f.getName() + " : " + f.getDisplayName());
+		}
 		
 		return new ArrayList<WindowsIP>(ips);
 	}
