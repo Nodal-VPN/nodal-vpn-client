@@ -729,11 +729,12 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 					log.warn("Failed to close bus connection.");
 				}
 			}
+			var embedded = daemon != null;
 			try {
 				shutdownEmbeddedDaemon();
 			}
 			finally {
-				if(busAddress != null) {
+				if(busAddress != null && embedded) {
 					for(int i = 0 ; i < 10 ; i++) {
 						try {
 							Files.delete(Paths.get(busAddress.getParameterValue("path")));

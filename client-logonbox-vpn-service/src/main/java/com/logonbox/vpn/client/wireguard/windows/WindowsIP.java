@@ -136,7 +136,7 @@ public class WindowsIP extends AbstractVirtualInetAddress<WindowsPlatformService
 					/* Ipv4 */
 					String[] dnsAddresses = IpUtil.filterIpV4Addresses(dns);
 					if(dnsAddresses.length > 2) {
-						LOG.warn("Windows only supports a maximum of 2 DNS servers. %d were supplied, the last %d will be ignored.", dnsAddresses.length, dnsAddresses.length - 2);
+						LOG.warn("Windows only supports a maximum of 2 DNS servers. {} were supplied, the last {} will be ignored.", dnsAddresses.length, dnsAddresses.length - 2);
 					}
 
 					OSCommand.adminCommand(OsUtil.debugCommandArgs("netsh", "interface", "ipv4", "delete", "dnsservers", getName(), "all"));
@@ -150,7 +150,7 @@ public class WindowsIP extends AbstractVirtualInetAddress<WindowsPlatformService
 					/* Ipv6 */
 					dnsAddresses = IpUtil.filterIpV6Addresses(dns);
 					if(dnsAddresses.length > 2) {
-						LOG.warn("Windows only supports a maximum of 2 DNS servers. %d were supplied, the last %d will be ignored.", dnsAddresses.length, dnsAddresses.length - 2);
+						LOG.warn("Windows only supports a maximum of 2 DNS servers. {} were supplied, the last {} will be ignored.", dnsAddresses.length, dnsAddresses.length - 2);
 					}
 
 					OSCommand.adminCommand(OsUtil.debugCommandArgs("netsh", "interface", "ipv6", "delete", "dnsservers", getName(), "all"));

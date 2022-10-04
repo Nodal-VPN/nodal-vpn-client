@@ -86,7 +86,7 @@ public class VPNSession implements Closeable {
 		ConnectionStatus connection = cctx.getClientService().getStatus(this.connection.getId());
 		Connection vpnConnection = connection.getConnection();
 		if (log.isInfoEnabled()) {
-			log.info(String.format("Connecting to %s", vpnConnection.getUri(true)));
+			log.info(String.format("Connecting to %s (owned by %s)", vpnConnection.getUri(true), vpnConnection.getOwner()));
 		}
 		if(!vpnConnection.isAuthorized()) {
 			throw new ReauthorizeException("Requires authorization.");
@@ -107,7 +107,7 @@ public class VPNSession implements Closeable {
 		}
 		
 		if (log.isInfoEnabled()) {
-			log.info("Ready to " + connection);
+			log.info("Ready to use {}", vpnConnection.getDisplayName());
 		}
 
 	}

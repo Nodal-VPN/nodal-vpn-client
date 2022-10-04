@@ -6,6 +6,7 @@ import java.util.concurrent.Callable;
 import com.logonbox.vpn.client.cli.CLIContext;
 import com.logonbox.vpn.client.cli.ConsoleProvider;
 import com.logonbox.vpn.common.client.ConnectionStatus.Type;
+import com.logonbox.vpn.common.client.Util;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
 
 import picocli.CommandLine.Command;
@@ -23,13 +24,30 @@ public class Connections implements Callable<Integer> {
 		CLIContext cli = (CLIContext) spec.parent().userObject();
 		ConsoleProvider console = cli.getConsole();
 		PrintWriter writer = console.out();
-		writer.println(String.format("%10s %-35s %-5s %-14s %s", "ID", "Name", "Flags", "Status", "URL"));
-		writer.println("=======================================================================================");
-		for (VPNConnection connection : cli.getVPNConnections()) {
-			writer.println(String.format("%10d %-35s %-5s %-14s %s", connection.getId(),
-					trimMax(connection.getDisplayName(), 25), 
-					getFlags(connection),
-					Type.valueOf(connection.getStatus()), connection.getUri(true), 20));
+		if(Util.isAdministrator())  {
+			writer.println(String.format("%5s %-25s %-15s %-5s %-10s %s", "ID", "Name", "Owner", "Flags", "Status", "URL"));
+			writer.println("=======================================================================================================");
+			for (VPNConnection connection : cli.getVPNConnections()) {
+				writer.println(String.format("%5d %-25s %-15s %-5s %-10s %s", 
+						connection.getId(),
+						trimMax(connection.getDisplayName(), 25),
+						trimMax(connection.getOwner(), 15),  
+						getFlags(connection),
+						trimMax(Type.valueOf(connection.getStatus()).name(), 10), 
+						trimMax(connection.getUri(true), 15)));
+			}
+		}
+		else {
+			writer.println(String.format("%5s %-35s %-5s %-14s %s", "ID", "Name", "Flags", "Status", "URL"));
+			writer.println("=======================================================================================");
+			for (VPNConnection connection : cli.getVPNConnections()) {
+				writer.println(String.format("%5d %-35s %-5s %-10s %s", 
+						connection.getId(),
+						trimMax(connection.getDisplayName(), 35), 
+						getFlags(connection),
+						trimMax(Type.valueOf(connection.getStatus()).name(), 10), 
+						trimMax(connection.getUri(true), 21)));
+			}
 		}
 		console.flush();
 
@@ -52,8 +70,8 @@ public class Connections implements Callable<Integer> {
 	}
 
 	private static String trimMax(String str, int max) {
-		if (str.length() > max)
-			return str.substring(0, max);
+		if (str.length() > max - 2)
+			return str.substring(0, max - 2) + "..";
 		else
 			return str;
 	}
