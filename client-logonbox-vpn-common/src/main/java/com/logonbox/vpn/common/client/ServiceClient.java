@@ -133,7 +133,7 @@ public class ServiceClient {
 			}
 		}
 
-		return HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).
+		return HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).
 				cookieHandler(cookieHandler).sslContext(certManager.getSSLContext()).sslParameters(certManager.getSSLParameters())
 				.connectTimeout(Duration.ofSeconds(15)).followRedirects(HttpClient.Redirect.NORMAL).build();
 

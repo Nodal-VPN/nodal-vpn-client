@@ -518,7 +518,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 						log.info("Monitoring {}", busPath);
 						checkTask = queue.scheduleAtFixedRate(() -> {
 							if(!Files.exists(busPath)) {
-								log.warn("DBus socket file {} has gone missing, restarting.");
+								log.warn("DBus socket file {} has gone missing, restarting.", busPath);
 								shutdownEmbeddedDaemon();
 								disconnectAndRetry();
 							}

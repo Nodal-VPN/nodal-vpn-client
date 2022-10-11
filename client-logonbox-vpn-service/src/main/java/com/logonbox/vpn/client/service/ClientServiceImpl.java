@@ -485,6 +485,7 @@ public class ClientServiceImpl implements ClientService {
 		var builder = HttpRequest.newBuilder();
 		var request = builder
 		         .uri(URI.create(pingUrl))
+		         .version(Version.HTTP_1_1)
 		         .build();
 		var response = client.send(request, BodyHandlers.ofString());
 		if(response.statusCode() != 200) {
@@ -541,6 +542,7 @@ public class ClientServiceImpl implements ClientService {
 				
 				request = builder
 				         .uri(URI.create(configUri))
+				         .version(Version.HTTP_1_1)
 				         .header(COOKIE, AbstractDBusClient.DEVICE_IDENTIFIER + "=" + uuid)
 				         .header(X_VPN_RESPONSE, signature)
 				         .build();
