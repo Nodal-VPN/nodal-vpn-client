@@ -357,8 +357,10 @@ public class UI implements BusLifecycleListener {
 			String phase = memberOrDefault(o, "phase", String.class, null);
 			Boolean automaticUpdates = memberOrDefault(o, "automaticUpdates", Boolean.class, null);
 			Boolean ignoreLocalRoutes = memberOrDefault(o, "ignoreLocalRoutes", Boolean.class, null);
+			Integer mtu = memberOrDefault(o, "mtu", Integer.class, null);
+			Boolean singleActiveConnection = memberOrDefault(o, "singleActiveConnection", Boolean.class, null);
 			UI.this.saveOptions(trayMode, darkMode, phase, automaticUpdates, logLevel, ignoreLocalRoutes,
-					dnsIntegrationMethod);
+					dnsIntegrationMethod, mtu, singleActiveConnection);
 		}
 
 		public void showError(String error) {
@@ -643,9 +645,11 @@ public class UI implements BusLifecycleListener {
 		if (vpn == null) {
 			beans.put("phases", new String[0]);
 			beans.put("phase", "");
-			beans.put("automaticUpdates", "true");
-			beans.put("ignoreLocalRoutes", "true");
+			beans.put("automaticUpdates", true);
+			beans.put("ignoreLocalRoutes", true);
 			beans.put("dnsIntegrationMethod", DNSIntegrationMethod.AUTO.name());
+			beans.put("singleActiveConnection", true);
+			beans.put("mtu", 0);
 		} else {
 			try {
 				beans.put("phases", updateService.getPhases());
@@ -658,6 +662,8 @@ public class UI implements BusLifecycleListener {
 			beans.put("dnsIntegrationMethod", vpn.getValue(ConfigurationItem.DNS_INTEGRATION_METHOD.getKey()));
 
 			/* Store locally in preference */
+			beans.put("singleActiveConnection", vpn.getBooleanValue(ConfigurationItem.SINGLE_ACTIVE_CONNECTION.getKey()));
+			beans.put("mtu", vpn.getIntValue(ConfigurationItem.MTU.getKey()));
 			beans.put("automaticUpdates", vpn.getBooleanValue(ConfigurationItem.AUTOMATIC_UPDATES.getKey()));
 			beans.put("ignoreLocalRoutes", vpn.getBooleanValue(ConfigurationItem.IGNORE_LOCAL_ROUTES.getKey()));
 		}
@@ -1369,7 +1375,7 @@ public class UI implements BusLifecycleListener {
 	}
 
 	protected void saveOptions(String trayMode, String darkMode, String phase, Boolean automaticUpdates,
-			String logLevel, Boolean ignoreLocalRoutes, String dnsIntegrationMethod) {
+			String logLevel, Boolean ignoreLocalRoutes, String dnsIntegrationMethod, Integer mtu, Boolean singleActiveConnection) {
 		try {
 			/* Local per-user GUI specific configuration */
 			Configuration config = Configuration.getDefault();
@@ -1407,6 +1413,12 @@ public class UI implements BusLifecycleListener {
 			}
 			if (ignoreLocalRoutes != null) {
 				vpn.setBooleanValue(ConfigurationItem.IGNORE_LOCAL_ROUTES.getKey(), ignoreLocalRoutes);
+			}
+			if (singleActiveConnection != null) {
+				vpn.setBooleanValue(ConfigurationItem.SINGLE_ACTIVE_CONNECTION.getKey(), singleActiveConnection);
+			}
+			if (mtu != null) {
+				vpn.setIntValue(ConfigurationItem.MTU.getKey(), mtu);
 			}
 			if (logLevel != null) {
 				vpn.setValue(ConfigurationItem.LOG_LEVEL.getKey(), logLevel);

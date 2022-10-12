@@ -23,19 +23,17 @@
 				</div>
 			</div>
 			<form id="optionsForm">
-				<div data-conditional="updatesEnabled">
+				<div data-conditional="updatesEnabled" class="mb-3">
 					<h4 data-i18n="updates">Updates</h4>
 					<div class="form-check">
 						<input type="checkbox" class="form-check-input"
 							id="automaticUpdates" /> <label for="automaticUpdates"
 							data-i18n="automaticUpdates">Automatic Updates</label>
-						<p>
+					</div>
 							<small id="automaticUpdatesHelp" data-i18n="automaticUpdatesHelp"
 								class="form-text text-muted">Help</small>
-						</p>
-					</div>
 
-					<div class="form-group">
+					<div class="form-group mt-3">
 						<label for="phase" data-i18n="phase">Update Channel</label> <select
 							class="form-control" id="phase">
 						</select> <small id="phaseHelp" data-i18n="phaseHelp"
@@ -52,7 +50,7 @@
 				</div>
 
 				<div data-conditional="trayConfigurable">
-					<div class="form-group">
+					<div class="form-group  mt-3">
 						<label for="trayMode" data-i18n="trayMode">Tray Mode</label> <select
 							class="form-control" id="trayMode">
 						</select> <small id="trayModeHelp" data-i18n="trayModeHelp"
@@ -87,6 +85,21 @@
 								data-i18n="ignoreLocalRoutesHelp" class="form-text text-muted">Help</small>
 						</p>
 					</div>
+					<div class="form-check ">
+						<input type="checkbox" class="form-check-input"
+							id="singleActiveConnection" /> <label for="singleActiveConnection"
+							data-i18n="singleActiveConnection">Single Active Connection</label>
+						<p>
+							<small id="singleActiveConnectionHelp"
+								data-i18n="singleActiveConnectionHelp" class="form-text text-muted">Help</small>
+						</p>
+					</div>
+					<div class="mt-3" class="form-group">
+						<label for="mtu" data-i18n="mtu">MTU</label> <input class="form-control"
+							id="mtu" type="number"/>
+						<small id="mtuHelp"
+							data-i18n="mtuHelp" class="form-text text-muted">MTU Help</small>
+					</div>
 				</div>
 			</form>
 		</div>
@@ -108,8 +121,14 @@
                 if ($('#automaticUpdates').length) {
                     $('#automaticUpdates').off('change');
                 }
+                if ($('#singleActiveConnection').length) {
+                    $('#singleActiveConnection').off('change');
+                }
                 if ($('#ignoreLocalRoutes').length) {
                     $('#ignoreLocalRoutes').off('change');;
+                }
+                if ($('#mtu').length) {
+                    $('#mtu').off('change');;
                 }
 
 				if ($('#phase').length) {
@@ -174,6 +193,10 @@
 					$('#dnsIntegrationMethod').append('<option ' + (dnsIntegrationMethods[i] == dnsIntegrationMethod ? 'selected="selected"' : '') + ' value="' + dnsIntegrationMethods[i] + '">' + txt + '</option>');
 				}
 
+				if ($('#mtu').length) {
+					$('#mtu').val(mtu);
+				}
+
 				if ($('#automaticUpdates').length) {
 					$('#automaticUpdates').prop('checked', automaticUpdates);
 				}
@@ -182,6 +205,10 @@
 					$('#ignoreLocalRoutes').prop('checked', ignoreLocalRoutes);
 				}
 
+				if ($('#singleActiveConnection').length) {
+					$('#singleActiveConnection').prop('checked', singleActiveConnection);
+				}
+				
 				$('#logLevel').on('change', function() {
                        bridge.saveOptions({ logLevel : $('#logLevel').val() });
 				});
@@ -211,6 +238,16 @@
                 if ($('#ignoreLocalRoutes').length) {
                     $('#ignoreLocalRoutes').on('change', function() {
                         bridge.saveOptions({ ignoreLocalRoutes : $('#ignoreLocalRoutes').is(':checked') });
+                    });
+                }
+                if ($('#singleActiveConnection').length) {
+                    $('#singleActiveConnection').on('change', function() {
+                        bridge.saveOptions({ singleActiveConnection : $('#singleActiveConnection').is(':checked') });
+                    });
+                }
+                if ($('#mtu').length) {
+                    $('#mtu').on('input', function() {
+                        bridge.saveOptions({ mtu : parseInt($('#mtu').val()) });
                     });
                 }
 

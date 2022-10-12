@@ -20,9 +20,11 @@ public class ConfigurationItem<T> {
 	public final static ConfigurationItem<Boolean> IGNORE_LOCAL_ROUTES = add("ignoreLocalRoutes", Boolean.class, true, true, false);
 	public final static ConfigurationItem<DNSIntegrationMethod> DNS_INTEGRATION_METHOD = add("dnsIntegrationMethod", DNSIntegrationMethod.class, DNSIntegrationMethod.AUTO, DNSIntegrationMethod.values());
 	public final static ConfigurationItem<Boolean> AUTOMATIC_UPDATES = add("automaticUpdates", Boolean.class, Scope.USER, true, true, false);
+	public final static ConfigurationItem<Boolean> SINGLE_ACTIVE_CONNECTION = add("singleActiveConnection", Boolean.class, Scope.GLOBAL, true, true, false);
 	public final static ConfigurationItem<String> PHASE = add("phase", String.class, "stable", "stable", "ea", "nightly");
 	public final static ConfigurationItem<Long> DEFER_UPDATE_UNTIL = add("deferUpdatesUntil", Long.class, Scope.USER, 0l);
 	public final static ConfigurationItem<Integer> RECONNECT_DELAY = add("reconnectDelay", Integer.class, 5);
+	public final static ConfigurationItem<Integer> MTU = add("mtu", Integer.class, Scope.GLOBAL, 0);
 	public final static ConfigurationItem<Long> FAVOURITE = add("favourite", Long.class, Scope.USER, 0l);
 	public final static ConfigurationItem<String> DEVICE_UUID = add("deviceUUID", String.class, Scope.USER, "");
 	

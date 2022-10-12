@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.logonbox.vpn.client.service.VPNSession;
 import com.logonbox.vpn.client.wireguard.AbstractPlatformServiceImpl;
 import com.logonbox.vpn.client.wireguard.OsUtil;
+import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.DNSIntegrationMethod;
 import com.logonbox.vpn.common.client.StatusDetail;
@@ -296,7 +297,7 @@ public class LinuxPlatformServiceImpl extends AbstractPlatformServiceImpl<LinuxI
 		long connectionStarted = ((System.currentTimeMillis() / 1000l) - 1) * 1000l;
 
 		/* Bring up the interface (will set the given MTU) */
-		ip.setMtu(configuration.getMtu());
+		ip.setMtu(configuration.getMtu() == 0 ? context.getClientService().getValue(null, ConfigurationItem.MTU) : configuration.getMtu());
 		log.info(String.format("Bringing up %s", ip.getName()));
 		ip.up();
 

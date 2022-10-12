@@ -161,6 +161,11 @@ public class ClientServiceImpl implements ClientService {
 			if (log.isInfoEnabled()) {
 				log.info("Scheduling connect for connection id " + c.getId() + "/" + c.getHostname());
 			}
+			if(configurationRepository.getValue(null, ConfigurationItem.SINGLE_ACTIVE_CONNECTION)) {
+				while(activeSessions.size() > 0) {
+					disconnect(activeSessions.values().iterator().next().getConnection(), "Switching to another server.");	
+				}
+			}
 
 			c.setError(null);
 			save(c);
@@ -514,7 +519,7 @@ public class ClientServiceImpl implements ClientService {
 				connection.getDisplayName(), checkUri));
 		request = builder
 		         .uri(URI.create(checkUri))
-		         .version(Version.HTTP_1_1)
+		         .version(Version.HTTP_2)
 		         .build();
 
 		response = client.send(request, BodyHandlers.ofString());
@@ -633,7 +638,8 @@ public class ClientServiceImpl implements ClientService {
 		log.info(String.format("Testing if a connection to %s should be retried using %s.",
 				connection.getDisplayName(), uri));
 		var request = builder
-		         .uri(URI.create(uri))
+				.version(Version.HTTP_1_1)
+		        .uri(URI.create(uri))
 		         .build();
 
 		try {
@@ -656,7 +662,8 @@ public class ClientServiceImpl implements ClientService {
 			log.info(String.format("Testing if a configuration is actually valid for %s on %s.",
 					connection.getDisplayName(), uri));
 			request = builder
-			         .uri(URI.create(uri))
+					.version(Version.HTTP_1_1)
+			        .uri(URI.create(uri))
 			         .build();
 
 			response = client.send(request, BodyHandlers.ofString());

@@ -63,6 +63,11 @@ public class DOMProcessor {
 		replacements.put("automaticUpdates",
 				vpn == null ? "true"
 						: vpn.getValue(ConfigurationItem.AUTOMATIC_UPDATES.getKey()));
+		replacements.put("singleActiveConnection",
+				vpn == null ? "true"
+						: vpn.getValue(ConfigurationItem.SINGLE_ACTIVE_CONNECTION.getKey()));
+		replacements.put("mtu", vpn == null ? "0"
+						: vpn.getValue(ConfigurationItem.MTU.getKey()));
 		replacements.put("updatesEnabled", String.valueOf(updateService.isUpdatesEnabled()));
 		replacements.put("needsUpdating", String.valueOf(updateService.isNeedsUpdating()));
 		long vpnFreeMemory = vpn == null ? 0 : vpn.getFreeMemory();

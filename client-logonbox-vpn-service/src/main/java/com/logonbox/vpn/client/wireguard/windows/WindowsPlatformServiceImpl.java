@@ -37,6 +37,7 @@ import com.logonbox.vpn.client.service.VPNSession;
 import com.logonbox.vpn.client.wireguard.AbstractPlatformServiceImpl;
 import com.logonbox.vpn.client.wireguard.OsUtil;
 import com.logonbox.vpn.client.wireguard.windows.service.NetworkConfigurationService;
+import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.DNSIntegrationMethod;
 import com.sshtools.forker.client.OSCommand;
@@ -698,6 +699,9 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 	@Override
 	protected void writeInterface(Connection configuration, Writer writer) {
 		PrintWriter pw = new PrintWriter(writer, true);
+		var mtu = configuration.getMtu() == 0 ? context.getClientService().getValue(null, ConfigurationItem.MTU) : configuration.getMtu();
+		if(mtu > 0)
+			pw.println(String.format("MTU = %s", configuration.getAddress()));
 		pw.println(String.format("Address = %s", configuration.getAddress()));
 	}
 
