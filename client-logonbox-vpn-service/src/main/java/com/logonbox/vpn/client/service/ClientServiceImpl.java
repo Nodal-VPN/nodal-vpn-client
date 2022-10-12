@@ -514,7 +514,7 @@ public class ClientServiceImpl implements ClientService {
 				connection.getDisplayName(), checkUri));
 		request = builder
 		         .uri(URI.create(checkUri))
-		         .version(Version.HTTP_2)
+		         .version(Version.HTTP_1_1)
 		         .build();
 
 		response = client.send(request, BodyHandlers.ofString());
