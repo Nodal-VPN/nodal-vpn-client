@@ -67,6 +67,7 @@ import com.logonbox.vpn.common.client.Util;
 import com.logonbox.vpn.common.client.dbus.VPN;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
 import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
+import com.sshtools.common.logger.Log;
 
 public class ClientServiceImpl implements ClientService {
 	private static final String COOKIE = "Cookie";
@@ -276,9 +277,11 @@ public class ClientServiceImpl implements ClientService {
 				e.printStackTrace();
 				throw new IllegalStateException("Failed to disconnect.", e);
 			}
+			Log.info("Deleting connection {}", connection.getDisplayName());
 			connectionRepository.delete(connection);
 			context.getConnection().unExportObject(String.format("/com/logonbox/vpn/%d", connection.getId()));
 			context.sendMessage(new VPN.ConnectionRemoved("/com/logonbox/vpn", connection.getId()));
+			Log.info("Deleted connection {}", connection.getDisplayName());
 
 		} catch (DBusException e) {
 			throw new IllegalStateException("Failed to delete.", e);
@@ -511,6 +514,7 @@ public class ClientServiceImpl implements ClientService {
 				connection.getDisplayName(), checkUri));
 		request = builder
 		         .uri(URI.create(checkUri))
+		         .version(Version.HTTP_2)
 		         .build();
 
 		response = client.send(request, BodyHandlers.ofString());
@@ -543,7 +547,7 @@ public class ClientServiceImpl implements ClientService {
 				request = builder
 				         .uri(URI.create(configUri))
 				         .version(Version.HTTP_1_1)
-				         .header(COOKIE, AbstractDBusClient.DEVICE_IDENTIFIER + "=" + uuid)
+//				         .header(COOKIE, AbstractDBusClient.DEVICE_IDENTIFIER + "=" + uuid)
 				         .header(X_VPN_RESPONSE, signature)
 				         .build();
 
