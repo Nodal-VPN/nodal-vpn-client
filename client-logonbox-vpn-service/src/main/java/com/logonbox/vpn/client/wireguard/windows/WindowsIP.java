@@ -104,6 +104,21 @@ public class WindowsIP extends AbstractVirtualInetAddress<WindowsPlatformService
 		synchronized (lock) {
 			try {
 				Services.get().startService(getService());
+
+				var tmtu = this.getMtu(); 
+				
+				if(tmtu == 0) {
+					/* TODO detect */
+						
+					/* Still not found, use generic default */
+					if (tmtu == 0)
+						tmtu = 1500;
+	
+					/* Subtract 80, because .. */
+					tmtu -= 80;
+				}
+
+				OSCommand.adminCommand("netsh", "interface", "ipv4", "set", "subinterface", getName(), "mtu=" + String.valueOf(tmtu), "store=persistent");
 			} catch (IOException e) {
 				throw e;
 			} catch (Exception e) {

@@ -373,6 +373,7 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 		} else {
 			LOG.info(String.format("Bringing up %s", ip.getName()));
 			try {
+				ip.setMtu(configuration.getMtu() == 0 ? context.getClientService().getValue(null, ConfigurationItem.MTU) : configuration.getMtu());
 				ip.up();
 			}
 			catch(IOException  | RuntimeException ioe) {
@@ -699,9 +700,6 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 	@Override
 	protected void writeInterface(Connection configuration, Writer writer) {
 		PrintWriter pw = new PrintWriter(writer, true);
-		var mtu = configuration.getMtu() == 0 ? context.getClientService().getValue(null, ConfigurationItem.MTU) : configuration.getMtu();
-		if(mtu > 0)
-			pw.println(String.format("MTU = %s", configuration.getAddress()));
 		pw.println(String.format("Address = %s", configuration.getAddress()));
 	}
 
