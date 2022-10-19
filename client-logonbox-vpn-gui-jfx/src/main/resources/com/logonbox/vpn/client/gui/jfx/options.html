@@ -128,7 +128,7 @@
                     $('#ignoreLocalRoutes').off('change');;
                 }
                 if ($('#mtu').length) {
-                    $('#mtu').off('change');;
+                    $('#mtu').off('change keyup keypress');;
                 }
 
 				if ($('#phase').length) {
@@ -248,6 +248,13 @@
                 if ($('#mtu').length) {
                     $('#mtu').on('input', function() {
                         bridge.saveOptions({ mtu : parseInt($('#mtu').val()) });
+                    });
+                    $('#mtu').on('keyup keypress', function(e) {
+                   		var keyCode = e.keyCode || e.which;
+                    	if (keyCode === 13) { 
+                    		e.preventDefault();
+                    		return false;
+                   		}
                     });
                 }
 
