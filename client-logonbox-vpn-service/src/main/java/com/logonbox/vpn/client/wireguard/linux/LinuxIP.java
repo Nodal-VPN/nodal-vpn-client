@@ -238,16 +238,21 @@ public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl
 	public void setRoutes(Collection<String> allows) throws IOException {
 
 		/* Remove all the current routes for this interface */
+		var have = new HashSet<>();
 		for (String row : OSCommand.adminCommandAndCaptureOutput("ip", "route", "show", "dev", getName())) {
 			String[] l = row.split("\\s+");
 			if (l.length > 0) {
-				LOG.info(String.format("Removing route %s for %s", l[0], getName()));
-				OSCommand.adminCommand("ip", "route", "del", l[0], "dev", getName());
+				have.add(l[0]);
+				if(!allows.contains(l[0])) {
+					LOG.info(String.format("Removing route %s for %s", l[0], getName()));
+					OSCommand.adminCommand("ip", "route", "del", l[0], "dev", getName());
+				}
 			}
 		}
 
 		for (String route : allows) {
-			addRoute(route);
+			if(!have.contains(route))
+				addRoute(route);
 		}
 	}
 
