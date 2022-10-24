@@ -6,7 +6,7 @@
  * Only allow a single running instance of the GUI
  * Better reliability when there are adverse DNS conditions
  * Option to allow client to override MTU configuration.
- * Option to allow only a single connection to be active at a time. This on by defasult.
+ * Option to allow only a single connection to be active at a time. This on by default.
  * Make sure HTTP/2 is not used for status check calls.
  * Ignore certain network interfaces on Windows
  * Better detection of wireguard interface name on Windows
