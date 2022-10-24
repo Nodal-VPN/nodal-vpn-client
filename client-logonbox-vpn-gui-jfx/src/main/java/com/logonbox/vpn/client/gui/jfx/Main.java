@@ -15,6 +15,8 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.install4j.api.launcher.StartupNotification;
+import com.install4j.api.launcher.StartupNotification.Listener;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.ClientPromptingCertManager;
 import com.logonbox.vpn.common.client.HypersocketVersion;
@@ -22,6 +24,7 @@ import com.logonbox.vpn.common.client.NoUpdateService;
 import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.UpdateService;
 import com.sshtools.forker.client.OSCommand;
+import  com.sun.jna.platform.win32.Advapi32Util;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -31,10 +34,8 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-import  com.sun.jna.platform.win32.Advapi32Util;
-
 @Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.")
-public class Main extends AbstractDBusClient implements Callable<Integer> {
+public class Main extends AbstractDBusClient implements Callable<Integer>, Listener {
 	static Logger log;
 	
 	public final static String SID_ADMINISTRATORS_GROUP = "S-1-5-32-544";
@@ -136,6 +137,8 @@ public class Main extends AbstractDBusClient implements Callable<Integer> {
 			log.info(String.format("CWD: %s", new File(".").getCanonicalPath()));
 		} catch (IOException e) {
 		}
+		
+		StartupNotification.registerStartupListener(this);
 	}
 
 	/*
@@ -314,5 +317,10 @@ public class Main extends AbstractDBusClient implements Callable<Integer> {
 	@Override
 	protected boolean isConsole() {
 		return false;
+	}
+
+	@Override
+	public void startupPerformed(String parameters) {
+		Client.get().open();
 	}
 }

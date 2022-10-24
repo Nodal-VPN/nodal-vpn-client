@@ -150,7 +150,7 @@ public class UI implements BusLifecycleListener {
 		}
 
 		public void cancel() {
-			log.info("Cancelling authorization.");
+			LOG.info("Cancelling authorization.");
 			error = true;
 			authorizedLock.release();
 		}
@@ -200,20 +200,20 @@ public class UI implements BusLifecycleListener {
 				engine.executeScript("collect();");
 			});
 			try {
-				log.info("Waiting for authorize semaphore to be released.");
+				LOG.info("Waiting for authorize semaphore to be released.");
 				authorizedLock.acquire();
 			} catch (InterruptedException e) {
 				// TODO:
 			}
 
-			log.info("Left authorization.");
+			LOG.info("Left authorization.");
 			if (error)
 				throw new AuthenticationCancelledException();
 		}
 
 		@Override
 		public void authorized() throws IOException {
-			log.info("Authorized.");
+			LOG.info("Authorized.");
 			maybeRunLater(() -> {
 				engine.executeScript("authorized();");
 				authorizedLock.release();
@@ -453,10 +453,7 @@ public class UI implements BusLifecycleListener {
 
 	static int DROP_SHADOW_SIZE = 11;
 
-	final static Logger log = LoggerFactory.getLogger(UI.class);
-
-	private static Logger LOG = LoggerFactory.getLogger(UI.class);
-
+	private final static Logger LOG = LoggerFactory.getLogger(UI.class);
 	private static UI instance;
 
 	public static UI getInstance() {
@@ -597,11 +594,11 @@ public class UI implements BusLifecycleListener {
 			if (n == null) {
 				addConnection();
 			} else {
-				log.info(String.format("Connect to %s", n.getAddress()));
+				LOG.info(String.format("Connect to %s", n.getAddress()));
 				if (n != null) {
 					clearNotificationForConnection(n.getId());
 					Type status = Type.valueOf(n.getStatus());
-					log.info(String.format("  current status is %s", status));
+					LOG.info(String.format("  current status is %s", status));
 					if (status == Type.CONNECTED || status == Type.CONNECTING || status == Type.DISCONNECTING)
 						selectPageForState(false, false);
 					else if (n.isAuthorized())
@@ -654,7 +651,7 @@ public class UI implements BusLifecycleListener {
 			try {
 				beans.put("phases", updateService.getPhases());
 			} catch (Exception e) {
-				log.warn("Could not get phases.", e);
+				LOG.warn("Could not get phases.", e);
 			}
 
 			/* Configuration stored globally in service */
@@ -735,7 +732,7 @@ public class UI implements BusLifecycleListener {
 										});
 									});
 								} finally {
-									log.info("Connection added");
+									LOG.info("Connection added");
 								}
 							});
 						}
@@ -760,7 +757,7 @@ public class UI implements BusLifecycleListener {
 										});
 									});
 								} finally {
-									log.info("Connection deleted");
+									LOG.info("Connection deleted");
 								}
 							});
 						}
@@ -924,7 +921,7 @@ public class UI implements BusLifecycleListener {
 						VPNConnection connection = context.getDBus().getVPNConnection(sig.getId());
 						maybeRunLater(() -> {
 							String s = sig.getReason();
-							log.info(String.format("Failed to connect. %s", s));
+							LOG.info(String.format("Failed to connect. %s", s));
 							connecting.remove(connection);
 							showError("Failed to connect.", s, sig.getTrace());
 							UI.this.notify(sig.getId(), s, ToastType.ERROR);
@@ -943,7 +940,7 @@ public class UI implements BusLifecycleListener {
 						disconnectionReason = sig.getReason();
 						maybeRunLater(() -> {
 							clearNotificationForConnection(sig.getId());
-							log.info("Temporarily offline " + sig.getId());
+							LOG.info("Temporarily offline " + sig.getId());
 							selectPageForState(false, false);
 						});
 					}
@@ -958,7 +955,7 @@ public class UI implements BusLifecycleListener {
 							return;
 						String thisDisconnectionReason = sig.getReason();
 						maybeRunLater(() -> {
-							log.info("Disconnected " + sig.getId());
+							LOG.info("Disconnected " + sig.getId());
 							try {
 								/*
 								 * WARN: Do not try to get a connection object directly here. The disconnection
@@ -985,7 +982,7 @@ public class UI implements BusLifecycleListener {
 												UI.this.connect(context.getDBus().getVPNConnection(sig.getId()));
 											}).timeout(0).toast());
 							} catch (Exception e) {
-								log.error("Failed to get connection, delete not possible.", e);
+								LOG.error("Failed to get connection, delete not possible.", e);
 							} finally {
 								selectPageForState(false, false);
 							}
@@ -1003,7 +1000,7 @@ public class UI implements BusLifecycleListener {
 							return;
 						maybeRunLater(() -> {
 							clearNotificationForConnection(sig.getId());
-							log.info("Disconnecting " + bus /* + " (delete " + deleteOnDisconnect + ")" */);
+							LOG.info("Disconnecting " + bus /* + " (delete " + deleteOnDisconnect + ")" */);
 							selectPageForState(false, false);
 						});
 					}
@@ -1081,7 +1078,7 @@ public class UI implements BusLifecycleListener {
 		WebEngine engine = webView.getEngine();
 		webView.setContextMenuEnabled(context.isChromeDebug());
 		String ua = engine.getUserAgent();
-		log.info("User Agent: " + ua);
+		LOG.info("User Agent: " + ua);
 		engine.setUserAgent(ua + " " + "LogonBoxVPNClient/"
 				+ HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx"));
 		engine.setOnAlert((e) -> {
@@ -1102,7 +1099,7 @@ public class UI implements BusLifecycleListener {
 		engine.locationProperty().addListener((c, oldLoc, newLoc) -> {
 			if (newLoc != null) {
 				if (isRemote(newLoc)) {
-					log.info(String.format("This is a remote page (%s), not changing current html page", newLoc));
+					LOG.info(String.format("This is a remote page (%s), not changing current html page", newLoc));
 					changeHtmlPage(null);
 				} else {
 					String base = newLoc;
@@ -1122,7 +1119,7 @@ public class UI implements BusLifecycleListener {
 //					}
 					if (!base.equals("") && !base.equals(htmlPage)) {
 						changeHtmlPage(base);
-						log.debug(String.format("Page changed by user to %s (from browser view)", htmlPage));
+						LOG.debug(String.format("Page changed by user to %s (from browser view)", htmlPage));
 					}
 				}
 				setupPage();
@@ -1160,6 +1157,8 @@ public class UI implements BusLifecycleListener {
 
 					instrumentHtml(document.getDocumentElement());
 				}
+				
+				/* Wait for a little while if pageBundle is null */
 
 				processDOM();
 				processJavascript();
@@ -1538,7 +1537,7 @@ public class UI implements BusLifecycleListener {
 		try {
 			webView.getEngine().executeScript("uiRefresh();");
 		} catch (Exception e) {
-			log.debug(String.format("Page failed to execute uiRefresh()."), e);
+			LOG.debug(String.format("Page failed to execute uiRefresh()."), e);
 		}
 	}
 
@@ -1586,8 +1585,8 @@ public class UI implements BusLifecycleListener {
 	}
 
 	private void processJavascript() {
-		if (log.isDebugEnabled())
-			log.debug("Processing page content");
+		if (LOG.isDebugEnabled())
+			LOG.debug("Processing page content");
 		String baseHtmlPage = getBaseHtml();
 		WebEngine engine = webView.getEngine();
 		JSObject jsobj = (JSObject) engine.executeScript("window");
@@ -1602,11 +1601,12 @@ public class UI implements BusLifecycleListener {
 		VPNConnection selectedConnection = getForegroundConnection();
 		jsobj.setMember("connection", selectedConnection);
 		jsobj.setMember("pageBundle", pageBundle);
+		jsobj.setMember("jlog", LoggerFactory.getLogger("html-" + htmlPage));
 
 		/* Special pages */
 		if ("options.html".equals(baseHtmlPage)) {
 			for (Map.Entry<String, Object> beanEn : beansForOptions().entrySet()) {
-				log.debug(String.format(" Setting %s to %s", beanEn.getKey(), beanEn.getValue()));
+				LOG.debug(String.format(" Setting %s to %s", beanEn.getKey(), beanEn.getValue()));
 				jsobj.setMember(beanEn.getKey(), beanEn.getValue());
 			}
 		} else if ("authorize.html".equals(baseHtmlPage)) {
@@ -1634,7 +1634,7 @@ public class UI implements BusLifecycleListener {
 		try {
 			engine.executeScript("uiReady();");
 		} catch (Exception e) {
-			log.debug(String.format("Page %s failed to execute uiReady() functions.", baseHtmlPage), e);
+			LOG.debug(String.format("Page %s failed to execute uiReady() functions.", baseHtmlPage), e);
 		}
 
 	}
@@ -1755,7 +1755,7 @@ public class UI implements BusLifecycleListener {
 			try {
 				doDelete(sel);
 			} catch (Exception e) {
-				log.error("Failed to delete connection.", e);
+				LOG.error("Failed to delete connection.", e);
 			}
 			return true;
 		} else {
@@ -1765,7 +1765,7 @@ public class UI implements BusLifecycleListener {
 
 	private void doDelete(VPNConnection sel) throws RemoteException {
 		setHtmlPage("busy.html");
-		log.info(String.format("Deleting connection %s", sel));
+		LOG.info(String.format("Deleting connection %s", sel));
 		context.getOpQueue().execute(() -> sel.delete());
 	}
 
@@ -1782,13 +1782,13 @@ public class UI implements BusLifecycleListener {
 		}
 		var splashFile = getCustomSplashFile();
 		if (branding == null) {
-			log.info(String.format("Removing branding."));
+			LOG.info(String.format("Removing branding."));
 			if (logoFile != null) {
 				try {
 					Files.delete(logoFile);
 				}
 				catch(IOException ioe) {
-					log.warn("Failed to delete.", ioe);
+					LOG.warn("Failed to delete.", ioe);
 				}
 				logoFile = null;
 			}
@@ -1797,13 +1797,13 @@ public class UI implements BusLifecycleListener {
 					Files.delete(splashFile);
 				}
 				catch(IOException ioe) {
-					log.warn("Failed to delete.", ioe);
+					LOG.warn("Failed to delete.", ioe);
 				}
 			}
 			updateVMOptions(null);
 		} else {
-			if (log.isDebugEnabled())
-				log.debug("Adding custom branding");
+			if (LOG.isDebugEnabled())
+				LOG.debug("Adding custom branding");
 			String logo = branding.getLogo();
 
 			/* Create branded splash */
@@ -1821,7 +1821,7 @@ public class UI implements BusLifecycleListener {
 				var newLogoFile = getCustomLogoFile(favouriteConnection);
 				try {
 					if (!Files.exists(newLogoFile)) {
-						log.info(String.format("Attempting to cache logo"));
+						LOG.info(String.format("Attempting to cache logo"));
 						URL logoUrl = new URL(logo);
 						URLConnection urlConnection = logoUrl.openConnection();
 						urlConnection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(10));
@@ -1831,7 +1831,7 @@ public class UI implements BusLifecycleListener {
 								urlIn.transferTo(out);
 							}
 						}
-						log.info(String.format("Logo cached from %s to %s", logoUrl, newLogoFile.toUri()));
+						LOG.info(String.format("Logo cached from %s to %s", logoUrl, newLogoFile.toUri()));
 						newLogoFile.toFile().deleteOnExit();
 					}
 					logoFile = newLogoFile;
@@ -1839,7 +1839,7 @@ public class UI implements BusLifecycleListener {
 
 					/* Draw the logo on the custom splash */
 					if (graphics != null) {
-						log.info(String.format("Drawing logo on splash"));
+						LOG.info(String.format("Drawing logo on splash"));
 						BufferedImage logoImage = ImageIO.read(logoFile.toFile());
 						if (logoImage == null)
 							throw new Exception(String.format("Failed to load image from %s", logoFile));
@@ -1848,7 +1848,7 @@ public class UI implements BusLifecycleListener {
 					}
 
 				} catch (Exception e) {
-					log.error(String.format("Failed to cache logo"), e);
+					LOG.error(String.format("Failed to cache logo"), e);
 					branding.setLogo(null);
 				}
 			} else if (logoFile != null) {
@@ -1856,7 +1856,7 @@ public class UI implements BusLifecycleListener {
 					Files.delete(logoFile);
 				}
 				catch(IOException ioe) {
-					log.warn("Failed to delete.", ioe);
+					LOG.warn("Failed to delete.", ioe);
 				}
 				logoFile = null;
 			}
@@ -1865,14 +1865,14 @@ public class UI implements BusLifecycleListener {
 			if (graphics != null) {
 				try {
 					ImageIO.write(bim, "png", splashFile.toFile());
-					log.info(String.format("Custom splash written to %s", splashFile));
+					LOG.info(String.format("Custom splash written to %s", splashFile));
 				} catch (IOException e) {
-					log.error(String.format("Failed to write custom splash"), e);
+					LOG.error(String.format("Failed to write custom splash"), e);
 					try {
 						Files.delete(splashFile);
 					}
 					catch(IOException ioe) {
-						log.warn("Failed to delete.", ioe);
+						LOG.warn("Failed to delete.", ioe);
 					}
 				}
 			}
@@ -2016,12 +2016,12 @@ public class UI implements BusLifecycleListener {
 	private void evtStartDebugger() {
 		startDebugging((ex) -> {
 			// failed to start
-			log.error("Debug server failed to start: " + ex.getMessage());
+			LOG.error("Debug server failed to start: " + ex.getMessage());
 			debuggerLink.textProperty().set("");
 			startDebugger.setDisable(false);
 //             updateDebugOff.run();
 		}, () -> {
-			log.info("Debug server started, debug URL: " + myJSBridge.getDebuggerURL());
+			LOG.info("Debug server started, debug URL: " + myJSBridge.getDebuggerURL());
 			debuggerLink.textProperty().set("Launch Chrome Debugger");
 			startDebugger.setDisable(true);
 			// can copy debug URL to clipboard
@@ -2056,10 +2056,10 @@ public class UI implements BusLifecycleListener {
 	}
 
 	private void initUi() {
-		log.info("Rebuilding URIs");
+		LOG.info("Rebuilding URIs");
 		try {
 		} catch (Exception e) {
-			log.error("Failed to load connections.", e);
+			LOG.error("Failed to load connections.", e);
 		}
 		context.applyColors(branding, getScene().getRoot());
 		reapplyLogo();
@@ -2109,7 +2109,7 @@ public class UI implements BusLifecycleListener {
 			AbstractDBusClient bridge = context.getDBus();
 			boolean busAvailable = bridge.isBusAvailable();
 			if (busAvailable && bridge.getVPN().getMissingPackages().length > 0) {
-				log.warn(String.format("Missing software packages"));
+				LOG.warn(String.format("Missing software packages"));
 				collections.put("packages", Arrays.asList(bridge.getVPN().getMissingPackages()));
 				setHtmlPage("missingSoftware.html");
 			} else {
@@ -2123,11 +2123,11 @@ public class UI implements BusLifecycleListener {
 					if (connection != null) {
 						Mode mode = Mode.valueOf(connection.getMode());
 						if (mode == Mode.SERVICE) {
-							log.info("Authorizing service");
+							LOG.info("Authorizing service");
 							setHtmlPage("authorize.html");
 						} else {
 							String authUrl = connection.getAuthorizeUri();
-							log.info(String.format("Authorizing to %s", authUrl));
+							LOG.info(String.format("Authorizing to %s", authUrl));
 							setHtmlPage(authUrl);
 						}
 
@@ -2137,7 +2137,7 @@ public class UI implements BusLifecycleListener {
 					if (getConnectingConnection() == null && busAvailable && updateService.isUpdatesEnabled()
 							&& updateService.isNeedsUpdating()) {
 						// An update is available
-						log.warn(String.format("Update is available"));
+						LOG.warn(String.format("Update is available"));
 						setHtmlPage("updateAvailable.html");
 					} else {
 						/* Otherwise connections page */
@@ -2169,7 +2169,7 @@ public class UI implements BusLifecycleListener {
 			if (htmlPage.equals("updating.html")) {
 				Document document = webView.getEngine().getDocument();
 				if (document == null) {
-					log.warn(String.format("No document,  ignoring progress update '%s'.", text));
+					LOG.warn(String.format("No document,  ignoring progress update '%s'.", text));
 				} else {
 					Element progressElement = document.getElementById("progress");
 					progressElement.setAttribute("aria-valuenow", String.valueOf(val));
@@ -2257,7 +2257,7 @@ public class UI implements BusLifecycleListener {
 			updateService.checkForUpdate();
 			maybeRunLater(() -> {
 				if (updateService.isNeedsUpdating() && getAuthorizingConnection() == null) {
-					log.info("Updated needed and no authorizing connections, checking page state.");
+					LOG.info("Updated needed and no authorizing connections, checking page state.");
 					selectPageForState(false, true);
 				}
 			});
@@ -2287,7 +2287,7 @@ public class UI implements BusLifecycleListener {
 			try {
 				branding = getBrandingForConnection(mapper, connection);
 			} catch (IOException ioe) {
-				log.info(String.format("Skipping %s:%d because it appears offline.", connection.getHostname(),
+				LOG.info(String.format("Skipping %s:%d because it appears offline.", connection.getHostname(),
 						connection.getPort()));
 			}
 		}
@@ -2297,7 +2297,7 @@ public class UI implements BusLifecycleListener {
 					branding = getBrandingForConnection(mapper, conx);
 					break;
 				} catch (IOException ioe) {
-					log.info(String.format("Skipping %s:%d because it appears offline.", conx.getHostname(),
+					LOG.info(String.format("Skipping %s:%d because it appears offline.", conx.getHostname(),
 							conx.getPort()));
 				}
 			}
@@ -2316,7 +2316,7 @@ public class UI implements BusLifecycleListener {
 				item = new BrandingCacheItem(branding);
 				brandingCache.put(connection, item);
 				String uri = connection.getUri(false) + "/api/brand/info";
-				log.info(String.format("Retrieving branding from %s", uri));
+				LOG.info(String.format("Retrieving branding from %s", uri));
 				URL url = new URL(uri);
 				URLConnection urlConnection = url.openConnection();
 				urlConnection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(6));
@@ -2372,7 +2372,7 @@ public class UI implements BusLifecycleListener {
 			myJSBridge.pageReloading();
 		// load the web page
 		webView.getEngine().load(url);
-		log.info("Loaded " + url);
+		LOG.info("Loaded " + url);
 	}
 
 	private void instrumentHtml(Element documentElement) {
