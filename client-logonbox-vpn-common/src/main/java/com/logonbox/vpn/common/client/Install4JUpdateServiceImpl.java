@@ -39,7 +39,7 @@ public class Install4JUpdateServiceImpl extends AbstractUpdateService {
 			UpdateDescriptorEntry best = update.getPossibleUpdateEntry();
 			if (best == null) {
 				log.info("No version available.");
-				return null;
+				return System.getProperty("logonbox.fakeUpdateVersion");
 			}
 
 			String availableVersion = best.getNewVersion();

@@ -2,6 +2,7 @@
 
 ## 2.4.0-919
 
+ * Automatic updates not triggering.
  * Only allow a single running instance of the GUI
  * Better reliability when there are adverse DNS conditions
  * Option to allow client to override MTU configuration.

@@ -73,7 +73,7 @@
                 event.preventDefault();
             });
 
-            if(vpn.getValue('automaticUpdates', 'false') === 'true') {
+            if(vpn.getBooleanValue('automaticUpdates')) {
             	setTimer(10);
             }
         };
