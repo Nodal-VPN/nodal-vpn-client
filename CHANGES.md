@@ -1,5 +1,9 @@
 # Changes
 
+## 2.4.0-921
+ * CHANGES.md included in binary distribution
+ * Mac/Windows launch at end of install wasn't working correctly.
+
 ## 2.4.0-919
 
  * Automatic updates not triggering.
