@@ -70,7 +70,6 @@ import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
 import com.sshtools.common.logger.Log;
 
 public class ClientServiceImpl implements ClientService {
-	private static final String COOKIE = "Cookie";
 	private static final String X_VPN_RESPONSE = "X-VPN-Response";
 	private static final String X_VPN_CHALLENGE = "X-VPN-Challenge";
 
@@ -112,7 +111,7 @@ public class ClientServiceImpl implements ClientService {
 		}
 
 		timer = Executors.newScheduledThreadPool(1);
-		timer.scheduleAtFixedRate(() -> {
+		timer.scheduleWithFixedDelay(() -> {
 			long now = System.currentTimeMillis();
 			Set<VPNFrontEnd> toRemove = new LinkedHashSet<>();
 			synchronized (context.getFrontEnds()) {
@@ -1077,7 +1076,7 @@ public class ClientServiceImpl implements ClientService {
 				}
 			}
 
-			timer.scheduleAtFixedRate(() -> checkConnectionsAlive(), POLL_RATE, POLL_RATE, TimeUnit.SECONDS);
+			timer.scheduleWithFixedDelay(() -> checkConnectionsAlive(), POLL_RATE, POLL_RATE, TimeUnit.SECONDS);
 
 			return connected > 0;
 		} catch (Exception e) {

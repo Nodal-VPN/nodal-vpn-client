@@ -246,7 +246,7 @@ public class OSXNetworksetupDNS {
 	}
 
 	public void start(LocalContext ctx) {
-		ctx.getClientService().getTimer().scheduleAtFixedRate(() -> {
+		ctx.getClientService().getTimer().scheduleWithFixedDelay(() -> {
 			try {
 				collectNewServiceDns();
 			} catch (IOException e) {
