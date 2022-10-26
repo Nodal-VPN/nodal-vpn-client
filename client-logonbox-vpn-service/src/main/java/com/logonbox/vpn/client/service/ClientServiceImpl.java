@@ -423,9 +423,6 @@ public class ClientServiceImpl implements ClientService {
 		if(!connection.isAuthorized() || StringUtils.isBlank(connection.getUserPrivateKey()))
 			return connection;
 		
-
-		addConnectionCookie(connection);
-		
 		var prms = context.getSSLParameters();
 		var ctx = context.getSSLContext();
 		var client = HttpClient.newBuilder()
@@ -486,13 +483,18 @@ public class ClientServiceImpl implements ClientService {
 
 	private Connection getConnectionStatusFromHost(String rootUri, Connection connection, HttpClient client)
 			throws IOException, InterruptedException, InvalidFileFormatException {
+
+		addConnectionCookie(connection, URI.create(rootUri));
+		
 		var pingUrl = rootUri + "/api/server/ping";
+		var uriObj = URI.create(pingUrl);
+		
 		log.info(String.format("Testing if a connection to %s should be retried using %s.",
 				connection.getDisplayName(), pingUrl));
 		var uuid = getUUID(connection.getOwner());
 		var builder = HttpRequest.newBuilder();
 		var request = builder
-		         .uri(URI.create(pingUrl))
+		         .uri(uriObj)
 		         .version(Version.HTTP_1_1)
 		         .build();
 		var response = client.send(request, BodyHandlers.ofString());
@@ -517,9 +519,11 @@ public class ClientServiceImpl implements ClientService {
 		var checkUri = rootUri + "/api/peers/check/" + connection.getUserPublicKey();
 		log.info(String.format("Testing if a configuration is actually valid for %s on %s.",
 				connection.getDisplayName(), checkUri));
+		var checkUriObj = URI.create(checkUri);
 		request = builder
-		         .uri(URI.create(checkUri))
-		         .version(Version.HTTP_2)
+		         .uri(checkUriObj)
+		         .header(AbstractDBusClient.DEVICE_IDENTIFIER, uuid.toString())
+		         .version(Version.HTTP_1_1)
 		         .build();
 
 		response = client.send(request, BodyHandlers.ofString());
@@ -552,7 +556,7 @@ public class ClientServiceImpl implements ClientService {
 				request = builder
 				         .uri(URI.create(configUri))
 				         .version(Version.HTTP_1_1)
-//				         .header(COOKIE, AbstractDBusClient.DEVICE_IDENTIFIER + "=" + uuid)
+						 .header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwner()).toString())
 				         .header(X_VPN_RESPONSE, signature)
 				         .build();
 
@@ -604,21 +608,16 @@ public class ClientServiceImpl implements ClientService {
 		return null;
 	}
 
-	protected void addConnectionCookie(Connection connection) {
+	protected void addConnectionCookie(Connection connection, URI uri) {
 		HttpCookie cookie = new HttpCookie(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwner()).toString());
 		cookie.setSecure(true);
 		cookie.setPath("/");
 		cookie.setDomain(connection.getHostname());
-		try {
-			context.getCookieStore().add(new URI(connection.getUri(false)), cookie);
-		} catch (URISyntaxException e) {
-			throw new IllegalStateException("Failed to add device identifier cookie.");
-		}
+		context.getCookieStore().add(uri, cookie);
 	}
 
 	@Override
 	public IOException getConnectionError(Connection connection) {
-		addConnectionCookie(connection);
 
 		try {
 			try {
@@ -652,6 +651,9 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	private boolean doGetConnectionError(String rootUri, Connection connection) throws IOException, InterruptedException {
+
+		addConnectionCookie(connection, URI.create(rootUri));
+		
 		var client = HttpClient.newBuilder()
 				.sslParameters(context.getSSLParameters())
 				.sslContext(context.getSSLContext())
@@ -671,6 +673,7 @@ public class ClientServiceImpl implements ClientService {
 				connection.getDisplayName(), uri));
 		var request = builder
 				.version(Version.HTTP_1_1)
+				.header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwner()).toString())
 		        .uri(URI.create(uri))
 		         .build();
 
@@ -694,6 +697,7 @@ public class ClientServiceImpl implements ClientService {
 				connection.getDisplayName(), uri));
 		request = builder
 				.version(Version.HTTP_1_1)
+				.header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwner()).toString())
 		        .uri(URI.create(uri))
 		         .build();
 

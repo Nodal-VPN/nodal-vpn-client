@@ -1,5 +1,9 @@
 # Changes
 
+## 2.4.0-923
+
+ * Device identity cookie (LBVPNDID) not sent during connection test if IP address fallback is being used.
+
 ## 2.4.0-921
  * CHANGES.md included in binary distribution
  * Mac/Windows launch at end of install wasn't working correctly.
