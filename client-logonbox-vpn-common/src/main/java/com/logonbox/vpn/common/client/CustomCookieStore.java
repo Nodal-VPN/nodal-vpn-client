@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -178,6 +179,13 @@ public class CustomCookieStore implements CookieStore {
 
 			return c;
 		}
+
+		@Override
+		public String toString() {
+			return "CookieWrapper [comment=" + comment + ", version=" + version + ", value=" + value + ", secure="
+					+ secure + ", path=" + path + ", name=" + name + ", maxAge=" + maxAge + ", portlist=" + portlist
+					+ ", domain=" + domain + ", discard=" + discard + ", commentUrl=" + commentUrl + "]";
+		}
 	}
 
 	private Map<URI, List<CookieWrapper>> cookies = new HashMap<>();
@@ -190,6 +198,17 @@ public class CustomCookieStore implements CookieStore {
 		if (file.exists()) {
 			try (ObjectInputStream oin = new ObjectInputStream(new FileInputStream(file))) {
 				cookies = (Map<URI, List<CookieWrapper>>) oin.readObject();
+				
+				/* Turn to set to get rid of the duplicates. The bug that let this
+				 * happen has been fixed, but it doesn't get corrected until new
+				 * cookies are added. So do it once at start up too
+				 */
+				for(var en : cookies.entrySet()) {
+					var s = new HashSet<>(en.getValue());
+					en.getValue().clear();
+					en.getValue().addAll(s);
+				}
+				
 			} catch (Exception e) {
 				log.warn("Could not load cookie jar, resetting.", e);
 				save();
@@ -255,9 +274,10 @@ public class CustomCookieStore implements CookieStore {
 	public List<HttpCookie> get(URI uri) {
 		synchronized (cookies) {
 			var k = getEffectiveURI(uri);
-			return cookies.containsKey(k)
+			List<HttpCookie> clist = cookies.containsKey(k)
 					? cookies.get(k).stream().map(o -> o.toHttpCookie()).collect(Collectors.toList())
 					: Collections.emptyList();
+			return clist;
 		}
 	}
 
@@ -270,7 +290,9 @@ public class CustomCookieStore implements CookieStore {
 				l = new ArrayList<>();
 				cookies.put(uri, l);
 			}
-			l.add(new CookieWrapper(cookie));
+			CookieWrapper w = new CookieWrapper(cookie);
+			while(l.remove(w));
+			l.add(w);
 			save();
 		}
 	}

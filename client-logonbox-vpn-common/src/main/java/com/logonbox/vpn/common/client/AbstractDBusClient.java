@@ -399,7 +399,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 				synchronized (initLock) {
 					try {
 						init();
-					} catch (DBusException | ServiceUnknown dbe) {
+					} catch (DBusException | ServiceUnknown | UnknownObject dbe) {
 						if (getLog().isDebugEnabled())
 							getLog().debug("Init() failed, retrying");
 						busGone();
