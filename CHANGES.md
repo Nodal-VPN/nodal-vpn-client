@@ -5,6 +5,9 @@
  * Device identity cookie (LBVPNDID) not sent during connection test if IP address fallback is being used.
  * Problems with timers when computer comes out of hibernate/sleep. This could cause the client to get
    stuck in states such as "Temporarily Offline".
+ * Multiple device identifier cookies could be saved, causing unexpected reauthorizations.
+ * VPN server has improper handling of v1 cookies, as used by the VPN client. This has been fixed on
+   the server. 
 
 ## 2.4.0-921
  * CHANGES.md included in binary distribution
