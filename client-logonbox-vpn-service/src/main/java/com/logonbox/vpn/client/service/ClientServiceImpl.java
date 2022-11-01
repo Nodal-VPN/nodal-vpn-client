@@ -1222,16 +1222,20 @@ public class ClientServiceImpl implements ClientService {
 					 * little more info as to why we have no received a handshake for a while.
 					 */
 					IOException reason = getConnectionError(connection);
-
-					if (reason instanceof ReauthorizeException) {
-						if (connection.isAuthorized())
-							deauthorize(connection);
-						disconnect(connection, "Re-authorize required");
-					} else {
-						if (connection.isStayConnected()) {
-							temporarilyOffline(connection, reason);
+					if(reason == null) {
+						log.warn("It appears the key is valid, so we have good HTTP comms. Only the wireguard channel appears to be down at the moment. We will assume the connection is still active, and keep polling.");
+					}
+					else {
+						if (reason instanceof ReauthorizeException) {
+							if (connection.isAuthorized())
+								deauthorize(connection);
+							disconnect(connection, "Re-authorize required");
 						} else {
-							disconnect(connection, reason.getMessage());
+							if (connection.isStayConnected()) {
+								temporarilyOffline(connection, reason);
+							} else {
+								disconnect(connection, reason.getMessage());
+							}
 						}
 					}
 				}
