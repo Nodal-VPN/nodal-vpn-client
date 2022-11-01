@@ -682,6 +682,11 @@ return path.replace('\\', '/');</property>
           </screen>
           <screen id="12" beanClass="com.install4j.runtime.beans.screens.FinishedScreen" styleId="1792" finishScreen="true">
             <actions>
+              <action id="2190" beanClass="com.install4j.runtime.beans.actions.control.SleepAction" actionElevationType="none" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="sleepTimeMs" type="int" value="5000" />
+                </serializedBean>
+              </action>
               <action id="1219" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" actionElevationType="none">
                 <serializedBean>
                   <property name="launcherId" type="string">783</property>
