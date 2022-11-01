@@ -624,6 +624,7 @@ public class ClientServiceImpl implements ClientService {
 					return null;
 			}
 			catch(IOException ex) {
+				log.info("Check using IP address failed, trying using hostname.", ex);
 				try {
 					if(doGetConnectionError(connection.getUri(false), connection))
 						return null;
@@ -1164,11 +1165,17 @@ public class ClientServiceImpl implements ClientService {
 
 	private void checkConnectionsAlive() {
 		try {
+			if(log.isDebugEnabled()) {
+				log.debug("Checking {} active sessions to see if they are alive.", activeSessions.size());
+			}
 			synchronized (activeSessions) {
 				for (Map.Entry<Connection, VPNSession> sessionEn : new HashMap<>(activeSessions).entrySet()) {
 					Connection connection = sessionEn.getKey();
 	
 					if (temporarilyOffline.contains(connection)) {
+						if(log.isDebugEnabled()) {
+							log.info("{} is temporarily offline, checking if alive.", connection.getDisplayName());
+						}
 						/* Temporarily offline, are we still offline? */
 						try {
 							if (getContext().getPlatformService().isAlive(sessionEn.getValue(), connection)) {
@@ -1205,6 +1212,9 @@ public class ClientServiceImpl implements ClientService {
 								 * If not authorized, still 'connecting', 'authorizing', or completely alive,
 								 * skip to next session
 								 */
+								if(log.isDebugEnabled()) {
+									log.debug("Skipping to next session to check, this one ('{}' is not in valid state.", connection.getDisplayName());
+								}
 								continue;
 							}
 						} catch (IOException ioe) {
@@ -1228,10 +1238,17 @@ public class ClientServiceImpl implements ClientService {
 						}
 						else {
 							if (reason instanceof ReauthorizeException) {
+								if (log.isDebugEnabled())
+									log.debug("Reason was reauthorization");
+								
 								if (connection.isAuthorized())
 									deauthorize(connection);
 								disconnect(connection, "Re-authorize required");
 							} else {
+
+								if (log.isDebugEnabled())
+									log.debug("Reason was {}", reason == null ? "NULL" : reason.getClass().getName());
+								
 								if (connection.isStayConnected()) {
 									temporarilyOffline(connection, reason);
 								} else {
