@@ -1163,83 +1163,88 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	private void checkConnectionsAlive() {
-		synchronized (activeSessions) {
-			for (Map.Entry<Connection, VPNSession> sessionEn : new HashMap<>(activeSessions).entrySet()) {
-				Connection connection = sessionEn.getKey();
-
-				if (temporarilyOffline.contains(connection)) {
-					/* Temporarily offline, are we still offline? */
-					try {
-						if (getContext().getPlatformService().isAlive(sessionEn.getValue(), connection)) {
-							/*
-							 * If now completely alive again, remove from the list of temporarily offline
-							 * connections and fire a connected event
-							 */
-							temporarilyOffline.remove(connection);
-							log.info(String.format("%s back online.", connection.getDisplayName()));
-							try {
-								context.sendMessage(new VPNConnection.Connected(
-										String.format("/com/logonbox/vpn/%d", connection.getId())));
-							} catch (DBusException e) {
-								throw new IllegalStateException("Failed to send event.", e);
+		try {
+			synchronized (activeSessions) {
+				for (Map.Entry<Connection, VPNSession> sessionEn : new HashMap<>(activeSessions).entrySet()) {
+					Connection connection = sessionEn.getKey();
+	
+					if (temporarilyOffline.contains(connection)) {
+						/* Temporarily offline, are we still offline? */
+						try {
+							if (getContext().getPlatformService().isAlive(sessionEn.getValue(), connection)) {
+								/*
+								 * If now completely alive again, remove from the list of temporarily offline
+								 * connections and fire a connected event
+								 */
+								temporarilyOffline.remove(connection);
+								log.info(String.format("%s back online.", connection.getDisplayName()));
+								try {
+									context.sendMessage(new VPNConnection.Connected(
+											String.format("/com/logonbox/vpn/%d", connection.getId())));
+								} catch (DBusException e) {
+									throw new IllegalStateException("Failed to send event.", e);
+								}
+	
+								/* Next session */
+								continue;
 							}
-
-							/* Next session */
-							continue;
+						} catch (IOException ioe) {
+							if (log.isDebugEnabled())
+								log.debug("Failed to test if session was alive. Assuming it isn't", ioe);
 						}
-					} catch (IOException ioe) {
+	
 						if (log.isDebugEnabled())
-							log.debug("Failed to test if session was alive. Assuming it isn't", ioe);
-					}
-
-					if (log.isDebugEnabled())
-						log.debug(String.format("%s still temporarily offline.", connection.getDisplayName()));
-				} else {
-
-					try {
-						if (!connection.isAuthorized() || authorizingClients.containsKey(connection)
-								|| connectingSessions.containsKey(connection)
-								|| getContext().getPlatformService().isAlive(sessionEn.getValue(), connection)) {
-							/*
-							 * If not authorized, still 'connecting', 'authorizing', or completely alive,
-							 * skip to next session
-							 */
-							continue;
+							log.debug(String.format("%s still temporarily offline.", connection.getDisplayName()));
+					} else {
+	
+						try {
+							if (!connection.isAuthorized() || authorizingClients.containsKey(connection)
+									|| connectingSessions.containsKey(connection)
+									|| getContext().getPlatformService().isAlive(sessionEn.getValue(), connection)) {
+								/*
+								 * If not authorized, still 'connecting', 'authorizing', or completely alive,
+								 * skip to next session
+								 */
+								continue;
+							}
+						} catch (IOException ioe) {
+							log.warn("Failed to test if session was alive. Assuming it isn't", ioe);
 						}
-					} catch (IOException ioe) {
-						log.warn("Failed to test if session was alive. Assuming it isn't", ioe);
-					}
-
-					/* Kill the dead session */
-					log.info(String.format(
-							"Session with public key %s hasn't had a valid handshake for %d seconds, disconnecting.",
-							connection.getUserPublicKey(), ClientService.HANDSHAKE_TIMEOUT));
-
-					/*
-					 * Try to work out why .... we can only do this with LogonBox VPN because the
-					 * HTTP service should be there as well. If there is an internet outage, or a
-					 * problem on the server, then we can use this HTTP channel to try and get a
-					 * little more info as to why we have no received a handshake for a while.
-					 */
-					IOException reason = getConnectionError(connection);
-					if(reason == null) {
-						log.warn("It appears the key is valid, so we have good HTTP comms. Only the wireguard channel appears to be down at the moment. We will assume the connection is still active, and keep polling.");
-					}
-					else {
-						if (reason instanceof ReauthorizeException) {
-							if (connection.isAuthorized())
-								deauthorize(connection);
-							disconnect(connection, "Re-authorize required");
-						} else {
-							if (connection.isStayConnected()) {
-								temporarilyOffline(connection, reason);
+	
+						/* Kill the dead session */
+						log.info(String.format(
+								"Session with public key %s hasn't had a valid handshake for %d seconds, disconnecting.",
+								connection.getUserPublicKey(), ClientService.HANDSHAKE_TIMEOUT));
+	
+						/*
+						 * Try to work out why .... we can only do this with LogonBox VPN because the
+						 * HTTP service should be there as well. If there is an internet outage, or a
+						 * problem on the server, then we can use this HTTP channel to try and get a
+						 * little more info as to why we have no received a handshake for a while.
+						 */
+						IOException reason = getConnectionError(connection);
+						if(reason == null) {
+							log.warn("It appears the key is valid, so we have good HTTP comms. Only the wireguard channel appears to be down at the moment. We will assume the connection is still active, and keep polling.");
+						}
+						else {
+							if (reason instanceof ReauthorizeException) {
+								if (connection.isAuthorized())
+									deauthorize(connection);
+								disconnect(connection, "Re-authorize required");
 							} else {
-								disconnect(connection, reason.getMessage());
+								if (connection.isStayConnected()) {
+									temporarilyOffline(connection, reason);
+								} else {
+									disconnect(connection, reason.getMessage());
+								}
 							}
 						}
 					}
 				}
 			}
+		}
+		catch(Exception e) {
+			log.error("Check failure. ", e);
 		}
 	}
 
