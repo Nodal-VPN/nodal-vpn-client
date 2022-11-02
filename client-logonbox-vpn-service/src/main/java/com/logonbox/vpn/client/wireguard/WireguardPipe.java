@@ -80,7 +80,7 @@ public class WireguardPipe implements StatusDetail {
 	protected List<String> command(String command) throws IOException {
 		synchronized (lock) {
 			if(LOG.isDebugEnabled())
-				LOG.debug(String.format("Opening named pipe %s", pipeName));
+				LOG.debug(String.format("Opening named pipe for %s to run %s", pipeName, command));
 			List<String> l = new ArrayList<String>();
 			try {
 				return tryPipe(command, l, "ProtectedPrefix\\Administrators\\WireGuard\\" + name);
@@ -94,6 +94,10 @@ public class WireguardPipe implements StatusDetail {
 	protected List<String> tryPipe(String command, List<String> l, String pipeSuffix)
 			throws IOException, UnsupportedEncodingException {
 		pipeName = "\\\\.\\pipe\\" + pipeSuffix;
+
+		if(LOG.isDebugEnabled())
+			LOG.debug(String.format("Trying pipe %s", pipeName));
+		
 		try (Socket pipe = new DefaultPipeFactory()
 				.createPipe(pipeSuffix)) {
 			try (BufferedReader in = new BufferedReader(new InputStreamReader(pipe.getInputStream()))) {

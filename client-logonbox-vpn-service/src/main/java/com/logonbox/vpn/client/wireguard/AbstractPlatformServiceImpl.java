@@ -172,7 +172,14 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 	@Override
 	public boolean isAlive(VPNSession logonBoxVPNSession, Connection configuration) throws IOException {
 		long lastHandshake = getLatestHandshake(logonBoxVPNSession.getIp().getName(), configuration.getPublicKey());
-		return lastHandshake >= System.currentTimeMillis() - ( ClientService.HANDSHAKE_TIMEOUT * 1000);
+		long now = System.currentTimeMillis();
+		boolean alive = lastHandshake >= now - ( ClientService.HANDSHAKE_TIMEOUT * 1000);
+		if(LOG.isDebugEnabled()) {
+			LOG.debug("Checking if {} ({}) is still alive. Now is {}, Latest Handshake is {}, Timeout secs is {}, Alive is {}", 
+					logonBoxVPNSession.getIp().getName(), configuration.getPublicKey(), now,
+					lastHandshake, ClientService.HANDSHAKE_TIMEOUT, alive);
+		}
+		return alive;
 	}
 
 	@Override
