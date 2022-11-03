@@ -1,5 +1,9 @@
 # Changes
 
+## 2.4.0-1000
+
+ * May prevents updates by non-adminstrative users during installing.
+
 ## 2.4.0-938
 
  * Device identity cookie (LBVPNDID) not sent during connection test if IP address fallback is being used.
