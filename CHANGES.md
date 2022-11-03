@@ -1,6 +1,6 @@
 # Changes
 
-## 2.4.0-923
+## 2.4.0-938
 
  * Device identity cookie (LBVPNDID) not sent during connection test if IP address fallback is being used.
  * Problems with timers when computer comes out of hibernate/sleep. This could cause the client to get
