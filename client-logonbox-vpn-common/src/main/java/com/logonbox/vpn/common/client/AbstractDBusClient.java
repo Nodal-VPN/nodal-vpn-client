@@ -3,8 +3,11 @@ package com.logonbox.vpn.common.client;
 import java.io.File;
 import java.io.IOException;
 import java.net.CookieStore;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -79,6 +82,8 @@ public abstract class AbstractDBusClient implements DBusClient {
 	private UpdateService updateService;
 	private CookieStore cookieStore;
 	private DBusSigHandler<CertificatePrompt> certPromptHandler;
+	private Properties instanceProperties = new Properties();
+	
 	/**
 	 * Matches the identifier in logonbox VPN server
 	 * PeerConfigurationAuthenticationProvider.java
@@ -100,17 +105,33 @@ public abstract class AbstractDBusClient implements DBusClient {
 				}
 			}
 		});
+		
+		var instancePropertiesFile = Paths.get("conf/instance.properties");
+		if(Files.exists(instancePropertiesFile)) {
+			try(var fin = Files.newInputStream(instancePropertiesFile)) {
+				instanceProperties.load(fin);
+			}
+			catch(IOException ioe) {
+				// Don't care
+			}
+		}
 	}
  
 	protected UpdateService createUpdateService() {
 		try {
-			 return new Install4JUpdateServiceImpl(this);
+			if("true".equals(System.getProperty("logonbox.vpn.dummyUpdates"))) {
+				return new DummyUpdateService(this);
+			}
+			if("false" .equals(instanceProperties.get("userUpdates")) && !Util.isAdministrator()) {
+				throw new Exception("Not an administrator, and userUpdates=false");
+			}
+			return new Install4JUpdateServiceImpl(this);
 		} catch (Throwable t) {
-			if(log.isDebugEnabled())
-				log.info("Failed to create Install4J update service, using dummy service.", t);
+			if(getLog().isDebugEnabled())
+				getLog().info("Failed to create Install4J update service, using dummy service.", t);
 			else
-				log.info("Failed to create Install4J update service, using dummy service. {}", t.getMessage());
-			return new DummyUpdateService(this);
+				getLog().info("Failed to create Install4J update service, using dummy service. {}", t.getMessage());
+			return new NoUpdateService(this);
 		}
 	}
 

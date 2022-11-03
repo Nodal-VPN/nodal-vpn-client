@@ -475,6 +475,21 @@ for more details. Accepting this license implies you also accept all others.  </
             </serializedBean>
             <condition>!context.getBooleanVariable("sys.confirmedUpdateInstallation")</condition>
           </screen>
+          <screen name="Update Options" id="2196" beanClass="com.install4j.runtime.beans.screens.FormScreen" rollbackBarrierExitCode="0">
+            <serializedBean>
+              <property name="title" type="string">Updates Options</property>
+            </serializedBean>
+            <formComponents>
+              <formComponent id="2197" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
+                <serializedBean>
+                  <property name="checkboxText" type="string">Allow non-administrators to update</property>
+                  <property name="helpText" type="string">By default, all users are able to update this application when one is available. By de-selecting this option, you may prevent this, so that only administrators can update the application.</property>
+                  <property name="initiallySelected" type="boolean" value="true" />
+                  <property name="variableName" type="string">userUpdates</property>
+                </serializedBean>
+              </formComponent>
+            </formComponents>
+          </screen>
           <screen id="8" beanClass="com.install4j.runtime.beans.screens.InstallationScreen" rollbackBarrier="true">
             <actions>
               <action id="1273" beanClass="com.install4j.runtime.beans.actions.UninstallPreviousAction" actionElevationType="elevated" />
@@ -604,6 +619,18 @@ return path.replace('\\', '/');</property>
                   </property>
                   <property name="replaceValue" type="string">java ${installer:custom.jrePath}/bin/java</property>
                   <property name="searchValue" type="string">#java java</property>
+                </serializedBean>
+              </action>
+              <action id="2199" beanClass="com.install4j.runtime.beans.actions.properties.WritePropertiesFileAction" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="file">
+                    <object class="java.io.File">
+                      <string>conf/instance.properties</string>
+                    </object>
+                  </property>
+                  <property name="sourcePropertyDefinitions" type="string">userUpdates=${installer:userUpdates}</property>
+                  <property name="updateExistingComments" type="boolean" value="true" />
+                  <property name="updateExistingKeys" type="boolean" value="true" />
                 </serializedBean>
               </action>
               <action id="2185" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" enabled="false" rollbackBarrier="true" rollbackBarrierExitCode="0">
