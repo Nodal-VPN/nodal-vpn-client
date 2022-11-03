@@ -1195,6 +1195,31 @@ public class ClientServiceImpl implements ClientService {
 								/* Next session */
 								continue;
 							}
+							else {
+								/* Not alive, but it might have been invalidated while being temporarily
+								 * offline. If that's the case, we won't be receiving any more handshakes,
+								 * as there is no valid peer on the other end.
+								 * 
+								 * In this case, we use the HTTP check again
+								 */
+								IOException reason = getConnectionError(connection);
+								if (reason == null) {
+									if (log.isDebugEnabled())
+										log.debug("HTTP api seems good, but no wireguard handshakes (yet?). Wait.");
+								} else if(reason instanceof ReauthorizeException) {
+									if (log.isDebugEnabled())
+										log.debug("Reason was reauthorization");
+									
+									if (connection.isAuthorized())
+										deauthorize(connection);
+									disconnect(connection, "Re-authorize required");
+								} else {
+									/* Stay temporarily offline */
+									if(log.isDebugEnabled()) {
+										log.debug("Staying temporarily offline.");
+									}
+								}
+							}
 						} catch (IOException ioe) {
 							if (log.isDebugEnabled())
 								log.debug("Failed to test if session was alive. Assuming it isn't", ioe);
