@@ -59,14 +59,13 @@
         <include>
           <entry location="conf/log4j-service-console.properties" />
           <entry location="conf/log4j-service.properties" />
-          <entry location="conf/service-forker.cfg" />
-          <entry location="bootstrap" />
           <entry location="service" />
           <entry location="logs" />
           <entry location="converter" />
           <entry location="cleanup.bat" />
           <entry location="EULA.txt" />
           <entry location="WINTUN-LICENSE.txt" />
+          <entry location="CHANGES.md" />
           <entry location="WIREGUARD-LICENSE.txt" />
           <entry location="logonbox-vpn-service" fileType="launcher" />
           <entry location="logonbox-vpn-service-console" fileType="launcher" />
