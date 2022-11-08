@@ -2,7 +2,7 @@
 
 ## 2.4.0-1000
 
- * May prevent updates by non-adminstrative users during installing.
+ * May prevent updates by non-administrative users during installing.
  * CHANGES.md not actually included in any installer components.
 
 ## 2.4.0-938
