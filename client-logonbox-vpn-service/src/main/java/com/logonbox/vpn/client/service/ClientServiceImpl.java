@@ -1345,7 +1345,7 @@ public class ClientServiceImpl implements ClientService {
 
 				job.open();
 				if (log.isInfoEnabled()) {
-					log.info("Ready to " + connection);
+					log.info("Ready to use " + connection);
 				}
 				
 				if(Util.setLastKnownServerIpAddress(connection)) {

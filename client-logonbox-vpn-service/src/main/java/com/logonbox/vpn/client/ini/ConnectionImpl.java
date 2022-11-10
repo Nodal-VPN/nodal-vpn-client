@@ -374,7 +374,8 @@ public class ConnectionImpl implements Connection, Serializable {
 	public String toString() {
 		return "ConnectionImpl [id=" + id + ", userPrivateKey=" + userPrivateKey + ", userPublicKey=" + userPublicKey
 				+ ", publicKey=" + publicKey + ", address=" + address + ", endpointAddress=" + endpointAddress
-				+ ", endpointPort=" + endpointPort + ", dns=" + dns + ", peristentKeepalive=" + peristentKeepalive
+				+ ", endpointPort=" + endpointPort + ", dns=" + dns + ", stayConnected=" + stayConnected
+				 + ", connectAtStartup=" + connectAtStartup + ", peristentKeepalive=" + peristentKeepalive
 				+ ", allowedIps=" + allowedIps + "]";
 	}
 
