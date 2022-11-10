@@ -2,9 +2,7 @@
 	and the accompanying materials are made available under the terms of the 
 	GNU Public License v3.0 which accompanies this distribution, and is available 
 	at http://www.gnu.org/licenses/gpl.html -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>logonbox-desktop-vpn-clients</artifactId>
@@ -17,7 +15,7 @@
 	<name>LogonBox - VPN Client Installer</name>
 	<properties>
 		<build.phase>nightly</build.phase>
-        <build.mediaTypes>windows,unixInstaller,macos,macosFolder,windowsArchive,unixArchive,linuxRPM,linuxDeb,macosArchive,macosFolderArchive</build.mediaTypes>
+		<build.mediaTypes>windows,unixInstaller,macos,macosFolder,windowsArchive,unixArchive,linuxRPM,linuxDeb,macosArchive,macosFolderArchive</build.mediaTypes>
 	</properties>
 	<build>
 		<plugins>
@@ -93,6 +91,48 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>com.coderplus.maven.plugins</groupId>
+				<artifactId>copy-rename-maven-plugin</artifactId>
+				<version>1.0.1</version>
+				<executions>
+					<execution>
+						<id>copy-file</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<sourceFile>../CHANGES.md</sourceFile>
+							<destinationFile>target/CHANGES.md</destinationFile>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.google.code.maven-replacer-plugin</groupId>
+				<artifactId>replacer</artifactId>
+				<version>1.5.2</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>replace</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<file>${basedir}/target/CHANGES.md</file>
+					<replacements>
+						<replacement>
+							<token>## SNAPSHOT</token>
+							<value>## ${product.version}-${build.number}</value>
+						</replacement>
+					</replacements>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -112,11 +152,11 @@
 			<artifactId>client-logonbox-vpn-cli</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-        <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-dbconvert</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>com.logonbox</groupId>
+			<artifactId>client-logonbox-vpn-dbconvert</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.sshtools</groupId>
 			<artifactId>forker-wrapper</artifactId>
@@ -130,15 +170,15 @@
 			<id>build-install4j-logonbox-vpn-client</id>
 			<build>
 				<plugins>
-				    <!-- We don't actually need to deploy the .sh, .deb. .exe etc to Artifactory,
+					<!-- We don't actually need to deploy the .sh, .deb. .exe etc to Artifactory,
 				    they are copied to S3 -->
-	                <plugin>
-	                    <groupId>org.apache.maven.plugins</groupId>
-	                    <artifactId>maven-deploy-plugin</artifactId>
-	                    <configuration>
-	                       <skip>true</skip>
-	                    </configuration>
-	                </plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
+					</plugin>
 
 					<!-- Clean target/extensions etc -->
 					<plugin>
@@ -163,9 +203,9 @@
 										<fileset>
 											<directory>target/gui</directory>
 										</fileset>
-                                        <fileset>
-                                            <directory>target/dbconvert</directory>
-                                        </fileset>
+										<fileset>
+											<directory>target/dbconvert</directory>
+										</fileset>
 									</filesets>
 								</configuration>
 							</execution>
@@ -184,27 +224,27 @@
 									<goal>get-artifacts</goal>
 								</goals>
 								<configuration>
-								    <includeVersion>false</includeVersion>
+									<includeVersion>false</includeVersion>
 									<output>${project.build.directory}/cli</output>
 									<artifacts>
 										<artifact>com.logonbox:client-logonbox-vpn-cli:${project.version}</artifact>
 									</artifacts>
 								</configuration>
 							</execution>
-                            <execution>
-                                <id>copy-converter</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>get-artifacts</goal>
-                                </goals>
-                                <configuration>
-                                    <includeVersion>false</includeVersion>
-                                    <output>${project.build.directory}/converter</output>
-                                    <artifacts>
-                                        <artifact>com.logonbox:client-logonbox-vpn-dbconvert:${project.version}</artifact>
-                                    </artifacts>
-                                </configuration>
-                            </execution>
+							<execution>
+								<id>copy-converter</id>
+								<phase>package</phase>
+								<goals>
+									<goal>get-artifacts</goal>
+								</goals>
+								<configuration>
+									<includeVersion>false</includeVersion>
+									<output>${project.build.directory}/converter</output>
+									<artifacts>
+										<artifact>com.logonbox:client-logonbox-vpn-dbconvert:${project.version}</artifact>
+									</artifacts>
+								</configuration>
+							</execution>
 							<execution>
 								<id>copy-gui</id>
 								<phase>package</phase>
@@ -213,141 +253,141 @@
 								</goals>
 								<configuration>
 									<output>${project.build.directory}/gui</output>
-                                    <includeVersion>false</includeVersion>
+									<includeVersion>false</includeVersion>
 									<artifacts>
 										<artifact>com.logonbox:client-logonbox-vpn-gui-jfx:${project.version}</artifact>
 									</artifacts>
-									
+
 									<!-- Copy these to separate directories -->
 									<excludeClassifiers>
-									   <excludeClassifier>linux</excludeClassifier>
-                                       <excludeClassifier>win</excludeClassifier>
-                                       <excludeClassifier>mac</excludeClassifier>
+										<excludeClassifier>linux</excludeClassifier>
+										<excludeClassifier>win</excludeClassifier>
+										<excludeClassifier>mac</excludeClassifier>
 									</excludeClassifiers>
-									
-									
+
+
 								</configuration>
 							</execution>
-                            <execution>
-                                <id>copy-gui-jfx-win</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>get-artifacts</goal>
-                                </goals>
-                                <configuration>
-                                    <includeVersion>false</includeVersion>
-                                    <output>${project.build.directory}/gui/win</output>
-                                    <transitive>false</transitive>
-                                    <artifacts>
-		                                <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:win</artifact>
-		                                <artifact>org.openjfx:javafx-base:${javafx.version}:jar:win</artifact>
-		                                <artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:win</artifact>
-		                                <artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:win</artifact>
-		                                <artifact>org.openjfx:javafx-media:${javafx.version}:jar:win</artifact>
-		                                <artifact>org.openjfx:javafx-web:${javafx.version}:jar:win</artifact>
-                                    </artifacts>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>copy-gui-jfx-linux</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>get-artifacts</goal>
-                                </goals>
-                                <configuration>
-                                    <includeVersion>false</includeVersion>
-                                    <output>${project.build.directory}/gui/linux</output>
-                                    <transitive>false</transitive>
-                                    <artifacts>
-                                        <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:linux</artifact>
-                                        <artifact>org.openjfx:javafx-base:${javafx.version}:jar:linux</artifact>
-                                        <artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:linux</artifact>
-                                        <artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:linux</artifact>
-                                        <artifact>org.openjfx:javafx-media:${javafx.version}:jar:linux</artifact>
-                                        <artifact>org.openjfx:javafx-web:${javafx.version}:jar:linux</artifact>
-                                    </artifacts>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>copy-gui-jfx-linux-arm32-monocle</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>get-artifacts</goal>
-                                </goals>
-                                <configuration>
-                                    <includeVersion>false</includeVersion>
-                                    <output>${project.build.directory}/gui/linux-arm32-monocle</output>
-                                    <transitive>false</transitive>
-                                    <artifacts>
-                                        <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:linux-arm32-monocle</artifact>
-                                        <artifact>org.openjfx:javafx-base:${javafx.version}:jar:linux-arm32-monocle</artifact>
-                                        <artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:linux-arm32-monocle</artifact>
-                                        <artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:linux-arm32-monocle</artifact>
-                                        <artifact>org.openjfx:javafx-media:${javafx.version}:jar:linux-arm32-monocle</artifact>
-                                        <artifact>org.openjfx:javafx-web:${javafx.version}:jar:linux-arm32-monocle</artifact>
-                                    </artifacts>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>copy-gui-jfx-linux-aarch64</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>get-artifacts</goal>
-                                </goals>
-                                <configuration>
-                                    <includeVersion>false</includeVersion>
-                                    <output>${project.build.directory}/gui/linux-aarch64</output>
-                                    <transitive>false</transitive>
-                                    <artifacts>
-                                        <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:linux-aarch64</artifact>
-                                        <artifact>org.openjfx:javafx-base:${javafx.version}:jar:linux-aarch64</artifact>
-                                        <artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:linux-aarch64</artifact>
-                                        <artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:linux-aarch64</artifact>
-                                        <artifact>org.openjfx:javafx-media:${javafx.version}:jar:linux-aarch64</artifact>
-                                        <artifact>org.openjfx:javafx-web:${javafx.version}:jar:linux-aarch64</artifact>
-                                    </artifacts>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>copy-gui-jfx-mac</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>get-artifacts</goal>
-                                </goals>
-                                <configuration>
-                                    <includeVersion>false</includeVersion>
-                                    <output>${project.build.directory}/gui/mac</output>
-                                    <transitive>false</transitive>
-                                    <artifacts>
-                                        <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:mac</artifact>
-                                        <artifact>org.openjfx:javafx-base:${javafx.version}:jar:mac</artifact>
-                                        <artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:mac</artifact>
-                                        <artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:mac</artifact>
-                                        <artifact>org.openjfx:javafx-media:${javafx.version}:jar:mac</artifact>
-                                        <artifact>org.openjfx:javafx-web:${javafx.version}:jar:mac</artifact>
-                                    </artifacts>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>copy-gui-jfx-mac-aarch64</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>get-artifacts</goal>
-                                </goals>
-                                <configuration>
-                                    <includeVersion>false</includeVersion>
-                                    <output>${project.build.directory}/gui/mac-aarch64</output>
-                                    <transitive>false</transitive>
-                                    <artifacts>
-                                        <artifact>org.openjfx:javafx-controls:${javafx.version}:jar:mac-aarch64</artifact>
-                                        <artifact>org.openjfx:javafx-base:${javafx.version}:jar:mac-aarch64</artifact>
-                                        <artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:mac-aarch64</artifact>
-                                        <artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:mac-aarch64</artifact>
-                                        <artifact>org.openjfx:javafx-media:${javafx.version}:jar:mac-aarch64</artifact>
-                                        <artifact>org.openjfx:javafx-web:${javafx.version}:jar:mac-aarch64</artifact>
-                                    </artifacts>
-                                </configuration>
-                            </execution>
+							<execution>
+								<id>copy-gui-jfx-win</id>
+								<phase>package</phase>
+								<goals>
+									<goal>get-artifacts</goal>
+								</goals>
+								<configuration>
+									<includeVersion>false</includeVersion>
+									<output>${project.build.directory}/gui/win</output>
+									<transitive>false</transitive>
+									<artifacts>
+										<artifact>org.openjfx:javafx-controls:${javafx.version}:jar:win</artifact>
+										<artifact>org.openjfx:javafx-base:${javafx.version}:jar:win</artifact>
+										<artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:win</artifact>
+										<artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:win</artifact>
+										<artifact>org.openjfx:javafx-media:${javafx.version}:jar:win</artifact>
+										<artifact>org.openjfx:javafx-web:${javafx.version}:jar:win</artifact>
+									</artifacts>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-gui-jfx-linux</id>
+								<phase>package</phase>
+								<goals>
+									<goal>get-artifacts</goal>
+								</goals>
+								<configuration>
+									<includeVersion>false</includeVersion>
+									<output>${project.build.directory}/gui/linux</output>
+									<transitive>false</transitive>
+									<artifacts>
+										<artifact>org.openjfx:javafx-controls:${javafx.version}:jar:linux</artifact>
+										<artifact>org.openjfx:javafx-base:${javafx.version}:jar:linux</artifact>
+										<artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:linux</artifact>
+										<artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:linux</artifact>
+										<artifact>org.openjfx:javafx-media:${javafx.version}:jar:linux</artifact>
+										<artifact>org.openjfx:javafx-web:${javafx.version}:jar:linux</artifact>
+									</artifacts>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-gui-jfx-linux-arm32-monocle</id>
+								<phase>package</phase>
+								<goals>
+									<goal>get-artifacts</goal>
+								</goals>
+								<configuration>
+									<includeVersion>false</includeVersion>
+									<output>${project.build.directory}/gui/linux-arm32-monocle</output>
+									<transitive>false</transitive>
+									<artifacts>
+										<artifact>org.openjfx:javafx-controls:${javafx.version}:jar:linux-arm32-monocle</artifact>
+										<artifact>org.openjfx:javafx-base:${javafx.version}:jar:linux-arm32-monocle</artifact>
+										<artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:linux-arm32-monocle</artifact>
+										<artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:linux-arm32-monocle</artifact>
+										<artifact>org.openjfx:javafx-media:${javafx.version}:jar:linux-arm32-monocle</artifact>
+										<artifact>org.openjfx:javafx-web:${javafx.version}:jar:linux-arm32-monocle</artifact>
+									</artifacts>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-gui-jfx-linux-aarch64</id>
+								<phase>package</phase>
+								<goals>
+									<goal>get-artifacts</goal>
+								</goals>
+								<configuration>
+									<includeVersion>false</includeVersion>
+									<output>${project.build.directory}/gui/linux-aarch64</output>
+									<transitive>false</transitive>
+									<artifacts>
+										<artifact>org.openjfx:javafx-controls:${javafx.version}:jar:linux-aarch64</artifact>
+										<artifact>org.openjfx:javafx-base:${javafx.version}:jar:linux-aarch64</artifact>
+										<artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:linux-aarch64</artifact>
+										<artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:linux-aarch64</artifact>
+										<artifact>org.openjfx:javafx-media:${javafx.version}:jar:linux-aarch64</artifact>
+										<artifact>org.openjfx:javafx-web:${javafx.version}:jar:linux-aarch64</artifact>
+									</artifacts>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-gui-jfx-mac</id>
+								<phase>package</phase>
+								<goals>
+									<goal>get-artifacts</goal>
+								</goals>
+								<configuration>
+									<includeVersion>false</includeVersion>
+									<output>${project.build.directory}/gui/mac</output>
+									<transitive>false</transitive>
+									<artifacts>
+										<artifact>org.openjfx:javafx-controls:${javafx.version}:jar:mac</artifact>
+										<artifact>org.openjfx:javafx-base:${javafx.version}:jar:mac</artifact>
+										<artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:mac</artifact>
+										<artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:mac</artifact>
+										<artifact>org.openjfx:javafx-media:${javafx.version}:jar:mac</artifact>
+										<artifact>org.openjfx:javafx-web:${javafx.version}:jar:mac</artifact>
+									</artifacts>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-gui-jfx-mac-aarch64</id>
+								<phase>package</phase>
+								<goals>
+									<goal>get-artifacts</goal>
+								</goals>
+								<configuration>
+									<includeVersion>false</includeVersion>
+									<output>${project.build.directory}/gui/mac-aarch64</output>
+									<transitive>false</transitive>
+									<artifacts>
+										<artifact>org.openjfx:javafx-controls:${javafx.version}:jar:mac-aarch64</artifact>
+										<artifact>org.openjfx:javafx-base:${javafx.version}:jar:mac-aarch64</artifact>
+										<artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:mac-aarch64</artifact>
+										<artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:mac-aarch64</artifact>
+										<artifact>org.openjfx:javafx-media:${javafx.version}:jar:mac-aarch64</artifact>
+										<artifact>org.openjfx:javafx-web:${javafx.version}:jar:mac-aarch64</artifact>
+									</artifacts>
+								</configuration>
+							</execution>
 							<execution>
 								<id>copy-service</id>
 								<phase>package</phase>
@@ -355,7 +395,7 @@
 									<goal>get-artifacts</goal>
 								</goals>
 								<configuration>
-                                    <includeVersion>false</includeVersion>
+									<includeVersion>false</includeVersion>
 									<output>${project.build.directory}/service</output>
 									<artifacts>
 										<artifact>com.logonbox:client-logonbox-vpn-service:${project.version}</artifact>
@@ -414,9 +454,9 @@
 									<variables>
 										<build.phase>${build.phase}</build.phase>
 									</variables>
-                                    <jvmArguments>
-                                        <jvmArgument>-Xmx2048m</jvmArgument>
-                                    </jvmArguments>
+									<jvmArguments>
+										<jvmArgument>-Xmx2048m</jvmArgument>
+									</jvmArguments>
 								</configuration>
 							</execution>
 						</executions>
@@ -426,24 +466,24 @@
 		</profile>
 	</profiles>
 
-    <repositories>
-        <!-- For Forker -->
-        <repository>
-            <id>opensource-releases</id>
-            <url>https://artifactory.jadaptive.com/opensource-releases</url>
-            <releases />
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>opensource-snapshots</id>
-            <url>https://artifactory.jadaptive.com/opensource-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots />
-        </repository>
+	<repositories>
+		<!-- For Forker -->
+		<repository>
+			<id>opensource-releases</id>
+			<url>https://artifactory.jadaptive.com/opensource-releases</url>
+			<releases />
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>opensource-snapshots</id>
+			<url>https://artifactory.jadaptive.com/opensource-snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots />
+		</repository>
 		<repository>
 			<id>ext-snapshots-local</id>
 			<name>ext-snapshots-local</name>

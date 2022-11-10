@@ -1,6 +1,6 @@
 # Changes
 
-## 2.4.0-1000
+## SNAPSHOT
 
  * May prevent updates by non-administrative users during installing.
  * CHANGES.md not actually included in any installer components.

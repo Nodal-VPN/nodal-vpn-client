@@ -48,7 +48,7 @@
       <fileEntry mountPoint="2032" file="./scripts/cleanup.bat" />
       <fileEntry mountPoint="2032" file="./EULA.txt" />
       <fileEntry mountPoint="2032" file="./WINTUN-LICENSE.txt" />
-      <fileEntry mountPoint="2032" file="../CHANGES.md" />
+      <fileEntry mountPoint="2032" file="target/CHANGES.md" />
       <fileEntry mountPoint="2032" file="./WIREGUARD-LICENSE.txt" />
       <fileEntry mountPoint="2028" file="./os/windows/win32-x86-64/tunnel.dll" shared="true" />
       <fileEntry mountPoint="2028" file="./os/windows/win32-x86-64/wintun.dll" shared="true" />
