@@ -478,6 +478,7 @@ for more details. Accepting this license implies you also accept all others.  </
             <serializedBean>
               <property name="title" type="string">Updates Options</property>
             </serializedBean>
+            <condition>!context.isUnattended()</condition>
             <formComponents>
               <formComponent id="2197" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
                 <serializedBean>
