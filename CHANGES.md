@@ -4,6 +4,8 @@
 
  * May prevent updates by non-administrative users during installing.
  * CHANGES.md not actually included in any installer components.
+ * Another case where existing network interfaces might not be matched, 
+   leaving stale network interfaces running. 
 
 ## 2.4.0-938
 
