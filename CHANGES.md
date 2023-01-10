@@ -1,6 +1,6 @@
 # Changes
 
-## SNAPSHOT
+## 2.4.0-992
 
  * May prevent updates by non-administrative users during installing.
  * CHANGES.md not actually included in any installer components.
