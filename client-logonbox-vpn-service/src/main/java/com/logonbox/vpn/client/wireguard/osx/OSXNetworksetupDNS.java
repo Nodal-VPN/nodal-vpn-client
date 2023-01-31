@@ -58,6 +58,11 @@ public class OSXNetworksetupDNS {
 		public Set<String> getDomains() {
 			return domains;
 		}
+
+		@Override
+		public String toString() {
+			return "OSXService [name=" + name + ", servers=" + servers + ", domains=" + domains + "]";
+		}
 		
 	}
 	
@@ -135,6 +140,8 @@ public class OSXNetworksetupDNS {
 
 	protected void updateDns() throws IOException {
 		LOG.info("Updating DNS state");
+		LOG.info("Current default state: " + defaultServices.values());
+		LOG.info("Current internal state: " + interfaceDns.values());
 		
 		/* Get all unique DNS servers and domains */
 		Set<String> dnsServers = new LinkedHashSet<>();
@@ -208,8 +215,13 @@ public class OSXNetworksetupDNS {
 					break;
 				}
 				else {
-					LOG.debug(String.format("%s service has %s for DNS.", service, out));
-					srv.getServers().add(out);
+					if(isDNSAddressUsedByIface(out)) {
+						LOG.debug(String.format("%s service has %s for DNS, but it supplied by a VPN interface.", service, out));
+					}
+					else {
+						LOG.debug(String.format("%s service has %s for DNS.", service, out));
+						srv.getServers().add(out);
+					}
 				}
  			}
 			
@@ -220,8 +232,14 @@ public class OSXNetworksetupDNS {
 					break;
 				}
 				else {
-					LOG.debug(String.format("%s service has %s for domain search.", service, out));
-					srv.getDomains().add(out);
+
+					if(isDNSDomainUsedByIface(out)) {
+						LOG.debug(String.format("%s service has %s for domain search, but it is supplied by a VPN interface.", service, out));
+					}
+					else {
+						LOG.debug(String.format("%s service has %s for domain search.", service, out));
+						srv.getDomains().add(out);
+					}
 				}
  			}
 		}
@@ -236,6 +254,24 @@ public class OSXNetworksetupDNS {
 		}
 		
 		return foundServices;
+	}
+	
+	private boolean isDNSAddressUsedByIface(String ip) {
+		for(var en : interfaceDns.values()) {
+			if(en.getServers().contains(ip)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean isDNSDomainUsedByIface(String ip) {
+		for(var en : interfaceDns.values()) {
+			if(en.getDomains().contains(ip)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void checkForError(Iterable<String> output) throws IOException {

@@ -43,7 +43,7 @@ public class OsUtil {
 	}
 
 	public static String[] debugCommandArgs(String... args) {
-		LOG.info("Executing commands: " + String.join(" ", args));
+		LOG.debug("Executing commands: " + String.join(" ", args));
 		return args;
 	}
 }

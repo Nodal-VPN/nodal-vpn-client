@@ -385,7 +385,7 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 			log.info(String.format("No existing unused interfaces, creating new one (%s) for public key .", name,
 					configuration.getUserPublicKey()));
 			ip = add(name, "wireguard");
-			if (ip == null)
+			if (ip == null) 
 				throw new IOException("Failed to create virtual IP address.");
 			log.info(String.format("Created %s", name));
 		} else
