@@ -1,5 +1,9 @@
 # Changes
 
+## SNAPSHOT 
+
+ * Mac OS X networksetup DNS integration not correctly removing DNS server address and domains on tear down.
+
 ## 2.4.0-992
 
  * May prevent updates by non-administrative users during installing.
