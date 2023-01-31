@@ -183,16 +183,16 @@ public class OSXNetworksetupDNS {
 
 	private Set<String> collectNewServiceDns() throws IOException {
 		Set<String> foundServices = new HashSet<>();
-		LOG.info("Running network setup to determine all network service.");
+		LOG.debug("Running network setup to determine all network service.");
 		for(String service : OSCommand.runCommandAndCaptureOutput(debugCommandArgs("networksetup", "-listallnetworkservices"))) {
 			if(service.startsWith("*")) {
 				service = service.substring(1);
-				LOG.info(String.format("%s is disabled service.", service));
+				LOG.debug(String.format("%s is disabled service.", service));
 			}
 			else if(service.startsWith("An asterisk")) {
 				continue;
 			}
-			LOG.info(String.format("%s service found.", service));
+			LOG.debug(String.format("%s service found.", service));
 			foundServices.add(service);
 			
 			OSXService srv = defaultServices.get(service);
@@ -208,7 +208,7 @@ public class OSXNetworksetupDNS {
 					break;
 				}
 				else {
-					LOG.info(String.format("%s service has %s for DNS.", service, out));
+					LOG.debug(String.format("%s service has %s for DNS.", service, out));
 					srv.getServers().add(out);
 				}
  			}
@@ -220,7 +220,7 @@ public class OSXNetworksetupDNS {
 					break;
 				}
 				else {
-					LOG.info(String.format("%s service has %s for domain search.", service, out));
+					LOG.debug(String.format("%s service has %s for domain search.", service, out));
 					srv.getDomains().add(out);
 				}
  			}
@@ -230,7 +230,7 @@ public class OSXNetworksetupDNS {
 		for(Iterator<Map.Entry<String,OSXService>> serviceIt = defaultServices.entrySet().iterator(); serviceIt.hasNext(); ) {
 			Map.Entry<String,OSXService> serviceEn = serviceIt.next();
 			if(!foundServices.contains(serviceEn.getKey())) {
-				LOG.info(String.format("Removing service %s, it either doesn't exist or has no DNS configuration.", serviceEn.getKey()));
+				LOG.debug(String.format("Removing service %s, it either doesn't exist or has no DNS configuration.", serviceEn.getKey()));
 				serviceIt.remove();
 			}
 		}

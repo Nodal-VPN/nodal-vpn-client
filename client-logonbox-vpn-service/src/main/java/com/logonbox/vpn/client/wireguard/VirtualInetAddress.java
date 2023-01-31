@@ -66,4 +66,6 @@ public interface VirtualInetAddress<P extends PlatformService<?>> {
 
 	P getPlatform();
 
+	DNSIntegrationMethod calcDnsMethod();
+
 }

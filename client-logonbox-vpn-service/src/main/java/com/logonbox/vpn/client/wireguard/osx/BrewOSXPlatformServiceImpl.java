@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.logonbox.vpn.client.LocalContext;
-import com.logonbox.vpn.client.Main;
 import com.logonbox.vpn.client.service.VPNSession;
 import com.logonbox.vpn.client.wireguard.AbstractPlatformServiceImpl;
 import com.logonbox.vpn.client.wireguard.OsUtil;
@@ -323,7 +322,7 @@ public class BrewOSXPlatformServiceImpl extends AbstractPlatformServiceImpl<Brew
 
 	@Override
 	protected VPNSession configureExistingSession(LocalContext context, Connection connection, BrewOSXIP ip) {
-		switch(dnsMethod()) {
+		switch(ip.calcDnsMethod()) {
 		case SCUTIL_COMPATIBLE:
 			/* Should still be in correct state. State is also lost at reboot (good thing!) */
 			break;

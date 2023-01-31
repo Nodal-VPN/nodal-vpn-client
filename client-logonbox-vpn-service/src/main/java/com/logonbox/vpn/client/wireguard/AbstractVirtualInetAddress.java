@@ -112,7 +112,8 @@ public abstract class AbstractVirtualInetAddress<P extends PlatformService<?>> i
 		return this;
 	}
 
-	protected final DNSIntegrationMethod calcDnsMethod() {
+	@Override
+	public final DNSIntegrationMethod calcDnsMethod() {
 		if (method() == DNSIntegrationMethod.AUTO) {
 			return platform.dnsMethod();
 		} else
