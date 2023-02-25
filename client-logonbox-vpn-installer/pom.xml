@@ -199,7 +199,6 @@
 										<fileset>
 											<directory>target/service</directory>
 										</fileset>
-										>
 										<fileset>
 											<directory>target/gui</directory>
 										</fileset>
