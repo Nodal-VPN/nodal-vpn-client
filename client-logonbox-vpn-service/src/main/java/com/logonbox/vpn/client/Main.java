@@ -737,7 +737,10 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 				if(busAddress != null && embedded) {
 					for(int i = 0 ; i < 10 ; i++) {
 						try {
-							Files.delete(Paths.get(busAddress.getParameterValue("path")));
+							String path = busAddress.getParameterValue("path");
+							if(path == null)
+								break;
+							Files.delete(Paths.get(path));
 							break;
 						} catch (IOException e) {
 							log.warn("Failed to delete bus socket file, trying again.");

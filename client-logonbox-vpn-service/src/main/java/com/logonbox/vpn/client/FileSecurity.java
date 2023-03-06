@@ -123,9 +123,13 @@ public class FileSecurity {
 	protected static AclEntry set(boolean asGroup, Path path, String name, String sid,  AclEntryType type,
 			AclEntryPermission... perms) throws IOException {
 		try {
-			return perms(asGroup, path, WindowsPlatformServiceImpl.getBestRealName(sid, name), type, perms);
+			System.err.println("Trying to set '" + sid + "' or name of " + name + " on "  +path + " as Group: " + asGroup + " : " + type + " : " + Arrays.asList(perms));
+			String bestRealName = WindowsPlatformServiceImpl.getBestRealName(sid, name);
+			System.err.println("Best real name : "+ bestRealName);
+			return perms(asGroup, path, bestRealName, type, perms);
 		}
 		catch(Throwable t) {
+			t.printStackTrace();
 			log.debug("Failed to get AclEntry using either SID of '" + sid + "' or name of " + name + ". Attempting using localised name.", t);
 			return perms(asGroup, path, BUNDLE.getString(name), type, perms);
 		}
