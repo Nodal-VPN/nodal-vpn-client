@@ -100,11 +100,15 @@ public class FileSecurity {
 				acl.add(set(true, path, "Everyone", WindowsPlatformServiceImpl.SID_WORLD, AclEntryType.ALLOW, AclEntryPermission.READ_DATA,
 						AclEntryPermission.WRITE_DATA));
 			} catch (Throwable upnfe) {
+				System.err.println("Everyone failed");
+				upnfe.printStackTrace();
 			}
 			try {
 				acl.add(set(true, path, "Users", WindowsPlatformServiceImpl.SID_USERS, AclEntryType.ALLOW, AclEntryPermission.READ_DATA,
 						AclEntryPermission.WRITE_DATA));
 			} catch (Throwable upnfe2) {
+				System.err.println("Users failed");
+				upnfe2.printStackTrace();
 			}
 			if (acl.isEmpty()) {
 
