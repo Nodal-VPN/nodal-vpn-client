@@ -130,8 +130,8 @@ public class FileSecurity {
 		}
 		catch(Throwable t) {
 			t.printStackTrace();
-			log.debug("Failed to get AclEntry using either SID of '" + sid + "' or name of " + name + ". Attempting using localised name.", t);
-			return perms(asGroup, path, BUNDLE.getString(name), type, perms);
+			System.err.println("Failed to get AclEntry using either SID of '" + sid + "' or name of " + name + ". Attempting using localised name.");
+			return perms(asGroup, path, name, type, perms);
 		}
 	}
 
