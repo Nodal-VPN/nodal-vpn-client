@@ -126,6 +126,7 @@ public class FileSecurity {
 			return perms(asGroup, path, WindowsPlatformServiceImpl.getBestRealName(sid, name), type, perms);
 		}
 		catch(Throwable t) {
+			log.debug("Failed to get AclEntry using either SID of '" + sid + "' or name of " + name + ". Attempting using localised name.", t);
 			return perms(asGroup, path, BUNDLE.getString(name), type, perms);
 		}
 	}
