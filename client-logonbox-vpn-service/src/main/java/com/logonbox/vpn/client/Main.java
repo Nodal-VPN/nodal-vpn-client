@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -415,6 +416,13 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 	
 						if (!vpnAppData.exists() && !vpnAppData.mkdirs())
 							throw new IOException("Failed to create public directory for domain socket file.");
+						
+						try {
+							Arrays.asList(vpnAppData.listFiles((f) -> f.getName().startsWith("dbus-"))).stream().forEach(f->f.delete());
+						}
+						catch(Exception e) {
+							log.warn("Failed to remove old dbus files.", e);
+						}
 	
 						newAddress = newAddress.replace("path=" + System.getProperty("java.io.tmpdir"),
 								"path=" + vpnAppData.getAbsolutePath().replace('/', '\\') + "\\");

@@ -100,15 +100,13 @@ public class FileSecurity {
 				acl.add(set(true, path, "Everyone", WindowsPlatformServiceImpl.SID_WORLD, AclEntryType.ALLOW, AclEntryPermission.READ_DATA,
 						AclEntryPermission.WRITE_DATA));
 			} catch (Throwable upnfe) {
-				System.err.println("Everyone failed");
-				upnfe.printStackTrace();
+				log.warn("Failed to set Everyone permission.", upnfe);
 			}
 			try {
 				acl.add(set(true, path, "Users", WindowsPlatformServiceImpl.SID_USERS, AclEntryType.ALLOW, AclEntryPermission.READ_DATA,
 						AclEntryPermission.WRITE_DATA));
 			} catch (Throwable upnfe2) {
-				System.err.println("Users failed");
-				upnfe2.printStackTrace();
+				log.warn("Failed to set Users permission.", upnfe2);
 			}
 			if (acl.isEmpty()) {
 
@@ -127,14 +125,13 @@ public class FileSecurity {
 	protected static AclEntry set(boolean asGroup, Path path, String name, String sid,  AclEntryType type,
 			AclEntryPermission... perms) throws IOException {
 		try {
-			System.err.println("Trying to set '" + sid + "' or name of " + name + " on "  +path + " as Group: " + asGroup + " : " + type + " : " + Arrays.asList(perms));
+			log.debug("Trying to set '" + sid + "' or name of " + name + " on "  +path + " as Group: " + asGroup + " : " + type + " : " + Arrays.asList(perms));
 			String bestRealName = WindowsPlatformServiceImpl.getBestRealName(sid, name);
-			System.err.println("Best real name : "+ bestRealName);
+			log.debug("Best real name : "+ bestRealName);
 			return perms(asGroup, path, bestRealName, type, perms);
 		}
 		catch(Throwable t) {
-			t.printStackTrace();
-			System.err.println("Failed to get AclEntry using either SID of '" + sid + "' or name of " + name + ". Attempting using localised name.");
+			log.debug("Failed to get AclEntry using either SID of '" + sid + "' or name of " + name + ". Attempting using localised name.", t);
 			return perms(asGroup, path, name, type, perms);
 		}
 	}
