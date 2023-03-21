@@ -3,6 +3,7 @@
 ## SNAPSHOT 
 
  * Mac OS X networksetup DNS integration not correctly removing DNS server address and domains on tear down.
+ * DBus permissions on French installs would sometimes be incorrect result in failure of front-end to connect to service.
 
 ## 2.4.0-992
 
