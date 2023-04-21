@@ -282,7 +282,7 @@ public class OSXNetworksetupDNS {
 	}
 
 	public void start(LocalContext ctx) {
-		ctx.getClientService().getTimer().scheduleWithFixedDelay(() -> {
+		ctx.getClientService().getContext().getQueue().scheduleWithFixedDelay(() -> {
 			try {
 				collectNewServiceDns();
 			} catch (IOException e) {

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 
+import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.Connection.Mode;
@@ -67,8 +68,6 @@ public interface ClientService  {
 	
 	<V> void setValue(String owner, ConfigurationItem<V> item, V value) ;
 
-	ScheduledExecutorService getTimer();
-
 	void registered(VPNFrontEnd frontEnd);
 
 	String getActiveInterface(Connection c);
@@ -90,4 +89,6 @@ public interface ClientService  {
 	boolean isMatchesAnyServerURI(String owner, String uri);
 
 	Connection getConnectionStatus(Connection connection) throws IOException;
+
+	LocalContext getContext();
 }

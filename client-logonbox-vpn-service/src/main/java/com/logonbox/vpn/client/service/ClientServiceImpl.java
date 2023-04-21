@@ -28,8 +28,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -93,7 +91,6 @@ public class ClientServiceImpl implements ClientService {
 	private ConnectionRepository connectionRepository;
 	private LocalContext context;
 	private Semaphore startupLock = new Semaphore(1);
-	private ScheduledExecutorService timer;
 	private AtomicLong transientConnectionId = new AtomicLong();
 	private List<Listener> listeners = new ArrayList<>();
 	private Set<Long> deleting = Collections.synchronizedSet(new LinkedHashSet<>());
@@ -110,8 +107,7 @@ public class ClientServiceImpl implements ClientService {
 			throw new RuntimeException(e);
 		}
 
-		timer = Executors.newScheduledThreadPool(1);
-		timer.scheduleWithFixedDelay(() -> {
+		context.getQueue().scheduleWithFixedDelay(() -> {
 			long now = System.currentTimeMillis();
 			Set<VPNFrontEnd> toRemove = new LinkedHashSet<>();
 			synchronized (context.getFrontEnds()) {
@@ -171,7 +167,7 @@ public class ClientServiceImpl implements ClientService {
 			
 			VPNSession task = createJob(c);
 			temporarilyOffline.remove(c);
-			task.setTask(timer.schedule(() -> doConnect(task), 1, TimeUnit.MILLISECONDS));
+			task.setTask(context.getQueue().schedule(() -> doConnect(task), 1, TimeUnit.MILLISECONDS));
 		}
 	}
 
@@ -734,10 +730,6 @@ public class ClientServiceImpl implements ClientService {
 		return false;
 	}
 
-	public LocalContext getContext() {
-		return context;
-	}
-
 	@Override
 	public String getDeviceName() {
 		String hostname = SystemUtils.getHostName();
@@ -846,8 +838,8 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	@Override
-	public ScheduledExecutorService getTimer() {
-		return timer;
+	public LocalContext getContext() {
+		return context;
 	}
 
 	@Override
@@ -967,7 +959,7 @@ public class ClientServiceImpl implements ClientService {
 			 */
 			cancelAuthorize(connection);
 			log.info(String.format("Setting up authorize timeout for %s", connection.getDisplayName()));
-			authorizingClients.put(connection, timer.schedule(() -> {
+			authorizingClients.put(connection, context.getQueue().schedule(() -> {
 				disconnect(connection, "Authorization timeout.");
 			}, AUTHORIZE_TIMEOUT, TimeUnit.SECONDS));
 
@@ -1021,7 +1013,7 @@ public class ClientServiceImpl implements ClientService {
 			} else {
 				VPNSession job = createJob(c);
 				job.setReconnect(reconnect);
-				job.setTask(timer.schedule(() -> doConnect(job), reconnectSeconds, TimeUnit.SECONDS));
+				job.setTask(context.getQueue().schedule(() -> doConnect(job), reconnectSeconds, TimeUnit.SECONDS));
 			}
 		}
 
@@ -1047,7 +1039,7 @@ public class ClientServiceImpl implements ClientService {
 			activeSessions.put(session.getConnection(), session);
 		}
 		
-		timer.scheduleWithFixedDelay(() -> {
+		context.getQueue().scheduleWithFixedDelay(() -> {
 			try {
 				resolveRemoteDependencies(context.getCertManager(), Util.checkEndsWithSlash(getExtensionStoreRoot()) + "api/store/repos2",
 						new String[] { "logonbox-vpn-client" }, HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-service"), HypersocketVersion.getSerial(),
@@ -1077,7 +1069,7 @@ public class ClientServiceImpl implements ClientService {
 				}
 			}
 
-			timer.scheduleWithFixedDelay(() -> checkConnectionsAlive(), POLL_RATE, POLL_RATE, TimeUnit.SECONDS);
+			context.getQueue().scheduleWithFixedDelay(() -> checkConnectionsAlive(), POLL_RATE, POLL_RATE, TimeUnit.SECONDS);
 
 			return connected > 0;
 		} catch (Exception e) {
@@ -1090,8 +1082,6 @@ public class ClientServiceImpl implements ClientService {
 
 	@Override
 	public void stopService() {
-		if (!timer.isShutdown())
-			timer.shutdown();
 		synchronized (activeSessions) {
 			activeSessions.clear();
 			connectingSessions.clear();

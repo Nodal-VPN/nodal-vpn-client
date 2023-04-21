@@ -162,6 +162,11 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 	}
 
 	@Override
+	public ScheduledExecutorService getQueue() {
+		return queue;
+	}
+
+	@Override
 	public CookieStore getCookieStore() {
 		if (cookieStore == null) {
 			cookieStore = new CustomCookieStore(new File(AbstractDBusClient.CLIENT_HOME, "service-cookies.dat"));
@@ -524,7 +529,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 						var busPath = Paths.get(busAddress.getParameterValue("path"));
 						FileSecurity.openToEveryone(busPath);
 						log.info("Monitoring {}", busPath);
-						checkTask = queue.scheduleAtFixedRate(() -> {
+						checkTask = getQueue().scheduleAtFixedRate(() -> {
 							if(!Files.exists(busPath)) {
 								log.warn("DBus socket file {} has gone missing, restarting.", busPath);
 								shutdownEmbeddedDaemon();
@@ -606,7 +611,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 	private void disconnectAndRetry() {
 		log.info("Disconnected from Bus, retrying");
 		conn = null;
-		connTask = queue.schedule(() -> {
+		connTask = getQueue().schedule(() -> {
 			try {
 				connect();
 				publishDefaultServices();
@@ -726,7 +731,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 		checkForUninstalling();
 		clientService.stopService();
 		try {
-			queue.shutdown();
+			getQueue().shutdown();
 		}
 		finally {
 			if(conn != null) {

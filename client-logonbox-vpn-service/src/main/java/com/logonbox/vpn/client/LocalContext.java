@@ -2,6 +2,7 @@ package com.logonbox.vpn.client;
 
 import java.net.CookieStore;
 import java.util.Collection;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
@@ -47,5 +48,7 @@ public interface LocalContext {
 	SSLParameters getSSLParameters();
 
 	CookieStore getCookieStore();
+
+	ScheduledExecutorService getQueue();
 	
 }
