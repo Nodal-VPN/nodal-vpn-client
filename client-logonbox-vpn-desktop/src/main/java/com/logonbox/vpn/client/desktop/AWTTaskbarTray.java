@@ -1,4 +1,4 @@
-package com.logonbox.vpn.client.gui.jfx;
+package com.logonbox.vpn.client.desktop;
 
 import java.awt.Color;
 import java.awt.Menu;
@@ -18,6 +18,8 @@ import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.logonbox.vpn.client.gui.jfx.Configuration;
+import com.logonbox.vpn.client.gui.jfx.Tray;
 import com.logonbox.vpn.common.client.AbstractDBusClient.BusLifecycleListener;
 import com.logonbox.vpn.common.client.ConnectionStatus.Type;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;

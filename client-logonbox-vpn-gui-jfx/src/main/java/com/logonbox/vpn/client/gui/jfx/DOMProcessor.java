@@ -41,11 +41,11 @@ public class DOMProcessor {
 	private ResourceBundle resources;
 	private Map<String, Collection<String>> collections;
 
-	public DOMProcessor(VPN vpn, VPNConnection connection, Map<String, Collection<String>> collections,
+	public DOMProcessor(UIContext context, VPN vpn, VPNConnection connection, Map<String, Collection<String>> collections,
 			String lastErrorMessage, String lastErrorCause, String lastException, Branding branding,
 			ResourceBundle pageBundle, ResourceBundle resources, Element documentElement, String disconnectionReason) {
 
-		UpdateService updateService = Main.getInstance().getUpdateService();
+		UpdateService updateService = context.getDBus().getUpdateService();
 
 		String errorText = "";
 		String exceptionText = "";
@@ -97,7 +97,7 @@ public class DOMProcessor {
 						(branding == null || branding.getResource() == null
 								|| StringUtils.isBlank(branding.getResource().getName()) ? "LogonBox"
 										: branding.getResource().getName())));
-		replacements.put("trayConfigurable", String.valueOf(Client.get().isTrayConfigurable()));
+		replacements.put("trayConfigurable", String.valueOf(context.isTrayConfigurable()));
 
 		/* Connection */
 		replacements.put("displayName", connection == null ? "" : connection.getDisplayName());

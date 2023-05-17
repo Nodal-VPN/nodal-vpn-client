@@ -1,34 +1,21 @@
 package com.logonbox.vpn.client.gui.jfx;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
+import java.util.ServiceLoader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public interface PowerMonitor {
 
-public abstract class PowerMonitor {
+	public static Optional<PowerMonitor> get() {
+		return ServiceLoader.load(PowerMonitor.class).findFirst();
+	}
 
 	public interface Listener {
 		void wake();
 	}
 
-	final static Logger log = LoggerFactory.getLogger(PowerMonitor.class);
+	void addListener(Listener listener);
 
-	public final static PowerMonitor get() {
-		return new DumbPowerMonitor();
-	}
+	void removeListener(Listener listener);
 
-	private List<Listener> listeners = new ArrayList<>();
-
-	public void addListener(Listener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeListener(Listener listener) {
-		listeners.remove(listener);
-	}
-
-	abstract void start() throws IOException;
-
+	void start();
 }

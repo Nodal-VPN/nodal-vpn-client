@@ -1,32 +1,25 @@
-package com.logonbox.vpn.client.gui.jfx;
+package com.logonbox.vpn.client.mobile;
 
-import java.awt.Taskbar;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
-import javax.swing.UIManager;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.install4j.api.launcher.StartupNotification;
-import com.install4j.api.launcher.StartupNotification.Listener;
+import com.logonbox.vpn.client.gui.jfx.AppContext;
+import com.logonbox.vpn.client.gui.jfx.Configuration;
+import com.logonbox.vpn.client.gui.jfx.UI;
+import com.logonbox.vpn.client.gui.jfx.UIContext;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.ClientPromptingCertManager;
 import com.logonbox.vpn.common.client.HypersocketVersion;
-import com.logonbox.vpn.common.client.NoUpdateService;
 import com.logonbox.vpn.common.client.PromptingCertManager;
-import com.logonbox.vpn.common.client.UpdateService;
-import com.sshtools.forker.client.OSCommand;
-import  com.sun.jna.platform.win32.Advapi32Util;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.control.Alert.AlertType;
 import picocli.CommandLine;
@@ -35,7 +28,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.")
-public class Main extends AbstractDBusClient implements Callable<Integer>, Listener {
+public class Main extends AbstractDBusClient implements Callable<Integer>, AppContext {
 	static Logger log;
 	
 	public final static String SID_ADMINISTRATORS_GROUP = "S-1-5-32-544";
@@ -93,24 +86,12 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 
 	private Level defaultLogLevel;
 
+	private static Optional<UIContext> uiContext = Optional.empty();
+
 	public Main() {
 		super();
 		instance = this;
 		setSupportsAuthorization(true);
-
-		if(Taskbar.isTaskbarSupported()) {
-	        try {
-	    		final Taskbar taskbar = Taskbar.getTaskbar();
-	    		if(SystemUtils.IS_OS_MAC_OSX)
-		            taskbar.setIconImage(java.awt.Toolkit.getDefaultToolkit()
-							.getImage(Main.class.getResource("mac-logo128px.png")));
-	    		else
-		            taskbar.setIconImage(java.awt.Toolkit.getDefaultToolkit()
-							.getImage(Main.class.getResource("logonbox-icon128x128.png")));
-	        } catch (final UnsupportedOperationException e) {
-	        } catch (final SecurityException e) {
-	        }
-		}
 
 		String logConfigPath = System.getProperty("hypersocket.logConfiguration", "");
 		if (logConfigPath.equals("")) {
@@ -137,8 +118,6 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 			log.info(String.format("CWD: %s", new File(".").getCanonicalPath()));
 		} catch (IOException e) {
 		}
-		
-		StartupNotification.registerStartupListener(this);
 	}
 
 	/*
@@ -153,7 +132,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 	 *      the new bootstrap arrangement.
 	 */
 	public Integer call() throws Exception {
-		Application.launch(Client.class, new String[0]);
+		Client.main(new String[0]);
 		return 0;
 	}
 	
@@ -232,40 +211,6 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 	}
 
 	@Override
-	protected UpdateService createUpdateService() {
-		if(isElevatableToAdministrator())
-			return super.createUpdateService();
-		else
-			return new NoUpdateService(this);
-	}
-	
-	boolean isElevatableToAdministrator() {
-		if(SystemUtils.IS_OS_WINDOWS) {
-			for(var grp : Advapi32Util.getCurrentUserGroups()) {
-				if(SID_ADMINISTRATORS_GROUP.equals(grp.sidString)) {
-					return true;
-				}
-			}
-			return false;
-		}
-		else if(SystemUtils.IS_OS_LINUX) {
-			try {
-				return Arrays.asList(String.join(" ", OSCommand.runCommandAndCaptureOutput("id", "-Gn")).split("\\s+")).contains("sudo");
-			} catch (IOException e) {
-				getLog().error("Failed to test for user groups, assuming can elevate.", e);
-			}
-		}
-		else if(SystemUtils.IS_OS_MAC_OSX) {
-			try {
-				return Arrays.asList(String.join(" ", OSCommand.runCommandAndCaptureOutput("id", "-Gn")).split("\\s+")).contains("admin");
-			} catch (IOException e) {
-				getLog().error("Failed to test for user groups, assuming can elevate.", e);
-			}
-		}
-		return true;
-	}
-
-	@Override
 	protected boolean isInteractive() {
 		return true;
 	}
@@ -274,15 +219,10 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		if(Client.get() == null) {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		uiContext.ifPresentOrElse(c -> c.open(), () -> {
 			System.exit(
 					new CommandLine(new Main()).execute(args));
-		}
-		else {
-			/* Re-use, a second instance was started but intercepted by forker */
-			Client.get().open();
-		}
+		});
 
 	}
 
@@ -303,7 +243,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 			@Override
 			public boolean promptForCertificate(PromptType alertType, String title,
 					String content, String key, String hostname, String message) {
-				return Client.get().promptForCertificate(AlertType.valueOf(alertType.name()), title, content, key, hostname, message, this);
+				return uiContext.orElseThrow(()-> new IllegalStateException("UI Not registered.")).promptForCertificate(AlertType.valueOf(alertType.name()), title, content, key, hostname, message, this);
 			}
 			
 		};
@@ -311,7 +251,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 
 	@Override
 	protected String getVersion() {
-		return HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx");
+		return HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-mobile");
 	}
 
 	@Override
@@ -319,8 +259,11 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 		return false;
 	}
 
-	@Override
-	public void startupPerformed(String parameters) {
-		Client.get().open();
+	@SuppressWarnings("unchecked")
+	public <M extends AppContext> M uiContext(UIContext uiContext) {
+		if(Main.uiContext.isPresent())
+			throw new IllegalStateException("Already registered.");
+		Main.uiContext = Optional.of(uiContext);
+		return (M) this;
 	}
 }

@@ -1,46 +1,40 @@
-package com.logonbox.vpn.client.gui.jfx;
+package com.logonbox.vpn.client.desktop;
 
+import java.awt.AWTException;
 import java.awt.Color;
+import java.awt.Image;
+import java.awt.Menu;
+import java.awt.MenuItem;
+import java.awt.MenuShortcut;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import javax.swing.JMenu;
+import javax.swing.SwingUtilities;
 
 import org.kordamp.ikonli.fontawesome.FontAwesome;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.logonbox.vpn.common.client.AbstractDBusClient.BusLifecycleListener;
+import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.common.client.ConnectionStatus.Type;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
 
-import dorkbox.systemTray.Entry;
-import dorkbox.systemTray.Menu;
-import dorkbox.systemTray.MenuItem;
-import dorkbox.systemTray.Separator;
-import dorkbox.systemTray.SystemTray;
 import javafx.application.Platform;
 
-public class DorkBoxTray extends AbstractTray implements AutoCloseable, Tray, BusLifecycleListener {
+public class AWTTray extends AbstractTray {
 
-
-	final static Logger log = LoggerFactory.getLogger(DorkBoxTray.class);
-	
 	private static final int DEFAULT_ICON_SIZE = 48;
-	private List<Entry> menuEntries = new ArrayList<>();
+	private List<MenuItem> menuEntries = new ArrayList<>();
 	private SystemTray systemTray;
-
-	static {
-		SystemTray.DEBUG = true;
-		SystemTray.getVersion();
-	}
-
-	public DorkBoxTray(Client context) throws Exception {
+	private TrayIcon trayIcon;
+	
+	public AWTTray(Client context) throws Exception {
 		super(context);
-		queueGuiOp(() -> {
+		SwingUtilities.invokeLater(() -> {
 			boolean connected = context.getDBus().isBusAvailable();
 			List<VPNConnection> conx = connected ? context.getDBus().getVPNConnections() : Collections.emptyList();
 			adjustTray(connected, conx);
@@ -49,37 +43,31 @@ public class DorkBoxTray extends AbstractTray implements AutoCloseable, Tray, Bu
 
 	@Override
 	public void onClose() throws Exception {
-		if (systemTray != null) {
+		if(trayIcon != null) {
 			SystemTray tr = systemTray;
-			queueGuiOp(() -> tr.shutdown());
-			systemTray = null;
+			SwingUtilities.invokeLater(() -> {
+				tr.remove(trayIcon);
+			});
+			trayIcon = null;
 		}
+		systemTray = null;
 	}
 
 	public boolean isActive() {
 		return systemTray != null;
 	}
-
-	protected void queueGuiOp(Runnable r) {
-		if (com.sun.jna.Platform.isMac()) {
-			Platform.runLater(r);
-		} else if(!context.getOpQueue().isShutdown())
-			context.getOpQueue().execute(r);
-		else
-			log.debug("Ignoring request to queue task, queue is shutdown.");
-	}
-
+	
 	public void reload() {
-		queueGuiOp(() -> {
+		SwingUtilities.invokeLater(() -> {
 			try {
 				boolean connected = context.getDBus().isBusAvailable();
 				List<VPNConnection> conx = connected ? context.getDBus().getVPNConnections() : Collections.emptyList();
 				rebuildMenu(connected, conx);
 				setImage(connected, conx);
 			} catch (Exception re) {
-				queueGuiOp(() -> {
+				SwingUtilities.invokeLater(() -> {
 					rebuildMenu(false, Collections.emptyList());
-					if (systemTray != null)
+					if(systemTray != null)
 						setImage(false, Collections.emptyList());
 				});
 			}
@@ -97,13 +85,17 @@ public class DorkBoxTray extends AbstractTray implements AutoCloseable, Tray, Bu
 		/* Open */
 		Type status = Type.valueOf(device.getStatus());
 		if (status == Type.CONNECTED) {
-			var disconnectDev = new MenuItem(bundle.getString("disconnect"), (e) -> Platform.runLater(() -> {
+			var disconnectDev = new MenuItem(bundle.getString("disconnect"));
+			disconnectDev.setShortcut(new MenuShortcut('d'));
+			disconnectDev.addActionListener((e) -> {
 				context.getOpQueue().execute(() -> device.disconnect(""));
-			}));
+			});
 			menu.add(disconnectDev);
 			menuEntries.add(disconnectDev);
 		} else if (devs.size() > 0 && status == Type.DISCONNECTED) {
-			var openDev = new MenuItem(bundle.getString("connect"), (e) -> Platform.runLater(() -> {
+			var openDev = new MenuItem(bundle.getString("connect"));
+			openDev.setShortcut(new MenuShortcut('c'));
+			openDev.addActionListener((e) -> Platform.runLater(() -> {
 				context.getOpQueue().execute(() -> device.connect());
 			}));
 			menu.add(openDev);
@@ -116,43 +108,41 @@ public class DorkBoxTray extends AbstractTray implements AutoCloseable, Tray, Bu
 	void adjustTray(boolean connected, List<VPNConnection> devs) {
 		String icon = Configuration.getDefault().trayModeProperty().get();
 		if (systemTray == null && !Objects.equals(icon, Configuration.TRAY_MODE_OFF)) {
-			systemTray = SystemTray.get();
+			systemTray = SystemTray.getSystemTray();
 			if (systemTray == null) {
 				throw new RuntimeException("Unable to load SystemTray!");
 			}
-
-			setImage(connected, devs);
-
-			systemTray.setStatus(bundle.getString("title"));
-			Menu menu = systemTray.getMenu();
+			trayIcon = new TrayIcon(getImage(connected, devs));
+			trayIcon.setToolTip(bundle.getString("title"));
+			trayIcon.setImageAutoSize(true);
+			
+			var menu = trayIcon.getPopupMenu();
 			if (menu == null) {
-				systemTray.setMenu(new JMenu(bundle.getString("title")));
+				trayIcon.setPopupMenu(new PopupMenu(bundle.getString("title")));
 			}
 
 			rebuildMenu(connected, devs);
+			try {
+				systemTray.add(trayIcon);
+			} catch (AWTException e) {
+				throw new IllegalStateException("Failed to add system tray.", e);
+			}
 
 		} else if (systemTray != null && Configuration.TRAY_MODE_OFF.equals(icon)) {
-			systemTray.setEnabled(false);
+			systemTray.remove(trayIcon);
+			systemTray = null;
+//			trayIcon.setEnabled(false);
 		} else if (systemTray != null) {
-			systemTray.setEnabled(true);
+//			systemTray.setEnabled(true);
 			setImage(connected, devs);
 			rebuildMenu(connected, devs);
 		}
 	}
 
-	private void addSeparator(Menu menu) {
-		Separator sep = new Separator();
-		menu.add(sep);
-		menuEntries.add(sep);
-
-	}
-
 	private void clearMenus() {
 		if (systemTray != null) {
-			var menu = systemTray.getMenu();
-			for (Entry dev : menuEntries) {
-				menu.remove(dev);
-			}
+			var menu = trayIcon.getPopupMenu();
+			menu.removeAll();
 		}
 		menuEntries.clear();
 	}
@@ -160,12 +150,13 @@ public class DorkBoxTray extends AbstractTray implements AutoCloseable, Tray, Bu
 	private void rebuildMenu(boolean connected, List<VPNConnection> devs) {
 		clearMenus();
 		if (systemTray != null) {
-			var menu = systemTray.getMenu();
+			var menu = trayIcon.getPopupMenu();
 
-			var open = new MenuItem(bundle.getString("open"), (e) -> context.open());
+			var open = new MenuItem(bundle.getString("open"));
+			open.addActionListener((e) -> context.open());
 			menuEntries.add(open);
-			menu.add(open).setShortcut('o');
-			addSeparator(menu);
+			menu.add(open).setShortcut(new MenuShortcut('o'));
+			menu.addSeparator();
 
 			try {
 
@@ -177,52 +168,58 @@ public class DorkBoxTray extends AbstractTray implements AutoCloseable, Tray, Bu
 					} else {
 						for (VPNConnection dev : devs) {
 							var devmenu = addDevice(dev, null, devs);
-							systemTray.getMenu().add(devmenu);
+							menu.add(devmenu);
 							menuEntries.add(devmenu);
 							devices = true;
 						}
 					}
 				}
 				if (devices)
-					addSeparator(menu);
+					menu.addSeparator();
 			} catch (Exception e) {
 				// TODO add error item / tooltip?
-				systemTray.setTooltip("Error!");
+				trayIcon.setToolTip("Error!");
 				e.printStackTrace();
 			}
 
-			var options = new MenuItem(bundle.getString("options"), (e) -> context.options());
+			var options = new MenuItem(bundle.getString("options"));
+			options.addActionListener((e) -> context.options());
+			options.setShortcut(new MenuShortcut('p'));
 			menuEntries.add(options);
-			menu.add(options).setShortcut('o');
+			menu.add(options);
 
-			var quit = new MenuItem(bundle.getString("quit"), (e) -> {
+			var quit = new MenuItem(bundle.getString("quit"));
+			quit.setShortcut(new MenuShortcut('q'));
+			quit.addActionListener((e) -> {
 				Platform.runLater(() -> context.confirmExit());
 			});
 			menuEntries.add(quit);
-			menu.add(quit).setShortcut('q');
+			menu.add(quit);
 		}
 	}
 
 	private void setImage(boolean connected, List<VPNConnection> devs) {
+		trayIcon.setImage(getImage(connected, devs));
+	}
+	
+	private Image getImage(boolean connected, List<VPNConnection> devs) {
 		if (context.getDBus().isBusAvailable()) {
 			String icon = Configuration.getDefault().trayModeProperty().get();
 			if (Configuration.TRAY_MODE_LIGHT.equals(icon)) {
-				systemTray.setImage(overlay(DorkBoxTray.class.getResource("light-logonbox-icon64x64.png"), 48, devs));
+				return overlay(AWTTray.class.getResource("light-logonbox-icon64x64.png"), 48, devs);
 			} else if (Configuration.TRAY_MODE_DARK.equals(icon)) {
-				systemTray.setImage(
-						overlay(DorkBoxTray.class.getResource("dark-logonbox-icon64x64.png"), DEFAULT_ICON_SIZE, devs));
+				return
+						overlay(AWTTray.class.getResource("dark-logonbox-icon64x64.png"), DEFAULT_ICON_SIZE, devs);
 			} else if (Configuration.TRAY_MODE_COLOR.equals(icon)) {
-				systemTray.setImage(overlay(DorkBoxTray.class.getResource("logonbox-icon64x64.png"), 48, devs));
+				return overlay(AWTTray.class.getResource("logonbox-icon64x64.png"), 48, devs);
 			} else {
 				if (isDark())
-					systemTray
-							.setImage(overlay(DorkBoxTray.class.getResource("light-logonbox-icon64x64.png"), 48, devs));
+					return overlay(AWTTray.class.getResource("light-logonbox-icon64x64.png"), 48, devs);
 				else
-					systemTray
-							.setImage(overlay(DorkBoxTray.class.getResource("dark-logonbox-icon64x64.png"), 48, devs));
+					return overlay(AWTTray.class.getResource("dark-logonbox-icon64x64.png"), 48, devs);
 			}
 		} else {
-			systemTray.setImage(createAwesomeIcon(FontAwesome.EXCLAMATION_CIRCLE, 48, 100, Color.RED, 0));
+			return createAwesomeIcon(FontAwesome.EXCLAMATION_CIRCLE, 48, 100, Color.RED, 0);
 		}
 	}
 

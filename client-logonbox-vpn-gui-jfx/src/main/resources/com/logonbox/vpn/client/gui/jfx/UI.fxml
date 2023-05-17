@@ -1,66 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.web.WebView?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="1.0" minWidth="1.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.logonbox.vpn.client.gui.jfx.UI">
+<fx:root type="AnchorPane" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
 	<children>
-		<BorderPane minHeight="1.0" minWidth="1.0">
-			<top>
-				<BorderPane fx:id="header" minHeight="1.0" minWidth="1.0" BorderPane.alignment="CENTER">
-					<right>
-						<HBox fx:id="titleRight" alignment="CENTER_RIGHT" minHeight="1.0" minWidth="1.0" prefWidth="94.0" BorderPane.alignment="CENTER">
-							<children>
-								<Hyperlink fx:id="minimize" onAction="#evtMinimize" styleClass="icon">
-                           <graphic>
-                              <FontIcon iconLiteral="fa-window-minimize" iconSize="32" />
-                           </graphic></Hyperlink>
-								<Hyperlink fx:id="close" onAction="#evtClose" styleClass="icon">
-                           <graphic>
-                              <FontIcon iconLiteral="fa-window-close" iconSize="32" />
-                           </graphic></Hyperlink>
-							</children>
-						</HBox>
-					</right>
-					<left>
-						<HBox fx:id="titleLeft" alignment="CENTER_LEFT" minHeight="1.0" minWidth="1.0" prefWidth="94.0" BorderPane.alignment="CENTER">
-							<children>
-                        <Hyperlink fx:id="back" layoutX="10.0" layoutY="10.0" onAction="#evtBack" styleClass="icon">
-                           <graphic>
-                              <FontIcon iconLiteral="fa-arrow-circle-left" iconSize="32" />
-                           </graphic>
-                        </Hyperlink>
-							</children>
-						</HBox>
-					</left>
-               <styleClass>
-                  <String fx:value="titleBar" />
-                  <String fx:value="inverse" />
-               </styleClass>
-               <center>
-                  <HBox alignment="CENTER" BorderPane.alignment="CENTER">
-                     <children>
-                        <ImageView fx:id="titleBarImageView" fitHeight="32" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="file:com/logonbox/vpn/client/gui/jfx/logonbox-titlebar-logo.png" />
-                           </image>
-                        </ImageView>
-                     </children>
-                  </HBox>
-               </center>
-				</BorderPane> 
-			</top>
+		<BorderPane minHeight="1.0" minWidth="1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <center>
             <StackPane minHeight="1.0" minWidth="1.0" BorderPane.alignment="CENTER">
                <children>
@@ -94,4 +46,4 @@
          </bottom>
 		</BorderPane>
 	</children>
-</StackPane>
+</fx:root>

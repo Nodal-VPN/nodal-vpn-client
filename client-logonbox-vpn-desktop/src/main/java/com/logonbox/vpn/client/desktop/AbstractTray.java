@@ -1,4 +1,4 @@
-package com.logonbox.vpn.client.gui.jfx;
+package com.logonbox.vpn.client.desktop;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -22,6 +22,8 @@ import org.freedesktop.dbus.interfaces.DBusSigHandler;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.fontawesome.FontAwesomeIkonHandler;
 
+import com.logonbox.vpn.client.gui.jfx.Configuration;
+import com.logonbox.vpn.client.gui.jfx.Tray;
 import com.logonbox.vpn.common.client.AbstractDBusClient.BusLifecycleListener;
 import com.logonbox.vpn.common.client.ConnectionStatus.Type;
 import com.logonbox.vpn.common.client.dbus.VPN;
@@ -165,7 +167,7 @@ public abstract class AbstractTray implements AutoCloseable, Tray, BusLifecycleL
 			}
 			return bim;
 		} catch (Exception e) {
-			throw new IllegalStateException("Failed to load image.", e);
+			throw new IllegalStateException("Failed to load image " + resource + ".", e);
 		}
 	}
 

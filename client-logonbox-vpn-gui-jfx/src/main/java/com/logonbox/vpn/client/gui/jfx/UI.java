@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.URI;
@@ -39,9 +40,9 @@ import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -49,23 +50,16 @@ import javax.net.ssl.HostnameVerifier;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.DBusSigHandler;
 import org.freedesktop.dbus.messages.DBusSignal;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.events.EventListener;
-import org.w3c.dom.events.EventTarget;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -94,9 +88,6 @@ import com.logonbox.vpn.common.client.dbus.VPNConnection;
 import com.sshtools.twoslices.Slice;
 import com.sshtools.twoslices.Toast;
 import com.sshtools.twoslices.ToastType;
-//import com.sun.javafx.util.Utils;
-import com.vladsch.javafx.webview.debugger.DevToolsDebuggerJsBridge;
-import com.vladsch.javafx.webview.debugger.JfxScriptStateProvider;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.RotateTransition;
@@ -105,8 +96,8 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -114,9 +105,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.web.WebEngine;
@@ -128,7 +117,13 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import netscape.javascript.JSObject;
 
-public class UI implements BusLifecycleListener {
+public class UI extends AnchorPane implements BusLifecycleListener {
+
+
+	static UUID localWebServerCookie = UUID.randomUUID();
+
+	static final String LOCBCOOKIE = "LOCBCKIE";
+	
 
 	private static final int SPLASH_HEIGHT = 360;
 	private static final int SPLASH_WIDTH = 480;
@@ -138,12 +133,12 @@ public class UI implements BusLifecycleListener {
 	public static final class ServiceClientAuthenticator implements ServiceClient.Authenticator {
 		private final WebEngine engine;
 		private final Semaphore authorizedLock;
-		private final Client context;
+		private final UIContext context;
 		private Map<InputField, NameValuePair> results;
 		private AuthenticationRequiredResult result;
 		private boolean error;
 
-		public ServiceClientAuthenticator(Client context, WebEngine engine, Semaphore authorizedLock) {
+		public ServiceClientAuthenticator(UIContext context, WebEngine engine, Semaphore authorizedLock) {
 			this.engine = engine;
 			this.context = context;
 			this.authorizedLock = authorizedLock;
@@ -170,7 +165,7 @@ public class UI implements BusLifecycleListener {
 
 		@Override
 		public HostnameVerifier getHostnameVerifier() {
-			return Main.getInstance().getCertManager();
+			return context.getDBus().getCertManager();
 		}
 
 		@Override
@@ -389,7 +384,7 @@ public class UI implements BusLifecycleListener {
 		}
 
 		public void openURL(String url) {
-			Client.get().getHostServices().showDocument(url);
+			context.openURL(url);
 		}
 
 		public String getLastHandshake() {
@@ -401,7 +396,7 @@ public class UI implements BusLifecycleListener {
 		public String getUsage() {
 			VPNConnection connection = getConnection();
 			return connection == null ? null
-					: MessageFormat.format(resources.getString("usageDetail"), Util.toHumanSize(connection.getRx()),
+					: MessageFormat.format(bundle.getString("usageDetail"), Util.toHumanSize(connection.getRx()),
 							Util.toHumanSize(connection.getTx()));
 		}
 
@@ -454,11 +449,6 @@ public class UI implements BusLifecycleListener {
 	static int DROP_SHADOW_SIZE = 11;
 
 	private final static Logger LOG = LoggerFactory.getLogger(UI.class);
-	private static UI instance;
-
-	public static UI getInstance() {
-		return instance;
-	}
 
 	private Timeline awaitingBridgeEstablish;
 	private Timeline awaitingBridgeLoss;
@@ -475,8 +465,6 @@ public class UI implements BusLifecycleListener {
 	private Runnable runOnNextLoad;
 	private ServerBridge bridge;
 	private String disconnectionReason;
-	private DevToolsDebuggerJsBridge myJSBridge;
-	private final JfxScriptStateProvider myStateProvider;
 	private Map<Long, Map<Class<? extends DBusSignal>, DBusSigHandler<? extends DBusSignal>>> eventsMap = new HashMap<>();
 	private Map<Long, Slice> notificationsForConnections = new HashMap<>();
 
@@ -495,14 +483,6 @@ public class UI implements BusLifecycleListener {
 	@FXML
 	private FontIcon loadingSpinner;
 	@FXML
-	private ImageView titleBarImageView;
-	@FXML
-	private Hyperlink close;
-	@FXML
-	private Hyperlink minimize;
-	@FXML
-	private Hyperlink back;
-	@FXML
 	private Parent debugBar;
 	@FXML
 	private Hyperlink debuggerLink;
@@ -510,47 +490,79 @@ public class UI implements BusLifecycleListener {
 	private Button startDebugger;
 	@FXML
 	private Button stopDebugger;
-	@FXML
-	private HBox titleLeft;
-	@FXML
-	private HBox titleRight;
 
 	private UpdateService updateService;
 
-	public UI() {
-		/* TODO sort out all this static crap */
-		instance = this;
-		myStateProvider = Client.get();
-		updateService = Main.getInstance().getUpdateService();
-	}
-
-	protected Client context;
-	protected ResourceBundle resources;
-	protected URL location;
-	protected Scene scene;
-	private RotateTransition loadingRotation;
-
-	public final void initialize(URL location, ResourceBundle resources) {
-		this.location = location;
-		this.resources = resources;
+	
+	public UI(UIContext context) {
+		this.context = context;
+		
+		location = getClass().getResource("UI.fxml");
+		updateService = context.getDBus().getUpdateService();
+		
+		var loader = new FXMLLoader(location);
+		loader.setController(this);
+		loader.setRoot(this);
+		loader.setResources(bundle);
+		try {
+			loader.load();
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+		
 		Font.loadFont(UI.class.getResource("ARLRDBD.TTF").toExternalForm(), 12);
+		
+		bridge = new ServerBridge();
+
+		// create JSBridge Instance
+		context.debugger().ifPresent(d -> d.start(webView));
+
+		setAvailable();
+
+		/* Configure engine */
+		configureWebEngine();
+
+		/* Watch for update check state changing */
+		context.getDBus().getUpdateService().addListener(() -> {
+			maybeRunLater(() -> {
+				if (getAuthorizingConnection() == null)
+					selectPageForState(false, false);
+			});
+		});
+
+		// TEMP
+//		webView.visibleProperty().set(false);
+//		webView.managedProperty().set(false);
+//		titleBarImageView.visibleProperty().set(false);
+//		titleBarImageView.managedProperty().set(false);
+//		sidebar.visibleProperty().set(false);
+//		sidebar.managedProperty().set(false);
+
+		/* Make various components completely hide from layout when made invisible */
+		debugBar.managedProperty().bind(debugBar.visibleProperty());
+
+		stopDebugger.disableProperty().bind(Bindings.not(startDebugger.disableProperty()));
+
+		/* Initial page */
+//		setHtmlPage("index.html");
+		try {
+			context.getDBus().addBusLifecycleListener(this);
+			context.getDBus().getVPN().ping();
+			selectPageForState(false, false);
+		} catch (Exception e) {
+			setHtmlPage("index.html");
+		}
 	}
+
+	protected UIContext context;
+	protected URL location;
+	private RotateTransition loadingRotation;
 
 	public final void cleanUp() {
 	}
 
-	public final void configure(Scene scene, Client context) {
-		this.scene = scene;
-		this.context = context;
-		onConfigure();
-	}
-
 	public Stage getStage() {
-		return (Stage) scene.getWindow();
-	}
-
-	public Scene getScene() {
-		return scene;
+		return (Stage) getScene().getWindow();
 	}
 
 	public void disconnect(VPNConnection sel) {
@@ -614,7 +626,7 @@ public class UI implements BusLifecycleListener {
 
 	public void notify(Long id, String msg, ToastType toastType) {
 		clearNotificationForConnection(id);
-		putNotificationForConnection(id, Toast.toast(toastType, resources.getString("appName"), msg));
+		putNotificationForConnection(id, Toast.toast(toastType, bundle.getString("appName"), msg));
 	}
 
 	private void putNotificationForConnection(Long id, Slice slice) {
@@ -808,15 +820,15 @@ public class UI implements BusLifecycleListener {
 					// Bridge established as result of update, now restart the
 					// client itself
 					resetAwaingBridgeEstablish();
-					setUpdateProgress(100, resources.getString("guiRestart"));
-					new Timeline(new KeyFrame(Duration.seconds(5), ae -> Main.getInstance().restart())).play();
+					setUpdateProgress(100, bundle.getString("guiRestart"));
+					new Timeline(new KeyFrame(Duration.seconds(5), ae -> context.getAppContext().restart())).play();
 				} else {
-					String unprocessedUri = Main.getInstance().getUri();
+					String unprocessedUri = context.getAppContext().getUri();
 					if (StringUtils.isNotBlank(unprocessedUri)) {
 						connectToUri(unprocessedUri);
 					} else {
 						initUi();
-						selectPageForState(Main.getInstance().isConnect(), false);
+						selectPageForState(context.getAppContext().isConnect(), false);
 					}
 				}
 			}
@@ -903,7 +915,7 @@ public class UI implements BusLifecycleListener {
 							UI.this.notify(sig.getId(), MessageFormat.format(bundle.getString("connected"),
 									connection.getDisplayName(), connection.getHostname()), ToastType.INFO);
 							connecting.remove(connection);
-							if (Main.getInstance().isExitOnConnection()) {
+							if (context.getAppContext().isExitOnConnection()) {
 								context.exitApp();
 							} else
 								selectPageForState(false, true);
@@ -967,18 +979,18 @@ public class UI implements BusLifecycleListener {
 								if (StringUtils.isBlank(thisDisconnectionReason)
 										|| bundle.getString("cancelled").equals(thisDisconnectionReason))
 									putNotificationForConnection(sig.getId(), Toast.builder()
-											.title(resources.getString("appName"))
+											.title(bundle.getString("appName"))
 											.content(MessageFormat.format(bundle.getString("disconnectedNoReason"),
 													sig.getDisplayName(), sig.getHostname()))
-											.type(ToastType.INFO).defaultAction(() -> Client.get().open()).toast());
+											.type(ToastType.INFO).defaultAction(() -> context.open()).toast());
 								else
 									putNotificationForConnection(sig.getId(), Toast.builder()
-											.title(resources.getString("appName"))
+											.title(bundle.getString("appName"))
 											.content(MessageFormat.format(bundle.getString("disconnected"),
 													sig.getDisplayName(), sig.getHostname(), thisDisconnectionReason))
-											.type(ToastType.INFO).defaultAction(() -> Client.get().open())
+											.type(ToastType.INFO).defaultAction(() -> context.open())
 											.action(bundle.getString("reconnect"), () -> {
-												Client.get().open();
+												context.open();
 												UI.this.connect(context.getDBus().getVPNConnection(sig.getId()));
 											}).timeout(0).toast());
 							} catch (Exception e) {
@@ -1014,7 +1026,7 @@ public class UI implements BusLifecycleListener {
 			if (awaitingBridgeLoss != null) {
 				// Bridge lost as result of update, wait for it to come back
 				resetAwaingBridgeLoss();
-				setUpdateProgress(100, resources.getString("waitingStart"));
+				setUpdateProgress(100, bundle.getString("waitingStart"));
 				awaitingBridgeEstablish = new Timeline(
 						new KeyFrame(Duration.seconds(30), ae -> giveUpWaitingForBridgeEstablish()));
 				awaitingBridgeEstablish.play();
@@ -1076,7 +1088,7 @@ public class UI implements BusLifecycleListener {
 
 	protected void configureWebEngine() {
 		WebEngine engine = webView.getEngine();
-		webView.setContextMenuEnabled(context.isChromeDebug());
+		webView.setContextMenuEnabled(context.isContextMenuAllowed());
 		String ua = engine.getUserAgent();
 		LOG.info("User Agent: " + ua);
 		engine.setUserAgent(ua + " " + "LogonBoxVPNClient/"
@@ -1127,36 +1139,7 @@ public class UI implements BusLifecycleListener {
 		});
 		engine.getLoadWorker().stateProperty().addListener((ov, oldState, newState) -> {
 			if (newState == State.SUCCEEDED) {
-				if (context.isChromeDebug()) {
-					myJSBridge.connectJsBridge();
-
-					/*
-					 * *****************************************************************************
-					 * ************ Optional: JavaScript event.preventDefault(),
-					 * event.stopPropagation() and event.stopImmediatePropagation() don't work on
-					 * Java registered listeners. The alternative mechanism is for JavaScript event
-					 * handler to set
-					 * markdownNavigator.setEventHandledBy("IdentifyingTextForDebugging") Then in
-					 * Java event listener to check for this value not being null, and clear it for
-					 * next use.
-					 *******************************************************************************************/
-					EventListener clickListener = evt -> {
-						if (myJSBridge.getJSEventHandledBy() != null) {
-							LOG.warn("onClick: default prevented by: " + myJSBridge.getJSEventHandledBy());
-							myJSBridge.clearJSEventHandledBy();
-						} else {
-							Node element = (Node) evt.getTarget();
-							Node id = element.getAttributes().getNamedItem("id");
-							String idSelector = id != null ? "#" + id.getNodeValue() : "";
-							LOG.debug("onClick: clicked on " + element.getNodeName() + idSelector);
-						}
-					};
-
-					Document document = webView.getEngine().getDocument();
-					((EventTarget) document).addEventListener("click", clickListener, false);
-
-					instrumentHtml(document.getDocumentElement());
-				}
+				context.debugger().ifPresent(d -> d.loadReady());
 				
 				/* Wait for a little while if pageBundle is null */
 
@@ -1302,75 +1285,12 @@ public class UI implements BusLifecycleListener {
 		return alls.get(0);
 	}
 
-	protected void onConfigure() {
-
-		/* If on Mac, swap which side minimize / close is on */
-		if (SystemUtils.IS_OS_MAC_OSX) {
-			var tempL = new ArrayList<>(titleLeft.getChildren());
-			var tempR = new ArrayList<>(titleRight.getChildren());
-			Collections.reverse(tempL);
-			Collections.reverse(tempR);
-			titleLeft.getChildren().clear();
-			titleLeft.getChildren().addAll(tempR);
-			titleRight.getChildren().clear();
-			titleRight.getChildren().addAll(tempL);
-		}
-
-		bridge = new ServerBridge();
-
-		// create JSBridge Instance
-		myJSBridge = new DevToolsJsBridge(webView, 0, myStateProvider);
-
-		setAvailable();
-
-		/* Configure engine */
-		configureWebEngine();
-
-		/* Watch for update check state changing */
-		Main.getInstance().getUpdateService().addListener(() -> {
-			maybeRunLater(() -> {
-				if (getAuthorizingConnection() == null)
-					selectPageForState(false, false);
-			});
-		});
-
-		// TEMP
-//		webView.visibleProperty().set(false);
-//		webView.managedProperty().set(false);
-//		titleBarImageView.visibleProperty().set(false);
-//		titleBarImageView.managedProperty().set(false);
-//		sidebar.visibleProperty().set(false);
-//		sidebar.managedProperty().set(false);
-
-		/* Make various components completely hide from layout when made invisible */
-		debugBar.managedProperty().bind(debugBar.visibleProperty());
-		back.managedProperty().bind(back.visibleProperty());
-		back.managedProperty().bind(back.visibleProperty());
-
-		stopDebugger.disableProperty().bind(Bindings.not(startDebugger.disableProperty()));
-
-		/* Initial page */
-//		setHtmlPage("index.html");
-		try {
-			context.getDBus().addBusLifecycleListener(this);
-			context.getDBus().getVPN().ping();
-			selectPageForState(false, false);
-		} catch (Exception e) {
-			setHtmlPage("index.html");
-		}
-	}
-
 	public void setAvailable() {
 		boolean isNoBack = "missingSoftware.html".equals(htmlPage) || "connections.html".equals(htmlPage)
 				|| !context.getDBus().isBusAvailable()
 				|| ("addLogonBoxVPN.html".equals(htmlPage) && context.getDBus().getVPNConnections().isEmpty());
-		back.visibleProperty().set(!isNoBack);
-		debugBar.setVisible(context.isChromeDebug());
-		minimize.setVisible(!Main.getInstance().isNoMinimize() && Client.get().isMinimizeAllowed()
-				&& Client.get().isUndecoratedWindow());
-		minimize.setManaged(minimize.isVisible());
-		close.setVisible(!Main.getInstance().isNoClose() && Client.get().isUndecoratedWindow());
-		close.setManaged(close.isVisible());
+		context.navigator().setBackVisible(!isNoBack);
+		debugBar.setVisible(context.debugger().isPresent());
 	}
 
 	protected void saveOptions(String trayMode, String darkMode, String phase, Boolean automaticUpdates,
@@ -1388,7 +1308,7 @@ public class UI implements BusLifecycleListener {
 			if (logLevel != null) {
 				config.logLevelProperty().set(logLevel);
 				if (logLevel.length() == 0)
-					org.apache.log4j.Logger.getRootLogger().setLevel(Main.getInstance().getDefaultLogLevel());
+					org.apache.log4j.Logger.getRootLogger().setLevel(context.getAppContext().getDefaultLogLevel());
 				else
 					org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.toLevel(logLevel));
 			}
@@ -1490,7 +1410,7 @@ public class UI implements BusLifecycleListener {
 					 * URI does not work (resource also works, but we need a dynamic resource, and I
 					 * couldn't get a custom URL handler to work either).
 					 */
-					File customLocalWebCSSFile = context.getCustomLocalWebCSSFile();
+					File customLocalWebCSSFile = context.styling().getCustomLocalWebCSSFile();
 					if (customLocalWebCSSFile.exists()) {
 						if (LOG.isDebugEnabled())
 							LOG.debug(String.format("Setting user stylesheet at %s", customLocalWebCSSFile));
@@ -1515,7 +1435,7 @@ public class UI implements BusLifecycleListener {
 					URI uri = new URI(loc);
 					Map<String, List<String>> headers = new LinkedHashMap<String, List<String>>();
 					headers.put("Set-Cookie", Arrays
-							.asList(String.format("%s=%s", Client.LOCBCOOKIE, Client.localWebServerCookie.toString())));
+							.asList(String.format("%s=%s", LOCBCOOKIE, localWebServerCookie.toString())));
 					cookieHandler.put(uri.resolve("/"), headers);
 
 					if (LOG.isDebugEnabled())
@@ -1543,7 +1463,7 @@ public class UI implements BusLifecycleListener {
 
 	private void setupPage() {
 		if (htmlPage == null || htmlPage.startsWith("http://") || htmlPage.startsWith("https://")) {
-			pageBundle = resources;
+			pageBundle = bundle;
 		} else {
 			int idx = htmlPage.lastIndexOf('?');
 			if (idx != -1)
@@ -1554,7 +1474,7 @@ public class UI implements BusLifecycleListener {
 				idx = htmlPage.lastIndexOf('.');
 			}
 			String base = htmlPage.substring(0, idx);
-			String res = Client.class.getName();
+			String res = UI.class.getName();
 			idx = res.lastIndexOf('.');
 			String resourceName = res.substring(0, idx) + "." + base;
 			if (LOG.isDebugEnabled())
@@ -1564,7 +1484,7 @@ public class UI implements BusLifecycleListener {
 			} catch (MissingResourceException mre) {
 				// Page doesn't have resources
 				LOG.debug(String.format("No resources for %s", resourceName));
-				pageBundle = resources;
+				pageBundle = bundle;
 			}
 		}
 	}
@@ -1591,9 +1511,9 @@ public class UI implements BusLifecycleListener {
 		WebEngine engine = webView.getEngine();
 		JSObject jsobj = (JSObject) engine.executeScript("window");
 		jsobj.setMember("bridge", bridge);
-		if(Main.getInstance().isBusAvailable()) {
+		if(context.getDBus().isBusAvailable()) {
 			try {
-				jsobj.setMember("vpn", Main.getInstance().getVPN());
+				jsobj.setMember("vpn", context.getDBus().getVPN());
 			} catch (IllegalStateException ise) {
 				/* No bus */
 			}
@@ -1620,14 +1540,14 @@ public class UI implements BusLifecycleListener {
 
 			ServiceClientAuthenticator authenticator = new ServiceClientAuthenticator(context, engine, authorizedLock);
 			jsobj.setMember("authenticator", authenticator);
-			final ServiceClient serviceClient = new ServiceClient(Main.getInstance().getCookieStore(), authenticator, Main.getInstance().getCertManager());
+			final ServiceClient serviceClient = new ServiceClient(context.getDBus().getCookieStore(), authenticator, context.getDBus().getCertManager());
 			jsobj.setMember("serviceClient", serviceClient);
 			jsobj.setMember("register", new Register(selectedConnection, serviceClient, this));
 		}
 
 		/* Override log. TODO: Not entirely sure this works entirely */
-		if (!context.isChromeDebug()) {
-			engine.executeScript("console.log = function(message)\n" + "{\n" + "    bridge.log(message);\n" + "};");
+		if (context.debugger().isEmpty()) {
+			engine.executeScript("oldLog = console.log; console.log = function(message) { oldLog.apply(this, arguments); bridge.log(message); };");
 		}
 
 		/* Signal to page we are ready */
@@ -1667,8 +1587,8 @@ public class UI implements BusLifecycleListener {
 	private void processDOM() {
 		boolean busAvailable = context.getDBus().isBusAvailable();
 		VPNConnection connection = busAvailable ? getForegroundConnection() : null;
-		DOMProcessor processor = new DOMProcessor(busAvailable ? context.getDBus().getVPN() : null, connection,
-				collections, lastErrorMessage, lastErrorCause, lastException, branding, pageBundle, resources,
+		DOMProcessor processor = new DOMProcessor(context, busAvailable ? context.getDBus().getVPN() : null, connection,
+				collections, lastErrorMessage, lastErrorCause, lastException, branding, pageBundle, bundle,
 				webView.getEngine().getDocument().getDocumentElement(),
 				connection == null ? disconnectionReason : connection.getLastError());
 		processor.process();
@@ -1698,7 +1618,7 @@ public class UI implements BusLifecycleListener {
 				URI uriObj = Util.getUri(unprocessedUri);
 				long connectionId = context.getDBus().getVPN().getConnectionIdForURI(uriObj.toASCIIString());
 				if (connectionId == -1) {
-					if (Main.getInstance().isCreateIfDoesntExist()) {
+					if (context.getAppContext().isCreateIfDoesntExist()) {
 						/* No existing configuration */
 						context.getDBus().getVPN().createConnection(uriObj.toASCIIString(), true, true,
 								Mode.CLIENT.name());
@@ -1747,9 +1667,9 @@ public class UI implements BusLifecycleListener {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.initModality(Modality.APPLICATION_MODAL);
 		alert.initOwner(getStage());
-		alert.setTitle(resources.getString("delete.confirm.title"));
-		alert.setHeaderText(resources.getString("delete.confirm.header"));
-		alert.setContentText(MessageFormat.format(resources.getString("delete.confirm.content"), sel.getUri(false)));
+		alert.setTitle(bundle.getString("delete.confirm.title"));
+		alert.setHeaderText(bundle.getString("delete.confirm.header"));
+		alert.setContentText(MessageFormat.format(bundle.getString("delete.confirm.content"), sel.getUri(false)));
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
@@ -1777,7 +1697,7 @@ public class UI implements BusLifecycleListener {
 
 //		mode = context.getDBus().isBusAvailable() && context.getDBus().getVPN().isUpdating() ? UIState.UPDATE : UIState.NORMAL;
 		VPNConnection favouriteConnection = getFavouriteConnection();
-		if (Client.allowBranding) {
+		if (context.isAllowBranding()) {
 			branding = getBranding(favouriteConnection);
 		}
 		var splashFile = getCustomSplashFile();
@@ -1942,11 +1862,11 @@ public class UI implements BusLifecycleListener {
 	private void reapplyLogo() {
 		String defaultLogo = UI.class.getResource("logonbox-titlebar-logo.png").toExternalForm();
 		if ((branding == null || StringUtils.isBlank(branding.getLogo())
-				&& !defaultLogo.equals(titleBarImageView.getImage().getUrl()))) {
-			titleBarImageView.setImage(new Image(defaultLogo, true));
+				&& !defaultLogo.equals(context.navigator().getImage().getUrl()))) {
+			context.navigator().setImage(new Image(defaultLogo, true));
 		} else if (branding != null && !defaultLogo.equals(branding.getLogo())
 				&& !StringUtils.isBlank(branding.getLogo())) {
-			titleBarImageView.setImage(new Image(branding.getLogo(), true));
+			context.navigator().setImage(new Image(branding.getLogo(), true));
 		}
 	}
 
@@ -1954,8 +1874,7 @@ public class UI implements BusLifecycleListener {
 		setHtmlPage("editConnection.html#" + connection.getId());
 	}
 
-	@FXML
-	private void evtBack() {
+	public void back() {
 		AbstractDBusClient busClient = context.getDBus();
 		boolean busAvailable = busClient.isBusAvailable();
 		if (busAvailable) {
@@ -1985,43 +1904,20 @@ public class UI implements BusLifecycleListener {
 	}
 
 	@FXML
-	private void evtClose() {
-		context.maybeExit();
-	}
-
-	@FXML
 	private void evtLaunchDebugger() {
-		String debuggerURL = myJSBridge.getDebuggerURL();
-		for (String tool : new String[] { "chrome", "chromium-browser", "chromium" }) {
-			ProcessBuilder pb = new ProcessBuilder(tool + (SystemUtils.IS_OS_WINDOWS ? ".exe" : ""), debuggerURL);
-			pb.redirectErrorStream(true);
-			try {
-				Process p = pb.start();
-				new Thread() {
-					public void run() {
-						try {
-							p.getInputStream().transferTo(System.out);
-						} catch (IOException e) {
-						}
-					}
-				}.start();
-				return;
-			} catch (Exception e) {
-			}
-		}
-		context.getHostServices().showDocument(debuggerURL);
+		context.debugger().ifPresent(d -> d.launch());
 	}
 
 	@FXML
 	private void evtStartDebugger() {
-		startDebugging((ex) -> {
+		context.debugger().orElseThrow().startDebugging((ex) -> {
 			// failed to start
 			LOG.error("Debug server failed to start: " + ex.getMessage());
 			debuggerLink.textProperty().set("");
 			startDebugger.setDisable(false);
 //             updateDebugOff.run();
 		}, () -> {
-			LOG.info("Debug server started, debug URL: " + myJSBridge.getDebuggerURL());
+			LOG.info("Debug server started, debug URL: " + context.debugger().get().getDebuggerURL());
 			debuggerLink.textProperty().set("Launch Chrome Debugger");
 			startDebugger.setDisable(true);
 			// can copy debug URL to clipboard
@@ -2032,15 +1928,10 @@ public class UI implements BusLifecycleListener {
 
 	@FXML
 	private void evtStopDebugger() {
-		stopDebugging((e) -> {
+		context.debugger().orElseThrow().stopDebugging((e) -> {
 			startDebugger.setDisable(false);
 			debuggerLink.textProperty().set("");
 		});
-	}
-
-	@FXML
-	private void evtMinimize() {
-		context.getStage().setIconified(true);
 	}
 
 	@FXML
@@ -2051,7 +1942,7 @@ public class UI implements BusLifecycleListener {
 	private void giveUpWaitingForBridgeEstablish() {
 		LOG.info("Given up waiting for bridge to start");
 		resetAwaingBridgeEstablish();
-		notify(null, resources.getString("givenUpWaitingForBridgeEstablish"), ToastType.ERROR);
+		notify(null, bundle.getString("givenUpWaitingForBridgeEstablish"), ToastType.ERROR);
 		selectPageForState(false, false);
 	}
 
@@ -2061,7 +1952,7 @@ public class UI implements BusLifecycleListener {
 		} catch (Exception e) {
 			LOG.error("Failed to load connections.", e);
 		}
-		context.applyColors(branding, getScene().getRoot());
+		context.applyColors(branding, null);
 		reapplyLogo();
 	}
 
@@ -2142,9 +2033,9 @@ public class UI implements BusLifecycleListener {
 					} else {
 						/* Otherwise connections page */
 						if (context.getDBus().getVPNConnections().isEmpty()) {
-							if (Main.getInstance().isNoAddWhenNoConnections()) {
-								if (Main.getInstance().isConnect()
-										|| StringUtils.isNotBlank(Main.getInstance().getUri()))
+							if (context.getAppContext().isNoAddWhenNoConnections()) {
+								if (context.getAppContext().isConnect()
+										|| StringUtils.isNotBlank(context.getAppContext().getUri()))
 									setHtmlPage("busy.html");
 								else
 									setHtmlPage("connections.html");
@@ -2332,24 +2223,6 @@ public class UI implements BusLifecycleListener {
 		}
 	}
 
-	public class DevToolsJsBridge extends DevToolsDebuggerJsBridge {
-		public DevToolsJsBridge(final @NotNull WebView webView, final int instance,
-				@Nullable final JfxScriptStateProvider stateProvider) {
-			super(webView, webView.getEngine(), instance, stateProvider);
-		}
-
-		// need these to update menu item state
-		@Override
-		public void onConnectionOpen() {
-			LOG.info("Chrome Dev Tools connected");
-		}
-
-		@Override
-		public void onConnectionClosed() {
-			LOG.info("Chrome Dev Tools disconnected");
-		}
-	}
-
 	private void setLoading(boolean loading) {
 		if (this.loading.isVisible() != loading) {
 			if (loading) {
@@ -2368,61 +2241,10 @@ public class UI implements BusLifecycleListener {
 		setLoading(true);
 		LOG.info(String.format("Loading page %s", htmlPage));
 		// let it know that we are reloading the page, not chrome dev tools
-		if (myJSBridge != null)
-			myJSBridge.pageReloading();
+		context.debugger().ifPresent(d -> d.pageReloading());
 		// load the web page
 		webView.getEngine().load(url);
 		LOG.info("Loaded " + url);
-	}
-
-	private void instrumentHtml(Element documentElement) {
-		// now we add our script if not debugging, because it will be injected
-		if (!myJSBridge.isDebugging()) {
-			NodeList headEls = documentElement.getElementsByTagName("head");
-			Element headEl = null;
-			if (headEls.getLength() == 0) {
-				headEl = documentElement.getOwnerDocument().createElement("head");
-				;
-				NodeList htmlEls = documentElement.getElementsByTagName("html");
-				if (htmlEls.getLength() > 0) {
-					htmlEls.item(0).appendChild(headEl);
-				}
-			} else
-				headEl = (Element) headEls.item(0);
-			if (headEl != null) {
-				Element scriptEl = documentElement.getOwnerDocument().createElement("script");
-				scriptEl.setAttribute("src", "markdown-navigator.js");
-				headEl.appendChild(scriptEl);
-			}
-		}
-		// inject the state if it exists
-		if (myStateProvider != null && !myStateProvider.getState().isEmpty()) {
-			NodeList bodyEls = documentElement.getElementsByTagName("body");
-			if (bodyEls.getLength() > 0) {
-				Element bodyEl = (Element) bodyEls.item(0);
-				Element scriptEl = documentElement.getOwnerDocument().createElement("script");
-				scriptEl.setTextContent(myJSBridge.getStateString());
-				bodyEl.appendChild(scriptEl);
-			}
-		}
-	}
-
-	private void startDebugging(Consumer<Throwable> onStartFail, Runnable onStartSuccess) {
-		if (!myJSBridge.isDebuggerEnabled()) {
-			int port = getPort();
-			myJSBridge.startDebugServer(port, onStartFail, onStartSuccess);
-		}
-	}
-
-	private void stopDebugging(Consumer<Boolean> onStop) {
-		if (myJSBridge.isDebuggerEnabled()) {
-			myJSBridge.stopDebugServer(onStop);
-		}
-	}
-
-	private int getPort() {
-		assert myStateProvider != null;
-		return myStateProvider.getState().getJsNumber("debugPort").intValue(51723);
 	}
 
 //	private void setPort(int port) {
