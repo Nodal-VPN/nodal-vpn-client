@@ -1627,7 +1627,7 @@ public class UI implements BusLifecycleListener {
 
 		/* Override log. TODO: Not entirely sure this works entirely */
 		if (!context.isChromeDebug()) {
-			engine.executeScript("console.log = function(message)\n" + "{\n" + "    bridge.log(message);\n" + "};");
+			engine.executeScript("oldLog = console.log; console.log = function(message) { oldLog.apply(this, arguments); bridge.log(message); };");
 		}
 
 		/* Signal to page we are ready */
