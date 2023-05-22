@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>logonbox-desktop-vpn-clients</artifactId>
+        <groupId>com.logonbox</groupId>
+        <version>2.5.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>attach-wireguard</artifactId>
+    <packaging>pom</packaging>
+
+    <name>LogonBox VPN - Gluon Mobile Attach Library for Wireguard</name>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.thingsboard</groupId>
+                <artifactId>gradle-maven-plugin</artifactId>
+                <version>1.0.12</version>
+                <executions>
+                    <execution>
+                        <id>gradle-clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>invoke</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <task>clean</task>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>gradle-build</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>invoke</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <task>publishToMavenLocal</task>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <gradleVersion>8.1.1</gradleVersion>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.4.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>
+                                        build/libs/${project.artifactId}-${project.version}.jar</file>
+                                    <type>jar</type>
+                                    <classifier>dist</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <description>Provides the bridge between Gluon Mobile and native Android/IOS code for Wireguard VPN.</description>
+</project>

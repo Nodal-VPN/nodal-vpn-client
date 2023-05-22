@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.connections.IDisconnectCallback;
-import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.errors.ServiceUnknown;
 import org.freedesktop.dbus.errors.UnknownObject;
@@ -44,7 +44,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 	public final static File CLIENT_CONFIG_HOME = new File(CLIENT_HOME, "conf");
 
 	public interface BusLifecycleListener {
-		void busInitializer(DBusConnection connection) throws DBusException;
+		void busInitializer(AbstractConnection connection) throws DBusException;
 
 		default void busGone() {
 		}
@@ -57,7 +57,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 
 	private static final String ROOT_OBJECT_PATH = "/com/logonbox/vpn";
 
-	private DBusConnection conn;
+	private AbstractConnection conn;
 	private Object initLock = new Object();
 
 	private ScheduledExecutorService scheduler;
@@ -167,7 +167,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 		this.busLifecycleListeners.remove(busInitializer);
 	}
 
-	public DBusConnection getBus() {
+	public AbstractConnection getBus() {
 		return conn;
 	}
 
@@ -185,7 +185,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 	public VPNConnection getVPNConnection(long id) {
 		lazyInit();
 		try {
-			return conn.getRemoteObject(BUS_NAME, String.format("%s/%d", ROOT_OBJECT_PATH, id), VPNConnection.class);
+			return conn.getExportedObject(BUS_NAME, String.format("%s/%d", ROOT_OBJECT_PATH, id), VPNConnection.class);
 		} catch (DBusException e) {
 			throw new IllegalStateException("Failed to get connection.");
 		}
@@ -194,7 +194,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 	public List<VPNConnection> getVPNConnections() {
 		return getVPN().getConnections().stream().map(p -> {
 			try {
-				return conn.getRemoteObject(BUS_NAME, p.getPath(), VPNConnection.class);
+				return conn.getExportedObject(BUS_NAME, p.getPath(), VPNConnection.class);
 			} catch (DBusException e) {
 				throw new IllegalStateException(String.format("Failed to get connection %s.", p.getPath()));
 			}
@@ -231,31 +231,8 @@ public abstract class AbstractDBusClient implements DBusClient {
 
 		String fixedAddress = getServerDBusAddress(addressFile);
 		if (conn == null || !conn.isConnected() || (StringUtils.isNotBlank(fixedAddress) && !fixedAddress.equals(conn.getAddress().toString()) )) {
-			String busAddress = this.busAddress;
-			if (StringUtils.isNotBlank(busAddress)) {
-				if (getLog().isDebugEnabled())
-					getLog().debug("Getting bus. " + this.busAddress);
-				conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress)).build();
-			} else {
-				if (sessionBus) {
-					if (getLog().isDebugEnabled())
-						getLog().debug("Getting session bus.");
-					conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
-				} else {
-					if (fixedAddress == null) {
-						if (getLog().isDebugEnabled())
-							getLog().debug("Getting system bus.");
-						conn = configureBuilder(DBusConnectionBuilder.forSystemBus()).build();
-					} else {
-						if (getLog().isDebugEnabled())
-							getLog().debug("Getting fixed bus " + fixedAddress);
-						conn = configureBuilder(DBusConnectionBuilder.forAddress(fixedAddress)).build();
-					}
-				}
-			}
+			conn = createBusConnection();
 			getLog().info("Got bus connection.");
-		} else {
-			getLog().info("Already have bus connection.");
 		}
 
 		conn.setDisconnectCallback(new IDisconnectCallback() {
@@ -274,6 +251,33 @@ public abstract class AbstractDBusClient implements DBusClient {
 
 		/* Create cert manager */
 		getLog().info(String.format("Cert manager: %s", getCertManager()));
+	}
+
+	protected AbstractConnection createBusConnection() throws Exception {
+
+		String fixedAddress = getServerDBusAddress(addressFile);
+		String busAddress = this.busAddress;
+		if (StringUtils.isNotBlank(busAddress)) {
+			if (getLog().isDebugEnabled())
+				getLog().debug("Getting bus. " + this.busAddress);
+			return configureBuilder(DBusConnectionBuilder.forAddress(busAddress)).build();
+		} else {
+			if (sessionBus) {
+				if (getLog().isDebugEnabled())
+					getLog().debug("Getting session bus.");
+				return configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
+			} else {
+				if (fixedAddress == null) {
+					if (getLog().isDebugEnabled())
+						getLog().debug("Getting system bus.");
+					return configureBuilder(DBusConnectionBuilder.forSystemBus()).build();
+				} else {
+					if (getLog().isDebugEnabled())
+						getLog().debug("Getting fixed bus " + fixedAddress);
+					return configureBuilder(DBusConnectionBuilder.forAddress(fixedAddress)).build();
+				}
+			}
+		}
 	}
 	
 	protected DBusConnectionBuilder configureBuilder(DBusConnectionBuilder builder) {
@@ -311,18 +315,21 @@ public abstract class AbstractDBusClient implements DBusClient {
 	}
 
 	private void loadRemote() throws DBusException {
-		VPN newVpn = conn.getRemoteObject(BUS_NAME, ROOT_OBJECT_PATH, VPN.class);
+		getLog().info("Loading remote objects.");
+		VPN newVpn = conn.getExportedObject(BUS_NAME, ROOT_OBJECT_PATH, VPN.class);
 		getLog().info("Got remote object, registering with DBus.");
+		getLog().info("Registering with VPN service.");
 		newVpn.register(getEffectiveUser(), isInteractive(), supportsAuthorization);
+		getLog().info("Registered with VPN service.");
 		vpn = newVpn;
 		busAvailable = true;
-		getLog().info("Registered with DBus.");
 		pingTask = scheduler.scheduleAtFixedRate(() -> {
 			synchronized (initLock) {
 				if (vpn != null) {
 					try {
 						vpn.ping();
 					} catch (Exception e) {
+						e.printStackTrace();
 						busGone();
 					}
 				}

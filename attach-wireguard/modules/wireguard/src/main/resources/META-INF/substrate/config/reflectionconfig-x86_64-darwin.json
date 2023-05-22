@@ -1,0 +1,6 @@
+[
+  {
+    "name" : "com.logonbox.vpn.client.attach.wireguard.impl.DesktopPlatformService",
+    "methods":[{"name":"<init>","parameterTypes":[] }]
+  }
+]

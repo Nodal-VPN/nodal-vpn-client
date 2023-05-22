@@ -1,30 +1,5 @@
 package com.logonbox.vpn.client.desktop;
 
-import java.awt.SplashScreen;
-import java.awt.Taskbar;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
-import org.apache.log4j.PropertyConfigurator;
-import org.freedesktop.dbus.utils.Util;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.goxr3plus.fxborderlessscene.borderless.BorderlessScene;
 import com.jthemedetecor.OsThemeDetector;
 import com.logonbox.vpn.client.gui.jfx.AppContext;
@@ -43,9 +18,29 @@ import com.logonbox.vpn.common.client.api.Branding;
 import com.sshtools.twoslices.ToasterFactory;
 import com.sshtools.twoslices.ToasterSettings.SystemTrayIconMode;
 import com.sshtools.twoslices.impl.JavaFXToaster;
-import com.vladsch.boxed.json.BoxedJsObject;
-import com.vladsch.boxed.json.BoxedJson;
-import com.vladsch.javafx.webview.debugger.JfxScriptStateProvider;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
+import org.apache.log4j.PropertyConfigurator;
+import org.freedesktop.dbus.utils.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.awt.SplashScreen;
+import java.awt.Taskbar;
+import java.io.File;
+import java.io.IOException;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.ServiceLoader;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -74,14 +69,12 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class Client extends Application implements JfxScriptStateProvider, Listener, UIContext {
+public class Client extends Application implements Listener, UIContext {
 
 	static final boolean allowBranding = System.getProperty("logonbox.vpn.allowBranding", "true").equals("true");
 
 	public static ResourceBundle BUNDLE = ResourceBundle.getBundle(Client.class.getName());
 	static Logger log = LoggerFactory.getLogger(Client.class);
-
-	static private BoxedJsObject jsstate = BoxedJson.of(); // start with empty state
 	public static Alert createAlertWithOptOut(AlertType type, String title, String headerText, String message,
 			String optOutMessage, Consumer<Boolean> optOutAction, ButtonType... buttonTypes) {
 		Alert alert = new Alert(type);
@@ -130,8 +123,12 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 	}
 
 	public void applyColors(Branding branding, Parent node) {
-		if (node == null)
+		if (node == null && ui != null)
 			node = ui.getScene().getRoot();
+		
+		if(node == null) {
+			return;
+		}
 
 		this.branding = branding;
 
@@ -249,12 +246,6 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		return primaryStage;
 	}
 
-	@NotNull
-	@Override
-	public BoxedJsObject getState() {
-		return jsstate;
-	}
-
 	public Tray getTray() {
 		return tray;
 	}
@@ -264,7 +255,7 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		styling = new Styling(this);
 		titleBar = new TitleBar(this);
 		if(Boolean.getBoolean("logonbox.vpn.chromeDebug")) {
-			debugger = Optional.of(new DefaultDebugger(this, this));
+		    debugger = Optional.of(ServiceLoader.load(Debugger.class).findFirst().orElseThrow(() -> new IllegalStateException("Debugging requested, but not debugger module on classpath / modulepath")));
 		}
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -379,11 +370,6 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 	}
 
 	@Override
-	public void setState(@NotNull final BoxedJsObject state) {
-		jsstate = state;
-	}
-
-	@Override
 	public void start(Stage primaryStage) throws Exception {
 		var powerMonitor = PowerMonitor.get();
 		powerMonitor.ifPresent(p -> {
@@ -393,20 +379,7 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 
 		this.primaryStage = primaryStage;
 		detector = OsThemeDetector.getDetector();
-
-        try {
-            File stateFile = new File(app.getTempDir(),"debug.json");
-            if (stateFile.exists()) {
-                FileReader stateReader = new FileReader(stateFile);
-                jsstate = BoxedJson.boxedFrom(stateReader);
-                stateReader.close();
-            }
-        } catch (IOException e) {
-        }
-
-        if (!jsstate.isValid()) {
-            jsstate = BoxedJson.of();
-        }
+		debugger.ifPresent(d->d.setup(this));
 
 		// Setup the window
 //		if (Platform.isSupported(ConditionalFeature.TRANSPARENT_WINDOW)) {
@@ -529,20 +502,7 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 	}
 
 	protected void cleanUp() {
-        File stateFile = new File(app.getTempDir(), "debug.json");
-        if (jsstate.isEmpty()) {
-            stateFile.delete();
-        } else {
-            // save state for next run
-            try {
-                FileWriter stateWriter = new FileWriter(stateFile);
-                stateWriter.write(jsstate.toString());
-                stateWriter.flush();
-                stateWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+	    debugger.ifPresent(d -> d.close());
 
 		if (tray != null) {
 			try {

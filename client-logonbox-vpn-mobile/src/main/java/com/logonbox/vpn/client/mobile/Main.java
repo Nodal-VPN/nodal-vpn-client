@@ -1,269 +1,135 @@
 package com.logonbox.vpn.client.mobile;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Optional;
-import java.util.concurrent.Callable;
+import com.logonbox.vpn.client.AbstractService;
+import com.logonbox.vpn.client.attach.wireguard.MobilePlatformService;
+import com.logonbox.vpn.client.wireguard.PlatformService;
+import com.logonbox.vpn.client.wireguard.VirtualInetAddress;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.PropertyConfigurator;
+import org.freedesktop.dbus.connections.AbstractConnection;
+import org.freedesktop.dbus.connections.impl.DirectConnection;
+import org.freedesktop.dbus.connections.impl.DirectConnectionBuilder;
+import org.freedesktop.dbus.connections.transports.TransportBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
-import com.logonbox.vpn.client.gui.jfx.AppContext;
-import com.logonbox.vpn.client.gui.jfx.Configuration;
-import com.logonbox.vpn.client.gui.jfx.UI;
-import com.logonbox.vpn.client.gui.jfx.UIContext;
-import com.logonbox.vpn.common.client.AbstractDBusClient;
-import com.logonbox.vpn.common.client.ClientPromptingCertManager;
-import com.logonbox.vpn.common.client.HypersocketVersion;
-import com.logonbox.vpn.common.client.PromptingCertManager;
+import java.io.IOException;
+import java.util.ResourceBundle;
 
-import javafx.application.Platform;
-import javafx.scene.control.Alert.AlertType;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 @Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.")
-public class Main extends AbstractDBusClient implements Callable<Integer>, AppContext {
-	static Logger log;
+public class Main extends AbstractMobileMain {
 	
-	public final static String SID_ADMINISTRATORS_GROUP = "S-1-5-32-544";
+	static {
+		//System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "Debug");
+	}
+
+	static Logger log = LoggerFactory.getLogger(Main.class);
 	
-	/**
-	 * Used to get version from Maven meta-data
-	 */
-	public static final String ARTIFACT_COORDS = "com.logonbox/client-logonbox-vpn-gui-jfx";
+	private static  final ResourceBundle BUNDLE = ResourceBundle.getBundle(Main.class.getName());
+	private static final String CONNECTION_ADDRESS = TransportBuilder.createDynamicSession("LOOPBACK", false);
 
-	private static Main instance;
-
-	@Option(names = { "-C", "--no-close" }, description = "Do not allow the window to be closed manually.")
-	private boolean noClose;
-
-	@Option(names = { "-x", "--exit-on-connection" }, description = "Exit on successful connection.")
-	private boolean exitOnConnection;
-
-	@Option(names = { "-A", "--no-add-when-no-connections" }, description = "Do not show the Add connection page when no connections are configured.")
-	private boolean noAddWhenNoConnections;
-
-	@Option(names = { "-M", "--no-minimize" }, description = "Do not allow the window to be minimized manually.")
-	private boolean noMinimize;
-
-	@Option(names = { "-S",
-			"--no-systray" }, description = "Do not start the system tray, the application will immediately exit when the window is closed.")
-	private boolean noSystemTray;
-
-	@Option(names = { "-B", "--no-sidebar" }, description = "Do not show the burger menu or side menu.")
-	private boolean noSidebar;
-
-	@Option(names = { "-R", "--no-resize" }, description = "Do not allow the window to be resized.")
-	private boolean noResize;
-
-	@Option(names = { "-D",
-			"--no-drag" }, description = "Do not allow the window to be moved. Will be centred on primary monitor.")
-	private boolean noMove;
-
-	@Option(names = { "-s", "--size" }, description = "Size of window, in the format <width>X<height>.")
-	private String size;
-
-	@Option(names = { "-T", "--always-on-top" }, description = "Keep the window on top of others.")
-	private boolean alwaysOnTop;
-
-	@Option(names = { "-U", "--no-updates" }, description = "Do not perform any updates.")
-	private boolean noUpdates;
-
-	@Option(names = { "-c", "--connect" }, description = "Connect to the first available pre-configured connection.")
-	private boolean connect;
-
-	@Option(names = { "-n", "--create" }, description = "Create a new connection if one with the provided URI does not exist (requires URI parameter).")
-	private boolean createIfDoesntExist;
-
-	@Parameters(index = "0", arity = "0..1", description = "Connect to a particular server using a URI. Acceptable formats include <server[<port>]> or https://<server[<port>]>[/path]. If a pre-configured connection matching this URI already exists, it will be used.")
-	private String uri;
-
-	private Level defaultLogLevel;
-
-	private static Optional<UIContext> uiContext = Optional.empty();
-
-	public Main() {
-		super();
-		instance = this;
-		setSupportsAuthorization(true);
-
-		String logConfigPath = System.getProperty("hypersocket.logConfiguration", "");
-		if (logConfigPath.equals("")) {
-			/* Load default */
-			PropertyConfigurator.configure(Main.class.getResource("/default-log4j-gui.properties"));
-		} else {
-			File logConfigFile = new File(logConfigPath);
-			if (logConfigFile.exists())
-				PropertyConfigurator.configureAndWatch(logConfigPath);
-			else
-				PropertyConfigurator.configure(Main.class.getResource("/default-log4j-gui.properties"));
-		}
-		
-		String cfgLevel = Configuration.getDefault().logLevelProperty().get();
-		defaultLogLevel = org.apache.log4j.Logger.getRootLogger().getLevel();
-		if(StringUtils.isNotBlank(cfgLevel)) {
-			org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.toLevel(cfgLevel));
-		}
-		log = LoggerFactory.getLogger(Main.class);
-
-		log.info(String.format("LogonBox VPN Client GUI, version %s", HypersocketVersion.getVersion(ARTIFACT_COORDS)));
-		log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " (" + System.getProperty("os.version") + ")"));
-		try {
-			log.info(String.format("CWD: %s", new File(".").getCanonicalPath()));
-		} catch (IOException e) {
-		}
-	}
-
-	/*
-	 * NOTE: LauncherImpl has to be used, as Application.launch() tests where the
-	 * main() method was invoked from by examining the stack (stupid stupid stupid
-	 * technique!). Because we are launched from BoostrapMain, this is what it
-	 * detects. To work around this LauncherImpl.launchApplication() is used
-	 * directly, which is an internal API.
-	 * 
-	 * TODO With the new forker arrangement, this is no longer the case. So
-	 *      check if this is still required.  This is one of the reasons for 
-	 *      the new bootstrap arrangement.
-	 */
-	public Integer call() throws Exception {
-		Client.main(new String[0]);
-		return 0;
-	}
-	
-	public Level getDefaultLogLevel() {
-		return defaultLogLevel;
-	}
-
-	public boolean isNoAddWhenNoConnections() {
-		return noAddWhenNoConnections;
-	}
-
-	public boolean isExitOnConnection() {
-		return exitOnConnection;
-	}
-
-	public boolean isConnect() {
-		return connect;
-	}
-
-	public String getUri() {
-		return uri;
-	}
-
-	public boolean isNoUpdates() {
-		return noUpdates;
-	}
-
-	public boolean isNoResize() {
-		return noResize;
-	}
-
-	public boolean isAlwaysOnTop() {
-		return alwaysOnTop;
-	}
-
-	public boolean isNoMove() {
-		return noMove;
-	}
-
-	public String getSize() {
-		return size;
-	}
-
-	public boolean isNoClose() {
-		return noClose;
-	}
-
-	public boolean isNoSidebar() {
-		return noSidebar;
-	}
-
-	public boolean isNoMinimize() {
-		return noMinimize;
-	}
-
-	public boolean isNoSystemTray() {
-		return noSystemTray;
-	}
-
-	public boolean isCreateIfDoesntExist() {
-		return createIfDoesntExist;
-	}
-
-	public static Main getInstance() {
-		return instance;
-	}
-
-	public void restart() {
-		exit();
-		System.exit(99);
-	}
-
-	public void shutdown() {
-		exit();
-		System.exit(0);
-	}
-
-	@Override
-	protected boolean isInteractive() {
-		return true;
-	}
-
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) throws Exception {
 		uiContext.ifPresentOrElse(c -> c.open(), () -> {
 			System.exit(
 					new CommandLine(new Main()).execute(args));
 		});
-
 	}
 
+	private EmbeddedService srv;
+	
+	public Main() {
+	}
+	
 	@Override
-	protected PromptingCertManager createCertManager() {
-		return new ClientPromptingCertManager(Client.BUNDLE, this) {
+	protected AbstractConnection createBusConnection() throws Exception {
+		
+		srv = new EmbeddedService(BUNDLE, MobilePlatformService.create().get());
+		srv.start();
+		
+		try {
+		return DirectConnectionBuilder.forAddress(CONNECTION_ADDRESS).build();
+		}
+		catch(Exception e) {
+			log.error("Failed.", e);
+			throw e;
+		}
+	}
+	
+	final static class EmbeddedService extends AbstractService {
+		
+		private Level logLevel = Level.INFO;
+		private final Level defaultLogLevel = logLevel;
 
-			@Override
-			protected boolean isToolkitThread() {
-				return Platform.isFxApplicationThread();
+		protected EmbeddedService(ResourceBundle bundle, PlatformService<VirtualInetAddress<?>> platformService) {
+			super(bundle, platformService);
+		}
+		
+		public void start() throws Exception {
+			log.info("Starting in-process VPN service.");
+			
+			if (!buildServices()) {
+				throw new Exception("Failed to build DBus services.");
 			}
 
-			@Override
-			protected void runOnToolkitThread(Runnable r) {
-				Platform.runLater(r);
+			log.info("Building direct DBus connection");
+			var bldr = DirectConnectionBuilder.forAddress(CONNECTION_ADDRESS + ",listen=true");
+			bldr.transportConfig().withAutoConnect(false);
+			log.info("Creating direct DBus connection");
+			
+			conn = bldr.build();
+
+			if (!startServices()) {
+				throw new Exception("Failed to start DBus services.");
 			}
 
-			@Override
-			public boolean promptForCertificate(PromptType alertType, String title,
-					String content, String key, String hostname, String message) {
-				return uiContext.orElseThrow(()-> new IllegalStateException("UI Not registered.")).promptForCertificate(AlertType.valueOf(alertType.name()), title, content, key, hostname, message, this);
+			if (!publishDefaultServices()) {
+				throw new Exception("Failed to publish DBus services.");
 			}
 			
-		};
-	}
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				public void run() {
+					close();
+				}
+			});
+			
 
-	@Override
-	protected String getVersion() {
-		return HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-mobile");
-	}
+			log.info("Listening for direct DBus connections");
+			new Thread() {
+				public void run() {
+					try {
+						conn.connect();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}.start();
+			
+			Thread.sleep(500);
+			((DirectConnection)conn).listen();
+			
+			log.info("Ready for direct DBus connections");
+			startSavedConnections();
+		}
 
-	@Override
-	protected boolean isConsole() {
-		return false;
-	}
+		@Override
+		public boolean isRegistrationRequired() {
+			return false;
+		}
 
-	@SuppressWarnings("unchecked")
-	public <M extends AppContext> M uiContext(UIContext uiContext) {
-		if(Main.uiContext.isPresent())
-			throw new IllegalStateException("Already registered.");
-		Main.uiContext = Optional.of(uiContext);
-		return (M) this;
+		@Override
+		public Level getDefaultLevel() {
+			return defaultLogLevel;
+		}
+
+		@Override
+		public void setLevel(Level level) {
+			// TODO reconfigure logging?
+			this.logLevel = level;
+		}
+		
 	}
 }

@@ -3,7 +3,6 @@ package com.logonbox.vpn.client.service;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ScheduledExecutorService;
 
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.common.client.ConfigurationItem;

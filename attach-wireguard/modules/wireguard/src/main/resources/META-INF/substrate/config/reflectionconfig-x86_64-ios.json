@@ -1,0 +1,6 @@
+[
+  {
+    "name" : "com.logonbox.vpn.client.attach.wireguard.impl.IOSPlatformService",
+    "methods":[{"name":"<init>","parameterTypes":[] }]
+  }
+]

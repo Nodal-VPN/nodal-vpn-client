@@ -15,11 +15,11 @@ import com.logonbox.vpn.common.client.dbus.VPN;
 
 public class ServicePromptingCertManager extends PromptingCertManager {
 
-	private Main context;
+	private LocalContext context;
 
 	private Semaphore semaphore;
 
-	public ServicePromptingCertManager(ResourceBundle bundle, Main context) {
+	public ServicePromptingCertManager(ResourceBundle bundle, LocalContext context) {
 		super(bundle);
 		this.context = context;
 	}

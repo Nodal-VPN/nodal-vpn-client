@@ -16,7 +16,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import org.freedesktop.dbus.connections.impl.DBusConnection;
+import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.DBusSigHandler;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
@@ -172,7 +172,7 @@ public abstract class AbstractTray implements AutoCloseable, Tray, BusLifecycleL
 	}
 
 	@Override
-	public void busInitializer(DBusConnection connection) {
+	public void busInitializer(AbstractConnection connection) {
 
 		try {
 			connection.addSigHandler(VPN.ConnectionAdded.class, new DBusSigHandler<VPN.ConnectionAdded>() {

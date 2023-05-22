@@ -22,7 +22,6 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.rmi.RemoteException;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -51,13 +50,14 @@ import javax.net.ssl.HostnameVerifier;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.freedesktop.dbus.connections.impl.DBusConnection;
+import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.DBusSigHandler;
 import org.freedesktop.dbus.messages.DBusSignal;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -682,11 +682,7 @@ public class UI extends AnchorPane implements BusLifecycleListener {
 				Configuration.TRAY_MODE_DARK, Configuration.TRAY_MODE_LIGHT, Configuration.TRAY_MODE_OFF });
 		beans.put("darkModes", new String[] { Configuration.DARK_MODE_AUTO, Configuration.DARK_MODE_ALWAYS,
 				Configuration.DARK_MODE_NEVER });
-		beans.put("logLevels",
-				new String[] { "", org.apache.log4j.Level.ALL.toString(), org.apache.log4j.Level.TRACE.toString(),
-						org.apache.log4j.Level.DEBUG.toString(), org.apache.log4j.Level.INFO.toString(),
-						org.apache.log4j.Level.WARN.toString(), org.apache.log4j.Level.ERROR.toString(),
-						org.apache.log4j.Level.FATAL.toString(), org.apache.log4j.Level.OFF.toString() });
+		beans.put("logLevels", Arrays.asList(Level.values()).stream().map(Level::toString).collect(Collectors.toList()).toArray(new String[0]));
 		beans.put("dnsIntegrationMethods", Arrays.asList(DNSIntegrationMethod.valuesForOs()).stream()
 				.map(DNSIntegrationMethod::name).collect(Collectors.toUnmodifiableList()).toArray(new String[0]));
 
@@ -714,7 +710,7 @@ public class UI extends AnchorPane implements BusLifecycleListener {
 	}
 
 	@Override
-	public void busInitializer(DBusConnection connection) {
+	public void busInitializer(AbstractConnection connection) {
 		LOG.info("Bridge established.");
 
 		try {
@@ -846,7 +842,7 @@ public class UI extends AnchorPane implements BusLifecycleListener {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void removeConnectionEvents(DBusConnection bus, Long id) throws DBusException {
+	protected void removeConnectionEvents(AbstractConnection bus, Long id) throws DBusException {
 		Map<Class<? extends DBusSignal>, DBusSigHandler<? extends DBusSignal>> map = eventsMap.remove(id);
 		if (map != null) {
 			for (Map.Entry<Class<? extends DBusSignal>, DBusSigHandler<? extends DBusSignal>> en : map.entrySet()) {
@@ -866,7 +862,7 @@ public class UI extends AnchorPane implements BusLifecycleListener {
 		return handler;
 	}
 
-	protected void listenConnectionEvents(DBusConnection bus, VPNConnection connection) throws DBusException {
+	protected void listenConnectionEvents(AbstractConnection bus, VPNConnection connection) throws DBusException {
 		var id = connection.getId();
 		/*
 		 * Client needs authorizing (first time configuration needed, or connection
@@ -1308,9 +1304,15 @@ public class UI extends AnchorPane implements BusLifecycleListener {
 			if (logLevel != null) {
 				config.logLevelProperty().set(logLevel);
 				if (logLevel.length() == 0)
-					org.apache.log4j.Logger.getRootLogger().setLevel(context.getAppContext().getDefaultLogLevel());
-				else
-					org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.toLevel(logLevel));
+					context.getAppContext().setLevel(context.getAppContext().getDefaultLogLevel());
+				else {
+					try { 
+						context.getAppContext().setLevel(Level.valueOf(logLevel));
+						}
+					catch(IllegalArgumentException iae) {
+						context.getAppContext().setLevel(context.getAppContext().getDefaultLogLevel());
+					}
+				}
 			}
 
 			/* Update configuration stored globally in service */
@@ -1683,7 +1685,7 @@ public class UI extends AnchorPane implements BusLifecycleListener {
 		}
 	}
 
-	private void doDelete(VPNConnection sel) throws RemoteException {
+	private void doDelete(VPNConnection sel) {
 		setHtmlPage("busy.html");
 		LOG.info(String.format("Deleting connection %s", sel));
 		context.getOpQueue().execute(() -> sel.delete());

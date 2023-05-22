@@ -6,7 +6,7 @@
 	<version>2.5.0-SNAPSHOT</version>
 	<url>http://www.hypersocket.com/</url>
 	<packaging>pom</packaging>
-	<name>Hypersocket Client</name>
+	<name>LogonBox VPN - Group</name>
 	<description>Desktop LogonBox VPN Clients (Linux, OS X and Windows).</description>
 
 	<distributionManagement>
@@ -61,7 +61,13 @@
         <module>client-logonbox-vpn-common</module>
 		<module>client-logonbox-vpn-service</module>
 		<module>client-logonbox-vpn-gui-jfx</module>
+		<module>client-logonbox-vpn-gui-jfx-debugger</module>
 		<module>client-logonbox-vpn-desktop</module>
+		<module>client-logonbox-vpn-desktop-service</module>
+        <module>client-logonbox-vpn-linux</module>
+        <module>client-logonbox-vpn-windows</module>
+        <module>client-logonbox-vpn-macos</module>
+        <module>attach-wireguard</module>
 		<module>client-logonbox-vpn-mobile</module>
 		<module>client-logonbox-vpn-cli</module>
 		<module>client-logonbox-vpn-dbconvert</module>

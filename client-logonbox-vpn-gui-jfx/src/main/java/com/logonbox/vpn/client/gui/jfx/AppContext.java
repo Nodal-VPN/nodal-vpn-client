@@ -2,7 +2,7 @@ package com.logonbox.vpn.client.gui.jfx;
 
 import java.io.File;
 
-import org.apache.log4j.Level;
+import org.slf4j.event.Level;
 
 public interface AppContext {
 
@@ -38,4 +38,6 @@ public interface AppContext {
 		else
 			return new File(System.getProperty("hypersocket.bootstrap.distDir")).getParentFile();
 	}
+
+	void setLevel(Level valueOf);
 }

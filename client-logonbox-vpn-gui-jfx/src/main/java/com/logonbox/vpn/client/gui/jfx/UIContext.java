@@ -1,6 +1,5 @@
 package com.logonbox.vpn.client.gui.jfx;
 
-import java.io.File;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 

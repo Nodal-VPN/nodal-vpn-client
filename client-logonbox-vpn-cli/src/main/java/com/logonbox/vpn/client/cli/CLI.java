@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.freedesktop.dbus.DBusMatchRule;
+import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.DBusSigHandler;
@@ -109,29 +110,31 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 		addBusLifecycleListener(new BusLifecycleListener() {
 
 			@Override
-			public void busInitializer(DBusConnection connection) throws DBusException {
+			public void busInitializer(AbstractConnection connection) throws DBusException {
 				log.info("Configuring Bus");
 
 				giveUpWaitingForServiceStart();
 
-				DBusConnection bus = getBus();
+				AbstractConnection bus = getBus();
 				if (monitor) {
-					bus.addGenericSigHandler(new DBusMatchRule((String) null, "com.logonbox.vpn.VPN", (String) null),
-							(sig) -> {
-								try {
-									getConsole().err().println(sig);
-								} catch (IOException e) {
-									throw new IllegalStateException("Cannot write to console.");
-								}
-							});
-					bus.addGenericSigHandler(
-							new DBusMatchRule((String) null, "com.logonbox.vpn.Connection", (String) null), (sig) -> {
-								try {
-									getConsole().err().println(sig);
-								} catch (IOException e) {
-									throw new IllegalStateException("Cannot write to console.");
-								}
-							});
+					if(bus instanceof DBusConnection) {
+						((DBusConnection)bus).addGenericSigHandler(new DBusMatchRule((String) null, "com.logonbox.vpn.VPN", (String) null),
+								(sig) -> {
+									try {
+										getConsole().err().println(sig);
+									} catch (IOException e) {
+										throw new IllegalStateException("Cannot write to console.");
+									}
+								});
+						((DBusConnection)bus).addGenericSigHandler(
+								new DBusMatchRule((String) null, "com.logonbox.vpn.Connection", (String) null), (sig) -> {
+									try {
+										getConsole().err().println(sig);
+									} catch (IOException e) {
+										throw new IllegalStateException("Cannot write to console.");
+									}
+								});
+					}
 				}
 				bus.addSigHandler(VPN.Exit.class, new DBusSigHandler<VPN.Exit>() {
 					@Override
@@ -383,7 +386,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 		}
 
 		@Override
-		public DBusConnection getBus() {
+		public AbstractConnection getBus() {
 			return CLI.this.getBus();
 		}
 

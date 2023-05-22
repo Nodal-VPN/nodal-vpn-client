@@ -8,10 +8,11 @@
     <version>2.5.0-SNAPSHOT</version>
   </parent>
   <artifactId>client-logonbox-vpn-mobile</artifactId>
-  <name>client-logonbox-vpn-mobile</name>
+  <name>LogonBox VPN - Android and iOS</name>
+  <description>Gluon Mobile based implementation of the LogonBox VPN client. This project contains the implementation code and produces final artifacts for multiple platforms.</description>
   <properties>
-    <attach.version>4.0.8</attach.version>
-    <glisten.version>6.0.5</glisten.version>
+    <attach.version>4.0.18</attach.version>
+    <glisten.version>6.2.3</glisten.version>
     <mainClassName>com.logonbox.vpn.client.mobile.Main</mainClassName>
   </properties>
   <dependencies>
@@ -58,6 +59,26 @@
       <artifactId>client-logonbox-vpn-gui-jfx</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.logonbox</groupId>
+      <artifactId>client-logonbox-vpn-service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.logonbox</groupId>
+      <artifactId>client-logonbox-vpn-linux</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.gluonhq.attach</groupId>
+      <artifactId>wireguard</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.36</version>
+    </dependency>
   </dependencies>
   <repositories>
     <repository>
@@ -99,6 +120,7 @@
         <version>1.0.18</version>
         <configuration>
           <attachList>
+            <list>wireguard</list>
             <list>display</list>
             <list>lifecycle</list>
             <list>browser</list>
@@ -106,6 +128,7 @@
             <list>storage</list>
           </attachList>
           <bundlesList>
+            <list>com.logonbox.vpn.client.mobile.Main</list>
             <list>com.logonbox.vpn.client.mobile.Client</list>
             <list>com.logonbox.vpn.client.gui.jfx.UI</list>
             <list>com.logonbox.vpn.client.gui.jfx.about</list>

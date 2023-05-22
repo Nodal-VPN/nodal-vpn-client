@@ -1,26 +1,5 @@
 package com.logonbox.vpn.client.mobile;
 
-import java.io.File;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.SystemUtils;
-import org.kordamp.ikonli.fontawesome.FontAwesome;
-import org.kordamp.ikonli.javafx.FontIcon;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.gluonhq.attach.display.DisplayService;
 import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.control.AppBar;
@@ -40,6 +19,24 @@ import com.logonbox.vpn.common.client.api.Branding;
 import com.sshtools.twoslices.ToasterFactory;
 import com.sshtools.twoslices.ToasterSettings.SystemTrayIconMode;
 import com.sshtools.twoslices.impl.SysOutToaster;
+
+import org.apache.commons.lang3.SystemUtils;
+import org.kordamp.ikonli.fontawesome.FontAwesome;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.text.MessageFormat;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -101,7 +98,7 @@ public class Client extends MobileApplication implements Listener, UIContext, Na
 	private ExecutorService opQueue = Executors.newSingleThreadExecutor();
 	private boolean waitingForExitChoice;
 	private UI ui;
-	private Main app;
+	private AbstractMobileMain app;
 	private Scene scene;
 	private Styling styling;
 	private Hyperlink back;
@@ -111,7 +108,7 @@ public class Client extends MobileApplication implements Listener, UIContext, Na
 	private Image logoImage;
 
 	public Client() {
-		app = Main.getInstance().uiContext(this);
+		app = AbstractMobileMain.getInstance().uiContext(this);
 		back = new Hyperlink();
 		back.setGraphic(FontIcon.of(FontAwesome.ARROW_CIRCLE_LEFT, 32));
 		back.getStyleClass().add("iconButton");
@@ -237,13 +234,6 @@ public class Client extends MobileApplication implements Listener, UIContext, Na
 	public void init() {
 		styling = new Styling(this);
 
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				cleanUp();
-			}
-		});
-
 		Platform.setImplicitExit(false);
 
 		addViewFactory(HOME_VIEW, () -> {
@@ -278,6 +268,10 @@ public class Client extends MobileApplication implements Listener, UIContext, Na
 
 	@Override
 	public void postInit(Scene scene) {
+		scene.getWindow().setOnCloseRequest(e -> {
+			maybeExit();
+			e.consume();
+		});
 		this.scene = scene;
 		if (com.gluonhq.attach.util.Platform.isDesktop()) {
 			Dimension2D dimension2D = DisplayService.create().map(DisplayService::getDefaultDimensions)
@@ -285,9 +279,6 @@ public class Client extends MobileApplication implements Listener, UIContext, Na
 			scene.getWindow().setWidth(dimension2D.getWidth());
 			scene.getWindow().setHeight(dimension2D.getHeight());
 		}
-	}
-
-	protected void cleanUp() {
 	}
 
 	@Override
@@ -395,19 +386,6 @@ public class Client extends MobileApplication implements Listener, UIContext, Na
 		ui.refresh();
 	}
 
-	static double lum(Color c) {
-		List<Double> a = Arrays.asList(c.getRed(), c.getGreen(), c.getBlue()).stream()
-				.map(v -> v <= 0.03925 ? v / 12.92f : Math.pow((v + 0.055f) / 1.055f, 2.4f))
-				.collect(Collectors.toList());
-		return a.get(0) * 0.2126 + a.get(1) * 0.7152 + a.get(2) * 0.0722;
-	}
-
-	static double contrast(Color c1, Color c2) {
-		var brightest = Math.max(lum(c1), lum(c2));
-		var darkest = Math.min(lum(c1), lum(c2));
-		return (brightest + 0.05f) / (darkest + 0.05f);
-	}
-
 	@Override
 	public void openURL(String url) {
 		getHostServices().showDocument(url);
@@ -456,8 +434,12 @@ public class Client extends MobileApplication implements Listener, UIContext, Na
 	private void reloadAppbarImage() {
 		if (logoImage == null)
 			appBar.setTitle(new Label(BUNDLE.getString("title")));
-		else
-			appBar.setTitle(new ImageView(logoImage));
+		else {
+			var imageView = new ImageView(logoImage);
+			imageView.setFitHeight(32);
+			imageView.setPreserveRatio(true);
+			appBar.setTitle(imageView);
+		}
 	}
 
 	@Override

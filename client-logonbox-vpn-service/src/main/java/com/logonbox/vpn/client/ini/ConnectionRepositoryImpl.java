@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.logonbox.vpn.client.FileSecurity;
+import com.logonbox.vpn.client.wireguard.PlatformService;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.ConnectionRepository;
 import com.logonbox.vpn.common.client.Util;
@@ -23,8 +23,10 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 	static Logger log = LoggerFactory.getLogger(ConnectionRepositoryImpl.class);
 
 	private Object session = new Object();
+	private final PlatformService<?> platformService;
 
-	public ConnectionRepositoryImpl() {
+	public ConnectionRepositoryImpl(PlatformService<?> platformService) {
+		this.platformService = platformService;
 		try {
 			Files.createDirectories(dir());
 		} catch (IOException e) {
@@ -66,7 +68,7 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 				}
 				
 				/* Only readable / writable by current user, i.e. administrator */ 
-				FileSecurity.restrictToUser(f);
+				platformService.restrictToUser(f);
 				
 				return connection;
 			} catch (IOException ioe) {
@@ -166,7 +168,7 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 				}
 				
 				/* Only readable / writable by current user, i.e. administrator */ 
-				FileSecurity.restrictToUser(f);
+				platformService.restrictToUser(f);
 				
 				return getConnection(id);
 			} catch (IOException ioe) {

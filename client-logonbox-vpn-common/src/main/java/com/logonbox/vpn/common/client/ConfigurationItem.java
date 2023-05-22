@@ -8,7 +8,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.apache.log4j.Level;
+import org.slf4j.event.Level;
+
 
 public class ConfigurationItem<T> {
 	
@@ -16,7 +17,7 @@ public class ConfigurationItem<T> {
 		GLOBAL, USER
 	}
 
-	public final static ConfigurationItem<Level> LOG_LEVEL = add("logLevel", Level.class, Level.INFO, Level.ALL, Level.TRACE, Level.DEBUG, Level.WARN, Level.INFO, Level.ERROR, Level.FATAL, Level.OFF);
+	public final static ConfigurationItem<Level> LOG_LEVEL = add("logLevel", Level.class, Level.INFO, Level.TRACE, Level.DEBUG, Level.WARN, Level.INFO, Level.ERROR, Level.ERROR);
 	public final static ConfigurationItem<Boolean> IGNORE_LOCAL_ROUTES = add("ignoreLocalRoutes", Boolean.class, true, true, false);
 	public final static ConfigurationItem<DNSIntegrationMethod> DNS_INTEGRATION_METHOD = add("dnsIntegrationMethod", DNSIntegrationMethod.class, DNSIntegrationMethod.AUTO, DNSIntegrationMethod.values());
 	public final static ConfigurationItem<Boolean> AUTOMATIC_UPDATES = add("automaticUpdates", Boolean.class, Scope.USER, true, true, false);
@@ -133,7 +134,7 @@ public class ConfigurationItem<T> {
 			else if(type == Boolean.class)
 				return (T)((Boolean)Boolean.parseBoolean(val));
 			else if(type == Level.class)
-				return (T)Level.toLevel(val);
+				return (T)Level.valueOf(val);
 			else if(type == String.class)
 				return (T)val;
 			else if(Enum.class.isAssignableFrom(type))

@@ -1,6 +1,7 @@
 package com.logonbox.vpn.client.wireguard;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 
@@ -11,6 +12,22 @@ import com.logonbox.vpn.common.client.DNSIntegrationMethod;
 import com.logonbox.vpn.common.client.StatusDetail;
 
 public interface PlatformService<I extends VirtualInetAddress<?>> {
+
+	/**
+	 * Open file permissions so that it is readable by everyone.
+	 * 
+	 * @param path path of file to open 
+	 * @throws IOException
+	 */
+	void openToEveryone(Path path) throws IOException;
+
+	/**
+	 * Restrict a file so that it is readable by only the current user.
+	 * 
+	 * @param path path of file to restrict
+	 * @throws IOException
+	 */
+	void restrictToUser(Path path) throws IOException;
 
 	/**
 	 * Get a list of the common names of any 3rd party or distribution packages that

@@ -1,5 +1,7 @@
 package com.logonbox.vpn.client.dbus;
 
+import java.util.Objects;
+
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 
 import com.logonbox.vpn.client.LocalContext;
@@ -13,13 +15,17 @@ public abstract class AbstractVPNComponent {
 	}
 
 	void assertRegistered() {
-		if (ctx.isRegistrationRequired() && !ctx.hasFrontEnd(DBusConnection.getCallInfo().getSource())) {
+		if (ctx.isRegistrationRequired() && !ctx.hasFrontEnd(getSourceOrDefault())) {
 			throw new IllegalStateException("Not registered.");
 		}
 	}
+	
+	public static String getSourceOrDefault() {
+		return Objects.requireNonNullElse(DBusConnection.getCallInfo().getSource(), "DIRECT");
+	}
 
 	String getOwner() {
-		String src = DBusConnection.getCallInfo().getSource();
+		String src = getSourceOrDefault();
 		if (ctx.hasFrontEnd(src)) {
 			return ctx.getFrontEnd(src).getUsername();
 		}

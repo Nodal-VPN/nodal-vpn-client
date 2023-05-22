@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.CookieStore;
 import java.util.List;
 
-import org.freedesktop.dbus.connections.impl.DBusConnection;
+import org.freedesktop.dbus.connections.AbstractConnection;
 
 import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.UpdateService;
@@ -28,7 +28,7 @@ public interface CLIContext {
 
 	boolean isQuiet();
 
-	DBusConnection getBus();
+	AbstractConnection getBus();
 
 	UpdateService getUpdateService();
 

@@ -5,7 +5,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>client-logonbox-vpn-gui-jfx</artifactId>
-    <name>LogonBox VPN - Client GUI (JavaFX version)</name>
+    <name>LogonBox VPN - Core GUI</name>
 
     <parent>
         <groupId>com.logonbox</groupId>
@@ -56,21 +56,7 @@
         </dependency>
         <!-- <dependency> <groupId>com.google.code.jgntp</groupId> <artifactId>jgntp</artifactId> 
 			<version>1.2.1</version> </dependency> -->
-        <dependency>
-            <groupId>com.sshtools</groupId>
-            <artifactId>forker-client</artifactId>
-            <version>1.7-SNAPSHOT</version>
-            <exclusions>
-            	<exclusion>
-            		<groupId>net.java.dev.jna</groupId>
-            		<artifactId>jna</artifactId>
-            	</exclusion>
-            	<exclusion>
-            		<groupId>net.java.dev.jna</groupId>
-            		<artifactId>jna-platform</artifactId>
-            	</exclusion>
-            </exclusions>
-        </dependency>
+       
         <dependency>
             <groupId>com.sshtools</groupId>
             <artifactId>two-slices</artifactId>
@@ -224,4 +210,5 @@
             </build>
         </profile>
     </profiles>
+    <description>Contains the core user interface classes, HTML files, images etc used by both the Desktop GUI builds and the Mobile  builds</description>
 </project>

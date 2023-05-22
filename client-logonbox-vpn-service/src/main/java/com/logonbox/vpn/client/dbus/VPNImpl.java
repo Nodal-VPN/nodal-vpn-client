@@ -6,12 +6,11 @@ import java.util.stream.Collectors;
 
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
-import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.logonbox.vpn.client.AbstractService;
 import com.logonbox.vpn.client.LocalContext;
-import com.logonbox.vpn.client.Main;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection.Mode;
 import com.logonbox.vpn.common.client.ConnectionStatus;
@@ -63,19 +62,19 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 	@Override
 	public String getVersion() {
 		assertRegistered();
-		return HypersocketVersion.getVersion(Main.ARTIFACT_COORDS);
+		return HypersocketVersion.getVersion(AbstractService.ARTIFACT_COORDS);
 	}
 
 	@Override
 	public void ping() {
 		assertRegistered();
-		ctx.getFrontEnd(DBusConnection.getCallInfo().getSource()).ping();
+		ctx.getFrontEnd(getSourceOrDefault()).ping();
 		ctx.getClientService().ping();
 	}
 
 	@Override
 	public void deregister() {
-		String src = DBusConnection.getCallInfo().getSource();
+		String src = getSourceOrDefault();
 		log.info(String.format("De-register front-end %s", src));
 		ctx.deregisterFrontEnd(src);
 	}
@@ -88,18 +87,23 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 
 	@Override
 	public void register(String username, boolean interactive, boolean supportsAuthorization) {
-		VPNFrontEnd frontEnd = null;
-		String source = DBusConnection.getCallInfo().getSource();
-		log.info(String.format("Register client %s", source));
-		if(ctx.hasFrontEnd(source)) {
-			ctx.deregisterFrontEnd(source);
+		try {
+			VPNFrontEnd frontEnd = null;
+			String source = getSourceOrDefault();
+			log.info(String.format("Register client %s", source));
+			if(ctx.hasFrontEnd(source)) {
+				ctx.deregisterFrontEnd(source);
+			}
+			frontEnd = ctx.registerFrontEnd(source);
+			frontEnd.setUsername(username);
+			frontEnd.setInteractive(interactive);
+			frontEnd.setSupportsAuthorization(supportsAuthorization);
+	
+			ctx.getClientService().registered(frontEnd);
 		}
-		frontEnd = ctx.registerFrontEnd(source);
-		frontEnd.setUsername(username);
-		frontEnd.setInteractive(interactive);
-		frontEnd.setSupportsAuthorization(supportsAuthorization);
-
-		ctx.getClientService().registered(frontEnd);
+		catch(Exception e) {
+			log.error("Failed to register.", e);
+		}
 	}
 
 	@Override
@@ -137,7 +141,7 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 			throw new IllegalArgumentException(String.format("Connection with URI %s already exists.", uri));
 		} catch (Exception e) {
 			/* Doesn't exist */
-			VPNFrontEnd fe = ctx.getFrontEnd(DBusConnection.getCallInfo().getSource());
+			VPNFrontEnd fe = ctx.getFrontEnd(getSourceOrDefault());
 			return ctx.getClientService().create(uri, fe == null ? System.getProperty("user.name") : fe.getUsername(), connectAtStartup, Mode.valueOf(mode), stayConnected).getId();
 		}
 	}

@@ -65,7 +65,6 @@ import com.logonbox.vpn.common.client.Util;
 import com.logonbox.vpn.common.client.dbus.VPN;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
 import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
-import com.sshtools.common.logger.Log;
 
 public class ClientServiceImpl implements ClientService {
 	private static final String X_VPN_RESPONSE = "X-VPN-Response";
@@ -277,11 +276,11 @@ public class ClientServiceImpl implements ClientService {
 				e.printStackTrace();
 				throw new IllegalStateException("Failed to disconnect.", e);
 			}
-			Log.info("Deleting connection {}", connection.getDisplayName());
+			log.info("Deleting connection {}", connection.getDisplayName());
 			connectionRepository.delete(connection);
 			context.getConnection().unExportObject(String.format("/com/logonbox/vpn/%d", connection.getId()));
 			context.sendMessage(new VPN.ConnectionRemoved("/com/logonbox/vpn", connection.getId()));
-			Log.info("Deleted connection {}", connection.getDisplayName());
+			log.info("Deleted connection {}", connection.getDisplayName());
 
 		} catch (DBusException e) {
 			throw new IllegalStateException("Failed to delete.", e);
@@ -1057,6 +1056,7 @@ public class ClientServiceImpl implements ClientService {
 	public boolean startSavedConnections() {
 
 		try {
+			log.info("Starting saved connections");
 			int connected = 0;
 			for (Connection c : connectionRepository.getConnections(null)) {
 				if (c.isConnectAtStartup() && getStatusType(c) == Type.DISCONNECTED) {

@@ -7,7 +7,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>client-logonbox-vpn-cli</artifactId>
-	<name>Hypersocket - Client (Command Line Version)</name>
+	<name>LogonBox VPN - Command Line Tool</name>
 
 	<parent>
 	    <groupId>com.logonbox</groupId>
@@ -60,6 +60,21 @@
 			<artifactId>client-logonbox-vpn-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+       <dependency>
+		    <groupId>org.slf4j</groupId>
+		    <artifactId>slf4j-reload4j</artifactId>
+		    <version>1.7.36</version>
+		</dependency>
+        <dependency>
+            <groupId>com.github.hypfvieh</groupId>
+            <artifactId>dbus-java-transport-tcp</artifactId>
+            <version>4.3.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.hypfvieh</groupId>
+            <artifactId>dbus-java-transport-native-unixsocket</artifactId>
+            <version>4.3.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>com.install4j</groupId>
             <artifactId>install4j-runtime</artifactId>
@@ -167,4 +182,5 @@
             </build>
         </profile>
     </profiles>
+	 <description>Allows control of the LogonBox VPN using either scriptable commands or an interactive shell.</description>
 </project>

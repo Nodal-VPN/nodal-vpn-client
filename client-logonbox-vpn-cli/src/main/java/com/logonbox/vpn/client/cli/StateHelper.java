@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import org.freedesktop.dbus.connections.impl.DBusConnection;
+import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.DBusSigHandler;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ public class StateHelper implements Closeable {
 		void state(Type state, Mode mode) throws Exception;
 	}
 
-	private DBusConnection bus;
+	private AbstractConnection bus;
 	private VPNConnection connection;
 	private Type currentState;
 	private DBusSigHandler<Authorize> authorizeSigHandler;
@@ -46,7 +46,7 @@ public class StateHelper implements Closeable {
 	private Map<Type, StateChange> onState = new HashMap<>();
 	private Exception error;
 
-	public StateHelper(VPNConnection connection, DBusConnection bus) throws DBusException {
+	public StateHelper(VPNConnection connection, AbstractConnection bus) throws DBusException {
 		this.connection = connection;
 		this.bus = bus;
 		currentState = Type.valueOf(connection.getStatus());

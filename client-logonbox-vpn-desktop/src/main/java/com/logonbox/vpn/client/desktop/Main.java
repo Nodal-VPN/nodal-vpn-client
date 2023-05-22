@@ -3,19 +3,25 @@ package com.logonbox.vpn.client.desktop;
 import java.awt.Taskbar;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.log4j.Level;
+import org.apache.log4j.Priority;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import com.install4j.api.launcher.StartupNotification;
 import com.install4j.api.launcher.StartupNotification.Listener;
@@ -28,7 +34,6 @@ import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.NoUpdateService;
 import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.UpdateService;
-import com.sshtools.forker.client.OSCommand;
 import  com.sun.jna.platform.win32.Advapi32Util;
 
 import javafx.application.Application;
@@ -42,9 +47,9 @@ import picocli.CommandLine.Parameters;
 @Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.")
 public class Main extends AbstractDBusClient implements Callable<Integer>, Listener, AppContext {
 	static Logger log;
-	
+
 	public final static String SID_ADMINISTRATORS_GROUP = "S-1-5-32-544";
-	
+
 	/**
 	 * Used to get version from Maven meta-data
 	 */
@@ -130,11 +135,16 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 			else
 				PropertyConfigurator.configure(Main.class.getResource("/default-log4j-gui.properties"));
 		}
-		
+
 		String cfgLevel = Configuration.getDefault().logLevelProperty().get();
-		defaultLogLevel = org.apache.log4j.Logger.getRootLogger().getLevel();
+		defaultLogLevel = log4JToSLF4JLevel(org.apache.log4j.Logger.getRootLogger().getLevel());
 		if(StringUtils.isNotBlank(cfgLevel)) {
-			org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.toLevel(cfgLevel));
+			try {
+				setLevel(Level.valueOf(cfgLevel));
+			}
+			catch(IllegalArgumentException iae) {
+				setLevel(defaultLogLevel);				
+			}
 		}
 		log = LoggerFactory.getLogger(Main.class);
 
@@ -144,42 +154,83 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 			log.info(String.format("CWD: %s", new File(".").getCanonicalPath()));
 		} catch (IOException e) {
 		}
-		
+
 		StartupNotification.registerStartupListener(this);
 	}
 
-	/*
-	 * NOTE: LauncherImpl has to be used, as Application.launch() tests where the
-	 * main() method was invoked from by examining the stack (stupid stupid stupid
-	 * technique!). Because we are launched from BoostrapMain, this is what it
-	 * detects. To work around this LauncherImpl.launchApplication() is used
-	 * directly, which is an internal API.
-	 * 
-	 * TODO With the new forker arrangement, this is no longer the case. So
-	 *      check if this is still required.  This is one of the reasons for 
-	 *      the new bootstrap arrangement.
-	 */
+	static org.apache.log4j.Level slf4jToLog4JLevel(String lvl) {
+		try {
+			return slf4jToLog4JLevel(Level.valueOf(lvl));
+		}
+		catch(IllegalArgumentException iae) {
+			return org.apache.log4j.Level.INFO;
+		}
+	}
+
+	static org.apache.log4j.Level slf4jToLog4JLevel(Level lvl) {
+		switch(lvl) {
+		case DEBUG:
+			return org.apache.log4j.Level.DEBUG;
+		case ERROR:
+			return org.apache.log4j.Level.ERROR;
+		case TRACE:
+			return org.apache.log4j.Level.TRACE;
+		case WARN:
+			return org.apache.log4j.Level.WARN;
+		default:
+			return org.apache.log4j.Level.INFO;
+		}
+		
+	}
+	static Level log4JToSLF4JLevel(org.apache.log4j.Level lvl) {
+		switch(lvl.toInt()) {
+		case Priority.ALL_INT:
+			return Level.TRACE;
+		case Priority.DEBUG_INT:
+			return Level.DEBUG;
+		case Priority.WARN_INT:
+			return Level.WARN;
+		case Priority.FATAL_INT:
+		case Priority.ERROR_INT:
+		case Priority.OFF_INT:
+			return Level.ERROR;
+		default:
+			return Level.INFO;
+		}
+	}
+
+	@Override
+	public void setLevel(Level level) {
+		org.apache.log4j.Logger.getRootLogger().setLevel(slf4jToLog4JLevel(level));
+	}
+	
+	@Override
 	public Integer call() throws Exception {
 		Application.launch(Client.class, new String[0]);
 		return 0;
 	}
-	
+
+	@Override
 	public Level getDefaultLogLevel() {
 		return defaultLogLevel;
 	}
 
+	@Override
 	public boolean isNoAddWhenNoConnections() {
 		return noAddWhenNoConnections;
 	}
 
+	@Override
 	public boolean isExitOnConnection() {
 		return exitOnConnection;
 	}
 
+	@Override
 	public boolean isConnect() {
 		return connect;
 	}
 
+	@Override
 	public String getUri() {
 		return uri;
 	}
@@ -188,6 +239,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 		return noUpdates;
 	}
 
+	@Override
 	public boolean isNoResize() {
 		return noResize;
 	}
@@ -196,6 +248,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 		return alwaysOnTop;
 	}
 
+	@Override
 	public boolean isNoMove() {
 		return noMove;
 	}
@@ -204,6 +257,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 		return size;
 	}
 
+	@Override
 	public boolean isNoClose() {
 		return noClose;
 	}
@@ -212,14 +266,17 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 		return noSidebar;
 	}
 
+	@Override
 	public boolean isNoMinimize() {
 		return noMinimize;
 	}
 
+	@Override
 	public boolean isNoSystemTray() {
 		return noSystemTray;
 	}
 
+	@Override
 	public boolean isCreateIfDoesntExist() {
 		return createIfDoesntExist;
 	}
@@ -228,6 +285,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 		return instance;
 	}
 
+	@Override
 	public void restart() {
 		exit();
 		System.exit(99);
@@ -245,7 +303,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 		else
 			return new NoUpdateService(this);
 	}
-	
+
 	boolean isElevatableToAdministrator() {
 		if(SystemUtils.IS_OS_WINDOWS) {
 			for(var grp : Advapi32Util.getCurrentUserGroups()) {
@@ -257,14 +315,14 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 		}
 		else if(SystemUtils.IS_OS_LINUX) {
 			try {
-				return Arrays.asList(String.join(" ", OSCommand.runCommandAndCaptureOutput("id", "-Gn")).split("\\s+")).contains("sudo");
+				return Arrays.asList(String.join(" ", runCommandAndCaptureOutput("id", "-Gn")).split("\\s+")).contains("sudo");
 			} catch (IOException e) {
 				getLog().error("Failed to test for user groups, assuming can elevate.", e);
 			}
 		}
 		else if(SystemUtils.IS_OS_MAC_OSX) {
 			try {
-				return Arrays.asList(String.join(" ", OSCommand.runCommandAndCaptureOutput("id", "-Gn")).split("\\s+")).contains("admin");
+				return Arrays.asList(String.join(" ", runCommandAndCaptureOutput("id", "-Gn")).split("\\s+")).contains("admin");
 			} catch (IOException e) {
 				getLog().error("Failed to test for user groups, assuming can elevate.", e);
 			}
@@ -312,7 +370,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 					String content, String key, String hostname, String message) {
 				return uiContext.orElseThrow(()-> new IllegalStateException("UI Not registered.")).promptForCertificate(AlertType.valueOf(alertType.name()), title, content, key, hostname, message, this);
 			}
-			
+
 		};
 	}
 
@@ -337,5 +395,23 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 			throw new IllegalStateException("Already registered.");
 		Main.uiContext = Optional.of(uiContext);
 		return (M) this;
+	}
+	
+	static Collection<String> runCommandAndCaptureOutput(String... args) throws IOException {
+		List<String> largs = new ArrayList<String>(Arrays.asList(args));
+		var pb = new ProcessBuilder(largs);
+		pb.redirectErrorStream(true);
+		Process p = pb.start();
+		Collection<String> lines = IOUtils.readLines(p.getInputStream(), Charset.defaultCharset());
+		try {
+			int ret = p.waitFor();
+			if (ret != 0) {
+				throw new IOException("Command '" + String.join(" ", largs)
+						+ "' returned non-zero status. Returned " + ret + ". " + String.join("\n", lines));
+			}
+		} catch (InterruptedException e) {
+			throw new IOException(e.getMessage(), e);
+		}
+		return lines;
 	}
 }
