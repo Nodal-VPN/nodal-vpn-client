@@ -79,12 +79,12 @@
         <dependency>
             <groupId>com.sshtools</groupId>
             <artifactId>forker-client</artifactId>
-            <version>1.7-SNAPSHOT</version>
+            <version>1.8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sshtools</groupId>
             <artifactId>forker-pipes</artifactId>
-            <version>1.7-SNAPSHOT</version>
+            <version>1.8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sshtools</groupId>
@@ -100,7 +100,7 @@
         <dependency>
             <groupId>com.sshtools</groupId>
             <artifactId>forker-services</artifactId>
-            <version>1.7-SNAPSHOT</version>
+            <version>1.8-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.github.hypfvieh</groupId>

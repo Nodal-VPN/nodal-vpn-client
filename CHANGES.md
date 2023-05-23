@@ -1,6 +1,10 @@
 # Changes
 
-## SNAPSHOT 
+## SNAPSHOT
+
+ * Improvements to CPU usage on Windows, particularly when coming out of sleep. 
+
+## 2.4.0-1014
 
  * Mac OS X networksetup DNS integration not correctly removing DNS server address and domains on tear down.
  * DBus permissions on French installs would sometimes be incorrect result in failure of front-end to connect to service.

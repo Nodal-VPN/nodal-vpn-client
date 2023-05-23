@@ -84,7 +84,7 @@
         <dependency>
             <groupId>com.sshtools</groupId>
             <artifactId>forker-client</artifactId>
-            <version>1.7-SNAPSHOT</version>
+            <version>1.8-SNAPSHOT</version>
             <exclusions>
             	<exclusion>
             		<groupId>net.java.dev.jna</groupId>
@@ -156,7 +156,7 @@
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-            <version>11.1.0</version>
+            <version>11.1.2</version>
         </dependency>
         <dependency>
             <groupId>com.github.hypfvieh</groupId>
