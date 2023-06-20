@@ -2,6 +2,8 @@
 
 ## SNAPSHOT
 
+ * Updated to JavaFX 17.0.7.
+
 ## 2.4.0-1150
 
  * Improvements to CPU usage on Windows, particularly when coming out of sleep. 
