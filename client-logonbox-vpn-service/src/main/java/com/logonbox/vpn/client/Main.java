@@ -641,13 +641,14 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 		/* TODO swap these and enable the dbconvert install action in Install4J project
 		 * when ready to make ini files the default.
 		 */
+        Path dbDir = Paths.get("data");
 		Path iniDir = Paths.get("conf").resolve("ini");
-		if(Files.exists(iniDir)) {
+		if(Files.exists(iniDir) || !Files.exists(dbDir)) {
 			log.info("Using file data backend");
 			connectionRepository = new com.logonbox.vpn.client.ini.ConnectionRepositoryImpl();
 		}
 		else {
-			log.info("Using Derby data backend");
+			log.warn("Using deprecated Derby data backend, please run `dbconvert` as this will soon be removed.");
 			connectionRepository = new com.logonbox.vpn.client.db.ConnectionRepositoryImpl();
 		}
 		

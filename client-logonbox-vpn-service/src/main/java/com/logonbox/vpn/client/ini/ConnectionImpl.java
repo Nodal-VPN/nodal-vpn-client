@@ -372,7 +372,7 @@ public class ConnectionImpl implements Connection, Serializable {
 
 	@Override
 	public String toString() {
-		return "ConnectionImpl [id=" + id + ", userPrivateKey=" + userPrivateKey + ", userPublicKey=" + userPublicKey
+		return "ConnectionImpl [id=" + id + ", userPublicKey=" + userPublicKey
 				+ ", publicKey=" + publicKey + ", address=" + address + ", endpointAddress=" + endpointAddress
 				+ ", endpointPort=" + endpointPort + ", dns=" + dns + ", stayConnected=" + stayConnected
 				 + ", connectAtStartup=" + connectAtStartup + ", peristentKeepalive=" + peristentKeepalive

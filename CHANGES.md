@@ -3,6 +3,8 @@
 ## SNAPSHOT
 
  * Updated to JavaFX 17.0.7.
+ * Activated alternative connection storage mechanism (.ini type files). All
+   existing configurations should now be converted.
 
 ## 2.4.0-1150
 
