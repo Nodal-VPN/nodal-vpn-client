@@ -644,8 +644,10 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 			try {
 				String fullPath = new File(url.toURI()).getAbsolutePath();
 				{
-					if (fullPath.matches(".*client-logonbox-vpn-common.*") || fullPath.matches(".*client-logonbox-vpn-service.*") || fullPath.matches(".*jna.*")
-							|| fullPath.matches(".*forker-common.*") || fullPath.matches(".*forker-client.*")
+					if (fullPath.matches(".*client-logonbox-vpn-service.*") 
+							|| fullPath.matches(".*jna.*")
+							|| fullPath.matches(".*forker-common.*") 
+							|| fullPath.matches(".*forker-client.*")
 							|| fullPath.matches(".*commons-io.*")
 							|| fullPath.matches(".*slf4j.*")) {
 						if (path.length() > 0)

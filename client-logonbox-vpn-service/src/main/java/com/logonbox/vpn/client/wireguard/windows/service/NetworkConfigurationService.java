@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 
-import com.logonbox.vpn.common.client.Util;
 import com.sshtools.forker.common.XKernel32;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -84,9 +83,15 @@ public class NetworkConfigurationService {
 
 	public NetworkConfigurationService(File confFile) {
 		this.confFile = confFile;
-		name = Util.getBasename(confFile.getName());
+		name = getBasename(confFile.getName());
 		System.out.println(String.format("Preparing Wireguard configuration for %s (in %s)", name, confFile));
 	}
+	
+	static String getBasename(String name) {
+		int idx = name.indexOf('.');
+		return idx == -1 ? name : name.substring(0, idx);
+	}
+
 
 	private int startNetworkService() {
 		log("Activating Wireguard configuration for %s (in %s)", name, confFile);
