@@ -646,7 +646,8 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 				{
 					if (fullPath.matches(".*client-logonbox-vpn-common.*") || fullPath.matches(".*client-logonbox-vpn-service.*") || fullPath.matches(".*jna.*")
 							|| fullPath.matches(".*forker-common.*") || fullPath.matches(".*forker-client.*")
-							|| fullPath.matches(".*commons-io.*")) {
+							|| fullPath.matches(".*commons-io.*")
+							|| fullPath.matches(".*slf4j.*")) {
 						if (path.length() > 0)
 							path.append(File.pathSeparator);
 						path.append('"');
