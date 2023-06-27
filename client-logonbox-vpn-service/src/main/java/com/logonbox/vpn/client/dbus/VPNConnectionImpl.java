@@ -341,6 +341,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	public void setHostname(String host) {
 		assertRegistered();
 		connection.setHostname(host);
+		Util.setLastKnownServerIpAddress(connection);
 	}
 
 	@Override

@@ -10,7 +10,7 @@
       <variable name="jfx.archdir" value="gui/win" description="The location of the architecture specific jars for JavaFX" />
     </variables>
     <codeSigning macEnabled="true" macPkcs12File="logonbox-developer-id.p12" windowsEnabled="true" windowsPkcs12File="logonbox.p12" macNotarize="true" appleId="brett@logonbox.com" />
-    <jreBundles jdkProviderId="AdoptOpenJDK-OpenJ9" release="16/jdk-16.0.2+7_openj9-0.27.0" />
+    <jreBundles jdkProviderId="AdoptOpenJDK-OpenJ9" release="20/jdk-20.0.1+9_openj9-0.39.0" />
   </application>
   <files keepModificationTimes="true" globalExcludeSuffixes="*.ser" defaultOverwriteMode="1" defaultUninstallMode="2">
     <roots>

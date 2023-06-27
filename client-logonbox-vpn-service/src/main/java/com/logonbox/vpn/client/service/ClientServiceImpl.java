@@ -989,8 +989,9 @@ public class ClientServiceImpl implements ClientService {
 			log.error("Failed to signal connection updating.", e);
 		}
 		Connection newConnection = c;
-		if(!c.isTransient())
+		if(!c.isTransient()) {
 			newConnection = doSave(c);
+		}
 		try {
 			context.sendMessage(new VPN.ConnectionUpdated("/com/logonbox/vpn", newConnection.getId()));
 		} catch (DBusException e) {

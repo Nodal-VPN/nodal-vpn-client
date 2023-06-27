@@ -1,7 +1,6 @@
 package com.logonbox.vpn.common.client;
 
 import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -182,11 +181,7 @@ public interface Connection {
 		try {
 			URI uriObj = Util.getUri(uri);
 			setHostname(uriObj.getHost());
-			try {
-				setLastKnownServerIpAddress(InetAddress.getByName(getHostname()).getHostAddress());
-			}
-			catch(Exception e) {
-			}
+			Util.setLastKnownServerIpAddress(this);
 			setPort(uriObj.getPort() >= 0 ? uriObj.getPort() : 443);
 			setPath(uriObj.getPath());
 		} catch (URISyntaxException e) {

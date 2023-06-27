@@ -376,7 +376,7 @@ public class ConnectionImpl implements Connection, Serializable {
 				+ ", publicKey=" + publicKey + ", address=" + address + ", endpointAddress=" + endpointAddress
 				+ ", endpointPort=" + endpointPort + ", dns=" + dns + ", stayConnected=" + stayConnected
 				 + ", connectAtStartup=" + connectAtStartup + ", peristentKeepalive=" + peristentKeepalive
-				+ ", allowedIps=" + allowedIps + "]";
+				+ ", allowedIps=" + allowedIps + ", lastKnownServerIpAddress=" + lastKnownServerIpAddress + "]";
 	}
 
 	public List<String> getAllowedIps() {

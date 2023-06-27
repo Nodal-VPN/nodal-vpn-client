@@ -1,5 +1,11 @@
 package com.logonbox.vpn.common.client;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
+import org.ini4j.Profile.Section;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,11 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
-import org.ini4j.Profile.Section;
-
 public class Util {
+    static Logger log = LoggerFactory.getLogger(Util.class);
 
 	private static final boolean IS_64BIT = is64bit0();
 	private static final boolean IS_AARCH64 = isAarch640();
@@ -234,10 +237,17 @@ public class Util {
 	public static boolean setLastKnownServerIpAddress(Connection connection) {
 		var was = connection.getLastKnownServerIpAddress();
 		try {
-			connection.setLastKnownServerIpAddress(InetAddress.getByName(connection.getHostname()).getHostAddress());
+			var addr = InetAddress.getByName(connection.getHostname()).getHostAddress();
+			if(!Objects.equals(addr, connection.getLastKnownServerIpAddress())) {
+			    log.info("Changing last known server IP address for connection {} to {}", connection.getId(), addr);
+			    connection.setLastKnownServerIpAddress(addr);
+			}
 		}
 		catch(Exception e) {
-			connection.setLastKnownServerIpAddress(null);
+		    if(connection.getLastKnownServerIpAddress() != null) {
+                log.info("Resetting last known server IP address for connection {}", connection.getId());
+		        connection.setLastKnownServerIpAddress(null);
+		    }
 		}
 		return !Objects.equals(was, connection.getLastKnownServerIpAddress());
 	}
