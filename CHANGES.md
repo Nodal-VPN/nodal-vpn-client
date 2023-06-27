@@ -2,7 +2,7 @@
 
 ## SNAPSHOT
 
- * Updated to JavaFX 17.0.7.
+ * Updated to JavaFX 20.0.1, JDK 20.
  * Activated alternative connection storage mechanism (.ini type files). All
    existing configurations should now be converted.
 
