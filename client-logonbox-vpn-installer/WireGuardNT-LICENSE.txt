@@ -1,9 +1,9 @@
 Prebuilt Binaries License
 -------------------------
 
-1. DEFINITIONS. "Software" means the precise contents of the "wintun.dll"
+1. DEFINITIONS. "Software" means the precise contents of the "wireguard.dll"
    files that are included in the .zip file that contains this document as
-   downloaded from wintun.net/builds.
+   downloaded from download.wireguard.com.
 
 2. LICENSE GRANT. WireGuard LLC grants to you a non-exclusive and
    non-transferable right to use Software for lawful purposes under certain
@@ -15,14 +15,14 @@ Prebuilt Binaries License
    a. reverse engineer, decompile, disassemble, extract from, or otherwise
       modify the Software;
    b. modify or create derivative work based upon Software in whole or in
-      parts, except insofar as only the API interfaces of the "wintun.h" file
+      parts, except insofar as only the API interfaces of the "wireguard.h" file
       distributed alongside the Software (the "Permitted API") are used;
    c. remove any proprietary notices, labels, or copyrights from the Software;
    d. resell, redistribute, lease, rent, transfer, sublicense, or otherwise
       transfer rights of the Software without the prior written consent of
       WireGuard LLC, except insofar as the Software is distributed alongside
       other software that uses the Software only via the Permitted API;
-   e. use the name of WireGuard LLC, the WireGuard project, the Wintun
+   e. use the name of WireGuard LLC, the WireGuard project, the WireGuard
       project, or the names of its contributors to endorse or promote products
       derived from the Software without specific prior written consent.
 
