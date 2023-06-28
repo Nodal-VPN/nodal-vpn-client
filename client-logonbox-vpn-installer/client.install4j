@@ -47,11 +47,11 @@
       <dirEntry mountPoint="2189" file="./target/converter" subDirectory="service" />
       <fileEntry mountPoint="2032" file="./scripts/cleanup.bat" />
       <fileEntry mountPoint="2032" file="./EULA.txt" />
-      <fileEntry mountPoint="2032" file="./WireGuardNT-LICENSE.txt" />
+      <fileEntry mountPoint="2032" file="./WINTUN-LICENSE.txt" />
       <fileEntry mountPoint="2032" file="target/CHANGES.md" />
       <fileEntry mountPoint="2032" file="./WIREGUARD-LICENSE.txt" />
       <fileEntry mountPoint="2028" file="./os/windows/win32-x86-64/tunnel.dll" shared="true" />
-      <fileEntry mountPoint="2028" file="./os/windows/win32-x86-64/wireguard.dll" shared="true" />
+      <fileEntry mountPoint="2028" file="./os/windows/win32-x86-64/wintun.dll" shared="true" />
       <fileEntry mountPoint="2037" file="./os/linux/dbus/logonbox-vpn-service.conf" />
     </entries>
     <components>
@@ -64,7 +64,7 @@
           <entry location="converter" />
           <entry location="cleanup.bat" />
           <entry location="EULA.txt" />
-          <entry location="WireGuardNT-LICENSE.txt" />
+          <entry location="WINTUN-LICENSE.txt" />
           <entry location="CHANGES.md" />
           <entry location="WIREGUARD-LICENSE.txt" />
           <entry location="logonbox-vpn-service" fileType="launcher" />
