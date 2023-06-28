@@ -629,10 +629,9 @@ return path.replace('\\', '/');</property>
               </action>
               <action id="2185" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" rollbackBarrier="true" rollbackBarrierExitCode="0">
                 <serializedBean>
-                  <property name="arguments" type="array" elementType="string" length="3">
-                    <element index="0">${installer:sys.installationDir}${installer:sys.fileSeparator}data ${installer:sys.installationDir}${installer:sys.installationDir}${installer:sys.fileSeparator}data ${installer:sys.installationDir}/conf/ini</element>
-                    <element index="1">conf${installer:sys.installationDir}${installer:sys.fileSeparator}data ${installer:sys.installationDir}/conf/ini</element>
-                    <element index="2">ini</element>
+                  <property name="arguments" type="array" elementType="string" length="2">
+                    <element index="0">${installer:sys.installationDir}${installer:sys.fileSeparator}data</element>
+                    <element index="1">${installer:sys.installationDir}${installer:sys.fileSeparator}conf${installer:sys.fileSeparator}ini</element>
                   </property>
                   <property name="launcherId" type="string">2181</property>
                 </serializedBean>
