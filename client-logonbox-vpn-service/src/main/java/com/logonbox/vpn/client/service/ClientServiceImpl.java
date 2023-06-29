@@ -249,6 +249,7 @@ public class ClientServiceImpl implements ClientService {
 		synchronized (activeSessions) {
 			log.info(String.format("De-authorizing connection %s", connection.getDisplayName()));
 			connection.deauthorize();
+			generateKeys(connection);
 			temporarilyOffline.remove(connection);
 			ScheduledFuture<?> f = authorizingClients.remove(connection);
 			if (f != null)
@@ -473,6 +474,7 @@ public class ClientServiceImpl implements ClientService {
 		 */
 		log.info("Error is not retryable, invalidate configuration. ");
 		connection.deauthorize();
+        generateKeys(connection);
 		return save(connection);
 	}
 

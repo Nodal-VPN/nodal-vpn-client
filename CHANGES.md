@@ -5,6 +5,8 @@
  * Updated to JavaFX 20.0.1, JDK 20.
  * Activated alternative connection storage mechanism (.ini type files). All
    existing configurations should now be converted.
+ * LastKnownServerIpAddress not being reset when hostname changes.
+ * Always regenerate private key when the connection is de-authorized (e.g. expired)
 
 ## 2.4.0-1150
 
