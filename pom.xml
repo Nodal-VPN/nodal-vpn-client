@@ -332,6 +332,7 @@
             <snapshots />
         </repository>
         
+        <!-- Temporary -->
         <repository>
             <id>ext-snapshots</id>
             <url>https://artifactory.jadaptive.com/ext-snapshots-local</url>

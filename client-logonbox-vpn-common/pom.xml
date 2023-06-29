@@ -99,6 +99,16 @@
                 <enabled>false</enabled>
             </releases>
         </repository>
+        
+        <!-- Temporary -->
+        <repository>
+            <id>ext-snapshots</id>
+            <url>https://artifactory.jadaptive.com/ext-snapshots-local</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots />
+        </repository>
 	</repositories>
 	<build>
 		<plugins>
