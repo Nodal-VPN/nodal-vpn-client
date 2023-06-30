@@ -2,6 +2,9 @@
 
 ## SNAPSHOT
 
+ * New major release.
+ * Fixed some issues with basic wireguard INI files.
+
 ## 2.4.0-1184
 
  * Updated to JavaFX 20.0.1, JDK 20.
