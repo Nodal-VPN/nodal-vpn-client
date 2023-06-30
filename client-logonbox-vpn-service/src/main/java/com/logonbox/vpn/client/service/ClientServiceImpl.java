@@ -776,16 +776,22 @@ public class ClientServiceImpl implements ClientService {
 
 	@Override
 	public List<ConnectionStatus> getStatus(String owner) {
+		try {
 
-		List<ConnectionStatus> ret = new ArrayList<>();
-		Collection<Connection> connections = connectionRepository.getConnections(owner);
-		List<Connection> added = new ArrayList<>();
-		synchronized (activeSessions) {
-			addConnections(ret, connections, added);
-			addConnections(ret, activeSessions.keySet(), added);
-			addConnections(ret, connectingSessions.keySet(), added);
+			List<ConnectionStatus> ret = new ArrayList<>();
+			Collection<Connection> connections = connectionRepository.getConnections(owner);
+			List<Connection> added = new ArrayList<>();
+			synchronized (activeSessions) {
+				addConnections(ret, connections, added);
+				addConnections(ret, activeSessions.keySet(), added);
+				addConnections(ret, connectingSessions.keySet(), added);
+			}
+			return ret;
 		}
-		return ret;
+		catch(Exception e) {
+			e.printStackTrace();
+			throw new IllegalStateException(e);
+		}
 
 	}
 

@@ -62,11 +62,6 @@
             <version>5.4.30.Final</version>
         </dependency>
         <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
-            <version>5.12.1</version>
-        </dependency>
-        <dependency>
             <groupId>com.logonbox</groupId>
             <artifactId>client-logonbox-vpn-common</artifactId>
             <version>${project.version}</version>
@@ -80,11 +75,31 @@
             <groupId>com.sshtools</groupId>
             <artifactId>forker-client</artifactId>
             <version>1.8-SNAPSHOT</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>net.java.dev.jna</groupId>
+            		<artifactId>jna</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>net.java.dev.jna</groupId>
+            		<artifactId>jna-platform</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.sshtools</groupId>
             <artifactId>forker-pipes</artifactId>
             <version>1.8-SNAPSHOT</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>net.java.dev.jna</groupId>
+            		<artifactId>jna</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>net.java.dev.jna</groupId>
+            		<artifactId>jna-platform</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.sshtools</groupId>
@@ -95,6 +110,16 @@
             <groupId>org.whispersystems</groupId>
             <artifactId>curve25519-java</artifactId>
             <version>0.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>5.13.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>5.13.0</version>
         </dependency>
 
         <dependency>
@@ -146,6 +171,27 @@
 
     <profiles>
         <profile>
+            <id>jnaerate</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.nativelibs4java</groupId>
+                        <artifactId>maven-jnaerator-plugin</artifactId>
+                        <version>0.12</version>
+                        <executions>
+                            <execution>
+                                <id>jnaerate</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>native</id>
             <build>
                 <plugins>
@@ -173,6 +219,44 @@
                         <configuration>
                             <imageName>${project.artifactId}</imageName>
                             <mainClass>com.logonbox.vpn.client.Main</mainClass>
+                            <buildArgs>
+                                <buildArg>--no-fallback</buildArg>
+                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
+                                <buildArg>--allow-incomplete-classpath</buildArg>
+                            </buildArgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>native-network-configuration-service</id>
+            <build>
+                <plugins>
+					<plugin>
+		                <groupId>com.nervepoint</groupId>
+		                <artifactId>google-translate-v2-java-maven-plugin</artifactId>
+                        <configuration>
+							<skip>true</skip>
+						</configuration>
+		            </plugin>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <version>${native.maven.plugin.version}</version>
+                        <extensions>true</extensions>
+                        <executions>
+                            <execution>
+                                <id>build-native</id>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <imageName>network-configuration-service</imageName>
+                            <mainClass>com.logonbox.vpn.client.wireguard.windows.service.NetworkConfigurationService</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>
                                 <buildArg>--report-unsupported-elements-at-runtime</buildArg>

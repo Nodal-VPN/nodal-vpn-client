@@ -1,5 +1,14 @@
 package com.logonbox.vpn.client.wireguard;
 
+import com.logonbox.vpn.client.wireguard.windows.WindowsPlatformServiceImpl;
+import com.logonbox.vpn.common.client.Keys;
+import com.logonbox.vpn.common.client.StatusDetail;
+import com.logonbox.vpn.common.client.Util;
+import com.sshtools.forker.pipes.DefaultPipeFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,15 +18,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.logonbox.vpn.client.wireguard.windows.WindowsPlatformServiceImpl;
-import com.logonbox.vpn.common.client.Keys;
-import com.logonbox.vpn.common.client.StatusDetail;
-import com.logonbox.vpn.common.client.Util;
-import com.sshtools.forker.pipes.DefaultPipeFactory;
 
 public class WireguardPipe implements StatusDetail {
 

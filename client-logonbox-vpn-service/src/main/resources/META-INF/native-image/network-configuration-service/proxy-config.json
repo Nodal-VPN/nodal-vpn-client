@@ -1,0 +1,8 @@
+[
+  {
+    "interfaces":["com.logonbox.vpn.client.wireguard.windows.service.NetworkConfigurationService$TunnelInterface"]}
+  ,
+  {
+    "interfaces":["com.sshtools.forker.common.XKernel32"]}
+  
+]
