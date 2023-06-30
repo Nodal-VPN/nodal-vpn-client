@@ -410,7 +410,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 
 	@Override
 	public String getOwner() {
-		return connection.getOwner();
+		return connection.getOwner() == null ? "" : connection.getOwner();
 	}
 
 	@Override

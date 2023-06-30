@@ -1,5 +1,7 @@
 package com.logonbox.vpn.common.client;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -164,6 +166,11 @@ public interface Connection {
 	void setShared(boolean shared);
 	
 	String getOwner();
+    
+    default String getOwnerOrCurrent() {
+        var owner = getOwner();
+        return owner == null || owner.equals("") ? System.getProperty("user.name") : owner; 
+    }
 
 	void setOwner(String owner);
 	
@@ -202,5 +209,9 @@ public interface Connection {
 	void setError(String error);
 	
 	String getError();
+
+    default boolean isLogonBoxVPN() {
+        return StringUtils.isNotBlank(getHostname());
+    }
 
 }

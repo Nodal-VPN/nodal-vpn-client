@@ -249,6 +249,7 @@ public class ClientServiceImpl implements ClientService {
 		synchronized (activeSessions) {
 			log.info(String.format("De-authorizing connection %s", connection.getDisplayName()));
 			connection.deauthorize();
+			generateKeys(connection);
 			temporarilyOffline.remove(connection);
 			ScheduledFuture<?> f = authorizingClients.remove(connection);
 			if (f != null)
@@ -473,12 +474,13 @@ public class ClientServiceImpl implements ClientService {
 		 */
 		log.info("Error is not retryable, invalidate configuration. ");
 		connection.deauthorize();
+        generateKeys(connection);
 		return save(connection);
 	}
 
 	private Connection getConnectionStatusFromHost(String rootUri, Connection connection, HttpClient client)
 			throws IOException, InterruptedException, InvalidFileFormatException {
-
+	    
 		addConnectionCookie(connection, URI.create(rootUri));
 		
 		var pingUrl = rootUri + "/api/server/ping";
@@ -486,7 +488,7 @@ public class ClientServiceImpl implements ClientService {
 		
 		log.info(String.format("Testing if a connection to %s should be retried using %s.",
 				connection.getDisplayName(), pingUrl));
-		var uuid = getUUID(connection.getOwner());
+		var uuid = getUUID(connection.getOwnerOrCurrent());
 		var builder = HttpRequest.newBuilder();
 		var request = builder
 		         .uri(uriObj)
@@ -551,7 +553,7 @@ public class ClientServiceImpl implements ClientService {
 				request = builder
 				         .uri(URI.create(configUri))
 				         .version(Version.HTTP_1_1)
-						 .header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwner()).toString())
+						 .header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwnerOrCurrent()).toString())
 				         .header(X_VPN_RESPONSE, signature)
 				         .build();
 
@@ -604,7 +606,7 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	protected void addConnectionCookie(Connection connection, URI uri) {
-		HttpCookie cookie = new HttpCookie(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwner()).toString());
+		HttpCookie cookie = new HttpCookie(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwnerOrCurrent()).toString());
 		cookie.setSecure(true);
 		cookie.setPath("/");
 		cookie.setDomain(connection.getHostname());
@@ -669,7 +671,7 @@ public class ClientServiceImpl implements ClientService {
 				connection.getDisplayName(), uri));
 		var request = builder
 				.version(Version.HTTP_1_1)
-				.header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwner()).toString())
+				.header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwnerOrCurrent()).toString())
 		        .uri(URI.create(uri))
 		         .build();
 
@@ -693,7 +695,7 @@ public class ClientServiceImpl implements ClientService {
 				connection.getDisplayName(), uri));
 		request = builder
 				.version(Version.HTTP_1_1)
-				.header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwner()).toString())
+				.header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwnerOrCurrent()).toString())
 		        .uri(URI.create(uri))
 		         .build();
 
@@ -1364,7 +1366,7 @@ public class ClientServiceImpl implements ClientService {
 				}
 
 			} catch (Exception e) {
-				if (e instanceof ReauthorizeException) {
+				if (e instanceof ReauthorizeException && connection.isLogonBoxVPN()) {
 					IOException reason = getConnectionError(connection);
 					if(reason == null) {
 						failedToConnect(connection, e);
