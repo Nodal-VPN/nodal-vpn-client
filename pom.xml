@@ -54,7 +54,7 @@
 		<!-- When you change this, remember to also change hypersocket-framework, hypersocket-enterprise, hypersocket-ui  -->
 		<hypersocket.languages>da,nl,fi,fr,de,it,no,pl,ru,sv,es,ja,he,pt,tr</hypersocket.languages>
 		
-        <native.maven.plugin.version>0.9.9</native.maven.plugin.version>
+        <native.maven.plugin.version>0.9.23</native.maven.plugin.version>
 	</properties>
 
 	<modules>
@@ -204,7 +204,7 @@
 				<plugin>
 					<groupId>com.nervepoint</groupId>
 					<artifactId>google-translate-v2-java-maven-plugin</artifactId>
-					<version>0.9.0-SNAPSHOT</version>
+					<version>0.9.1-SNAPSHOT</version>
 					<configuration>
 						<apikey>${googleAPIKey}</apikey>
 						<cacheTag>main</cacheTag>
