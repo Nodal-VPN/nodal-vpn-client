@@ -4,6 +4,12 @@
 
  * New major release.
  * Fixed some issues with basic wireguard INI files.
+ * Windows now uses WireGuardNT Kernel driver. This should result in noticeably
+   better performance and reliability.
+ * Windows network configuration service (supports a single wireguard service), 
+   is now natively compiled, resulting in much faster startup time and vastly 
+   reduced memory and CPU usage. This is only available on x64. 32bit Windows
+   will fallback to interpreted mode.
 
 ## 2.4.0-1184
 

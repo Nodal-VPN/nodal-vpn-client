@@ -422,8 +422,24 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 						if (!vpnAppData.exists() && !vpnAppData.mkdirs())
 							throw new IOException("Failed to create public directory for domain socket file.");
 						
+						/* Clean up a bit so we don't get too man dead socket files. This
+						 * will leave the 4 most recent.
+						 */
 						try {
-							Arrays.asList(vpnAppData.listFiles((f) -> f.getName().startsWith("dbus-"))).stream().forEach(f->f.delete());
+							var l = new ArrayList<>(Arrays.asList(vpnAppData.listFiles((f) ->  f.getName().startsWith("dbus-"))));
+							Collections.sort(l, (p1, p2) -> {
+							    try {
+    							    var f1 = Files.getLastModifiedTime(p1.toPath());
+                                    var f2 = Files.getLastModifiedTime(p2.toPath());
+                                    return f1.compareTo(f2);
+							    }
+							    catch(IOException e) {
+							        return 0;
+							    }
+							});
+							while(l.size() > 4) {
+							    l.get(0).delete();
+							}
 						}
 						catch(Exception e) {
 							log.warn("Failed to remove old dbus files.", e);

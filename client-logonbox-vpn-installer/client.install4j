@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.6" transformSequenceNumber="10">
-  <directoryPresets config="../CHANGES.md" />
+  <directoryPresets config="../client-logonbox-vpn-service/src/main/resources/win32-x86/wireguard.dll" />
   <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" pack200Compression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="20" javaMaxVersion="20" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
@@ -50,8 +50,9 @@
       <fileEntry mountPoint="2032" file="./WireGuardNT-LICENSE.txt" />
       <fileEntry mountPoint="2032" file="target/CHANGES.md" />
       <fileEntry mountPoint="2032" file="./WIREGUARD-LICENSE.txt" />
-      <fileEntry mountPoint="2028" file="./os/windows/win32-x86-64/tunnel.dll" shared="true" />
-      <fileEntry mountPoint="2028" file="./os/windows/win32-x86-64/wireguard.dll" shared="true" />
+      <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/network-configuration-service.exe" />
+      <fileEntry mountPoint="2028" file="../client-logonbox-vpn-service/src/main/resources/win32-x86-64/tunnel.dll" shared="true" />
+      <fileEntry mountPoint="2028" file="../client-logonbox-vpn-service/src/main/resources/win32-x86/wireguard.dll" shared="true" />
       <fileEntry mountPoint="2037" file="./os/linux/dbus/logonbox-vpn-service.conf" />
     </entries>
     <components>
@@ -67,6 +68,7 @@
           <entry location="WireGuardNT-LICENSE.txt" />
           <entry location="CHANGES.md" />
           <entry location="WIREGUARD-LICENSE.txt" />
+          <entry location="network-configuration-service.exe" />
           <entry location="logonbox-vpn-service" fileType="launcher" />
           <entry location="logonbox-vpn-service-console" fileType="launcher" />
           <entry location="dbconvert" fileType="launcher" />
@@ -1778,13 +1780,15 @@ return true;</property>
         <entry location="gui/win" />
         <entry location="gui/linux-arm32-monocle" />
         <entry location="cleanup.bat" />
+        <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="network-configuration-service.exe" />
         <entry rootId="2027" />
         <entry rootId="2036" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/mac" />
       </variables>
-      <jreBundle jdkProviderId="AdoptOpenJDK-OpenJ9" release="16/jdk-16.0.1+9_openj9-0.26.0" overrideJdkRelease="true" includedJre="macosx-amd64-1.8.0_121" />
+      <jreBundle jdkProviderId="Adoptium" release="20/jdk-20.0.1+9" usePack200="false" overrideJdkRelease="true" includedJre="macosx-amd64-1.8.0_121" />
     </macosFolder>
     <windows name="Windows x64" id="1554" installDir="LogonBox\VPN Client" architecture="64">
       <exclude>
@@ -1795,7 +1799,7 @@ return true;</property>
         <entry location="gui/linux-arm32-monocle" />
         <entry rootId="2036" />
       </exclude>
-      <jreBundle release="17/jdk-17.0.2+8" includedJre="windows-amd64-1.8.0_121" />
+      <jreBundle release="17/jdk-17.0.2+8" usePack200="false" includedJre="windows-amd64-1.8.0_121" />
     </windows>
     <unixInstaller name="Unix Installer" id="1555" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}">
       <exclude>
@@ -1805,11 +1809,14 @@ return true;</property>
         <entry location="gui/mac" />
         <entry location="gui/linux-arm32-monocle" />
         <entry location="cleanup.bat" />
+        <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="network-configuration-service.exe" />
         <entry rootId="2027" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
       </variables>
+      <jreBundle usePack200="false" />
     </unixInstaller>
     <linuxRPM name="Linux RPM" id="1560">
       <exclude>
@@ -1819,6 +1826,8 @@ return true;</property>
         <entry location="gui/mac" />
         <entry location="gui/linux-arm32-monocle" />
         <entry location="cleanup.bat" />
+        <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="network-configuration-service.exe" />
         <entry rootId="2027" />
       </exclude>
       <variables>
@@ -1833,6 +1842,8 @@ return true;</property>
         <entry location="gui/mac" />
         <entry location="gui/linux-arm32-monocle" />
         <entry location="cleanup.bat" />
+        <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="network-configuration-service.exe" />
         <entry rootId="2027" />
       </exclude>
       <variables>
@@ -1848,9 +1859,9 @@ return true;</property>
         <entry location="gui/linux-arm32-monocle" />
         <entry rootId="2036" />
       </exclude>
-      <jreBundle includedJre="windows-amd64-1.8.0_121" />
+      <jreBundle usePack200="false" includedJre="windows-amd64-1.8.0_121" />
     </windows>
-    <unixInstaller name="Arm64 Unix Installer" id="2166" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}">
+    <unixInstaller name="Arm64 Unix Installer" id="2166" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}" require64BitVm="true">
       <exclude>
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux" />
@@ -1858,14 +1869,26 @@ return true;</property>
         <entry location="gui/mac" />
         <entry location="gui/linux-arm32-monocle" />
         <entry location="cleanup.bat" />
+        <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="network-configuration-service.exe" />
         <entry rootId="2027" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux-aarch64" />
       </variables>
-      <jreBundle platform="linux-aarch64" />
+      <jreBundle usePack200="false" platform="linux-aarch64" />
     </unixInstaller>
     <unixArchive name="Unix Archive" id="2167">
+      <exclude>
+        <entry location="gui/mac-aarch64" />
+        <entry location="gui/linux-aarch64" />
+        <entry location="gui/win" />
+        <entry location="gui/mac" />
+        <entry location="gui/linux-arm32-monocle" />
+        <entry location="cleanup.bat" />
+        <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="network-configuration-service.exe" />
+      </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
       </variables>
@@ -1879,12 +1902,14 @@ return true;</property>
         <entry location="gui/win" />
         <entry location="gui/mac" />
         <entry location="cleanup.bat" />
+        <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="network-configuration-service.exe" />
         <entry rootId="2027" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux-arm32-monocle" />
       </variables>
-      <jreBundle jdkProviderId="AdoptOpenJDK" release="16/jdk-16.0.2+7" overrideJdkRelease="true" manualJreEntry="true" platform="linux-arm" />
+      <jreBundle jdkProviderId="Liberica" release="20/20.0.1+10" usePack200="false" overrideJdkRelease="true" manualJreEntry="true" platform="linux-arm32-vfp-hflt" />
     </unixInstaller>
     <macosFolder name="Mac OS X Folder (Arm)" id="2173" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-arm-${compiler:sys.version}" architecture="aarch64">
       <exclude>
@@ -1894,13 +1919,15 @@ return true;</property>
         <entry location="gui/mac" />
         <entry location="gui/linux-arm32-monocle" />
         <entry location="cleanup.bat" />
+        <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="network-configuration-service.exe" />
         <entry rootId="2027" />
         <entry rootId="2036" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/mac-aarch64" />
       </variables>
-      <jreBundle jdkProviderId="JBR" release="17/17.0.1-b164.8" overrideJdkRelease="true" includedJre="macosx-amd64-1.8.0_121" />
+      <jreBundle jdkProviderId="Adoptium" release="20/jdk-20.0.1+9" usePack200="false" overrideJdkRelease="true" includedJre="macosx-amd64-1.8.0_121" />
     </macosFolder>
   </mediaSets>
   <buildOptions verbose="true" debug="true" />
