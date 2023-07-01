@@ -429,10 +429,6 @@ public class ClientServiceImpl implements ClientService {
 		        .followRedirects(Redirect.NORMAL)
 		        .connectTimeout(Duration.ofSeconds(20))
 		        .build();
-		
-		/* A simple ping first. This isn't strictly required, but getConnectionError()
-		 * does the same thing, so lets stick with it for now.. 
-		 */
 
 		try {
 			var rootUri = connection.getUri(false);
@@ -482,7 +478,11 @@ public class ClientServiceImpl implements ClientService {
 			throws IOException, InterruptedException, InvalidFileFormatException {
 	    
 		addConnectionCookie(connection, URI.create(rootUri));
-		
+
+        
+        /* A simple ping first. This isn't strictly required, but getConnectionError()
+         * does the same thing, so lets stick with it for now.. 
+         */
 		var pingUrl = rootUri + "/api/server/ping";
 		var uriObj = URI.create(pingUrl);
 		
@@ -1326,14 +1326,14 @@ public class ClientServiceImpl implements ClientService {
 			}
 			
 			/* Check status up front */
-//			if(connection.isAuthorized()) {
-//				try {
-//					connection = getConnectionStatus(connection);
-//				}
-//				catch(Exception e) {
-//					log.error("Failed up-front connection test. Will continue for now.", e);
-//				}
-//			}
+			if(connection.isAuthorized()) {
+				try {
+					connection = getConnectionStatus(connection);
+				}
+				catch(Exception e) {
+					log.error("Failed up-front connection test. Will continue for now.", e);
+				}
+			}
 			
 			try {
 

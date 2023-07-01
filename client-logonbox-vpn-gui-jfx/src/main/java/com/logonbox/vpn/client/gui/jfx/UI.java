@@ -342,7 +342,7 @@ public class UI implements BusLifecycleListener {
 		}
 
 		public void log(String message) {
-			LOG.info("WEB: " + message);
+			LOG.debug("WEB: " + message);
 		}
 
 		public void reload() {
@@ -2291,16 +2291,18 @@ public class UI implements BusLifecycleListener {
 						connection.getPort()));
 			}
 		}
-		if (branding == null) {
-			for (VPNConnection conx : context.getDBus().getVPNConnections()) {
-				try {
-					branding = getBrandingForConnection(mapper, conx);
-					break;
-				} catch (IOException ioe) {
-					LOG.info(String.format("Skipping %s:%d because it appears offline.", conx.getHostname(),
-							conx.getPort()));
-				}
-			}
+		else {
+    		if (branding == null) {
+    			for (VPNConnection conx : context.getDBus().getVPNConnections()) {
+    				try {
+    					branding = getBrandingForConnection(mapper, conx);
+    				} catch (IOException ioe) {
+    					LOG.info(String.format("Skipping %s:%d because it appears offline.", conx.getHostname(),
+    							conx.getPort()));
+    				}
+                    break;
+    			}
+    		}
 		}
 		return branding;
 	}
