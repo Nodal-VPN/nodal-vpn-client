@@ -422,7 +422,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 						if (!vpnAppData.exists() && !vpnAppData.mkdirs())
 							throw new IOException("Failed to create public directory for domain socket file.");
 						
-						/* Clean up a bit so we don't get too man dead socket files. This
+						/* Clean up a bit so we don't get too many dead socket files. This
 						 * will leave the 4 most recent.
 						 */
 						try {
