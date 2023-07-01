@@ -353,10 +353,21 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 			} catch (InterruptedException e) {
 				throw new IOException(String.format("Interrupted connecting to %s", ip.getName()));
 			}
-			long lastHandshake = getLatestHandshake(ip.getName(), configuration.getPublicKey());
-			if(lastHandshake >= connectionStarted) {
-				/* Ready ! */
-				return ip;
+			try {
+				long lastHandshake = getLatestHandshake(ip.getName(), configuration.getPublicKey());
+				if(lastHandshake >= connectionStarted) {
+					/* Ready ! */
+					return ip;
+				}
+			}
+			catch(RuntimeException iae) {
+				try {
+					ip.down();
+				}
+				catch(Exception e) {
+					LOG.error("Failed to stop after error.", e);
+				}
+				throw iae;
 			}
 		}
 
