@@ -3,6 +3,8 @@
 ## SNAPSHOT
 
  * New major release.
+ * Connections validity is now preemptively checked, resulting in faster
+   connection times and faster re-authentication in most circumstances. 
  * Fixed some issues with basic wireguard INI files.
  * Windows now uses WireGuardNT Kernel driver. This should result in noticeably
    better performance and reliability.
@@ -10,6 +12,7 @@
    is now natively compiled, resulting in much faster startup time and vastly 
    reduced memory and CPU usage. This is only available on x64. 32bit Windows
    will fallback to interpreted mode.
+ * Updated to latest wireguard-go and wg commands for Mac OS.
 
 ## 2.4.0-1184
 
