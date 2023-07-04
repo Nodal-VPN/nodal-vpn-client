@@ -630,6 +630,7 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 
 		var settings = ToasterFactory.getSettings();
 		var properties = settings.getProperties();
+		settings.setParent(getStage());
 		settings.setAppName(BUNDLE.getString("appName")); 
 		settings.setSystemTrayIconMode(SystemTrayIconMode.HIDDEN);
 		var css = Client.class.getResource(Client.class.getSimpleName() + ".css").toExternalForm();

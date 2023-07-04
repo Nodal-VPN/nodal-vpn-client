@@ -308,6 +308,10 @@ public class UI implements BusLifecycleListener {
 			UI.this.editConnection(context.getDBus().getVPNConnection(id));
 		}
 
+        public void go(String page) {
+            setHtmlPage(page);
+        }
+
 		public void connectTo(long id) {
 			UI.this.connect(context.getDBus().getVPNConnection(id));
 		}
