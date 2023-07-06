@@ -70,6 +70,7 @@
           <entry location="CHANGES.md" />
           <entry location="WIREGUARD-LICENSE.txt" />
           <entry location="network-configuration-service.exe" />
+          <entry location="vcruntime140.dll" />
           <entry location="logonbox-vpn-service" fileType="launcher" />
           <entry location="logonbox-vpn-service-console" fileType="launcher" />
           <entry location="dbconvert" fileType="launcher" />
