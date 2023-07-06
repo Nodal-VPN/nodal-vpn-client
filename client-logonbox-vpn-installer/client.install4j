@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.6" transformSequenceNumber="10">
-  <directoryPresets config="../client-logonbox-vpn-service/src/main/resources/win32-x86-64/tunnel.dll" />
+  <directoryPresets config="./os/windows/win32-x86-64/vcruntime140.dll" />
   <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" pack200Compression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="20" javaMaxVersion="20" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
@@ -51,6 +51,7 @@
       <fileEntry mountPoint="2032" file="target/CHANGES.md" />
       <fileEntry mountPoint="2032" file="./WIREGUARD-LICENSE.txt" />
       <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/network-configuration-service.exe" />
+      <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/vcruntime140.dll" />
       <fileEntry mountPoint="2028" file="../client-logonbox-vpn-service/src/main/resources/win32-x86-64/tunnel.dll" shared="true" />
       <fileEntry mountPoint="2028" file="../client-logonbox-vpn-service/src/main/resources/win32-x86-64/wireguard.dll" shared="true" />
       <fileEntry mountPoint="2037" file="./os/linux/dbus/logonbox-vpn-service.conf" />
@@ -1782,6 +1783,7 @@ return true;</property>
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
         <entry location="network-configuration-service.exe" />
+        <entry location="vcruntime140.dll" />
         <entry rootId="2027" />
         <entry rootId="2036" />
       </exclude>
@@ -1811,6 +1813,7 @@ return true;</property>
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
         <entry location="network-configuration-service.exe" />
+        <entry location="vcruntime140.dll" />
         <entry rootId="2027" />
       </exclude>
       <variables>
@@ -1828,6 +1831,7 @@ return true;</property>
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
         <entry location="network-configuration-service.exe" />
+        <entry location="vcruntime140.dll" />
         <entry rootId="2027" />
       </exclude>
       <variables>
@@ -1844,6 +1848,7 @@ return true;</property>
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
         <entry location="network-configuration-service.exe" />
+        <entry location="vcruntime140.dll" />
         <entry rootId="2027" />
       </exclude>
       <variables>
@@ -1871,6 +1876,7 @@ return true;</property>
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
         <entry location="network-configuration-service.exe" />
+        <entry location="vcruntime140.dll" />
         <entry rootId="2027" />
       </exclude>
       <variables>
@@ -1888,6 +1894,7 @@ return true;</property>
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
         <entry location="network-configuration-service.exe" />
+        <entry location="vcruntime140.dll" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
@@ -1904,6 +1911,7 @@ return true;</property>
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
         <entry location="network-configuration-service.exe" />
+        <entry location="vcruntime140.dll" />
         <entry rootId="2027" />
       </exclude>
       <variables>
@@ -1921,6 +1929,7 @@ return true;</property>
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
         <entry location="network-configuration-service.exe" />
+        <entry location="vcruntime140.dll" />
         <entry rootId="2027" />
         <entry rootId="2036" />
       </exclude>
