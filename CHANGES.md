@@ -13,6 +13,9 @@
    reduced memory and CPU usage. This is only available on x64. 32bit Windows
    will fallback to interpreted mode.
  * Updated to latest wireguard-go and wg commands for Mac OS.
+ * Update countdown doesn't stop if automatic updates are enabled.
+ * Notification popups could show a an empty window on the desktop on Windows
+   and Mac OS.
 
 ## 2.4.0-1184
 
