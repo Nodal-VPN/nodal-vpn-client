@@ -1378,7 +1378,7 @@ if (context.isUnattended()) {
                             </serializedBean>
                           </action>
                           <action id="2146" beanClass="com.install4j.runtime.beans.actions.update.ShutdownCallingLauncherAction" actionElevationType="none" />
-                          <action name="Run installer (GUI)" id="2147" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" failureStrategy="quit" errorMessage="${i18n:updater.LaunchError}">
+                          <action name="Run installer (GUI)" id="2147" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" failureStrategy="quit" errorMessage="${i18n:updater.LaunchError}">
                             <serializedBean>
                               <property name="arguments" type="array" elementType="string" length="1">
                                 <element index="0">${installer:installerArguments}</element>
@@ -1394,7 +1394,7 @@ if (context.isUnattended()) {
                                 </object>
                               </property>
                             </serializedBean>
-                            <condition>context.isGui()</condition>
+                            <condition>!context.isConsole()</condition>
                           </action>
                           <action name="Run installer (Console)" id="2200" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="none" failureStrategy="quit" errorMessage="${i18n:updater.LaunchError}">
                             <serializedBean>
