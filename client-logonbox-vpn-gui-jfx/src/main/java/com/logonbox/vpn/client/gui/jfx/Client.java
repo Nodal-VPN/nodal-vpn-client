@@ -307,7 +307,7 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 
 	public void open() {
 		log.info("Open request");
-		Platform.runLater(() -> {
+		UI.maybeRunLater(() -> {
 			if (primaryStage.isIconified())
 				primaryStage.setIconified(false);
 			primaryStage.show();

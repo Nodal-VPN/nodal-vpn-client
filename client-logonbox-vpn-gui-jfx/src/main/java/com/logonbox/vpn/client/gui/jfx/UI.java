@@ -874,6 +874,7 @@ public class UI implements BusLifecycleListener {
 						Mode authMode = Connection.Mode.valueOf(sig.getMode());
 						if (authMode.equals(Connection.Mode.CLIENT) || authMode.equals(Connection.Mode.SERVICE)) {
 							maybeRunLater(() -> {
+							    context.open();
 								// setHtmlPage(connection.getUri(false) + sig.getUri());
 								selectPageForState(false, false);
 							});
