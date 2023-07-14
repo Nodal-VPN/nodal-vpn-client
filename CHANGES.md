@@ -1,6 +1,6 @@
 # Changes
 
-## SNAPSHOT
+## 3.0.0-32
 
  * New major release.
  * Connections validity is now preemptively checked, resulting in faster
@@ -16,14 +16,12 @@
  * Update countdown doesn't stop if automatic updates are enabled.
  * Notification popups could show a an empty window on the desktop on Windows
    and Mac OS.
-
-## 2.4.0-1184
-
- * Updated to JavaFX 20.0.1, JDK 20.
+* Updated to JavaFX 20.0.1, JDK 20.
  * Activated alternative connection storage mechanism (.ini type files). All
    existing configurations should now be converted.
  * LastKnownServerIpAddress not being reset when hostname changes.
  * Always regenerate private key when the connection is de-authorized (e.g. expired)
+ * Starting a connection from the Windows systray will bring the client to front if a new authentication is prompted for.
 
 ## 2.4.0-1150
 
