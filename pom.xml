@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
     <groupId>com.logonbox</groupId>
 	<artifactId>logonbox-desktop-vpn-clients</artifactId>
-	<version>2.5.0-SNAPSHOT</version>
+	<version>4.0.0-SNAPSHOT</version>
 	<url>http://www.hypersocket.com/</url>
 	<packaging>pom</packaging>
 	<name>LogonBox VPN - Group</name>
@@ -54,7 +54,9 @@
 		<!-- When you change this, remember to also change hypersocket-framework, hypersocket-enterprise, hypersocket-ui  -->
 		<hypersocket.languages>da,nl,fi,fr,de,it,no,pl,ru,sv,es,ja,he,pt,tr</hypersocket.languages>
 		
-        <native.maven.plugin.version>0.9.9</native.maven.plugin.version>
+        <native.maven.plugin.version>0.9.23</native.maven.plugin.version>
+        
+        <dbus.version>4.3.1-SNAPSHOT</dbus.version>
 	</properties>
 
 	<modules>
@@ -119,8 +121,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 				    <!-- TODO to jdk 16 -->
-					<source>17</source>
-					<target>17</target>
+					<source>20</source>
+					<target>20</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
@@ -189,7 +191,7 @@
 				<plugin>
 				    <groupId>org.apache.maven.plugins</groupId>
 				    <artifactId>maven-javadoc-plugin</artifactId>
-				    <version>3.2.0</version>
+				    <version>3.5.0</version>
 				    <configuration>
 						<encoding>UTF-8</encoding>
 						<excludePackageNames>**.impl.*</excludePackageNames>
@@ -202,17 +204,17 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.3.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.1</version>
+					<version>3.11.0</version>
 				</plugin>
 				<plugin>
 					<groupId>com.nervepoint</groupId>
 					<artifactId>google-translate-v2-java-maven-plugin</artifactId>
-					<version>0.9.0-SNAPSHOT</version>
+					<version>0.9.1-SNAPSHOT</version>
 					<configuration>
 						<apikey>${googleAPIKey}</apikey>
 						<cacheTag>main</cacheTag>

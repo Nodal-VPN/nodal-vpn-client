@@ -6,8 +6,7 @@ open module com.logonbox.vpn.common.client {
     
     requires org.slf4j;
     requires info.picocli;
-    requires java.net.http;
-    requires ini4j;
+    requires transitive java.net.http;
     requires org.apache.commons.lang3;
     requires org.freedesktop.dbus;
     requires static com.install4j.runtime;

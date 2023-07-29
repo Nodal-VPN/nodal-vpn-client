@@ -303,6 +303,10 @@ public class UI extends AnchorPane implements BusLifecycleListener {
 			UI.this.editConnection(context.getDBus().getVPNConnection(id));
 		}
 
+        public void go(String page) {
+            setHtmlPage(page);
+        }
+
 		public void connectTo(long id) {
 			UI.this.connect(context.getDBus().getVPNConnection(id));
 		}
@@ -337,7 +341,7 @@ public class UI extends AnchorPane implements BusLifecycleListener {
 		}
 
 		public void log(String message) {
-			LOG.info("WEB: " + message);
+			LOG.debug("WEB: " + message);
 		}
 
 		public void reload() {
@@ -878,6 +882,7 @@ public class UI extends AnchorPane implements BusLifecycleListener {
 						Mode authMode = Connection.Mode.valueOf(sig.getMode());
 						if (authMode.equals(Connection.Mode.CLIENT) || authMode.equals(Connection.Mode.SERVICE)) {
 							maybeRunLater(() -> {
+							    context.open();
 								// setHtmlPage(connection.getUri(false) + sig.getUri());
 								selectPageForState(false, false);
 							});
@@ -2184,16 +2189,18 @@ public class UI extends AnchorPane implements BusLifecycleListener {
 						connection.getPort()));
 			}
 		}
-		if (branding == null) {
-			for (VPNConnection conx : context.getDBus().getVPNConnections()) {
-				try {
-					branding = getBrandingForConnection(mapper, conx);
-					break;
-				} catch (IOException ioe) {
-					LOG.info(String.format("Skipping %s:%d because it appears offline.", conx.getHostname(),
-							conx.getPort()));
-				}
-			}
+		else {
+    		if (branding == null) {
+    			for (VPNConnection conx : context.getDBus().getVPNConnections()) {
+    				try {
+    					branding = getBrandingForConnection(mapper, conx);
+    				} catch (IOException ioe) {
+    					LOG.info(String.format("Skipping %s:%d because it appears offline.", conx.getHostname(),
+    							conx.getPort()));
+    				}
+                    break;
+    			}
+    		}
 		}
 		return branding;
 	}

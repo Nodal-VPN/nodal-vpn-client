@@ -5,7 +5,6 @@ import com.logonbox.vpn.client.gui.jfx.UIContext;
 import com.vladsch.boxed.json.BoxedJsObject;
 import com.vladsch.boxed.json.BoxedJson;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -95,7 +94,7 @@ public class DefaultDebugger implements Debugger, JfxScriptStateProvider {
 
 		var debuggerURL = jsBridge.getDebuggerURL();
 		for (String tool : new String[] { "chrome", "chromium-browser", "chromium" }) {
-			var pb = new ProcessBuilder(tool + (SystemUtils.IS_OS_WINDOWS ? ".exe" : ""), debuggerURL);
+			var pb = new ProcessBuilder(tool + (System.getProperty("os.name").toLowerCase().contains("win") ? ".exe" : ""), debuggerURL);
 			pb.redirectErrorStream(true);
 			try {
 				Process p = pb.start();

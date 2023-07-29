@@ -1,6 +1,33 @@
 # Changes
 
-## SNAPSHOT 
+## 3.0.0-32
+
+ * New major release.
+ * Connections validity is now preemptively checked, resulting in faster
+   connection times and faster re-authentication in most circumstances. 
+ * Fixed some issues with basic wireguard INI files.
+ * Windows now uses WireGuardNT Kernel driver. This should result in noticeably
+   better performance and reliability.
+ * Windows network configuration service (supports a single wireguard service), 
+   is now natively compiled, resulting in much faster startup time and vastly 
+   reduced memory and CPU usage. This is only available on x64. 32bit Windows
+   will fallback to interpreted mode.
+ * Updated to latest wireguard-go and wg commands for Mac OS.
+ * Update countdown doesn't stop if automatic updates are enabled.
+ * Notification popups could show a an empty window on the desktop on Windows
+   and Mac OS.
+* Updated to JavaFX 20.0.1, JDK 20.
+ * Activated alternative connection storage mechanism (.ini type files). All
+   existing configurations should now be converted.
+ * LastKnownServerIpAddress not being reset when hostname changes.
+ * Always regenerate private key when the connection is de-authorized (e.g. expired)
+ * Starting a connection from the Windows systray will bring the client to front if a new authentication is prompted for.
+
+## 2.4.0-1150
+
+ * Improvements to CPU usage on Windows, particularly when coming out of sleep. 
+
+## 2.4.0-1014
 
  * Mac OS X networksetup DNS integration not correctly removing DNS server address and domains on tear down.
  * DBus permissions on French installs would sometimes be incorrect result in failure of front-end to connect to service.

@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.logonbox</groupId>
         <artifactId>logonbox-desktop-vpn-clients</artifactId>
-        <version>2.5.0-SNAPSHOT</version>
+        <version>4.0.0-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -64,9 +64,9 @@
             <version>10.15.2.0</version>
         </dependency>
         <dependency>
-            <groupId>org.ini4j</groupId>
-            <artifactId>ini4j</artifactId>
-            <version>0.5.4</version>
+            <groupId>com.sshtools</groupId>
+            <artifactId>jini</artifactId>
+            <version>0.1.1</version>
         </dependency>
     </dependencies>
 
@@ -88,24 +88,6 @@
                 <enabled>false</enabled>
             </releases>
             <snapshots />
-        </repository>
-        <repository>
-            <id>ext-snapshots-local</id>
-            <name>artifactory.jadaptive.com-ext-snapshots</name>
-            <url>https://artifactory.jadaptive.com/ext-snapshots-local</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots />
-        </repository>
-        <repository>
-            <id>ext-releases-local</id>
-            <name>artifactory.jadaptive.com-ext-releases</name>
-            <url>https://artifactory.jadaptive.com/ext-releases-local</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases />
         </repository>
         <repository>
             <id>opensource-releases</id>

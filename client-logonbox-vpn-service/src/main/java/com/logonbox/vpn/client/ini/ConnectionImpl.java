@@ -1,22 +1,25 @@
 package com.logonbox.vpn.client.ini;
 
+import com.logonbox.vpn.common.client.Connection;
+import com.logonbox.vpn.common.client.Keys;
+import com.sshtools.jini.INI;
+import com.sshtools.jini.INIReader;
+import com.sshtools.jini.INIWriter;
+import com.sshtools.jini.INIReader.MultiValueMode;
+import com.sshtools.jini.INIWriter.StringQuoteMode;
+
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
-import org.apache.commons.lang3.StringUtils;
-import org.ini4j.Ini;
-import org.ini4j.Profile.Section;
-
-import com.logonbox.vpn.common.client.Connection;
-import com.logonbox.vpn.common.client.Keys;
-import com.logonbox.vpn.common.client.Util;
 
 public class ConnectionImpl implements Connection, Serializable {
 
@@ -233,55 +236,59 @@ public class ConnectionImpl implements Connection, Serializable {
 	public ConnectionImpl(Long id, BufferedReader r) throws IOException {
 		this.id = id;
 
-		Ini ini = new Ini(r);
-
-		/* Interface (us) */
-		Section interfaceSection = ini.get("Interface");
-		setAddress(interfaceSection.get("Address"));
-		setDns(Util.toStringList(interfaceSection, "DNS"));
-
-		String privateKey = interfaceSection.get("PrivateKey");
-		setUserPrivateKey(privateKey);
-		setUserPublicKey(Keys.pubkey(privateKey).getBase64PublicKey());
-		setPreUp(interfaceSection.containsKey("PreUp") ? String.join("\n", interfaceSection.getAll("PreUp")) : "");
-		setPostUp(interfaceSection.containsKey("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
-		setPreDown(
-				interfaceSection.containsKey("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
-		setPostDown(
-				interfaceSection.containsKey("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
-
-		/* Custom LogonBox */
-		Section logonBoxSection = ini.get("LogonBox");
-		if (logonBoxSection != null) {
-			setRouteAll("true".equals(logonBoxSection.get("RouteAll")));
-			setShared("true".equals(logonBoxSection.get("Shared")));
-			setConnectAtStartup("true".equals(logonBoxSection.get("ConnectAtStartup")));
-			setStayConnected("true".equals(logonBoxSection.get("StayConnected")));
-			setMode(Mode.valueOf(logonBoxSection.get("Mode")));
-			setOwner(logonBoxSection.get("Owner"));
-			setUsernameHint(logonBoxSection.get("UsernameHint"));
-			setHostname(logonBoxSection.get("Hostname"));
-			setPath(logonBoxSection.get("Path"));
-			setError(logonBoxSection.get("Error"));
-			setName(logonBoxSection.get("Name"));
-			setPort(Integer.parseInt(logonBoxSection.get("Port")));
-			if (logonBoxSection.containsKey("MTU"))
-				setMtu(Integer.parseInt(logonBoxSection.get("MTU")));
-			setLastKnownServerIpAddress(logonBoxSection.get("LastKnownServerIpAddress"));
+		var rdr = new INIReader.Builder().
+                withMultiValueMode(MultiValueMode.SEPARATED).
+		        build();
+		try {
+    		var ini = rdr.read(r);
+    
+    		/* Interface (us) */
+    		var interfaceSection = ini.section("Interface");
+    		setAddress(interfaceSection.getOr("Address").orElse(null));
+    		setDns(Arrays.asList(interfaceSection.getAllOr("DNS", new String[0])));
+    
+    		String privateKey = interfaceSection.get("PrivateKey");
+    		setUserPrivateKey(privateKey);
+    		setUserPublicKey(Keys.pubkey(privateKey).getBase64PublicKey());
+    		setPreUp(interfaceSection.contains("PreUp") ? String.join("\n", interfaceSection.getAll("PreUp")) : "");
+    		setPostUp(interfaceSection.contains("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
+    		setPreDown(
+    				interfaceSection.contains("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
+    		setPostDown(
+    				interfaceSection.contains("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
+    
+    		/* Custom LogonBox */
+    		ini.sectionOr("LogonBox").ifPresent(l -> {
+                setRouteAll(l.getBooleanOr("RouteAll", false));
+                setShared(l.getBooleanOr("Shared", false));
+                setConnectAtStartup(l.getBooleanOr("ConnectAtStartup", false));
+                setStayConnected(l.getBooleanOr("StayConnected", false));
+                setMode(Mode.valueOf(l.get("Mode")));
+                setOwner(l.getOr("Owner", null));
+                setUsernameHint(l.getOr("UsernameHint", null));
+                setHostname(l.getOr("Hostname", null));
+                setPath(l.getOr("Path", null));
+                setError(l.getOr("Error", null));
+                setName(l.getOr("Name", null));
+                setPort(l.getInt("Port"));
+                l.getIntOr("MTU").ifPresent(this::setMtu);
+                setLastKnownServerIpAddress(l.get("LastKnownServerIpAddress"));
+    		});
+    
+    		/* Peer (them) */
+    		ini.sectionOr("Peer").ifPresent(p -> {
+                setPublicKey(p.get("PublicKey"));
+                p.getOr("Endpoint").ifPresent(endpoint -> {
+                    int idx = endpoint.lastIndexOf(':');
+                    setEndpointAddress(endpoint.substring(0, idx));
+                    setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
+                });
+                setPeristentKeepalive(p.getInt("PersistentKeepalive"));
+                setAllowedIps(Arrays.asList(p.getAllOr("AllowedIPs", new String[0])));
+    		});
 		}
-
-		/* Peer (them) */
-		Section peerSection = ini.get("Peer");
-		if (peerSection != null) {
-			setPublicKey(peerSection.get("PublicKey"));
-			String endpoint = peerSection.get("Endpoint");
-			if(endpoint != null) {
-				int idx = endpoint.lastIndexOf(':');
-				setEndpointAddress(endpoint.substring(0, idx));
-				setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
-			}
-			setPeristentKeepalive(Integer.parseInt(peerSection.get("PersistentKeepalive")));
-			setAllowedIps(Util.toStringList(peerSection, "AllowedIPs"));
+		catch(ParseException pe) {
+		    throw new IOException("Failed to parse.", pe);
 		}
 
 	}
@@ -372,11 +379,11 @@ public class ConnectionImpl implements Connection, Serializable {
 
 	@Override
 	public String toString() {
-		return "ConnectionImpl [id=" + id + ", userPrivateKey=" + userPrivateKey + ", userPublicKey=" + userPublicKey
+		return "ConnectionImpl [id=" + id + ", userPublicKey=" + userPublicKey
 				+ ", publicKey=" + publicKey + ", address=" + address + ", endpointAddress=" + endpointAddress
 				+ ", endpointPort=" + endpointPort + ", dns=" + dns + ", stayConnected=" + stayConnected
 				 + ", connectAtStartup=" + connectAtStartup + ", peristentKeepalive=" + peristentKeepalive
-				+ ", allowedIps=" + allowedIps + "]";
+				+ ", allowedIps=" + allowedIps + ", lastKnownServerIpAddress=" + lastKnownServerIpAddress + "]";
 	}
 
 	public List<String> getAllowedIps() {
@@ -418,25 +425,25 @@ public class ConnectionImpl implements Connection, Serializable {
 	}
 
 	public static void write(BufferedWriter w, Connection connection) throws IOException {
-		Ini ini = new Ini();
+		var ini = INI.create();
 
 		/* Interface (us) */
-		Section interfaceSection = ini.add("Interface");
+		var interfaceSection = ini.create("Interface");
 		interfaceSection.put("Address", connection.getAddress());
 		if (!connection.getDns().isEmpty())
-			interfaceSection.put("DNS", String.join(", ", connection.getDns()));
+			interfaceSection.putAll("DNS", connection.getDns().toArray(new String[0]));
 		interfaceSection.put("PrivateKey", connection.getUserPrivateKey());
 		if (StringUtils.isNotBlank(connection.getPreUp()))
-			interfaceSection.put("PreUp", connection.getPreUp().split("\\n"));
+			interfaceSection.putAll("PreUp", connection.getPreUp().split("\\n"));
 		if (StringUtils.isNotBlank(connection.getPostUp()))
-			interfaceSection.put("PostUp", connection.getPostUp().split("\\n"));
+			interfaceSection.putAll("PostUp", connection.getPostUp().split("\\n"));
 		if (StringUtils.isNotBlank(connection.getPreDown()))
-			interfaceSection.put("PreDown", connection.getPreDown().split("\\n"));
+			interfaceSection.putAll("PreDown", connection.getPreDown().split("\\n"));
 		if (StringUtils.isNotBlank(connection.getPostDown()))
-			interfaceSection.put("PostDown", connection.getPostDown().split("\\n"));
+			interfaceSection.putAll("PostDown", connection.getPostDown().split("\\n"));
 
 		/* Custom LogonBox */
-		Section logonBoxSection = ini.add("LogonBox");
+		var logonBoxSection = ini.create("LogonBox");
 		logonBoxSection.put("RouteAll", connection.isRouteAll());
 		logonBoxSection.put("Shared", connection.isShared());
 		logonBoxSection.put("ConnectAtStartup", connection.isConnectAtStartup());
@@ -462,15 +469,19 @@ public class ConnectionImpl implements Connection, Serializable {
 
 		/* Peer (them) */
 		if (StringUtils.isNotBlank(connection.getPublicKey())) {
-			Section peerSection = ini.add("Peer");
+			var peerSection = ini.create("Peer");
 			peerSection.put("PublicKey", connection.getPublicKey());
 			peerSection.put("Endpoint", connection.getEndpointAddress() + ":" + connection.getEndpointPort());
 			peerSection.put("PersistentKeepalive", connection.getPersistentKeepalive());
 			if (!connection.getAllowedIps().isEmpty())
-				peerSection.put("AllowedIPs", String.join(", ", connection.getAllowedIps()));
+				peerSection.putAll("AllowedIPs", connection.getAllowedIps().toArray(new String[0]));
 		}
 
-		ini.store(w);
+		new INIWriter.Builder().
+		    withEmptyValues(false).
+		    withStringQuoteMode(StringQuoteMode.NEVER).
+            withMultiValueMode(MultiValueMode.SEPARATED).
+		    build().write(ini, w);
 	}
 
 }

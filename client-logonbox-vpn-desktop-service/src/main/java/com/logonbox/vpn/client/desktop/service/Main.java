@@ -1,18 +1,13 @@
 package com.logonbox.vpn.client.desktop.service;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Properties;
-import java.util.ResourceBundle;
-import java.util.ServiceLoader;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import com.logonbox.vpn.client.AbstractService;
+import com.logonbox.vpn.client.LocalContext;
+import com.logonbox.vpn.client.PlatformServiceFactory;
+import com.logonbox.vpn.client.service.ClientService.Listener;
+import com.logonbox.vpn.common.client.AbstractDBusClient;
+import com.logonbox.vpn.common.client.ConfigurationItem;
+import com.logonbox.vpn.common.client.HypersocketVersion;
+import com.sshtools.forker.common.OS;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -32,14 +27,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
-import com.logonbox.vpn.client.AbstractService;
-import com.logonbox.vpn.client.LocalContext;
-import com.logonbox.vpn.client.PlatformServiceFactory;
-import com.logonbox.vpn.client.service.ClientService.Listener;
-import com.logonbox.vpn.common.client.AbstractDBusClient;
-import com.logonbox.vpn.common.client.ConfigurationItem;
-import com.logonbox.vpn.common.client.HypersocketVersion;
-import com.sshtools.forker.common.OS;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.ServiceLoader;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -251,12 +253,6 @@ public class Main extends AbstractService implements Callable<Integer>, LocalCon
 			} else {
 				log.info(String.format("Creating new DBus broker. Initial address is %s", StringUtils.isBlank(newAddress) ? "BLANK" : newAddress));
 				if (newAddress == null) {
-					/*
-					 * If no user supplied bus address, create one for an embedded daemon. All
-					 * supported OS use domain sockets where possible except Windows
-					 *
-					 * TODO: switch to domain sockets all around with dbus-java 4.0.0+ :)
-					 */
 					if (!tcpBus || unixBus) {
 						log.info("Using UNIX domain socket bus");
 						newAddress = TransportBuilder.createDynamicSession("UNIX", true);
@@ -297,8 +293,24 @@ public class Main extends AbstractService implements Callable<Integer>, LocalCon
 						if (!vpnAppData.exists() && !vpnAppData.mkdirs())
 							throw new IOException("Failed to create public directory for domain socket file.");
 						
+						/* Clean up a bit so we don't get too many dead socket files. This
+						 * will leave the 4 most recent.
+						 */
 						try {
-							Arrays.asList(vpnAppData.listFiles((f) -> f.getName().startsWith("dbus-"))).stream().forEach(f->f.delete());
+							var l = new ArrayList<>(Arrays.asList(vpnAppData.listFiles((f) ->  f.getName().startsWith("dbus-"))));
+							Collections.sort(l, (p1, p2) -> {
+							    try {
+    							    var f1 = Files.getLastModifiedTime(p1.toPath());
+                                    var f2 = Files.getLastModifiedTime(p2.toPath());
+                                    return f1.compareTo(f2);
+							    }
+							    catch(IOException e) {
+							        return 0;
+							    }
+							});
+							while(l.size() > 4) {
+							    l.get(0).delete();
+							}
 						}
 						catch(Exception e) {
 							log.warn("Failed to remove old dbus files.", e);
@@ -351,7 +363,7 @@ public class Main extends AbstractService implements Callable<Integer>, LocalCon
 						 * will be the JFX client continues to spin, waiting
 						 * for the service to be fully exported
 						 * 
-						 *  See also below, this is wby this operating is in
+						 *  See also below, this is why this operation is in
 						 *  a loop, we work around problems by just trying again. */
 						Thread.sleep(1000);
 					} catch (InterruptedException e1) {

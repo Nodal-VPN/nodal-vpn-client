@@ -6,6 +6,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,10 +63,19 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 					connection.setId(id);
 				}
 				var f = resolve(id);
-				try (var w = Files.newBufferedWriter(f)) {
-					ConnectionImpl.write(w, connection);
-					w.flush();
+				
+				var temp = f.getParent().resolve(f.getFileName().toString() + ".tmp");
+				try {
+    				try (var w = Files.newBufferedWriter(temp)) {
+    					ConnectionImpl.write(w, connection);
+    					w.flush();
+    				}
+    				Files.move(temp, f, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
 				}
+				finally {
+				    Files.deleteIfExists(temp);
+				}
+				
 				
 				/* Only readable / writable by current user, i.e. administrator */ 
 				platformService.restrictToUser(f);
@@ -104,7 +114,13 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 					var name = p.getFileName().toString();
 					if (name.toLowerCase().endsWith(".conf")) {
 						try (BufferedReader r = Files.newBufferedReader(p)) {
-							c.add(new ConnectionImpl(Long.parseLong(name.substring(0, name.length() - 5)), r));
+                            long id = Long.parseLong(name.substring(0, name.length() - 5));
+						    try {
+                                c.add(new ConnectionImpl(id, r));
+						    }
+						    catch(Exception e) {
+						        log.error("Failed to load connection ID {} from {}, ignoring. Please examine and correct this file to prevent this error.", id, p);
+						    }
 						}
 					}
 				}

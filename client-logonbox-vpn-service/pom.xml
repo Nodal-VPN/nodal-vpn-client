@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.logonbox</groupId>
         <artifactId>logonbox-desktop-vpn-clients</artifactId>
-        <version>2.5.0-SNAPSHOT</version>
+        <version>4.0.0-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -35,26 +35,16 @@
             <groupId>com.logonbox</groupId>
             <artifactId>client-logonbox-vpn-common</artifactId>
             <version>${project.version}</version>
-        </dependency>
-       <dependency>
-            <groupId>info.picocli</groupId>
-            <artifactId>picocli</artifactId>
-            <version>4.6.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        </dependency>      
         <dependency>
             <groupId>com.github.jgonian</groupId>
             <artifactId>commons-ip-math</artifactId>
             <version>1.32</version>
         </dependency>
         <dependency>
-            <groupId>org.whispersystems</groupId>
-            <artifactId>curve25519-java</artifactId>
-            <version>0.5.0</version>
+            <groupId>com.sshtools</groupId>
+            <artifactId>jini</artifactId>
+            <version>0.1.1</version>
         </dependency>
     </dependencies>
     <repositories>
@@ -76,49 +66,6 @@
             <snapshots />
         </repository>
     </repositories>
-
-
-    <profiles>
-        <profile>
-            <id>native</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.graalvm.buildtools</groupId>
-                        <artifactId>native-maven-plugin</artifactId>
-                        <version>${native.maven.plugin.version}</version>
-                        <extensions>true</extensions>
-                        <executions>
-                            <execution>
-                                <id>build-native</id>
-                                <goals>
-                                    <goal>build</goal>
-                                </goals>
-                                <phase>package</phase>
-                            </execution>
-                            <execution>
-                                <id>test-native</id>
-                                <goals>
-                                    <goal>test</goal>
-                                </goals>
-                                <phase>test</phase>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <imageName>${project.artifactId}</imageName>
-                            <mainClass>com.logonbox.vpn.client.Main</mainClass>
-                            <buildArgs>
-                                <buildArg>--no-fallback</buildArg>
-                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
-                                <buildArg>--allow-incomplete-classpath</buildArg>
-                            </buildArgs>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
 
     <description>The base code for the VPN service. This exposes a  public interface to the platform specific modules to clients over a DBus API. It is also responsible for persistence of connection configuration and other housekeeping functions.</description>
 </project>

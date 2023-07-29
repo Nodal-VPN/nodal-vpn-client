@@ -1,14 +1,15 @@
 package com.logonbox.vpn.client.dbconvert;
 
+import com.sshtools.jini.INI;
+import com.sshtools.jini.INIWriter;
+import com.sshtools.jini.INIReader.MultiValueMode;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.DriverManager;
 import java.util.Properties;
-
-import org.ini4j.Ini;
-import org.ini4j.Profile.Section;
 
 public class DbConvert {
 
@@ -31,10 +32,10 @@ public class DbConvert {
 					while (rs.next()) {
 						var id = rs.getLong("id");
 
-						Ini ini = new Ini();
+						var ini = INI.create();
 
 						/* Interface (us) */
-						var interfaceSection = ini.add("Interface");
+						var interfaceSection = ini.create("Interface");
 						interfaceSection.put("Address", rs.getString("address"));
 						var c = rs.getString("dns");
 						if (c != null && c.length() > 0)
@@ -42,19 +43,19 @@ public class DbConvert {
 						interfaceSection.put("PrivateKey", rs.getString("userPrivateKey"));
 						c = rs.getString("preUp");
 						if (c != null && c.length() > 0)
-							interfaceSection.put("PreUp", c.split("\\n"));
+							interfaceSection.putAll("PreUp", c.split("\\n"));
 						c = rs.getString("postUp");
 						if (c != null && c.length() > 0)
-							interfaceSection.put("PostUp", c.split("\\n"));
+							interfaceSection.putAll("PostUp", c.split("\\n"));
 						c = rs.getString("preDown");
 						if (c != null && c.length() > 0)
-							interfaceSection.put("PreDown", c.split("\\n"));
+							interfaceSection.putAll("PreDown", c.split("\\n"));
 						c = rs.getString("postDown");
 						if (c != null && c.length() > 0)
-							interfaceSection.put("PostDown", c.split("\\n"));
+							interfaceSection.putAll("PostDown", c.split("\\n"));
 
 						/* Custom LogonBox */
-						Section logonBoxSection = ini.add("LogonBox");
+						var logonBoxSection = ini.create("LogonBox");
 						logonBoxSection.put("RouteAll", rs.getBoolean("routeAll"));
 						logonBoxSection.put("Shared", rs.getBoolean("shared"));
 						logonBoxSection.put("ConnectAtStartup", rs.getBoolean("connectAtStartup"));
@@ -87,7 +88,7 @@ public class DbConvert {
 						/* Peer (them) */
 						c = rs.getString("publicKey");
 						if (c != null && c.length() > 0) {
-							var peerSection = ini.add("Peer");
+							var peerSection = ini.create("Peer");
 							peerSection.put("PublicKey", c);
 							peerSection.put("Endpoint",
 									rs.getString("endpointAddress") + ":" + rs.getString("endpointPort"));
@@ -97,8 +98,11 @@ public class DbConvert {
 								peerSection.put("AllowedIps", String.join(", ", c.split(",")));
 						}
 
+						var wtr = new INIWriter.Builder().
+	                            withMultiValueMode(MultiValueMode.SEPARATED).
+						        build();
 						try (var w = Files.newBufferedWriter(cfgDir.resolve(id + ".conf"))) {
-							ini.store(w);
+							wtr.write(ini, w);
 							w.flush();
 						}
 					}

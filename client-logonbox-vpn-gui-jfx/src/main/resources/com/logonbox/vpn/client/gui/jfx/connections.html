@@ -161,10 +161,7 @@
 			}
             $('#add').off('mousedown').on('mousedown', function() {
             	$('#add').data('timer', window.setTimeout(function() {
-            		
-            		// TODO not ready yet
-            		window.location = 'addAdvanced.html';
-            		 
+            		brige.go('addAdvanced.html');
             	}, 1000));
             });
             $('#add').off('mouseup').on('mouseup', function(e) {

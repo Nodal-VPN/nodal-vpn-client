@@ -39,9 +39,15 @@
 
 
     <script type="text/javascript">
+        
+        var timerHandle;
     
 	    function startUpdate() {
             try {
+                if(timerHandle) {
+                    $('#startUpdate').html(pageBundle.getString('update'));
+                    window.clearTimeout(timerHandle);
+                }
                 $('#startUpdate').buttonLoader('start');
                 $('#alerts').empty();
                 bridge.update();
@@ -58,7 +64,7 @@
         	}
         	else {
 	        	$('#startUpdate').html(pageBundle.getString('update') + ' ' + t);
-	        	window.setTimeout(function() {
+	        	timerHandle = window.setTimeout(function() {
 	        	    setTimer(t - 1);        		
 	        	}, 1000);
         	}

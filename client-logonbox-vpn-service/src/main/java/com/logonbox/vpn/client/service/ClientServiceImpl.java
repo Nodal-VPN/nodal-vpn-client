@@ -1,49 +1,5 @@
 package com.logonbox.vpn.client.service;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.HttpCookie;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpClient.Redirect;
-import java.net.http.HttpClient.Version;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
-import javax.net.ssl.SSLHandshakeException;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
-import org.freedesktop.dbus.exceptions.DBusException;
-import org.ini4j.Ini;
-import org.ini4j.InvalidFileFormatException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hypersocket.json.utils.HypersocketUtils;
 import com.hypersocket.json.version.HypersocketVersion;
 import com.logonbox.vpn.client.LocalContext;
@@ -65,6 +21,51 @@ import com.logonbox.vpn.common.client.Util;
 import com.logonbox.vpn.common.client.dbus.VPN;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
 import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
+import com.sshtools.jini.INIReader;
+import com.sshtools.jini.INIReader.MultiValueMode;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
+import org.freedesktop.dbus.exceptions.DBusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.HttpCookie;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpClient.Redirect;
+import java.net.http.HttpClient.Version;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.text.ParseException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.net.ssl.SSLHandshakeException;
 
 public class ClientServiceImpl implements ClientService {
 	private static final String X_VPN_RESPONSE = "X-VPN-Response";
@@ -248,6 +249,7 @@ public class ClientServiceImpl implements ClientService {
 		synchronized (activeSessions) {
 			log.info(String.format("De-authorizing connection %s", connection.getDisplayName()));
 			connection.deauthorize();
+			generateKeys(connection);
 			temporarilyOffline.remove(connection);
 			ScheduledFuture<?> f = authorizingClients.remove(connection);
 			if (f != null)
@@ -427,10 +429,6 @@ public class ClientServiceImpl implements ClientService {
 		        .followRedirects(Redirect.NORMAL)
 		        .connectTimeout(Duration.ofSeconds(20))
 		        .build();
-		
-		/* A simple ping first. This isn't strictly required, but getConnectionError()
-		 * does the same thing, so lets stick with it for now.. 
-		 */
 
 		try {
 			var rootUri = connection.getUri(false);
@@ -472,20 +470,25 @@ public class ClientServiceImpl implements ClientService {
 		 */
 		log.info("Error is not retryable, invalidate configuration. ");
 		connection.deauthorize();
+        generateKeys(connection);
 		return save(connection);
 	}
 
 	private Connection getConnectionStatusFromHost(String rootUri, Connection connection, HttpClient client)
-			throws IOException, InterruptedException, InvalidFileFormatException {
-
+			throws IOException, InterruptedException {
+	    
 		addConnectionCookie(connection, URI.create(rootUri));
-		
+
+        
+        /* A simple ping first. This isn't strictly required, but getConnectionError()
+         * does the same thing, so lets stick with it for now.. 
+         */
 		var pingUrl = rootUri + "/api/server/ping";
 		var uriObj = URI.create(pingUrl);
 		
 		log.info(String.format("Testing if a connection to %s should be retried using %s.",
 				connection.getDisplayName(), pingUrl));
-		var uuid = getUUID(connection.getOwner());
+		var uuid = getUUID(connection.getOwnerOrCurrent());
 		var builder = HttpRequest.newBuilder();
 		var request = builder
 		         .uri(uriObj)
@@ -550,40 +553,48 @@ public class ClientServiceImpl implements ClientService {
 				request = builder
 				         .uri(URI.create(configUri))
 				         .version(Version.HTTP_1_1)
-						 .header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwner()).toString())
+						 .header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwnerOrCurrent()).toString())
 				         .header(X_VPN_RESPONSE, signature)
 				         .build();
 
 				response = client.send(request, BodyHandlers.ofString());
 				if(response.statusCode() == 200) {
 					
-					var ini = new Ini(new StringReader(response.body()));
-			
-					/* Interface (us) */
-					var interfaceSection = ini.get("Interface");
-					connection.setDns(Util.toStringList(interfaceSection, "DNS"));
-			
-					connection.setPreUp(interfaceSection.containsKey("PreUp") ?  String.join("\n", interfaceSection.getAll("PreUp")) : "");
-					connection.setPostUp(interfaceSection.containsKey("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
-					connection.setPreDown(interfaceSection.containsKey("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
-					connection.setPostDown(interfaceSection.containsKey("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
-			
-					/* Custom LogonBox */
-					var logonBoxSection = ini.get("LogonBox");
-					if (logonBoxSection != null) {
-						connection.setRouteAll("true".equals(logonBoxSection.get("RouteAll")));
-					}
-			
-					/* Peer (them) */
-					var peerSection = ini.get("Peer");
-					var endpoint = peerSection.get("Endpoint");
-					int idx = endpoint.lastIndexOf(':');
-					connection.setEndpointAddress(endpoint.substring(0, idx));
-					connection.setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
-					connection.setPeristentKeepalive(Integer.parseInt(peerSection.get("PersistentKeepalive")));
-					connection.setAllowedIps(Util.toStringList(peerSection, "AllowedIPs"));
-							
-					return save(connection);
+				    var rdr = new INIReader.Builder().
+				            withMultiValueMode(MultiValueMode.SEPARATED).
+				            build();
+				    
+				    try {
+    					var ini = rdr.read(response.body());
+    			
+    					/* Interface (us) */
+    					var interfaceSection = ini.section("Interface");
+    					connection.setDns(Arrays.asList(interfaceSection.getAllOr("DNS", new String[0])));
+    			 
+    					connection.setPreUp(interfaceSection.contains("PreUp") ?  String.join("\n", interfaceSection.getAll("PreUp")) : "");
+    					connection.setPostUp(interfaceSection.contains("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
+    					connection.setPreDown(interfaceSection.contains("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
+    					connection.setPostDown(interfaceSection.contains("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
+    			
+    					/* Custom LogonBox */
+    					ini.sectionOr("LogonBox").ifPresent(s -> {
+                            connection.setRouteAll(s.getBooleanOr("RouteAll", false));
+    					});
+    			
+    					/* Peer (them) */
+    					var peerSection = ini.section("Peer");
+    					var endpoint = peerSection.get("Endpoint");
+    					int idx = endpoint.lastIndexOf(':');
+    					connection.setEndpointAddress(endpoint.substring(0, idx));
+    					connection.setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
+    					connection.setPeristentKeepalive(peerSection.getInt("PersistentKeepalive"));
+    					connection.setAllowedIps(Arrays.asList(interfaceSection.getAllOr("AllowedIPs", new String[0])));
+    							
+    					return save(connection);
+				    }
+				    catch(ParseException pe) {
+				        log.error("Failed to parse configuration update.", pe);
+				    }
 				}
 				else {
 					log.info("Server appeared to be a 2.4.0 server, but it did not response to a configuration update request. Assuming no config change.");
@@ -603,7 +614,7 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	protected void addConnectionCookie(Connection connection, URI uri) {
-		HttpCookie cookie = new HttpCookie(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwner()).toString());
+		HttpCookie cookie = new HttpCookie(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwnerOrCurrent()).toString());
 		cookie.setSecure(true);
 		cookie.setPath("/");
 		cookie.setDomain(connection.getHostname());
@@ -668,7 +679,7 @@ public class ClientServiceImpl implements ClientService {
 				connection.getDisplayName(), uri));
 		var request = builder
 				.version(Version.HTTP_1_1)
-				.header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwner()).toString())
+				.header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwnerOrCurrent()).toString())
 		        .uri(URI.create(uri))
 		         .build();
 
@@ -692,7 +703,7 @@ public class ClientServiceImpl implements ClientService {
 				connection.getDisplayName(), uri));
 		request = builder
 				.version(Version.HTTP_1_1)
-				.header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwner()).toString())
+				.header(AbstractDBusClient.DEVICE_IDENTIFIER, getUUID(connection.getOwnerOrCurrent()).toString())
 		        .uri(URI.create(uri))
 		         .build();
 
@@ -775,16 +786,22 @@ public class ClientServiceImpl implements ClientService {
 
 	@Override
 	public List<ConnectionStatus> getStatus(String owner) {
+		try {
 
-		List<ConnectionStatus> ret = new ArrayList<>();
-		Collection<Connection> connections = connectionRepository.getConnections(owner);
-		List<Connection> added = new ArrayList<>();
-		synchronized (activeSessions) {
-			addConnections(ret, connections, added);
-			addConnections(ret, activeSessions.keySet(), added);
-			addConnections(ret, connectingSessions.keySet(), added);
+			List<ConnectionStatus> ret = new ArrayList<>();
+			Collection<Connection> connections = connectionRepository.getConnections(owner);
+			List<Connection> added = new ArrayList<>();
+			synchronized (activeSessions) {
+				addConnections(ret, connections, added);
+				addConnections(ret, activeSessions.keySet(), added);
+				addConnections(ret, connectingSessions.keySet(), added);
+			}
+			return ret;
 		}
-		return ret;
+		catch(Exception e) {
+			e.printStackTrace();
+			throw new IllegalStateException(e);
+		}
 
 	}
 
@@ -988,8 +1005,9 @@ public class ClientServiceImpl implements ClientService {
 			log.error("Failed to signal connection updating.", e);
 		}
 		Connection newConnection = c;
-		if(!c.isTransient())
+		if(!c.isTransient()) {
 			newConnection = doSave(c);
+		}
 		try {
 			context.sendMessage(new VPN.ConnectionUpdated("/com/logonbox/vpn", newConnection.getId()));
 		} catch (DBusException e) {
@@ -1317,14 +1335,14 @@ public class ClientServiceImpl implements ClientService {
 			}
 			
 			/* Check status up front */
-//			if(connection.isAuthorized()) {
-//				try {
-//					connection = getConnectionStatus(connection);
-//				}
-//				catch(Exception e) {
-//					log.error("Failed up-front connection test. Will continue for now.", e);
-//				}
-//			}
+			if(connection.isAuthorized()) {
+				try {
+					connection = getConnectionStatus(connection);
+				}
+				catch(Exception e) {
+					log.error("Failed up-front connection test. Will continue for now.", e);
+				}
+			}
 			
 			try {
 
@@ -1357,7 +1375,7 @@ public class ClientServiceImpl implements ClientService {
 				}
 
 			} catch (Exception e) {
-				if (e instanceof ReauthorizeException) {
+				if (e instanceof ReauthorizeException && connection.isLogonBoxVPN()) {
 					IOException reason = getConnectionError(connection);
 					if(reason == null) {
 						failedToConnect(connection, e);

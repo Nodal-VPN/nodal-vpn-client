@@ -15,7 +15,7 @@ module com.logonbox.vpn.client {
     requires java.net.http;
     
     requires commons.ip.math;
-    requires ini4j;
+    requires com.sshtools.jini;
     requires com.hypersocket.json;
     
     uses PlatformService;

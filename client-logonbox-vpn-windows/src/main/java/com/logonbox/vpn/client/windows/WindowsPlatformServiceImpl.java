@@ -10,6 +10,7 @@ import com.logonbox.vpn.client.wireguard.OsUtil;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.DNSIntegrationMethod;
+import com.logonbox.vpn.common.client.StatusDetail;
 import com.sshtools.forker.client.ForkerBuilder;
 import com.sshtools.forker.client.OSCommand;
 import com.sshtools.forker.client.EffectiveUserFactory.DefaultEffectiveUserFactory;
@@ -59,6 +60,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.prefs.Preferences;
 
 public class WindowsPlatformServiceImpl extends AbstractDesktopPlatformServiceImpl<WindowsIP> {
@@ -250,6 +252,74 @@ public class WindowsPlatformServiceImpl extends AbstractDesktopPlatformServiceIm
 		else
 			return gw;
 	}
+
+    @Override
+    public StatusDetail status(String iface) throws IOException {
+        var lastHandshake = new AtomicLong(0);
+        try(var adapter = new WireguardLibrary.Adapter(iface)) {
+            var wgIface = adapter.getConfiguration();
+            var tx = new AtomicLong(0);
+            var rx = new AtomicLong(0);
+            for(var peer : wgIface.peers) {
+                    var thisHandshake = peer.lastHandshake.map(l -> l.toEpochMilli()).orElse(0l);
+                    if(thisHandshake > lastHandshake.get())
+                    	lastHandshake.set(thisHandshake);
+                    tx.addAndGet(peer.txBytes);
+                    rx.addAndGet(peer.rxBytes);
+            }
+
+            return new StatusDetail() {
+                @Override
+                public long getTx() {
+                    return tx.get();
+                }
+                
+                @Override
+                public long getRx() {
+                    return rx.get();
+                }
+                
+                @Override
+                public long getLastHandshake() {
+                    return lastHandshake.get();
+                }
+                
+                @Override
+                public String getInterfaceName() {
+                    return iface;
+                }
+                
+                @Override
+                public String getError() {
+                    return "";
+                }
+            };
+        }
+    }
+
+    @Override
+    protected String getPublicKey(String interfaceName) throws IOException {
+        try(var adapter = new WireguardLibrary.Adapter(interfaceName)) {
+            var wgIface = adapter.getConfiguration();
+            return wgIface.publicKey.toString();
+        }
+        catch(IllegalArgumentException iae) {
+        	return null;
+        }
+    }
+
+    @Override
+    protected long getLatestHandshake(String iface, String publicKey) throws IOException {
+        try(var adapter = new WireguardLibrary.Adapter(iface)) {
+            var wgIface = adapter.getConfiguration();
+            for(var peer : wgIface.peers) {
+                if(peer.publicKey != null && peer.publicKey.toString().equals(publicKey)) {
+                    return peer.lastHandshake.map(i -> i.toEpochMilli()).orElse(0l);
+                }
+            }
+        }
+        return 0;
+    }
 	
 	@Override
 	protected WindowsIP onConnect(VPNSession logonBoxVPNSession, Connection configuration) throws IOException {
@@ -547,16 +617,27 @@ public class WindowsPlatformServiceImpl extends AbstractDesktopPlatformServiceIm
 	public void installService(String name, Path cwd) throws IOException {
 		LOG.info(String.format("Installing service for %s", name));
 		StringBuilder cmd = new StringBuilder();
-		cmd.append('"');
-		cmd.append(System.getProperty("java.home") + "\\bin\\java.exe");
-		cmd.append('"');
-		cmd.append(' ');
-		cmd.append("-cp");
-		cmd.append(' ');
-		cmd.append(reconstructClassPath());
-		cmd.append(' ');
-		// cmd.append(WindowsTunneler.class.getName());
-		cmd.append(NetworkConfigurationService.class.getName());
+		
+		var nativeNCS = Paths.get("network-configuration-service.exe");
+		if(Files.exists(nativeNCS)) {
+			LOG.info("Using natively compiled network configuration service at {0}", nativeNCS.toAbsolutePath());
+			cmd.append('"');
+			cmd.append(nativeNCS.toAbsolutePath().toString());
+			cmd.append('"');
+		}
+		else {
+			LOG.info("Using interpreted network configuration service");
+			cmd.append('"');
+			cmd.append(System.getProperty("java.home") + "\\bin\\java.exe");
+			cmd.append('"');
+			cmd.append(' ');
+			cmd.append("-cp");
+			cmd.append(' ');
+			cmd.append(reconstructClassPath());
+			cmd.append(' ');
+			// cmd.append(WindowsTunneler.class.getName());
+			cmd.append(NetworkConfigurationService.class.getName());
+		}
 		cmd.append(' ');
 		cmd.append("/service");
 		cmd.append(' ');
@@ -661,9 +742,12 @@ public class WindowsPlatformServiceImpl extends AbstractDesktopPlatformServiceIm
 			try {
 				String fullPath = new File(url.toURI()).getAbsolutePath();
 				{
-					if (fullPath.matches(".*client-logonbox-vpn-common.*") || fullPath.matches(".*client-logonbox-vpn-service.*") || fullPath.matches(".*jna.*")
-							|| fullPath.matches(".*forker-common.*") || fullPath.matches(".*forker-client.*")
-							|| fullPath.matches(".*commons-io.*")) {
+					if (fullPath.matches(".*client-logonbox-vpn-service.*") 
+							|| fullPath.matches(".*jna.*")
+							|| fullPath.matches(".*forker-common.*") 
+							|| fullPath.matches(".*forker-client.*")
+							|| fullPath.matches(".*commons-io.*")
+							|| fullPath.matches(".*slf4j.*")) {
 						if (path.length() > 0)
 							path.append(File.pathSeparator);
 						path.append('"');

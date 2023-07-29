@@ -1,14 +1,5 @@
 package com.logonbox.vpn.client.dbus;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Arrays;
-
-import org.apache.commons.lang3.StringUtils;
-import org.freedesktop.dbus.annotations.DBusInterfaceName;
-import org.ini4j.Ini;
-import org.ini4j.Profile.Section;
-
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
@@ -17,10 +8,22 @@ import com.logonbox.vpn.common.client.Keys;
 import com.logonbox.vpn.common.client.StatusDetail;
 import com.logonbox.vpn.common.client.Util;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
+import com.sshtools.jini.INIReader;
+import com.sshtools.jini.INIReader.MultiValueMode;
+
+import org.apache.commons.lang3.StringUtils;
+import org.freedesktop.dbus.annotations.DBusInterfaceName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.Arrays;
 
 @DBusInterfaceName("com.logonbox.vpn.Connection")
 public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnection {
 	static final String PRIVATE_KEY_NOT_AVAILABLE = "PRIVATE_KEY_NOT_AVAILABLE";
+    static Logger log = LoggerFactory.getLogger(VPNConnectionImpl.class);
 
 	private Connection connection;
 	private LocalContext ctx;
@@ -34,12 +37,16 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	@Override
 	public String parse(String configIniFile) {
 		try {
-			Ini ini = new Ini(new StringReader(configIniFile));
+		    var rdr = new INIReader.Builder().
+                    withMultiValueMode(MultiValueMode.SEPARATED).
+		            build();
+		    
+		    var ini = rdr.read(configIniFile);
 	
 			/* Interface (us) */
-			Section interfaceSection = ini.get("Interface");
+			var interfaceSection = ini.section("Interface");
 			setAddress(interfaceSection.get("Address"));
-			setDns(Util.toStringList(interfaceSection, "DNS").toArray(new String[0]));
+			setDns(interfaceSection.getAllOr("DNS", new String[0]));
 	
 			String privateKey = interfaceSection.get("PrivateKey");
 			if (privateKey != null && hasPrivateKey() && !privateKey.equals(PRIVATE_KEY_NOT_AVAILABLE)) {
@@ -52,30 +59,30 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 				throw new IllegalStateException(
 						"Did not receive private key from server, and we didn't generate one on the client. Connection impossible.");
 			}
-			setPreUp(interfaceSection.containsKey("PreUp") ?  String.join("\n", interfaceSection.getAll("PreUp")) : "");
-			setPostUp(interfaceSection.containsKey("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
-			setPreDown(interfaceSection.containsKey("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
-			setPostDown(interfaceSection.containsKey("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
+			setPreUp(interfaceSection.contains("PreUp") ?  String.join("\n", interfaceSection.getAll("PreUp")) : "");
+			setPostUp(interfaceSection.contains("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
+			setPreDown(interfaceSection.contains("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
+			setPostDown(interfaceSection.contains("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
 	
 			/* Custom LogonBox */
-			Section logonBoxSection = ini.get("LogonBox");
-			if (logonBoxSection != null) {
-				setRouteAll("true".equals(logonBoxSection.get("RouteAll")));
-			}
+			ini.sectionOr("LogonBox").ifPresent(l -> {
+                setRouteAll(l.getBoolean("RouteAll"));
+			});
 	
 			/* Peer (them) */
-			Section peerSection = ini.get("Peer");
+			var peerSection = ini.section("Peer");
 			setPublicKey(peerSection.get("PublicKey"));
 			String endpoint = peerSection.get("Endpoint");
 			int idx = endpoint.lastIndexOf(':');
 			setEndpointAddress(endpoint.substring(0, idx));
 			setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
-			setPeristentKeepalive(Integer.parseInt(peerSection.get("PersistentKeepalive")));
-			setAllowedIps(Util.toStringList(peerSection, "AllowedIPs").toArray(new String[0]));
+			setPeristentKeepalive(peerSection.getInt("PersistentKeepalive"));
+			setAllowedIps(peerSection.getAllOr("AllowedIPs", new String[0]));
 			
 			return "";
 		}
-		catch(IOException ioe) {
+		catch(IOException | ParseException ioe) {
+		    log.error("Failed to parse INI file.", ioe);
 			return ioe.getMessage();
 		}
 		
@@ -341,6 +348,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	public void setHostname(String host) {
 		assertRegistered();
 		connection.setHostname(host);
+		Util.setLastKnownServerIpAddress(connection);
 	}
 
 	@Override
@@ -409,7 +417,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 
 	@Override
 	public String getOwner() {
-		return connection.getOwner();
+		return connection.getOwner() == null ? "" : connection.getOwner();
 	}
 
 	@Override

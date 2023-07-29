@@ -150,6 +150,7 @@ public class Client extends Application implements Listener, UIContext {
 
 		var settings = ToasterFactory.getSettings();
 		var properties = settings.getProperties();
+//        settings.setParent(getStage());
 		settings.setAppName(BUNDLE.getString("appName"));
 		settings.setSystemTrayIconMode(SystemTrayIconMode.HIDDEN);
 		var css = Client.class.getResource(Client.class.getSimpleName() + ".css").toExternalForm();
@@ -326,7 +327,7 @@ public class Client extends Application implements Listener, UIContext {
 
 	public void open() {
 		log.info("Open request");
-		Platform.runLater(() -> {
+		UI.maybeRunLater(() -> {
 			if (primaryStage.isIconified())
 				primaryStage.setIconified(false);
 			primaryStage.show();
