@@ -119,7 +119,7 @@
         </classPath>
       </java>
     </launcher>
-    <launcher name="logonbox-vpn-gui" id="783" menuName="LogonBox VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui" swtApp="true">
+    <launcher name="logonbox-vpn-gui" id="783" menuName="LogonBox VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui">
       <executable name="logonbox-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/error.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/output.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true" />
       <splashScreen show="true" bitmapFile="./images/splash.png" />
       <java mainClass="com.logonbox.vpn.client.gui.jfx.Main">
