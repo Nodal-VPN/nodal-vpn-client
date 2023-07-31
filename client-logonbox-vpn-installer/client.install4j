@@ -120,7 +120,7 @@
         </classPath>
       </java>
     </launcher>
-    <launcher name="logonbox-vpn-gui" id="783" menuName="LogonBox VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui" addMacApplicationCategory="true" macApplicationCategory="public.app-category.utilities" useCustomMacosExecutableName="true" customMacosExecutableName="LogonBox VPN">
+    <launcher name="logonbox-vpn-gui" id="783" menuName="LogonBox VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui" addMacApplicationCategory="true" macApplicationCategory="public.app-category.utilities">
       <executable name="LogonBox VPN" iconSet="true" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/error.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/output.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true" />
       <splashScreen show="true" bitmapFile="./images/splash.png" />
       <java mainClass="com.logonbox.vpn.client.gui.jfx.Main">
@@ -1775,7 +1775,7 @@ return true;</property>
     </styles>
   </installerGui>
   <mediaSets>
-    <macosFolder name="Mac OS X Folder" id="1553" architecture="universal">
+    <macosFolder name="Mac OS X Folder" id="1553">
       <exclude>
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux-aarch64" />
@@ -1792,7 +1792,11 @@ return true;</property>
       <variables>
         <variable name="jfx.archdir" value="gui/mac" />
       </variables>
-      <jreBundle jdkProviderId="AdoptOpenJDK" release="20/jdk-20.0.2+9" usePack200="false" overrideJdkRelease="true" includedJre="macosx-amd64-1.8.0_121" />
+      <jreBundle jdkProviderId="AdoptOpenJDK" release="20/jdk-20.0.2+9" usePack200="false" overrideJdkRelease="true" includedJre="macosx-amd64-1.8.0_121">
+        <modules>
+          <defaultModules set="jre" />
+        </modules>
+      </jreBundle>
     </macosFolder>
     <windows name="Windows x64" id="1554" installDir="LogonBox\VPN Client" architecture="64">
       <exclude>
