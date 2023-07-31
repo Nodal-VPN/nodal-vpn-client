@@ -1792,7 +1792,7 @@ return true;</property>
       <variables>
         <variable name="jfx.archdir" value="gui/mac" />
       </variables>
-      <jreBundle jdkProviderId="AdoptOpenJDK" release="20/jdk-20.0.2+9" usePack200="false" overrideJdkRelease="true" includedJre="macosx-amd64-1.8.0_121" />
+      <jreBundle jdkProviderId="AdoptOpenJDK" release="20/jdk-20.0.2+9" usePack200="false" overrideJdkRelease="true" jreBundleSource="none" includedJre="macosx-amd64-1.8.0_121" />
     </macosFolder>
     <windows name="Windows x64" id="1554" installDir="LogonBox\VPN Client" architecture="64">
       <exclude>
