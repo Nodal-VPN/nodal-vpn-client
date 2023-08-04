@@ -358,12 +358,12 @@
 									<output>${project.build.directory}/gui/mac</output>
 									<transitive>false</transitive>
 									<artifacts>
-										<artifact>org.openjfx:javafx-controls:${javafx.version}:jar:mac</artifact>
-										<artifact>org.openjfx:javafx-base:${javafx.version}:jar:mac</artifact>
-										<artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:mac</artifact>
-										<artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:mac</artifact>
-										<artifact>org.openjfx:javafx-media:${javafx.version}:jar:mac</artifact>
-										<artifact>org.openjfx:javafx-web:${javafx.version}:jar:mac</artifact>
+										<artifact>org.openjfx:javafx-controls:${javafx.legacy.version}:jar:mac</artifact>
+										<artifact>org.openjfx:javafx-base:${javafx.legacy.version}:jar:mac</artifact>
+										<artifact>org.openjfx:javafx-fxml:${javafx.legacy.version}:jar:mac</artifact>
+										<artifact>org.openjfx:javafx-graphics:${javafx.legacy.version}:jar:mac</artifact>
+										<artifact>org.openjfx:javafx-media:${javafx.legacy.version}:jar:mac</artifact>
+										<artifact>org.openjfx:javafx-web:${javafx.legacy.version}:jar:mac</artifact>
 									</artifacts>
 								</configuration>
 							</execution>
