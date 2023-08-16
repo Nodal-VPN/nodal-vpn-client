@@ -38,12 +38,14 @@ import com.goxr3plus.fxborderlessscene.borderless.BorderlessScene;
 import com.jthemedetecor.OsThemeDetector;
 import com.logonbox.vpn.client.gui.jfx.PowerMonitor.Listener;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
+import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.api.Branding;
 import com.logonbox.vpn.common.client.api.BrandingInfo;
 import com.sshtools.twoslices.ToasterFactory;
 import com.sshtools.twoslices.ToasterSettings.SystemTrayIconMode;
 import com.sshtools.twoslices.impl.JavaFXToaster;
+import com.sshtools.twoslices.impl.SysOutToaster;
 import com.vladsch.boxed.json.BoxedJsObject;
 import com.vladsch.boxed.json.BoxedJson;
 import com.vladsch.javafx.webview.debugger.JfxScriptStateProvider;
@@ -628,21 +630,34 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		var uri = toUri(tmpFile).toExternalForm();
 		ss.add(0, uri);
 
-		var settings = ToasterFactory.getSettings();
-		var properties = settings.getProperties();
+		var properties = ToasterFactory.getSettings().getProperties();
 //		settings.setParent(getStage());
-		settings.setAppName(BUNDLE.getString("appName")); 
-		settings.setSystemTrayIconMode(SystemTrayIconMode.HIDDEN);
 		var css = Client.class.getResource(Client.class.getSimpleName() + ".css").toExternalForm();
-		if(SystemUtils.IS_OS_MAC_OSX) {
-			settings.setPreferredToasterClassName(JavaFXToaster.class.getName());
-		}
+		configureToaster();
 		properties.put(JavaFXToaster.DARK, isDarkMode());
 		properties.put(JavaFXToaster.STYLESHEETS, Arrays.asList(uri, css));
 		properties.put(JavaFXToaster.COLLAPSE_MESSAGE, BUNDLE.getString("collapse"));
 		properties.put(JavaFXToaster.THRESHOLD, 6);
 		ss.add(css);
 
+	}
+
+	public void configureToaster() {
+		var settings = ToasterFactory.getSettings();
+		var vpn = getDBus().isBusAvailable() ? getDBus().getVPN() : null;
+		settings.setAppName(BUNDLE.getString("appName")); 
+		settings.setSystemTrayIconMode(SystemTrayIconMode.HIDDEN);
+		if(vpn == null || ( vpn != null && vpn.getBooleanValue(ConfigurationItem.POPUP_NOTIFICATIONS.getKey()))) {
+			if(SystemUtils.IS_OS_MAC_OSX) {
+				settings.setPreferredToasterClassName(System.getProperty("logonbox.vpn.toaster", JavaFXToaster.class.getName()));
+			}
+			else {
+				settings.setPreferredToasterClassName(System.getProperty("logonbox.vpn.toaster", null));
+			}
+		}
+		else {
+			settings.setPreferredToasterClassName(SysOutToaster.class.getName());
+		}
 	}
 	
 	File getTempDir() {

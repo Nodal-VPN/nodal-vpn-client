@@ -361,10 +361,11 @@ public class UI implements BusLifecycleListener {
 			String phase = memberOrDefault(o, "phase", String.class, null);
 			Boolean automaticUpdates = memberOrDefault(o, "automaticUpdates", Boolean.class, null);
 			Boolean ignoreLocalRoutes = memberOrDefault(o, "ignoreLocalRoutes", Boolean.class, null);
+			Boolean popupNotifications = memberOrDefault(o, "popupNotifications", Boolean.class, null);
 			Integer mtu = memberOrDefault(o, "mtu", Integer.class, null);
 			Boolean singleActiveConnection = memberOrDefault(o, "singleActiveConnection", Boolean.class, null);
 			UI.this.saveOptions(trayMode, darkMode, phase, automaticUpdates, logLevel, ignoreLocalRoutes,
-					dnsIntegrationMethod, mtu, singleActiveConnection);
+					dnsIntegrationMethod, mtu, singleActiveConnection, popupNotifications);
 		}
 
 		public void showError(String error) {
@@ -641,12 +642,28 @@ public class UI implements BusLifecycleListener {
 
 	private Map<String, Object> beansForOptions() {
 		Map<String, Object> beans = new HashMap<>();
+
+		/* Option collections */
+		beans.put("trayModes", new String[] { Configuration.TRAY_MODE_AUTO, Configuration.TRAY_MODE_COLOR,
+				Configuration.TRAY_MODE_DARK, Configuration.TRAY_MODE_LIGHT, Configuration.TRAY_MODE_OFF });
+		beans.put("darkModes", new String[] { Configuration.DARK_MODE_AUTO, Configuration.DARK_MODE_ALWAYS,
+				Configuration.DARK_MODE_NEVER });
+		beans.put("logLevels",
+				new String[] { "", org.apache.log4j.Level.ALL.toString(), org.apache.log4j.Level.TRACE.toString(),
+						org.apache.log4j.Level.DEBUG.toString(), org.apache.log4j.Level.INFO.toString(),
+						org.apache.log4j.Level.WARN.toString(), org.apache.log4j.Level.ERROR.toString(),
+						org.apache.log4j.Level.FATAL.toString(), org.apache.log4j.Level.OFF.toString() });
+		beans.put("dnsIntegrationMethods", Arrays.asList(DNSIntegrationMethod.valuesForOs()).stream()
+				.map(DNSIntegrationMethod::name).collect(Collectors.toUnmodifiableList()).toArray(new String[0]));
+		
 		AbstractDBusClient dbus = context.getDBus();
 		VPN vpn = dbus.isBusAvailable() ? dbus.getVPN() : null;
+		
 		if (vpn == null) {
 			beans.put("phases", new String[0]);
 			beans.put("phase", "");
 			beans.put("automaticUpdates", true);
+			beans.put("popupNotifications", true);
 			beans.put("ignoreLocalRoutes", true);
 			beans.put("dnsIntegrationMethod", DNSIntegrationMethod.AUTO.name());
 			beans.put("singleActiveConnection", true);
@@ -666,21 +683,9 @@ public class UI implements BusLifecycleListener {
 			beans.put("singleActiveConnection", vpn.getBooleanValue(ConfigurationItem.SINGLE_ACTIVE_CONNECTION.getKey()));
 			beans.put("mtu", vpn.getIntValue(ConfigurationItem.MTU.getKey()));
 			beans.put("automaticUpdates", vpn.getBooleanValue(ConfigurationItem.AUTOMATIC_UPDATES.getKey()));
+			beans.put("popupNotifications", vpn.getBooleanValue(ConfigurationItem.POPUP_NOTIFICATIONS.getKey()));
 			beans.put("ignoreLocalRoutes", vpn.getBooleanValue(ConfigurationItem.IGNORE_LOCAL_ROUTES.getKey()));
 		}
-
-		/* Option collections */
-		beans.put("trayModes", new String[] { Configuration.TRAY_MODE_AUTO, Configuration.TRAY_MODE_COLOR,
-				Configuration.TRAY_MODE_DARK, Configuration.TRAY_MODE_LIGHT, Configuration.TRAY_MODE_OFF });
-		beans.put("darkModes", new String[] { Configuration.DARK_MODE_AUTO, Configuration.DARK_MODE_ALWAYS,
-				Configuration.DARK_MODE_NEVER });
-		beans.put("logLevels",
-				new String[] { "", org.apache.log4j.Level.ALL.toString(), org.apache.log4j.Level.TRACE.toString(),
-						org.apache.log4j.Level.DEBUG.toString(), org.apache.log4j.Level.INFO.toString(),
-						org.apache.log4j.Level.WARN.toString(), org.apache.log4j.Level.ERROR.toString(),
-						org.apache.log4j.Level.FATAL.toString(), org.apache.log4j.Level.OFF.toString() });
-		beans.put("dnsIntegrationMethods", Arrays.asList(DNSIntegrationMethod.valuesForOs()).stream()
-				.map(DNSIntegrationMethod::name).collect(Collectors.toUnmodifiableList()).toArray(new String[0]));
 
 		/* Per-user GUI specific */
 		Configuration config = Configuration.getDefault();
@@ -1379,7 +1384,7 @@ public class UI implements BusLifecycleListener {
 	}
 
 	protected void saveOptions(String trayMode, String darkMode, String phase, Boolean automaticUpdates,
-			String logLevel, Boolean ignoreLocalRoutes, String dnsIntegrationMethod, Integer mtu, Boolean singleActiveConnection) {
+			String logLevel, Boolean ignoreLocalRoutes, String dnsIntegrationMethod, Integer mtu, Boolean singleActiveConnection, Boolean popupNotifications) {
 		try {
 			/* Local per-user GUI specific configuration */
 			Configuration config = Configuration.getDefault();
@@ -1418,6 +1423,9 @@ public class UI implements BusLifecycleListener {
 			if (ignoreLocalRoutes != null) {
 				vpn.setBooleanValue(ConfigurationItem.IGNORE_LOCAL_ROUTES.getKey(), ignoreLocalRoutes);
 			}
+			if (popupNotifications != null) {
+				vpn.setBooleanValue(ConfigurationItem.POPUP_NOTIFICATIONS.getKey(), popupNotifications);
+			}
 			if (singleActiveConnection != null) {
 				vpn.setBooleanValue(ConfigurationItem.SINGLE_ACTIVE_CONNECTION.getKey(), singleActiveConnection);
 			}
@@ -1432,6 +1440,7 @@ public class UI implements BusLifecycleListener {
 			}
 
 			if (automaticUpdates != null && checkUpdates) {
+				context.configureToaster();
 				new Thread() {
 					public void run() {
 						checkForUpdate();
@@ -1440,6 +1449,8 @@ public class UI implements BusLifecycleListener {
 			} else if (darkMode != null) {
 				UI.this.reapplyColors();
 				setHtmlPage("options.html", true);
+			} else {
+				context.configureToaster();
 			}
 
 			LOG.info("Saved options");

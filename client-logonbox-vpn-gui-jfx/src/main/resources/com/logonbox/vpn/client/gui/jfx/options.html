@@ -62,19 +62,14 @@
 						data-i18n="advancedOptions"></a>
 				</div>
 				<div id="advancedOptions" class="collapse">
-					<div class="form-group">
-						<label for="logLevel" data-i18n="logLevel">Log Level</label> <select
-							class="form-control" id="logLevel">
-						</select> <small id="logLevelHelp" data-i18n="logLevelHelp"
-							class="form-text text-muted">Log Level Help</small>
-					</div>
-					<div class="mt-3" class="form-group">
-						<label for="dnsIntegrationMethod" data-i18n="dnsIntegrationMethod">DNS
-							integration</label> <select class="form-control"
-							id="dnsIntegrationMethod">
-						</select> <small id="dnsIntegrationMethodHelp"
-							data-i18n="dnsIntegrationMethodHelp" class="form-text text-muted">DNS
-							Integration Help</small>
+					<div class="form-check ">
+						<input type="checkbox" class="form-check-input"
+							id="popupNotifications" /> <label for="popupNotifications"
+							data-i18n="popupNotifications">Single Active Connection</label>
+						<p>
+							<small id="popupNotificationsHelp"
+								data-i18n="popupNotificationsHelp" class="form-text text-muted">Help</small>
+						</p>
 					</div>
 					<div class="form-check mt-3">
 						<input type="checkbox" class="form-check-input"
@@ -93,6 +88,20 @@
 							<small id="singleActiveConnectionHelp"
 								data-i18n="singleActiveConnectionHelp" class="form-text text-muted">Help</small>
 						</p>
+					</div>
+					<div class="form-group">
+						<label for="logLevel" data-i18n="logLevel">Log Level</label> <select
+							class="form-control" id="logLevel">
+						</select> <small id="logLevelHelp" data-i18n="logLevelHelp"
+							class="form-text text-muted">Log Level Help</small>
+					</div>
+					<div class="mt-3" class="form-group">
+						<label for="dnsIntegrationMethod" data-i18n="dnsIntegrationMethod">DNS
+							integration</label> <select class="form-control"
+							id="dnsIntegrationMethod">
+						</select> <small id="dnsIntegrationMethodHelp"
+							data-i18n="dnsIntegrationMethodHelp" class="form-text text-muted">DNS
+							Integration Help</small>
 					</div>
 					<div class="mt-3" class="form-group">
 						<label for="mtu" data-i18n="mtu">MTU</label> <input class="form-control"
@@ -123,6 +132,9 @@
                 }
                 if ($('#singleActiveConnection').length) {
                     $('#singleActiveConnection').off('change');
+                }
+                if ($('#popupNotifications').length) {
+                    $('#popupNotifications').off('change');
                 }
                 if ($('#ignoreLocalRoutes').length) {
                     $('#ignoreLocalRoutes').off('change');;
@@ -201,6 +213,10 @@
 					$('#automaticUpdates').prop('checked', automaticUpdates);
 				}
 
+				if ($('#popupNotifications').length) {
+					$('#popupNotifications').prop('checked', popupNotifications);
+				}
+
 				if ($('#ignoreLocalRoutes').length) {
 					$('#ignoreLocalRoutes').prop('checked', ignoreLocalRoutes);
 				}
@@ -233,6 +249,11 @@
                 if ($('#automaticUpdates').length) {
                     $('#automaticUpdates').on('change', function() {
                         bridge.saveOptions({ automaticUpdates : $('#automaticUpdates').is(':checked') });
+                    });
+                }
+                if ($('#popupNotifications').length) {
+                    $('#popupNotifications').on('change', function() {
+                        bridge.saveOptions({ popupNotifications : $('#popupNotifications').is(':checked') });
                     });
                 }
                 if ($('#ignoreLocalRoutes').length) {

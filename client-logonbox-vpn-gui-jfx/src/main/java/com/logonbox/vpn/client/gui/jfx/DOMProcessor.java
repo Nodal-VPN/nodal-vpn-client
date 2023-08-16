@@ -63,6 +63,9 @@ public class DOMProcessor {
 		replacements.put("automaticUpdates",
 				vpn == null ? "true"
 						: vpn.getValue(ConfigurationItem.AUTOMATIC_UPDATES.getKey()));
+		replacements.put("popupNotifications",
+				vpn == null ? "true"
+						: vpn.getValue(ConfigurationItem.POPUP_NOTIFICATIONS.getKey()));
 		replacements.put("singleActiveConnection",
 				vpn == null ? "true"
 						: vpn.getValue(ConfigurationItem.SINGLE_ACTIVE_CONNECTION.getKey()));
