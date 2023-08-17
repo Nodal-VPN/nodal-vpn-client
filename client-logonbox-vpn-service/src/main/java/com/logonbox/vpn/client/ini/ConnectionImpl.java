@@ -427,13 +427,13 @@ public class ConnectionImpl implements Connection, Serializable {
 			interfaceSection.put("DNS", String.join(", ", connection.getDns()));
 		interfaceSection.put("PrivateKey", connection.getUserPrivateKey());
 		if (StringUtils.isNotBlank(connection.getPreUp()))
-			interfaceSection.put("PreUp", connection.getPreUp().split("\\n"));
+			interfaceSection.putAll("PreUp", connection.getPreUp().split("\\n"));
 		if (StringUtils.isNotBlank(connection.getPostUp()))
-			interfaceSection.put("PostUp", connection.getPostUp().split("\\n"));
+			interfaceSection.putAll("PostUp", connection.getPostUp().split("\\n"));
 		if (StringUtils.isNotBlank(connection.getPreDown()))
-			interfaceSection.put("PreDown", connection.getPreDown().split("\\n"));
+			interfaceSection.putAll("PreDown", connection.getPreDown().split("\\n"));
 		if (StringUtils.isNotBlank(connection.getPostDown()))
-			interfaceSection.put("PostDown", connection.getPostDown().split("\\n"));
+			interfaceSection.putAll("PostDown", connection.getPostDown().split("\\n"));
 
 		/* Custom LogonBox */
 		Section logonBoxSection = ini.add("LogonBox");
