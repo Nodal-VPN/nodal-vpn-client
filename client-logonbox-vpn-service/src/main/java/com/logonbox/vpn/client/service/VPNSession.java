@@ -63,7 +63,7 @@ public class VPNSession implements Closeable {
 			log.info(String.format("Closing VPN session for %s", ip.getName()));
 
 			if(StringUtils.isNotBlank(connection.getPreDown())) {
-				log.info("Running pre-down commands.", connection.getPreDown());
+				log.info("Running pre-down commands. {}", connection.getPreDown());
 				runHook(connection.getPreDown());  
 			}
 			
@@ -71,7 +71,7 @@ public class VPNSession implements Closeable {
 			cctx.getPlatformService().disconnect(this);
 
 			if(StringUtils.isNotBlank(connection.getPostDown())) {
-				log.info("Running post-down commands.", connection.getPostDown());
+				log.info("Running post-down commands. {}", connection.getPostDown());
 				runHook(connection.getPostDown());  
 			}
 		}
