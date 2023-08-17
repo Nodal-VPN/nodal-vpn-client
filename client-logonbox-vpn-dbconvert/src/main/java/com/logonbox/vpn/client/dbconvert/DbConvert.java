@@ -42,16 +42,16 @@ public class DbConvert {
 						interfaceSection.put("PrivateKey", rs.getString("userPrivateKey"));
 						c = rs.getString("preUp");
 						if (c != null && c.length() > 0)
-							interfaceSection.put("PreUp", c.split("\\n"));
+							interfaceSection.putAll("PreUp", c.split("\\n"));
 						c = rs.getString("postUp");
 						if (c != null && c.length() > 0)
-							interfaceSection.put("PostUp", c.split("\\n"));
+							interfaceSection.putAll("PostUp", c.split("\\n"));
 						c = rs.getString("preDown");
 						if (c != null && c.length() > 0)
-							interfaceSection.put("PreDown", c.split("\\n"));
+							interfaceSection.putAll("PreDown", c.split("\\n"));
 						c = rs.getString("postDown");
 						if (c != null && c.length() > 0)
-							interfaceSection.put("PostDown", c.split("\\n"));
+							interfaceSection.putAll("PostDown", c.split("\\n"));
 
 						/* Custom LogonBox */
 						Section logonBoxSection = ini.add("LogonBox");
