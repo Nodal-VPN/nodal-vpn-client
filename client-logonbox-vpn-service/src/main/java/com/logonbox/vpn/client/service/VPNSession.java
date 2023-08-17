@@ -94,7 +94,7 @@ public class VPNSession implements Closeable {
 		
 		String preUp = vpnConnection.getPreUp();
 		if(StringUtils.isNotBlank(preUp)) {
-			log.info("Running pre-up commands.", preUp);
+			log.info("Running pre-up commands. {}", preUp);
 			runHook(preUp);  
 		}
 		
@@ -102,7 +102,7 @@ public class VPNSession implements Closeable {
 		
 		String postUp = vpnConnection.getPostUp();
 		if(StringUtils.isNotBlank(postUp)) {
-			log.info("Running post-up commands.", postUp);
+			log.info("Running post-up commands. {}", postUp);
 			runHook(postUp);  
 		}
 		
