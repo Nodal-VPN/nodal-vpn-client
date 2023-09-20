@@ -1,6 +1,7 @@
 # Changes
+##SNAPSHOT
 
-## 3.0.0-32
+## 3.0.0-120
 
  * New major release.
  * Connections validity is now preemptively checked, resulting in faster
