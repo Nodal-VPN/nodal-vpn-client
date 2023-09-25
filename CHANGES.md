@@ -1,5 +1,8 @@
 # Changes
-##SNAPSHOT
+
+## 3.0.1-SNAPSHOT
+
+ * Work-around and diagnostics for memory allocation error on Windows.
 
 ## 3.0.0-120
 
@@ -17,7 +20,7 @@
  * Update countdown doesn't stop if automatic updates are enabled.
  * Notification popups could show a an empty window on the desktop on Windows
    and Mac OS.
-* Updated to JavaFX 20.0.1, JDK 20.
+ * Updated to JavaFX 20.0.1, JDK 20.
  * Activated alternative connection storage mechanism (.ini type files). All
    existing configurations should now be converted.
  * LastKnownServerIpAddress not being reset when hostname changes.

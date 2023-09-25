@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -154,7 +155,14 @@ public interface WireguardLibrary extends Library {
                             allowedIPs[j] = allowedIP;
 
                             offset += ioctlAllowedIP.size();
-                            ioctlAllowedIP = new IoctlAllowedIP(mem.share(offset));        
+                            try {
+                            	ioctlAllowedIP = new IoctlAllowedIP(mem.share(offset));
+                            }
+                            catch(IllegalArgumentException iae) {
+                            	LOG.error(MessageFormat.format(
+                            			"Failed to collect all allowed IP address. Failed to allocate memory for address {0} of {1}. You may experience unexpected behaviour. Please report this error.", j, allowedIPs.length ),iae);
+                            	break;
+                            }
                             
                         } catch (UnknownHostException e) {
                             throw new IllegalArgumentException("Invalid endpoint address");
