@@ -71,7 +71,7 @@ public interface WireguardLibrary extends Library {
             var iface = new Interface();
             Memory mem;
             for (;;) {
-                mem = new Memory(lastGetGuess.getValue());
+                mem = new Memory(lastGetGuess.getValue() * 2);
                 if (INSTANCE.WireGuardGetConfiguration(handle, mem, lastGetGuess))
                     break;
                 mem.close();
