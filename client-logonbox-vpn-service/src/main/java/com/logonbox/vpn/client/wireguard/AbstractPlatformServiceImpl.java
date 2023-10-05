@@ -526,7 +526,11 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 		@SuppressWarnings("unchecked")
 		I addr = (I)session.getIp();
 		if(addr != null) {
-			env.put("LBVPN_IP_MAC", addr.getMac());
+			try {
+				env.put("LBVPN_IP_MAC", addr.getMac());
+			}
+			catch(UnsupportedOperationException ueo) {
+			}
 			env.put("LBVPN_IP_NAME", addr.getName());
 			env.put("LBVPN_IP_DISPLAY_NAME", addr.getDisplayName());
 			env.put("LBVPN_IP_PEER", addr.getPeer());
