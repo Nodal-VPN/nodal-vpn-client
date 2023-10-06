@@ -533,8 +533,8 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 			}
 			env.put("LBVPN_IP_NAME", addr.getName());
 			env.put("LBVPN_IP_DISPLAY_NAME", addr.getDisplayName());
-			env.put("LBVPN_IP_PEER", addr.getPeer());
-			env.put("LBVPN_IP_TABLE", addr.getTable());
+			env.put("LBVPN_IP_PEER", addr.getPeer() == null ? "": addr.getPeer());
+			env.put("LBVPN_IP_TABLE", addr.getTable() == null ? "": addr.getTable());
 		}
 		if(LOG.isDebugEnabled()) {
 			LOG.debug("Environment:-");
