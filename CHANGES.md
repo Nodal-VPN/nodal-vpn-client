@@ -1,8 +1,18 @@
 # Changes
 
+## 4.0.0-SNAPSHOT
+
+A major new release with many architectural changes.
+
+ * Now uses `logonbox-vpn-drivers` for low level VPN support.
+ * Experimental Android and iOS builds.
+ * New standandalone version that does not require a system service.
+ * Now natively compiled for much faster startup and better resource usage.
+
 ## 3.0.1-SNAPSHOT
 
  * Work-around and diagnostics for memory allocation error on Windows.
+ * Hook scripts on Windows broken
 
 ## 3.0.0-120
 
