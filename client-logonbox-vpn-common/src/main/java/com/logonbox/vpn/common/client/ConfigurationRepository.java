@@ -1,8 +1,0 @@
-package com.logonbox.vpn.common.client;
-
-public interface ConfigurationRepository {
-
-	<V> V getValue(String owner, ConfigurationItem<V> item);
-	
-	<V> void setValue(String owner, ConfigurationItem<V> item, V value);
-}

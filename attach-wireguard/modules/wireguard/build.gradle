@@ -1,7 +1,0 @@
-dependencies {
-    implementation "com.gluonhq.attach:util:$libraryVersions.attach"
-    implementation "com.logonbox:client-logonbox-vpn-service:$libraryVersions.service"
-}
-
-ext.moduleName = 'com.gluonhq.attach'
-ext.description = 'Common API to access Wireguard features'

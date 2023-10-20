@@ -1,0 +1,66 @@
+<!-- Copyright (c) 2013 LogonBox Limited. All rights reserved. This program 
+	and the accompanying materials are made available under the terms of the 
+	GNU Public License v3.0 which accompanies this distribution, and is available 
+	at http://www.gnu.org/licenses/gpl.html -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>client-logonbox-vpn-service</artifactId>
+    <name>LogonBox VPN - Core Service</name>
+
+    <parent>
+        <groupId>com.logonbox</groupId>
+        <artifactId>logonbox-desktop-vpn-clients</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.nervepoint</groupId>
+                <artifactId>google-translate-v2-java-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>translate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>com.logonbox</groupId>
+            <artifactId>client-logonbox-vpn-common</artifactId>
+            <version>${project.version}</version>
+        </dependency> 
+        <dependency>
+            <groupId>com.sshtools</groupId>
+            <artifactId>jini</artifactId>
+            <version>0.1.1</version>
+        </dependency>
+    </dependencies>
+    <repositories>
+        <!-- For Forker -->
+        <repository>
+            <id>opensource-releases</id>
+            <url>https://artifactory.jadaptive.com/opensource-releases</url>
+            <releases />
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>opensource-snapshots</id>
+            <url>https://artifactory.jadaptive.com/opensource-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots />
+        </repository>
+    </repositories>
+
+    <description>The base code for the VPN service. This exposes a  public interface to the platform specific modules to clients over a DBus API. It is also responsible for persistence of connection configuration and other housekeeping functions.</description>
+</project>

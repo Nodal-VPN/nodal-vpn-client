@@ -1,0 +1,8 @@
+dependencies {
+    implementation "com.gluonhq.attach:util:$libraryVersions.attach"
+    implementation "com.logonbox:logonbox-vpn-lib:$libraryVersions.vpnlib"
+    implementation "com.logonbox:logonbox-vpn-linux:$libraryVersions.vpnlib"
+}
+
+ext.moduleName = 'com.logonbox'
+ext.description = 'Common API to access LogonBox VPN features'

@@ -1,0 +1,15 @@
+pluginManagement {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+        mavenCentral()
+        mavenLocal()
+    }
+}
+
+rootProject.name = 'client-logonbox-vpn-gluon'
+
+include 'lbvpn'
+
+project(':lbvpn').projectDir                     = file('modules/lbvpn')
