@@ -6,7 +6,7 @@ import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.ConnectionRepository;
 import com.logonbox.vpn.client.common.CustomCookieStore;
 import com.logonbox.vpn.client.common.PromptingCertManager;
-import com.logonbox.vpn.client.common.VpnManager;
+import com.logonbox.vpn.client.common.api.IVPN;
 import com.logonbox.vpn.client.ini.ConnectionRepositoryImpl;
 import com.logonbox.vpn.client.service.ClientService;
 import com.logonbox.vpn.client.service.ClientService.Listener;
@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.CookieStore;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.ServiceLoader;
 import java.util.concurrent.Executors;
@@ -47,52 +48,11 @@ public abstract class AbstractService implements LocalContext, Listener {
 	private ConfigurationRepositoryImpl configurationRepository;
 	private final ResourceBundle bundle;
     private PlatformService<?> platformService;
-    private final VpnManager vpnManager;
 
-	protected AbstractService(ResourceBundle bundle, VpnManager vpnManager) {
+    private IVPN vpn;
+
+	protected AbstractService(ResourceBundle bundle) {
 		this.bundle = bundle;
-		this.vpnManager = vpnManager;
-	}
-
-	@Override
-    public final VpnManager getVPNManager() {
-		return vpnManager;
-	}
-
-	@Override
-	public final  void shutdown(boolean restart) {
-		close();
-	}
-
-	@Override
-    public final  ClientService getClientService() {
-		return clientService;
-	}
-
-	@Override
-    public final  PromptingCertManager getCertManager() {
-		return promptingCertManager;
-	}
-
-	@Override
-	public final  CookieStore getCookieStore() {
-		if (cookieStore == null) {
-			cookieStore = new CustomCookieStore(new File(AbstractClient.CLIENT_HOME, "service-cookies.dat"));
-		}
-		return cookieStore;
-	}
-
-	@Override
-	public final PlatformService<?> getPlatformService() {
-		return platformService;
-	}
-
-	@Override
-	public final  ScheduledExecutorService getQueue() {
-		return queue;
-	}
-
-	protected void onCleanUp() {
 	}
 
 	@Override
@@ -118,8 +78,90 @@ public abstract class AbstractService implements LocalContext, Listener {
 		}
 	}
 
-	protected final ConfigurationRepositoryImpl getConfigurationRepository() {
-		return configurationRepository;
+	@Override
+	public final void configurationChange(ConfigurationItem<?> item, Object oldValue, Object newValue) {
+		onConfigurationChange(item, oldValue, newValue);
+
+		if (item == ConfigurationItem.LOG_LEVEL) {
+			String value = (String)newValue;
+			try {
+				if (StringUtils.isBlank(value))
+					setLevel(getDefaultLevel());
+				else
+					setLevel(Level.valueOf(value));
+			}
+			catch(Exception e) {
+				if(log.isDebugEnabled())
+					log.warn("Invalid log level, setting default. ", e);
+				else
+					log.warn("Invalid log level, setting default. " + e.getMessage());
+				setLevel(getDefaultLevel());
+			}
+		}
+	}
+
+	@Override
+    public final  PromptingCertManager getCertManager() {
+		return promptingCertManager;
+	}
+
+	@Override
+    public final  ClientService getClientService() {
+		return clientService;
+	}
+
+	@Override
+	public final  CookieStore getCookieStore() {
+		if (cookieStore == null) {
+			cookieStore = new CustomCookieStore(new File(AbstractClient.CLIENT_HOME, "service-cookies.dat"));
+		}
+		return cookieStore;
+	}
+
+	@Override
+	public final PlatformService<?> getPlatformService() {
+		return platformService;
+	}
+
+	@Override
+	public final  ScheduledExecutorService getQueue() {
+		return queue;
+	}
+
+	@Override
+	public final SSLContext getSSLContext() {
+		return promptingCertManager.getSSLContext();
+	}
+    
+    @Override
+	public final SSLParameters getSSLParameters() {
+		return promptingCertManager.getSSLParameters();
+	}
+
+	@Override
+	public final  void shutdown(boolean restart) {
+		close();
+		onShutdown(restart);
+	}
+
+    @Override
+	public IVPN getVPN() {
+	    return vpn;
+	}
+
+	protected final boolean buildServices() throws Exception {
+		log.info("Using file data backend");
+		connectionRepository = new ConnectionRepositoryImpl();
+		configurationRepository = new ConfigurationRepositoryImpl();
+		clientService = new ClientServiceImpl(this, connectionRepository, configurationRepository);
+		clientService.addListener(this);
+		log.info("Creating platform service");
+		var fact = createPlatformServiceFactory();
+        platformService = fact.createPlatformService(clientService);
+        log.info("Platform service is {}", platformService.getClass().getName());
+        connectionRepository.start(platformService);
+		return true;
+
 	}
 
 	protected final void checkForUninstalling() {
@@ -144,39 +186,42 @@ public abstract class AbstractService implements LocalContext, Listener {
 		flagFile.delete();
 	}
 
-	@Override
-	public final SSLParameters getSSLParameters() {
-		return promptingCertManager.getSSLParameters();
-	}
+	protected PlatformServiceFactory createPlatformServiceFactory() {
+        return ServiceLoader.load(getClass().getModule().getLayer(), PlatformServiceFactory.class).findFirst().filter(p -> p.isSupported()).orElseThrow(() -> new UnsupportedOperationException(
+                String.format("%s not currently supported. There are no platform extensions installed, you may be missing libraries.", System.getProperty("os.name"))));
+    }
 
-	@Override
-	public final SSLContext getSSLContext() {
-		return promptingCertManager.getSSLContext();
-	}
-
-	@Override
-	public final void configurationChange(ConfigurationItem<?> item, Object oldValue, Object newValue) {
-		onConfigurationChange(item, oldValue, newValue);
-
-		if (item == ConfigurationItem.LOG_LEVEL) {
-			String value = (String)newValue;
-			try {
-				if (StringUtils.isBlank(value))
-					setLevel(getDefaultLevel());
-				else
-					setLevel(Level.valueOf(value));
-			}
-			catch(Exception e) {
-				if(log.isDebugEnabled())
-					log.warn("Invalid log level, setting default. ", e);
-				else
-					log.warn("Invalid log level, setting default. " + e.getMessage());
-				setLevel(getDefaultLevel());
-			}
-		}
+	protected final ConfigurationRepositoryImpl getConfigurationRepository() {
+		return configurationRepository;
 	}
 	
-    protected abstract void onConfigurationChange(ConfigurationItem<?> item, Object oldValue, Object newValue);
+    protected boolean isStrictSSL() {
+		return "true".equals(System.getProperty("logonbox.vpn.strictSSL", "true"));
+	}
+
+	protected void onCleanUp() {
+	}
+	
+	protected abstract void onConfigurationChange(ConfigurationItem<?> item, Object oldValue, Object newValue);
+
+	protected void onShutdown(boolean restart) {
+    }
+
+    protected void onStartServices() {
+	}
+
+	protected boolean startSavedConnections() {
+		return clientService.startSavedConnections();
+	}
+
+    protected final boolean createVpn() {
+        log.info("Starting vpn API.");
+        var b = buildVpn();
+        vpn = b.orElse(null);
+        return vpn != null;
+    }
+    
+    protected abstract Optional<IVPN> buildVpn();
 
 	protected final boolean startServices() {
 		log.info("Starting internal services.");
@@ -191,36 +236,5 @@ public abstract class AbstractService implements LocalContext, Listener {
 		onStartServices();
 
 		return true;
-	}
-	
-	protected void onStartServices() {
-	}
-
-	protected final boolean buildServices() throws Exception {
-		log.info("Using file data backend");
-		connectionRepository = new ConnectionRepositoryImpl();
-		configurationRepository = new ConfigurationRepositoryImpl();
-		clientService = new ClientServiceImpl(this, connectionRepository, configurationRepository);
-		clientService.addListener(this);
-		log.info("Creating platform service");
-		var fact = createPlatformServiceFactory();
-        platformService = fact.createPlatformService(clientService);
-        log.info("Platform service is {}", platformService.getClass().getName());
-        connectionRepository.start(platformService);
-		return true;
-
-	}
-
-    protected PlatformServiceFactory createPlatformServiceFactory() {
-        return ServiceLoader.load(getClass().getModule().getLayer(), PlatformServiceFactory.class).findFirst().filter(p -> p.isSupported()).orElseThrow(() -> new UnsupportedOperationException(
-                String.format("%s not currently supported. There are no platform extensions installed, you may be missing libraries.", System.getProperty("os.name"))));
-    }
-
-	protected boolean startSavedConnections() {
-		return clientService.startSavedConnections();
-	}
-
-	protected boolean isStrictSSL() {
-		return "true".equals(System.getProperty("logonbox.vpn.strictSSL", "true"));
 	}
 }

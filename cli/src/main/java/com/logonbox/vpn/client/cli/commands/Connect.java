@@ -1,21 +1,19 @@
 package com.logonbox.vpn.client.cli.commands;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URI;
-import java.util.List;
-import java.util.concurrent.Callable;
-
-import org.apache.commons.lang3.StringUtils;
-import org.freedesktop.dbus.exceptions.DBusException;
-
 import com.logonbox.vpn.client.cli.CLIContext;
-import com.logonbox.vpn.client.cli.ConsoleProvider;
 import com.logonbox.vpn.client.cli.StateHelper;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.api.IVPNConnection;
 import com.logonbox.vpn.client.common.dbus.VPNConnection;
+
+import org.apache.commons.lang3.StringUtils;
+import org.freedesktop.dbus.exceptions.DBusException;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.util.concurrent.Callable;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -33,15 +31,15 @@ public class Connect extends AbstractConnectionCommand implements Callable<Integ
 
 	@Override
 	public Integer call() throws Exception {
-		CLIContext cli = (CLIContext) spec.parent().userObject();
-		ConsoleProvider console = cli.getConsole();
-		PrintWriter out = console.out();
-		PrintWriter err = console.err();
+		var cli = (CLIContext) spec.parent().userObject();
+		var console = cli.getConsole();
+		var out = console.out();
+		var err = console.err();
 
 		IVPNConnection connection = null;
 
-		String pattern = getPattern(cli, new String[] { uri });
-		final List<IVPNConnection> c = getConnectionsMatching(pattern, cli);
+		var pattern = getPattern(cli, new String[] { uri });
+		var c = getConnectionsMatching(pattern, cli);
 		if (c.isEmpty()) {
 			if (StringUtils.isNotEmpty(uri)) {
 				if (!uri.startsWith("https://")) {
@@ -50,17 +48,18 @@ public class Connect extends AbstractConnectionCommand implements Callable<Integ
 					}
 					uri = "https://" + uri;
 				}
-				URI uriObj = new URI(uri);
+				var uriObj = new URI(uri);
 				if (!uriObj.getScheme().equals("https")) {
 					throw new IllegalArgumentException("Only HTTPS is supported.");
 				}
 
-				long connectionId = cli.getVPNOrFail().getConnectionIdForURI(uri);
-				connection = connectionId < 0 ? null : cli.getVPNConnection(connectionId);
+				var vpnManager = cli.getVpnManager();
+                var connectionId = vpnManager.getVPNOrFail().getConnectionIdForURI(uri);
+				connection = connectionId < 0 ? null : vpnManager.getVPNConnection(connectionId);
 
 				if (connection == null) {
-					connectionId = cli.getVPNOrFail().connect(uri);
-					connection = cli.getVPNConnection(connectionId);
+					connectionId = vpnManager.getVPNOrFail().connect(uri);
+					connection = vpnManager.getVPNConnection(connectionId);
 					if (!cli.isQuiet())
 						out.println(String.format("Created new connection for %s", uri));
 				}
@@ -78,9 +77,9 @@ public class Connect extends AbstractConnectionCommand implements Callable<Integ
 
 	Integer doConnect(CLIContext cli, PrintWriter out, PrintWriter err, IVPNConnection connection)
 			throws DBusException, InterruptedException, IOException {
-		Type status = Type.valueOf(connection.getStatus());
+		var status = Type.valueOf(connection.getStatus());
 		if (status == Type.DISCONNECTED) {
-			try (StateHelper stateHelper = new StateHelper((VPNConnection) connection, cli.getBus())) {
+			try (var stateHelper = new StateHelper((VPNConnection) connection, cli.getBus())) {
 				if (!cli.isQuiet()) {
 					out.println(String.format("Connecting to %s", connection.getUri(true)));
 					cli.getConsole().flush();

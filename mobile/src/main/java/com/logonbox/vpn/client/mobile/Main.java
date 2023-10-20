@@ -9,6 +9,7 @@ import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.HypersocketVersion;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
+import com.logonbox.vpn.client.common.api.IVPN;
 import com.logonbox.vpn.client.common.api.IVPNConnection;
 import com.logonbox.vpn.client.gui.jfx.AppContext;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
@@ -22,16 +23,13 @@ import org.slf4j.event.Level;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.ServiceLoader;
 import java.util.ServiceLoader.Provider;
 import java.util.concurrent.Callable;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javafx.application.Platform;
@@ -113,23 +111,7 @@ public class Main extends AbstractClient implements Callable<Integer>, AppContex
     private String uri;
 
     private Level defaultLogLevel = Level.INFO;
-    private final EmbeddedService srv;
-    private final List<Runnable> onConnectionAdding = Collections.synchronizedList(new ArrayList<>());
-    private final List<Consumer<IVPNConnection>> onConnectionAdded = Collections.synchronizedList(new ArrayList<>());
-    private final List<Consumer<IVPNConnection>> onConnectionRemoving = Collections.synchronizedList(new ArrayList<>());
-    private final List<Consumer<Long>> onConnectionRemoved = Collections.synchronizedList(new ArrayList<>());
-    private final List<Consumer<IVPNConnection>> onConnectionUpdated = Collections.synchronizedList(new ArrayList<>());
-    private final List<Consumer<IVPNConnection>> onConnectionUpdating = Collections.synchronizedList(new ArrayList<>());
-    private final List<BiConsumer<ConfigurationItem<?>, String>> onGlobalConfigChanged = Collections.synchronizedList(new ArrayList<>());
-    private final List<Runnable> onVpnGone = Collections.synchronizedList(new ArrayList<>());
-    private final List<Runnable> onVpnAvailable = Collections.synchronizedList(new ArrayList<>());
-    private final List<Authorize> onAuthorize = Collections.synchronizedList(new ArrayList<>());
-    private final List<Consumer<IVPNConnection>> onConnecting= Collections.synchronizedList(new ArrayList<>());
-    private final List<Consumer<IVPNConnection>> onConnected= Collections.synchronizedList(new ArrayList<>());
-    private final List<BiConsumer<IVPNConnection, String>> onDisconnecting = Collections.synchronizedList(new ArrayList<>());
-    private final List<BiConsumer<IVPNConnection, String>> onDisconnected = Collections.synchronizedList(new ArrayList<>());
-    private final List<BiConsumer<IVPNConnection, String>> onTemporarilyOffline = Collections.synchronizedList(new ArrayList<>());
-    private final List<Failure> onFailure = Collections.synchronizedList(new ArrayList<>());
+    private  EmbeddedService srv;
 
     protected static Optional<UIContext> uiContext = Optional.empty();
 
@@ -148,11 +130,6 @@ public class Main extends AbstractClient implements Callable<Integer>, AppContex
         try {
             log.info(String.format("CWD: %s", new File(".").getCanonicalPath()));
         } catch (IOException e) {
-        }
-        try {
-            srv = new EmbeddedService(BUNDLE);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to start embedded VPN service.", e);
         }
     }
 
@@ -314,104 +291,14 @@ public class Main extends AbstractClient implements Callable<Integer>, AppContex
     }
 
     @Override
-    public final Handle onConnectionAdded(Consumer<IVPNConnection> callback) {
-        onConnectionAdded.add(callback);
-        return () -> onConnectionAdded.remove(callback);
-    }
-
-    @Override
-    public final Handle onConnectionAdding(Runnable callback) {
-        onConnectionAdding.add(callback);
-        return () -> onConnectionAdding.remove(callback);
-    }
-
-    @Override
-    public final Handle onConnectionUpdating(Consumer<IVPNConnection> callback) {
-        onConnectionUpdating.add(callback);
-        return () -> onConnectionUpdating.remove(callback);
-    }
-
-    @Override
-    public final Handle onConnectionUpdated(Consumer<IVPNConnection> callback) {
-        onConnectionUpdated.add(callback);
-        return () -> onConnectionUpdated.remove(callback);
-    }
-
-    @Override
-    public Handle onConnectionRemoved(Consumer<Long> callback) {
-        onConnectionRemoved.add(callback);
-        return () -> onConnectionRemoved.remove(callback);
-    }
-
-    @Override
-    public Handle onConnectionRemoving(Consumer<IVPNConnection> callback) {
-        onConnectionRemoving.add(callback);
-        return () -> onConnectionRemoving.remove(callback);
-    }
-
-    @Override
-    public Handle onGlobalConfigChanged(BiConsumer<ConfigurationItem<?>, String> callback) {
-        onGlobalConfigChanged.add(callback);
-        return () -> onGlobalConfigChanged.remove(callback);
-    }
-
-    @Override
-    public Handle onVpnGone(Runnable callback) {
-        onVpnGone.add(callback);
-        return () -> onVpnGone.remove(callback);
-    }
-
-    @Override
-    public Handle onVpnAvailable(Runnable callback) {
-        onVpnAvailable.add(callback);
-        return () -> onVpnAvailable.remove(callback);
-    }
-
-    @Override
-    public Handle onAuthorize(Authorize callback) {
-        onAuthorize.add(callback);
-        return () -> onAuthorize.remove(callback);
-    }
-
-    @Override
-    public Handle onConnecting(Consumer<IVPNConnection> callback) {
-        onConnecting.add(callback);
-        return () -> onConnecting.remove(callback);
-    }
-
-    @Override
-    public Handle onConnected(Consumer<IVPNConnection> callback) {
-        onConnected.add(callback);
-        return () -> onConnected.remove(callback);
-    }
-
-    @Override
-    public Handle onDisconnecting(BiConsumer<IVPNConnection, String> callback) {
-        onDisconnecting.add(callback);
-        return () -> onDisconnecting.remove(callback);
-    }
-
-    @Override
-    public Handle onDisconnected(BiConsumer<IVPNConnection, String> callback) {
-        onDisconnected.add(callback);
-        return () -> onDisconnected.remove(callback);
-    }
-
-    @Override
-    public Handle onTemporarilyOffline(BiConsumer<IVPNConnection, String> callback) {
-        onTemporarilyOffline.add(callback);
-        return () -> onTemporarilyOffline.remove(callback);
-    }
-
-    @Override
-    public Handle onFailure(Failure callback) {
-        onFailure.add(callback);
-        return () -> onFailure.remove(callback);
-    }
-
-    @Override
     protected void onInit() throws Exception {
-        setVpn(new EmbeddedVPN(srv, this));
+        var vpn = new EmbeddedVPN(srv, this);
+        setVPN(vpn);
+        try {
+            srv = new EmbeddedService(BUNDLE, this::getVPNOrFail);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to start embedded VPN service.", e);
+        }
     }
 
     @Override
@@ -423,9 +310,12 @@ public class Main extends AbstractClient implements Callable<Integer>, AppContex
 
 		private Level logLevel = Level.INFO;
 		private final Level defaultLogLevel = logLevel;
+        private final Supplier<IVPN> vpn;
 
-		protected EmbeddedService(ResourceBundle bundle) throws Exception {
-			super(bundle, Main.this);
+		protected EmbeddedService(ResourceBundle bundle, Supplier<IVPN> vpn) throws Exception {
+			super(bundle);
+			this.vpn = vpn;
+			
 			log.info("Starting in-process VPN service.");
 
 			if (!buildServices()) {
@@ -570,6 +460,11 @@ public class Main extends AbstractClient implements Callable<Integer>, AppContex
         @Override
         protected void onConfigurationChange(ConfigurationItem<?> item, Object oldValue, Object newValue) {
             onGlobalConfigChanged.forEach(c -> c.accept(item, newValue == null ? "" : newValue.toString()));
+        }
+
+        @Override
+        protected Optional<IVPN> buildVpn() {
+            return Optional.of(vpn.get());
         }
 
 	}

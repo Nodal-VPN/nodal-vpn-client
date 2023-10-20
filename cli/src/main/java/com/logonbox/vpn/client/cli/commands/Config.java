@@ -23,18 +23,18 @@ public class Config extends AbstractConnectionCommand {
 		CLIContext cli = getCLI();
 		ConsoleProvider console = cli.getConsole();
 		if (StringUtils.isBlank(name)) {
-			for (String n : cli.getVPNOrFail().getKeys()) {
-				console.out().println(String.format("%-30s %s", n, cli.getVPNOrFail().getValue(n)));
+			for (String n : cli.getVpnManager().getVPNOrFail().getKeys()) {
+				console.out().println(String.format("%-30s %s", n, cli.getVpnManager().getVPNOrFail().getValue(n)));
 			}
 		} else if (StringUtils.isBlank(value)) {
 			try {
-				console.out().println(cli.getVPNOrFail().getValue(name));
+				console.out().println(cli.getVpnManager().getVPNOrFail().getValue(name));
 			}
 			catch(DBusExecutionException dee) {
 				throw new IllegalArgumentException(String.format("No such configuration item %s", name));
 			}
 		} else {
-			cli.getVPNOrFail().setValue(name, value);
+			cli.getVpnManager().getVPNOrFail().setValue(name, value);
 		}
 		console.flush();
 		return 0;

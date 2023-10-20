@@ -24,7 +24,7 @@ public class About implements Callable<Integer> {
 		var console = cli.getConsole();
 		var writer = console.out();
 		if(HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-cli").indexOf("-SNAPSHOT") != -1) {
-			cli.getVPN().ifPresentOrElse(vpn -> {
+			cli.getVpnManager().getVPN().ifPresentOrElse(vpn -> {
 				var vpnFreeMemory = vpn == null ? 0 : vpn.getFreeMemory();
 				var vpnMaxMemory = vpn == null ? 0 : vpn.getMaxMemory();
 				var vpnUsedMemory = vpnMaxMemory - vpnFreeMemory;

@@ -101,7 +101,7 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 	}
 
 	@Override
-	public List<? extends IVPNConnection> getConnections() {
+	public List<IVPNConnection> getConnections() {
 		assertRegistered();
 		try {
 			return ctx.getClientService().getStatus(getOwner()).stream()
@@ -274,4 +274,10 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 		assertRegistered();
 		return ctx.getClientService().isMatchesAnyServerURI(getOwner(), uri);
 	}
+
+    @Override
+    public IVPNConnection getConnection(long id) {
+        assertRegistered();
+        return new VPNConnectionImpl(ctx, ctx.getClientService().getStatus(id).getConnection());
+    }
 }

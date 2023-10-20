@@ -61,14 +61,14 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 	}
 
 	protected boolean isSingleConnection(CLIContext cli) {
-		return cli.getVPNOrFail().getNumberOfConnections() == 1;
+		return cli.getVpnManager().getVPNOrFail().getNumberOfConnections() == 1;
 	}
 
 	protected List<IVPNConnection> getConnectionsMatching(String pattern, CLIContext cli) {
 		var l = new ArrayList<IVPNConnection>();
 		try {
 			var id = Long.parseLong(pattern);
-			var connection = cli.getVPNConnection(id);
+			var connection = cli.getVpnManager().getVPNConnection(id);
 			if (connection == null)
 				throw new IllegalArgumentException(String.format("No connection %d (hint: use 'list' command)", id));
 			try {
@@ -79,7 +79,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 			}
 			l.add(connection);
 		} catch (NumberFormatException nfe) {
-			for (var c : cli.getVPNConnections()) {
+			for (var c : cli.getVpnManager().getVPNConnections()) {
 				if (pattern == null || pattern.equals("") || c.getUri(true).matches(pattern)
 						|| (c.getName() != null && c.getName().matches(pattern)) || c.getUri(true).matches(pattern)) {
 					l.add(c);
@@ -111,7 +111,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 
 			@Override
 			public String getUUID() {
-				return cli.getVPNOrFail().getUUID();
+				return cli.getVpnManager().getVPNOrFail().getUUID();
 			}
 
 			@Override

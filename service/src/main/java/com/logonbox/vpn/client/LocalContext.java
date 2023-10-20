@@ -2,8 +2,8 @@ package com.logonbox.vpn.client;
 
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.PromptingCertManager;
-import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
+import com.logonbox.vpn.client.common.api.IVPN;
 import com.logonbox.vpn.client.service.ClientService;
 import com.logonbox.vpn.drivers.lib.PlatformService;
 
@@ -38,8 +38,6 @@ public interface LocalContext extends Closeable {
 
     void setLevel(Level level);
 
-    VpnManager getVPNManager();
-
     @Override
     void close();
 
@@ -73,5 +71,7 @@ public interface LocalContext extends Closeable {
             String message);
     
     void fireExit();
+
+    IVPN getVPN();
 
 }

@@ -2,6 +2,7 @@ package com.logonbox.vpn.client.common;
 
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.api.IVPN;
+import com.logonbox.vpn.client.common.api.IVPNConnection;
 import com.logonbox.vpn.drivers.lib.util.OsUtil;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,10 +15,15 @@ import java.io.IOException;
 import java.net.CookieStore;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
@@ -46,6 +52,22 @@ public abstract class AbstractClient implements VpnManager {
 	private UpdateService updateService;
 	private CookieStore cookieStore;
 	private Properties instanceProperties = new Properties();
+    protected final List<Runnable> onConnectionAdding = Collections.synchronizedList(new ArrayList<>());
+    protected final List<Consumer<IVPNConnection>> onConnectionAdded = Collections.synchronizedList(new ArrayList<>());
+    protected final List<Consumer<IVPNConnection>> onConnectionRemoving = Collections.synchronizedList(new ArrayList<>());
+    protected final List<Consumer<Long>> onConnectionRemoved = Collections.synchronizedList(new ArrayList<>());
+    protected final List<Consumer<IVPNConnection>> onConnectionUpdated = Collections.synchronizedList(new ArrayList<>());
+    protected final List<Consumer<IVPNConnection>> onConnectionUpdating = Collections.synchronizedList(new ArrayList<>());
+    protected final List<BiConsumer<ConfigurationItem<?>, String>> onGlobalConfigChanged = Collections.synchronizedList(new ArrayList<>());
+    protected final List<Runnable> onVpnGone = Collections.synchronizedList(new ArrayList<>());
+    protected final List<Runnable> onVpnAvailable = Collections.synchronizedList(new ArrayList<>());
+    protected final List<Authorize> onAuthorize = Collections.synchronizedList(new ArrayList<>());
+    protected final List<Consumer<IVPNConnection>> onConnecting= Collections.synchronizedList(new ArrayList<>());
+    protected final List<Consumer<IVPNConnection>> onConnected= Collections.synchronizedList(new ArrayList<>());
+    protected final List<BiConsumer<IVPNConnection, String>> onDisconnecting = Collections.synchronizedList(new ArrayList<>());
+    protected final List<BiConsumer<IVPNConnection, String>> onDisconnected = Collections.synchronizedList(new ArrayList<>());
+    protected final List<BiConsumer<IVPNConnection, String>> onTemporarilyOffline = Collections.synchronizedList(new ArrayList<>());
+    protected final List<Failure> onFailure = Collections.synchronizedList(new ArrayList<>());
 
 	protected AbstractClient() {
 		certManager = createCertManager();
@@ -63,7 +85,7 @@ public abstract class AbstractClient implements VpnManager {
 		}
 	}
 
-	protected final UpdateService createUpdateService() {
+	protected UpdateService createUpdateService() {
 		try {
 			if("true".equals(System.getProperty("logonbox.vpn.dummyUpdates"))) {
 				return new DummyUpdateService(this);
@@ -95,6 +117,102 @@ public abstract class AbstractClient implements VpnManager {
 			updateService = createUpdateService();
 		return updateService;
 	}
+
+    @Override
+    public final Handle onConnectionAdded(Consumer<IVPNConnection> callback) {
+        onConnectionAdded.add(callback);
+        return () -> onConnectionAdded.remove(callback);
+    }
+
+    @Override
+    public final Handle onConnectionAdding(Runnable callback) {
+        onConnectionAdding.add(callback);
+        return () -> onConnectionAdding.remove(callback);
+    }
+
+    @Override
+    public final Handle onConnectionUpdating(Consumer<IVPNConnection> callback) {
+        onConnectionUpdating.add(callback);
+        return () -> onConnectionUpdating.remove(callback);
+    }
+
+    @Override
+    public final Handle onConnectionUpdated(Consumer<IVPNConnection> callback) {
+        onConnectionUpdated.add(callback);
+        return () -> onConnectionUpdated.remove(callback);
+    }
+
+    @Override
+    public final Handle onConnectionRemoved(Consumer<Long> callback) {
+        onConnectionRemoved.add(callback);
+        return () -> onConnectionRemoved.remove(callback);
+    }
+
+    @Override
+    public final Handle onConnectionRemoving(Consumer<IVPNConnection> callback) {
+        onConnectionRemoving.add(callback);
+        return () -> onConnectionRemoving.remove(callback);
+    }
+
+    @Override
+    public final Handle onGlobalConfigChanged(BiConsumer<ConfigurationItem<?>, String> callback) {
+        onGlobalConfigChanged.add(callback);
+        return () -> onGlobalConfigChanged.remove(callback);
+    }
+
+    @Override
+    public final Handle onVpnGone(Runnable callback) {
+        onVpnGone.add(callback);
+        return () -> onVpnGone.remove(callback);
+    }
+
+    @Override
+    public final Handle onVpnAvailable(Runnable callback) {
+        onVpnAvailable.add(callback);
+        return () -> onVpnAvailable.remove(callback);
+    }
+
+    @Override
+    public final Handle onAuthorize(Authorize callback) {
+        onAuthorize.add(callback);
+        return () -> onAuthorize.remove(callback);
+    }
+
+    @Override
+    public final Handle onConnecting(Consumer<IVPNConnection> callback) {
+        onConnecting.add(callback);
+        return () -> onConnecting.remove(callback);
+    }
+
+    @Override
+    public final Handle onConnected(Consumer<IVPNConnection> callback) {
+        onConnected.add(callback);
+        return () -> onConnected.remove(callback);
+    }
+
+    @Override
+    public final Handle onDisconnecting(BiConsumer<IVPNConnection, String> callback) {
+        onDisconnecting.add(callback);
+        return () -> onDisconnecting.remove(callback);
+    }
+
+    @Override
+    public final Handle onDisconnected(BiConsumer<IVPNConnection, String> callback) {
+        onDisconnected.add(callback);
+        return () -> onDisconnected.remove(callback);
+    }
+
+    @Override
+    public final Handle onTemporarilyOffline(BiConsumer<IVPNConnection, String> callback) {
+        onTemporarilyOffline.add(callback);
+        return () -> onTemporarilyOffline.remove(callback);
+    }
+
+    @Override
+    public final Handle onFailure(Failure callback) {
+        onFailure.add(callback);
+        return () -> onFailure.remove(callback);
+    }
 
 	@Override
     public final Optional<IVPN> getVPN() {
@@ -167,7 +285,7 @@ public abstract class AbstractClient implements VpnManager {
 	
     protected abstract void onLazyInit() throws Exception;
     
-    protected final void setVpn(IVPN vpn) {
+    protected final void setVPN(IVPN vpn) {
         this.vpn = vpn;
     }
 

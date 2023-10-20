@@ -1,9 +1,9 @@
 package com.logonbox.vpn.client.cli.commands;
 
 import com.logonbox.vpn.client.cli.StateHelper;
-import com.logonbox.vpn.client.common.ConnectionUtil;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
+import com.logonbox.vpn.client.common.ConnectionUtil;
 import com.logonbox.vpn.client.common.dbus.VPNConnection;
 
 import java.util.concurrent.Callable;
@@ -47,7 +47,8 @@ public class Create extends AbstractConnectionCommand implements Callable<Intege
 		}
 
 		var cli = getCLI();
-		var connectionId = cli.getVPNOrFail().getConnectionIdForURI(uriObj.toASCIIString());
+		var vpnManager = cli.getVpnManager();
+        var connectionId = vpnManager.getVPNOrFail().getConnectionIdForURI(uriObj.toASCIIString());
 		var console = cli.getConsole();
 		var err = console.err();
 		var out = console.out();
@@ -59,9 +60,9 @@ public class Create extends AbstractConnectionCommand implements Callable<Intege
 			return 1;
 		}
 
-		connectionId = cli.getVPNOrFail().createConnection(uriObj.toASCIIString(), connectAtStartup, stayConnected, mode.name());
+		connectionId = vpnManager.getVPNOrFail().createConnection(uriObj.toASCIIString(), connectAtStartup, stayConnected, mode.name());
 		if (!dontConnectNow) {
-			var connection = cli.getVPNConnection(connectionId);
+			var connection = vpnManager.getVPNConnection(connectionId);
 			if (background) {
 				connection.connect();
 			} else {

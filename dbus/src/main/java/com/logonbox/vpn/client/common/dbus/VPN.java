@@ -161,27 +161,6 @@ public interface VPN extends IVPN, DBusInterface {
 
 	}
 
-	public class Alert extends DBusSignal {
-
-		private final String message;
-		private final int alertType;
-
-		public Alert(String path, String message, int alertType) throws DBusException {
-			super(path, message, alertType);
-			this.message = message;
-			this.alertType = alertType;
-		}
-
-		public String getMessage() {
-			return message;
-		}
-
-		public int getAlertType() {
-			return alertType;
-		}
-
-	}
-
 	public static  class Exit extends DBusSignal {
 		public Exit(String path) throws DBusException {
 			super(path);

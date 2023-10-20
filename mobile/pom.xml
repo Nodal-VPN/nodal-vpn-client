@@ -7,6 +7,7 @@
         <artifactId>logonbox-desktop-vpn-clients</artifactId>
         <groupId>com.logonbox</groupId>
         <version>4.0.0-SNAPSHOT</version>
+        <relativePath>../</relativePath>
     </parent>
 
     <artifactId>client-logonbox-vpn-mobile</artifactId>

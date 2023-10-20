@@ -4,7 +4,6 @@ import com.logonbox.vpn.client.AbstractService;
 import com.logonbox.vpn.client.common.AbstractClient;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
-import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.HypersocketVersion;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.api.IVPN;
@@ -49,6 +48,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -207,7 +207,7 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 				System.exit(3);
 			}
 
-			if (!publishDefaultServices()) {
+			if (!createVpn()) {
 				System.exit(1);
 			}
 			
@@ -238,8 +238,8 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 		org.apache.log4j.Logger.getRootLogger().setLevel(slf4jToLog4JLevel(level));
 	}
 
-	@Override
-	public void shutdown(boolean restart) {
+    @Override
+	protected void onShutdown(boolean restart) {
 		System.exit(restart ? 99 : 0);
 	}
 
@@ -264,34 +264,29 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
         
     }
 
-    @Override
-    protected IVPN createVpn() {
-        return new VPNImpl(this);
-    }
-
-    protected final boolean publishDefaultServices() {
+    protected final Optional<IVPN> buildVpn() {
 
         try {
             /* DBus */
             if (log.isInfoEnabled()) {
                 log.info(String.format("Exporting VPN services to DBus"));
             }
-            vpn = new createVpn();
+            var vpn = new VPNImpl(this);
             conn.exportObject("/com/logonbox/vpn", vpn);
             if (log.isInfoEnabled()) {
                 log.info(String.format("    VPN"));
             }
-            for (ConnectionStatus connectionStatus : clientService.getStatus(null)) {
-                Connection connection = connectionStatus.getConnection();
+            for (var connectionStatus : getClientService().getStatus(null)) {
+                var connection = connectionStatus.getConnection();
                 log.info(String.format("    Connection %d - %s", connection.getId(), connection.getDisplayName()));
                 conn.exportObject(String.format("/com/logonbox/vpn/%d", connection.getId()),
                         new VPNConnectionImpl(this, connection));
             }
 
-            return true;
+            return Optional.of(vpn);
         } catch (Exception e) {
             log.error("Failed to publish service", e);
-            return false;
+            return Optional.empty();
         }
     }
 
@@ -502,7 +497,7 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
             throw new IllegalStateException(
                     "Cannot prompt to accept invalid certificate. A front-end must be running.");
         try {
-            getConnection().sendMessage(new VPN.CertificatePrompt(((VPN)getVPNManager()).getObjectPath(),
+            getConnection().sendMessage(new VPN.CertificatePrompt(((VPN)getVPN()).getObjectPath(),
                     alertType.name(), title, content, key, hostname, message));
         } catch (DBusException e) {
             throw new IllegalStateException(
@@ -823,7 +818,7 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 		connTask = getQueue().schedule(() -> {
 			try {
 				connect();
-				publishDefaultServices();
+				createVpn();
 			} catch (DBusException | IOException e) {
 			}
 		}, 10, TimeUnit.SECONDS);

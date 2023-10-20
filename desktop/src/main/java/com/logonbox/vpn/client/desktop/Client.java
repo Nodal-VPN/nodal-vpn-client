@@ -175,7 +175,7 @@ public class Client extends Application implements Listener, UIContext {
 	public void confirmExit() {
 		int active = 0;
 		try {
-			active = getManager().getVPN().getActiveButNonPersistentConnections();
+			active = getManager().getVPNOrFail().getActiveButNonPersistentConnections();
 		} catch (Exception e) {
 			exitApp();
 		}
@@ -199,7 +199,7 @@ public class Client extends Application implements Listener, UIContext {
 
 				if (result.get() == disconnect) {
 					opQueue.execute(() -> {
-						getManager().getVPN().disconnectAll();
+						getManager().getVPNOrFail().disconnectAll();
 						exitApp();
 					});
 				} else if (result.get() == stayConnected) {

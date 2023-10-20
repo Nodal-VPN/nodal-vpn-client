@@ -18,8 +18,7 @@ import com.logonbox.vpn.client.common.ClientPromptingCertManager;
 import com.logonbox.vpn.client.common.HypersocketVersion;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.UpdateService;
-import com.logonbox.vpn.client.common.api.IVPN;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.dbus.AbstractDBusClient;
 import com.logonbox.vpn.client.common.dbus.DBusClient;
 import com.logonbox.vpn.client.common.dbus.VPN;
@@ -41,7 +40,6 @@ import java.io.PrintWriter;
 import java.net.CookieStore;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 import picocli.CommandLine;
@@ -100,7 +98,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 	private boolean exitWhenDone;
 	private Thread awaitingServiceStart;
 
-	public CLI() throws DBusException {
+	public CLI() {
 		super();
 		setSupportsAuthorization(true);
 		try {
@@ -108,69 +106,72 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 		} catch (IllegalArgumentException iae) {
 			console = new BufferedDevice();
 		}
+		onVpnAvailable(() -> {
+		    log.info("Configuring Bus");
 
-		addBusLifecycleListener(new BusLifecycleListener() {
+            giveUpWaitingForServiceStart();
 
-			@Override
-			public void busInitializer(AbstractConnection connection) throws DBusException {
-				log.info("Configuring Bus");
-
-				giveUpWaitingForServiceStart();
-
-				AbstractConnection bus = getBus();
-				if (monitor) {
-					if(bus instanceof DBusConnection) {
-						((DBusConnection)bus).addGenericSigHandler(new DBusMatchRule((String) null, "com.logonbox.vpn.VPN", (String) null),
-								(sig) -> {
-									try {
-										getConsole().err().println(sig);
-									} catch (IOException e) {
-										throw new IllegalStateException("Cannot write to console.");
-									}
-								});
-						((DBusConnection)bus).addGenericSigHandler(
-								new DBusMatchRule((String) null, "com.logonbox.vpn.Connection", (String) null), (sig) -> {
-									try {
-										getConsole().err().println(sig);
-									} catch (IOException e) {
-										throw new IllegalStateException("Cannot write to console.");
-									}
-								});
-					}
-				}
-				bus.addSigHandler(VPN.Exit.class, new DBusSigHandler<VPN.Exit>() {
-					@Override
-					public void handle(VPN.Exit sig) {
-						exitCLI();
-					}
-				});
-			}
-
-			@Override
-			public void busGone() {
-				if (awaitingServiceStop != null) {
-					// Bridge lost as result of update, wait for it to come back
-					giveUpWaitingForServiceStop();
-					log.debug(String.format("Service stopped, awaiting restart"));
-					awaitingServiceStart = new Thread() {
-						@Override
-						public void run() {
-							try {
-								Thread.sleep(30000);
-							} catch (InterruptedException e) {
-							}
-							if (awaitingServiceStop != null)
-								giveUpWaitingForServiceStart();
-						}
-					};
-					awaitingServiceStart.start();
-				}
-			}
-
+            AbstractConnection bus = getBus();
+            try {
+                if (monitor) {
+                    if(bus instanceof DBusConnection) {
+                        ((DBusConnection)bus).addGenericSigHandler(new DBusMatchRule((String) null, "com.logonbox.vpn.VPN", (String) null),
+                                (sig) -> {
+                                    try {
+                                        getConsole().err().println(sig);
+                                    } catch (IOException e) {
+                                        throw new IllegalStateException("Cannot write to console.");
+                                    }
+                                });
+                        ((DBusConnection)bus).addGenericSigHandler(
+                                new DBusMatchRule((String) null, "com.logonbox.vpn.Connection", (String) null), (sig) -> {
+                                    try {
+                                        getConsole().err().println(sig);
+                                    } catch (IOException e) {
+                                        throw new IllegalStateException("Cannot write to console.");
+                                    }
+                                });
+                    }
+                }
+                bus.addSigHandler(VPN.Exit.class, new DBusSigHandler<VPN.Exit>() {
+                    @Override
+                    public void handle(VPN.Exit sig) {
+                        exitCLI();
+                    }
+                });
+            }
+            catch(DBusException dbe) {
+                throw new IllegalStateException("");
+            }
 		});
+		onVpnGone(() -> {
+		    if (awaitingServiceStop != null) {
+                // Bridge lost as result of update, wait for it to come back
+                giveUpWaitingForServiceStop();
+                log.debug(String.format("Service stopped, awaiting restart"));
+                awaitingServiceStart = new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(30000);
+                        } catch (InterruptedException e) {
+                        }
+                        if (awaitingServiceStop != null)
+                            giveUpWaitingForServiceStart();
+                    }
+                };
+                awaitingServiceStart.start();
+            }
+		});
+
 	}
 
 	@Override
+    public VpnManager getVpnManager() {
+        return this;
+    }
+
+    @Override
 	public boolean isQuiet() {
 		return quiet;
 	}
@@ -350,23 +351,13 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 		}
 
 		@Override
-		public Optional<IVPN> getVPN() {
-			return CLI.this.getVPN();
-		}
+        public VpnManager getVpnManager() {
+            return CLI.this;
+        }
 
-		@Override
-		public IVPNConnection getVPNConnection(long connectionId) {
-			return CLI.this.getVPNConnection(connectionId);
-		}
-
-		@Override
+        @Override
 		public ConsoleProvider getConsole() {
 			return CLI.this.getConsole();
-		}
-
-		@Override
-		public List<IVPNConnection> getVPNConnections() {
-			return CLI.this.getVPNConnections();
 		}
 
 		@Override
@@ -403,6 +394,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 		public CookieStore getCookieStore() {
 			return CLI.this.getCookieStore();
 		}
+
 	}
 
 	@Override

@@ -6,14 +6,14 @@ import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConfigurationRepository;
 import com.logonbox.vpn.client.common.Connection;
+import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionRepository;
 import com.logonbox.vpn.client.common.ConnectionStatus;
+import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.UserCancelledException;
 import com.logonbox.vpn.client.common.VpnManager;
-import com.logonbox.vpn.client.common.Connection.Mode;
-import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.drivers.lib.AbstractSystemContext;
 import com.logonbox.vpn.drivers.lib.PlatformService;
 import com.logonbox.vpn.drivers.lib.SystemConfiguration;
@@ -143,13 +143,13 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 			}
 			if(configurationRepository.getValue(null, ConfigurationItem.SINGLE_ACTIVE_CONNECTION)) {
 				while(activeSessions.size() > 0) {
-					disconnect(activeSessions.values().iterator().next().getConnection(), "Switching to another server.");	
+					disconnect(activeSessions.values().iterator().next().getConnection(), "Switching to another server.");
 				}
 			}
 
 			c.setError(null);
 			save(c);
-			
+
 			VPNSession task = createJob(c);
 			temporarilyOffline.remove(c);
 			task.setTask(context.getQueue().schedule(() -> doConnect(task), 1, TimeUnit.MILLISECONDS));
@@ -355,7 +355,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 	public Connection getConnectionStatus(Connection connection) throws IOException {
 		if(!connection.isAuthorized() || StringUtils.isBlank(connection.getUserPrivateKey()))
 			return connection;
-		
+
 		var prms = context.getSSLParameters();
 		var ctx = context.getSSLContext();
 		var client = HttpClient.newBuilder()
@@ -394,13 +394,13 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 					log.info("Error is retryable.", ex);
 					throw ex;
 				}
-							
+
 			}
 		}
 		catch(InterruptedException ex) {
 			throw new IOException("Interrupted.", ex);
 		}
-			
+
 		/*
 		 * The Http service appears to be there, and a VALID peer with this public key
 		 * does not exist, so is likely an invalidated session.
@@ -413,16 +413,16 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 
 	private Connection getConnectionStatusFromHost(String rootUri, Connection connection, HttpClient client)
 			throws IOException, InterruptedException {
-	    
+
 		addConnectionCookie(connection, URI.create(rootUri));
 
-        
+
         /* A simple ping first. This isn't strictly required, but getConnectionError()
-         * does the same thing, so lets stick with it for now.. 
+         * does the same thing, so lets stick with it for now..
          */
 		var pingUrl = rootUri + "/api/server/ping";
 		var uriObj = URI.create(pingUrl);
-		
+
 		log.info(String.format("Testing if a connection to %s should be retried using %s.",
 				connection.getDisplayName(), pingUrl));
 		var uuid = getUUID(connection.getOwnerOrCurrent());
@@ -437,17 +437,17 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 					connection.getDisplayName(), response.statusCode()));
 			throw new IOException("Server returned a non-200 response.");
 		}
-		
+
 		/* So the ping was OK (we dont care about the content of the response here, just that it happened), this means we either need to re-authorize, or somehow
 		 * the server is no longer accepting wireguard packets, but is still running and
 		 * accepting HTTP requests.
-		 * 
-		 * It turns out this can happen, so we do need to check if we really need to 
+		 *
+		 * It turns out this can happen, so we do need to check if we really need to
 		 * re-authorize by seeing if our public key is still valid.
-		 * 
+		 *
 		 * For 2.4 servers, we also expect a X-VPN-Challenge response header, that we
 		 * encrypt with our private key, and send the results in a X-VPN-Response header
-		 * in the /configuration call. 
+		 * in the /configuration call.
 		 */
 
 		var checkUri = rootUri + "/api/peers/check/" + connection.getUserPublicKey();
@@ -463,9 +463,9 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 		response = client.send(request, BodyHandlers.ofString());
 		if(response.statusCode() == 200) {
 			/* This public key DOES exist. Let's see if we have any configuration updates */
-			
+
 			log.info(String.format("A peer with the key %s is still valid according to the server, so the problem is transient.", connection.getUserPublicKey()));
-			
+
 			var challenge = response.headers().firstValue(X_VPN_CHALLENGE).orElse("");
 			if(challenge.equals("")) {
 				log.info("Server appears to be a pre-2.4.0 server, cannot get configuration updates at this time.");
@@ -474,19 +474,19 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 				var configUri = rootUri + "/api/peers/configuration/" + connection.getUserPublicKey();
 				log.info(String.format("Asking for latest configuration for %s on %s.",
 						connection.getDisplayName(), configUri));
-				
+
 				/* Calculate the challenges response */
 				log.info("Signing challenge: {} using public key of {}", challenge, connection.getUserPublicKey());
-				
+
 				//
 				// TODO!!!!
-				// 
+				//
 				// This is not secure at all. It is a placeholder until we can get
 				// signature verification working.
 
 				var signature = challenge;
 				log.info("Signature: {}", signature);
-				
+
 				request = builder
 				         .uri(URI.create(configUri))
 				         .version(Version.HTTP_1_1)
@@ -496,28 +496,28 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 
 				response = client.send(request, BodyHandlers.ofString());
 				if(response.statusCode() == 200) {
-					
+
 				    var rdr = new INIReader.Builder().
 				            withMultiValueMode(MultiValueMode.SEPARATED).
 				            build();
-				    
+
 				    try {
     					var ini = rdr.read(response.body());
-    			
+
     					/* Interface (us) */
     					var interfaceSection = ini.section("Interface");
     					connection.setDns(Arrays.asList(interfaceSection.getAllOr("DNS", new String[0])));
-    			 
+
     					connection.setPreUp(interfaceSection.contains("PreUp") ?  String.join("\n", interfaceSection.getAll("PreUp")) : "");
     					connection.setPostUp(interfaceSection.contains("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
     					connection.setPreDown(interfaceSection.contains("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
     					connection.setPostDown(interfaceSection.contains("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
-    			
+
     					/* Custom LogonBox */
     					ini.sectionOr("LogonBox").ifPresent(s -> {
                             connection.setRouteAll(s.getBooleanOr("RouteAll", false));
     					});
-    			
+
     					/* Peer (them) */
     					var peerSection = ini.section("Peer");
     					var endpoint = peerSection.get("Endpoint");
@@ -526,7 +526,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
     					connection.setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
     					connection.setPeristentKeepalive(peerSection.getInt("PersistentKeepalive"));
     					connection.setAllowedIps(Arrays.asList(interfaceSection.getAllOr("AllowedIPs", new String[0])));
-    							
+
     					return save(connection);
 				    }
 				    catch(ParseException pe) {
@@ -576,14 +576,14 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 					/* Failed to reach Http server, assume this is a transient network error and
 					 * keep retrying */
 					log.info("Error is retryable.", ex2);
-					return ex;			
-				}			
-			} 
+					return ex;
+				}
+			}
 		}
 		catch(InterruptedException ex) {
 			return new IOException("Interrupted.", ex);
 		}
-			
+
 		/*
 		 * The Http service appears to be there, and a VALID peer with this public key
 		 * does not exist, so is likely an invalidated session.
@@ -596,7 +596,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 	private boolean doGetConnectionError(String rootUri, Connection connection) throws IOException, InterruptedException {
 
 		addConnectionCookie(connection, URI.create(rootUri));
-		
+
 		var client = HttpClient.newBuilder()
 				.sslParameters(context.getSSLParameters())
 				.sslContext(context.getSSLContext())
@@ -607,9 +607,9 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 		        .build();
 
 		var builder = HttpRequest.newBuilder();
-		
+
 		/* A simple ping first. This is mainly for backwards compatibility with servers
-		 * prior to version 2.3.12. 
+		 * prior to version 2.3.12.
 		 */
 		var uri = rootUri + "/api/server/ping";
 		log.info(String.format("Testing if a connection to %s should be retried using %s.",
@@ -626,12 +626,12 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 					connection.getDisplayName(), response.statusCode()));
 			throw new IOException("Server returned a non-200 response.");
 		}
-		
+
 		/* So the ping was OK (we dont care about the content of the response here, just that it happened), this means we either need to re-authorize, or somehow
 		 * the server is no longer accepting wireguard packets, but is still running and
 		 * accepting HTTP requests.
-		 * 
-		 * It turns out this can happen, so we do need to check if we really need to 
+		 *
+		 * It turns out this can happen, so we do need to check if we really need to
 		 * re-authorize by seeing if our public key is still valid.
 		 */
 
@@ -658,7 +658,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 			/* TODO This public key DOES NOT exist */
 			log.info(String.format("No peer with the key %s is valid according to the server (error %d), so we need to re-authorize.", connection.getUserPublicKey(), response.statusCode()));
 		}
-		
+
 		return false;
 	}
 
@@ -926,10 +926,12 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 			log.warn(String.format("%d connections already active.", started.size()));
 		}
 		for (var session : started) {
-		    Connection connection = getStatusForPublicKey(session.configuration().publicKey()).getConnection();
-			activeSessions.put(connection, new VPNSession(connection, context, session));
+		    session.configuration().firstPeer().ifPresent(peer -> {
+	            var connection = getStatusForPublicKey(peer.publicKey()).getConnection();
+	            activeSessions.put(connection, new VPNSession(connection, context, session)); 
+		    });
 		}
-		
+
 		context.getQueue().scheduleWithFixedDelay(() -> {
 			try {
 				resolveRemoteDependencies(context.getCertManager(), Util.checkEndsWithSlash(getExtensionStoreRoot()) + "api/store/repos2",
@@ -939,10 +941,10 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 				if (log.isDebugEnabled()) {
 					log.error("Failed to ping extension store.", e);
 				}
-			}	
+			}
 		}, 0, 1, TimeUnit.DAYS);
 
-		
+
 	}
 
 	public boolean startSavedConnections() {
@@ -1053,7 +1055,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 			synchronized (activeSessions) {
 				for (Map.Entry<Connection, VPNSession> sessionEn : new HashMap<>(activeSessions).entrySet()) {
 					Connection connection = sessionEn.getKey();
-	
+
 					if (temporarilyOffline.contains(connection)) {
 						if(log.isDebugEnabled()) {
 							log.info("{} is temporarily offline, checking if alive.", connection.getDisplayName());
@@ -1075,7 +1077,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 							/* Not alive, but it might have been invalidated while being temporarily
 							 * offline. If that's the case, we won't be receiving any more handshakes,
 							 * as there is no valid peer on the other end.
-							 * 
+							 *
 							 * In this case, we use the HTTP check again
 							 */
 							IOException reason = getConnectionError(connection);
@@ -1085,7 +1087,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 							} else if(reason instanceof ReauthorizeException) {
 								if (log.isDebugEnabled())
 									log.debug("Reason was reauthorization");
-								
+
 								if (connection.isAuthorized())
 									deauthorize(connection);
 								disconnect(connection, "Re-authorize required");
@@ -1096,11 +1098,11 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 								}
 							}
 						}
-	
+
 						if (log.isDebugEnabled())
 							log.debug(String.format("%s still temporarily offline.", connection.getDisplayName()));
 					} else {
-	
+
 						if (!connection.isAuthorized() || authorizingClients.containsKey(connection)
 								|| connectingSessions.containsKey(connection)
 								|| sessionEn.getValue().isAlive()) {
@@ -1113,12 +1115,12 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 							}
 							continue;
 						}
-	
+
 						/* Kill the dead session */
 						log.info(String.format(
 								"Session with public key %s hasn't had a valid handshake for %d seconds, disconnecting.",
 								connection.getUserPublicKey(), ClientService.HANDSHAKE_TIMEOUT));
-	
+
 						/*
 						 * Try to work out why .... we can only do this with LogonBox VPN because the
 						 * HTTP service should be there as well. If there is an internet outage, or a
@@ -1133,7 +1135,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 							if (reason instanceof ReauthorizeException) {
 								if (log.isDebugEnabled())
 									log.debug("Reason was reauthorization");
-								
+
 								if (connection.isAuthorized())
 									deauthorize(connection);
 								disconnect(connection, "Re-authorize required");
@@ -1141,7 +1143,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 
 								if (log.isDebugEnabled())
 									log.debug("Reason was {}", reason == null ? "NULL" : reason.getClass().getName());
-								
+
 								if (connection.isStayConnected()) {
 									temporarilyOffline(connection, reason);
 								} else {
@@ -1187,7 +1189,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 			if (log.isInfoEnabled()) {
 				log.info("Connecting to " + connection);
 			}
-			
+
 			/* Check status up front */
 			if(connection.isAuthorized()) {
 				try {
@@ -1197,17 +1199,17 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 					log.error("Failed up-front connection test. Will continue for now.", e);
 				}
 			}
-			
+
 			try {
 
 				/* Fire events */
 			    context.fireConnecting(connection);
-				
+
 				job.open();
 				if (log.isInfoEnabled()) {
 					log.info("Ready to use " + connection);
 				}
-				
+
 				if(ConnectionUtil.setLastKnownServerIpAddress(connection)) {
 					if(!connection.isTransient())
 						connection = doSave(connection);
@@ -1228,7 +1230,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 						failedToConnect(connection, e);
 						if (log.isErrorEnabled()) {
 							log.error("Failed to connect " + connection, e);
-						}	
+						}
 					}
 					else if(reason instanceof ReauthorizeException) {
 						removeState(connection);
@@ -1259,7 +1261,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 						failedToConnect(connection, e);
 						if (log.isErrorEnabled()) {
 							log.error("Failed to connect " + connection, e);
-						}	
+						}
 					}
 				} else {
 					failedToConnect(connection, e);
@@ -1386,34 +1388,34 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
     @Override
     public SystemConfiguration configuration() {
         return new SystemConfiguration() {
-            
+
             @Override
             public Duration serviceWait() {
                 return Duration.ofSeconds(ClientService.SERVICE_WAIT_TIMEOUT);
             }
-            
+
             @Override
             public boolean ignoreLocalRoutes() {
                 return context.getClientService().getValue(null, ConfigurationItem.IGNORE_LOCAL_ROUTES);
             }
-            
+
             @Override
             public Duration handshakeTimeout() {
                 return Duration.ofSeconds(ClientService.HANDSHAKE_TIMEOUT);
             }
-            
+
             @Override
             public Optional<String> dnsIntegrationMethod() {
-                var val = context.getClientService().getValue(null, ConfigurationItem.DNS_INTEGRATION_METHOD); 
+                var val = context.getClientService().getValue(null, ConfigurationItem.DNS_INTEGRATION_METHOD);
                 return val.equals("AUTO") ? Optional.empty() : Optional.of(val);
             }
-            
+
             @Override
             public Optional<Integer> defaultMTU() {
                 var val = context.getClientService().getValue(null, ConfigurationItem.MTU);
                 return val == 0 ?Optional.empty() : Optional.of(val);
             }
-            
+
             @Override
             public Optional<Duration> connectTimeout() {
                 return Optional.of(Duration.ofSeconds(ClientService.CONNECT_TIMEOUT));
@@ -1424,14 +1426,14 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
     @Override
     public void addScriptEnvironmentVariables(VpnAdapter session, Map<String, String> env) {
         Connection connection = connectionRepository.getConnectionByPublicKey(session.configuration().publicKey());
-        
+
         env.put("LBVPN_DEFAULT_DISPLAY_NAME", connection.getDefaultDisplayName());
         env.put("LBVPN_DISPLAY_NAME", connection.getDisplayName());
         env.put("LBVPN_HOSTNAME", connection.getHostname());
         env.put("LBVPN_NAME", connection.getName() == null ? "": connection.getName());
         env.put("LBVPN_ID", String.valueOf(connection.getId()));
         env.put("LBVPN_PORT", String.valueOf(connection.getPort()));
-        
+
     }
 
     @Override

@@ -52,7 +52,7 @@ public abstract class AbstractTray implements AutoCloseable, Tray {
                 mgr.onConnectionRemoved(id -> reload()),
                 mgr.onConnecting(conx -> reload()),
                 mgr.onConnected(conx -> reload()),
-                mgr.onDisconnecting(conx -> reload()),
+                mgr.onDisconnecting((conx,reason) -> reload()),
                 mgr.onDisconnected((conx, reason) -> reload()),
                 mgr.onTemporarilyOffline((conx, reason) -> reload())
 		    );

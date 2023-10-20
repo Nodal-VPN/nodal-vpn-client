@@ -21,7 +21,7 @@ public class Shutdown implements Callable<Integer> {
 	@Override
 	public Integer call() throws Exception {
 		var cli = (CLIContext) spec.parent().userObject();
-		cli.getVPNOrFail().shutdown(false);
+		cli.getVpnManager().getVPNOrFail().shutdown(false);
 		cli.exitWhenDone();
 		return 0;
 	}

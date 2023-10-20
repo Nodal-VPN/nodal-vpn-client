@@ -27,7 +27,7 @@ public class Connections implements Callable<Integer> {
 		if(OsUtil.isAdministrator())  {
 			writer.println(String.format("%5s %-25s %-15s %-5s %-10s %s", "ID", "Name", "Owner", "Flags", "Status", "URL"));
 			writer.println("=======================================================================================================");
-			for (var connection : cli.getVPNConnections()) {
+			for (var connection : cli.getVpnManager().getVPNConnections()) {
 				writer.println(String.format("%5d %-25s %-15s %-5s %-10s %s", 
 						connection.getId(),
 						trimMax(connection.getDisplayName(), 25),
@@ -40,7 +40,7 @@ public class Connections implements Callable<Integer> {
 		else {
 			writer.println(String.format("%5s %-35s %-5s %-14s %s", "ID", "Name", "Flags", "Status", "URL"));
 			writer.println("=======================================================================================");
-			for (var connection : cli.getVPNConnections()) {
+			for (var connection : cli.getVpnManager().getVPNConnections()) {
 				writer.println(String.format("%5d %-35s %-5s %-10s %s", 
 						connection.getId(),
 						trimMax(connection.getDisplayName(), 35), 
