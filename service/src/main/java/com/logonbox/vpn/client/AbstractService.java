@@ -18,7 +18,6 @@ import com.logonbox.vpn.drivers.lib.PlatformService;
 import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import java.io.File;
@@ -38,7 +37,7 @@ public abstract class AbstractService<CONX extends IVPNConnection> implements Lo
 
 	public static final String ARTIFACT_COORDS = "com.logonbox/client-logonbox-vpn-service";
 
-	static Logger log = LoggerFactory.getLogger(AbstractService.class);
+//	static Logger log;
 
 	private ScheduledExecutorService queue = Executors.newSingleThreadScheduledExecutor();
 	private CookieStore cookieStore;
@@ -55,10 +54,12 @@ public abstract class AbstractService<CONX extends IVPNConnection> implements Lo
 	protected AbstractService(ResourceBundle bundle) {
 		this.bundle = bundle;
 	}
+	
+	protected abstract Logger getLogger();
 
 	@Override
 	public final void close() {
-		log.info("Shutdown clean up.");
+		getLogger().info("Shutdown clean up.");
 		checkForUninstalling();
 		clientService.stopService();
 		try {
@@ -73,7 +74,7 @@ public abstract class AbstractService<CONX extends IVPNConnection> implements Lo
 					connectionRepository.close();
 				}
 				catch(IOException ioe) {
-					log.error("Failed to close connection repository.", ioe);
+					getLogger().error("Failed to close connection repository.", ioe);
 				}
 			}
 		}
@@ -92,10 +93,10 @@ public abstract class AbstractService<CONX extends IVPNConnection> implements Lo
 					setLevel(Level.valueOf(value));
 			}
 			catch(Exception e) {
-				if(log.isDebugEnabled())
-					log.warn("Invalid log level, setting default. ", e);
+				if(getLogger().isDebugEnabled())
+				    getLogger().warn("Invalid log level, setting default. ", e);
 				else
-					log.warn("Invalid log level, setting default. " + e.getMessage());
+				    getLogger().warn("Invalid log level, setting default. " + e.getMessage());
 				setLevel(getDefaultLevel());
 			}
 		}
@@ -151,15 +152,15 @@ public abstract class AbstractService<CONX extends IVPNConnection> implements Lo
 	}
 
 	protected final boolean buildServices() throws Exception {
-		log.info("Using file data backend");
+	    getLogger().info("Using file data backend");
 		connectionRepository = new ConnectionRepositoryImpl();
 		configurationRepository = new ConfigurationRepositoryImpl();
 		clientService = new ClientServiceImpl<>(this, connectionRepository, configurationRepository);
 		clientService.addListener(this);
-		log.info("Creating platform service");
+		getLogger().info("Creating platform service");
 		var fact = createPlatformServiceFactory();
         platformService = fact.createPlatformService(clientService);
-        log.info("Platform service is {}", platformService.getClass().getName());
+        getLogger().info("Platform service is {}", platformService.getClass().getName());
         connectionRepository.start(platformService);
 		return true;
 
@@ -188,8 +189,15 @@ public abstract class AbstractService<CONX extends IVPNConnection> implements Lo
 	}
 
 	protected PlatformServiceFactory createPlatformServiceFactory() {
-        return ServiceLoader.load(getClass().getModule().getLayer(), PlatformServiceFactory.class).findFirst().filter(p -> p.isSupported()).orElseThrow(() -> new UnsupportedOperationException(
-                String.format("%s not currently supported. There are no platform extensions installed, you may be missing libraries.", System.getProperty("os.name"))));
+//        var layer = getClass().getModule().getLayer();
+//        if(layer == null) {
+            return ServiceLoader.load(PlatformServiceFactory.class).findFirst().filter(p -> p.isSupported()).orElseThrow(() -> new UnsupportedOperationException(
+                    String.format("%s not currently supported. There are no platform extensions installed, you may be missing libraries.", System.getProperty("os.name"))));
+//        }
+//        else {
+//            return ServiceLoader.load(layer, PlatformServiceFactory.class).findFirst().filter(p -> p.isSupported()).orElseThrow(() -> new UnsupportedOperationException(
+//                    String.format("%s not currently supported. There are no platform extensions installed, you may be missing libraries.", System.getProperty("os.name"))));
+//        }
     }
 
 	protected final ConfigurationRepositoryImpl getConfigurationRepository() {
@@ -216,7 +224,7 @@ public abstract class AbstractService<CONX extends IVPNConnection> implements Lo
 	}
 
     protected final boolean createVpn() {
-        log.info("Starting vpn API.");
+        getLogger().info("Starting vpn API.");
         var b = buildVpn();
         vpn = b.orElse(null);
         return vpn != null;
@@ -225,7 +233,7 @@ public abstract class AbstractService<CONX extends IVPNConnection> implements Lo
     protected abstract Optional<IVPN<CONX>> buildVpn();
 
 	protected final boolean startServices() {
-		log.info("Starting internal services.");
+	    getLogger().info("Starting internal services.");
 		promptingCertManager = new ServicePromptingCertManager<CONX>(bundle, this);
 		promptingCertManager.installCertificateVerifier();
 

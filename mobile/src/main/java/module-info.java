@@ -17,7 +17,6 @@ open module com.logonbox.vpn.client.mobile {
     requires com.gluonhq.attach.statusbar;
     requires com.gluonhq.attach.storage;
     requires com.gluonhq.attach.util;
-    requires reload4j;
     requires jul.to.slf4j;
     requires com.sshtools.liftlib;
     uses PlatformServiceFactory;

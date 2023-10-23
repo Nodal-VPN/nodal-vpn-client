@@ -5,9 +5,8 @@ open module com.logonbox.vpn.client.cli {
     requires transitive org.freedesktop.dbus;
     requires transitive com.logonbox.vpn.common.client;
     requires transitive com.logonbox.vpn.client.common.dbus;
+    requires static uk.co.bithatch.nativeimage.annotations;
     requires info.picocli;
-    requires reload4j;
-    requires slf4j.reload4j;
     requires com.sshtools.liftlib;
     requires jakarta.json;
     

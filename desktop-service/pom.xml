@@ -17,6 +17,27 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>info.picocli</groupId>
+                            <artifactId>picocli-codegen</artifactId>
+                            <version>4.7.5</version>
+                        </path>
+                        <path>
+                            <groupId>uk.co.bithatch</groupId>
+                            <artifactId>native-image-annotations</artifactId>
+                            <version>${native.image.annotations.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.nervepoint</groupId>
                 <artifactId>google-translate-v2-java-maven-plugin</artifactId>
                 <executions>
@@ -46,10 +67,6 @@
             <artifactId>client-logonbox-vpn-common-dbus</artifactId>
             <version>${project.version}</version>
         </dependency>
-       <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-reload4j</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
@@ -61,7 +78,7 @@
         <dependency>
             <groupId>com.github.hypfvieh</groupId>
             <artifactId>dbus-java-transport-native-unixsocket</artifactId>
-        </dependency>
+        </dependency> 
     </dependencies>
 
 
@@ -92,7 +109,6 @@
                 <dependency>
                     <groupId>com.logonbox</groupId>
                     <artifactId>logonbox-vpn-linux</artifactId>
-                    <version>${logonbox.vpn.drivers.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -124,7 +140,7 @@
                             <execution>
                                 <id>build-native</id>
                                 <goals>
-                                    <goal>build</goal>
+                                    <goal>compile-no-fork</goal>
                                 </goals>
                                 <phase>package</phase>
                             </execution>
@@ -137,7 +153,10 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <imageName>${project.artifactId}</imageName>
+                            <metadataRepository>
+                                <enabled>true</enabled>
+                            </metadataRepository>
+                            <imageName>lbvpn-desktop-service</imageName>
                             <mainClass>com.logonbox.vpn.client.desktop.service.Main</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>

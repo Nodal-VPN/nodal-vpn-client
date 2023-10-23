@@ -8,14 +8,7 @@
       "pattern":"\\QMETA-INF/services/org.freedesktop.dbus.spi.transport.ITransportProvider\\E"
     }, 
     {
-      "pattern":"\\Qdefault-log4j-cli.properties\\E"
-    }, 
-    {
       "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
     }
-  ]},
-  "bundles":[{
-      "name":"com.logonbox.vpn.client.cli.CLI",
-      "locales":[""]
-    }]
+  ]}
 }

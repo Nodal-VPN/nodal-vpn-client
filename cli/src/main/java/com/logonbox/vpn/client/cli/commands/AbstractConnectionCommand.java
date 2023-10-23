@@ -30,10 +30,11 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.HostnameVerifier;
 
 import jakarta.json.JsonObject;
+import picocli.CommandLine.IVersionProvider;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
 
-public abstract class AbstractConnectionCommand implements Callable<Integer> {
+public abstract class AbstractConnectionCommand implements Callable<Integer>, IVersionProvider {
 	static Logger log = LoggerFactory.getLogger(AbstractConnectionCommand.class);
 
 	@Spec
@@ -46,7 +47,12 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 		return (CLIContext) spec.parent().userObject();
 	}
 
-	protected String getPattern(CLIContext cli, String... args) throws IOException {
+	@Override
+    public String[] getVersion() throws Exception {
+        return spec.parent().versionProvider().getVersion();
+    }
+
+    protected String getPattern(CLIContext cli, String... args) throws IOException {
 		ConsoleProvider console = cli.getConsole();
 		String pattern = null;
 		if (args == null || args.length == 0) {

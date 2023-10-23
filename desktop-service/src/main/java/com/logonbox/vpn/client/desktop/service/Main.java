@@ -11,13 +11,13 @@ import com.logonbox.vpn.client.common.api.IVPN;
 import com.logonbox.vpn.client.common.dbus.VPN;
 import com.logonbox.vpn.client.common.dbus.VPNConnection;
 import com.logonbox.vpn.client.common.dbus.VPNFrontEnd;
+import com.logonbox.vpn.client.common.logging.SimpleLogger;
+import com.logonbox.vpn.client.common.logging.SimpleLoggerConfiguration;
 import com.logonbox.vpn.client.desktop.service.dbus.VPNConnectionImpl;
 import com.logonbox.vpn.client.desktop.service.dbus.VPNImpl;
 import com.logonbox.vpn.client.service.ClientService.Listener;
 import com.sshtools.liftlib.OS;
 
-import org.apache.log4j.Priority;
-import org.apache.log4j.PropertyConfigurator;
 import org.freedesktop.dbus.bin.EmbeddedDBusDaemon;
 import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.connections.BusAddress;
@@ -60,8 +60,12 @@ import java.util.logging.LogManager;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import uk.co.bithatch.nativeimage.annotations.Bundle;
+import uk.co.bithatch.nativeimage.annotations.Resource;
 
-@Command(name = "logonbox-vpn-server", mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.")
+@Command(name = "logonbox-vpn-service", mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.")
+@Bundle
+@Resource({"default-log-service.properties", "default-log4j-service-console.properties"})
 public class Main extends AbstractService<VPNConnection> implements Callable<Integer>, DesktopServiceContext, Listener {
 
 	public final static ResourceBundle BUNDLE = ResourceBundle.getBundle(Main.class.getName());
@@ -82,7 +86,6 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 
 	private EmbeddedDBusDaemon daemon;
 	private AbstractConnection conn;
-	private Level defaultLogLevel;
 	private ScheduledFuture<?> connTask;
 	private ScheduledFuture<?> checkTask;
 
@@ -128,7 +131,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 
 	@Override
 	public Level getDefaultLevel() {
-		return defaultLogLevel;
+		return Level.WARN;
 	}
 
     @Override
@@ -175,24 +178,10 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 		File logs = new File("logs");
 		logs.mkdirs();
 
-		String logConfigPath = System.getProperty("logonbox.vpn.logConfiguration", "");
-		if (logConfigPath.equals("")) {
-			/* Load default */
-            if(logToConsole)
-                PropertyConfigurator.configure(Main.class.getResource("/default-log4j-service-console.properties"));
-            else
-                PropertyConfigurator.configure(Main.class.getResource("/default-log4j-service.properties"));
-		} else {
-			File logConfigFile = new File(logConfigPath);
-			if (logConfigFile.exists())
-				PropertyConfigurator.configureAndWatch(logConfigPath);
-			else {
-			    if(logToConsole)
-	                PropertyConfigurator.configure(Main.class.getResource("/default-log4j-service-console.properties"));
-			    else
-			        PropertyConfigurator.configure(Main.class.getResource("/default-log4j-service.properties"));
-			}
-		}
+        if(logToConsole)
+            System.setProperty(SimpleLoggerConfiguration.CONFIGURATION_FILE_KEY, "default-log-service-console.properties");
+        else
+            System.setProperty(SimpleLoggerConfiguration.CONFIGURATION_FILE_KEY, "default-log-service.properties");
 
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
@@ -210,7 +199,6 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 			 * logging now
 			 */
 			Level cfgLevel = getConfigurationRepository().getValue(null, ConfigurationItem.LOG_LEVEL);
-			defaultLogLevel = log4JToSLF4JLevel(org.apache.log4j.Logger.getRootLogger().getLevel());
 			if(level.isPresent()) {
                 setLevel(level.get());
 			}
@@ -258,7 +246,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 
 	@Override
 	public void setLevel(Level level) {
-		org.apache.log4j.Logger.getRootLogger().setLevel(slf4jToLog4JLevel(level));
+        System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, level.toString());
         java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
         rootLogger.setLevel(toJulLevel(level));
         for (Handler h : rootLogger.getHandlers()) {
@@ -290,6 +278,11 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
             }
         }
         
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return log;
     }
 
     protected final Optional<IVPN<VPNConnection>> buildVpn() {
@@ -902,45 +895,4 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
             return java.util.logging.Level.OFF;
         }
     }
-
-	static org.apache.log4j.Level slf4jToLog4JLevel(String lvl) {
-		try {
-			return slf4jToLog4JLevel(Level.valueOf(lvl));
-		}
-		catch(IllegalArgumentException iae) {
-			return org.apache.log4j.Level.INFO;
-		}
-	}
-
-	static org.apache.log4j.Level slf4jToLog4JLevel(Level lvl) {
-		switch(lvl) {
-		case DEBUG:
-			return org.apache.log4j.Level.DEBUG;
-		case ERROR:
-			return org.apache.log4j.Level.ERROR;
-		case TRACE:
-			return org.apache.log4j.Level.TRACE;
-		case WARN:
-			return org.apache.log4j.Level.WARN;
-		default:
-			return org.apache.log4j.Level.INFO;
-		}
-		
-	}
-	static Level log4JToSLF4JLevel(org.apache.log4j.Level lvl) {
-		switch(lvl.toInt()) {
-		case Priority.ALL_INT:
-			return Level.TRACE;
-		case Priority.DEBUG_INT:
-			return Level.DEBUG;
-		case Priority.WARN_INT:
-			return Level.WARN;
-		case Priority.FATAL_INT:
-		case Priority.ERROR_INT:
-		case Priority.OFF_INT:
-			return Level.ERROR;
-		default:
-			return Level.INFO;
-		}
-	}
 }

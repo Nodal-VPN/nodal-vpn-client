@@ -20,15 +20,7 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.sun.crypto.provider.DHParameters",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"com.sun.crypto.provider.GaloisCounterMode$AESGCM",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -50,6 +42,9 @@
 {
   "name":"java.lang.Thread",
   "methods":[{"name":"getContextClassLoader","parameterTypes":[] }]
+},
+{
+  "name":"java.nio.Buffer"
 },
 {
   "name":"java.nio.file.Path"
@@ -122,7 +117,8 @@
 },
 {
   "name":"org.freedesktop.dbus.interfaces.DBus$NameAcquired",
-  "queryAllDeclaredConstructors":true
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
 },
 {
   "name":"org.freedesktop.dbus.interfaces.Introspectable",
@@ -140,11 +136,7 @@
   "queryAllDeclaredMethods":true
 },
 {
-  "name":"sun.security.provider.DSA$SHA224withDSA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.DSA$SHA256withDSA",
+  "name":"sun.security.provider.MD5",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -157,34 +149,6 @@
 },
 {
   "name":"sun.security.provider.SHA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA2$SHA224",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA2$SHA256",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA5$SHA384",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA5$SHA512",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.PSSParameters",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSAPSSSignature",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSASignature$SHA224withRSA",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {

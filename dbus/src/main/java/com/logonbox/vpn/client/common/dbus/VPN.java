@@ -11,6 +11,13 @@ import org.freedesktop.dbus.messages.DBusSignal;
 
 import java.util.List;
 
+import uk.co.bithatch.nativeimage.annotations.Proxy;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
+import uk.co.bithatch.nativeimage.annotations.TypeReflect;
+
+@Proxy
+@Reflectable
+@TypeReflect(methods = true, classes = true)
 @DBusInterfaceName("com.logonbox.vpn.VPN")
 public interface VPN extends IVPN<VPNConnection>, DBusInterface {
 
@@ -140,6 +147,8 @@ public interface VPN extends IVPN<VPNConnection>, DBusInterface {
     VPNConnection getConnection(long id);
 
 //
+    @Reflectable
+    @TypeReflect(methods = true, constructors = true)
 	public class CertificatePrompt extends DBusSignal {
 
 		private final String alertType;
@@ -186,6 +195,8 @@ public interface VPN extends IVPN<VPNConnection>, DBusInterface {
 		}
 	}
 
+    @Reflectable
+    @TypeReflect(methods = true, constructors = true)
 	public class ConnectionAdded extends DBusSignal {
 
 		private final Long id;
@@ -200,6 +211,8 @@ public interface VPN extends IVPN<VPNConnection>, DBusInterface {
 		}
 	}
 
+    @Reflectable
+    @TypeReflect(methods = true, constructors = true)
 	public class ConnectionAdding extends DBusSignal {
 
 		public ConnectionAdding(String path) throws DBusException {
@@ -207,6 +220,8 @@ public interface VPN extends IVPN<VPNConnection>, DBusInterface {
 		}
 	}
 
+    @Reflectable
+    @TypeReflect(methods = true, constructors = true)
 	public class ConnectionRemoved extends DBusSignal {
 
 		private final Long id;
@@ -221,6 +236,8 @@ public interface VPN extends IVPN<VPNConnection>, DBusInterface {
 		}
 	}
 
+    @Reflectable
+    @TypeReflect(methods = true, constructors = true)
 	public class ConnectionRemoving extends DBusSignal {
 
 		private final Long id;
@@ -235,6 +252,8 @@ public interface VPN extends IVPN<VPNConnection>, DBusInterface {
 		}
 	}
 
+    @Reflectable
+    @TypeReflect(methods = true, constructors = true)
 	public class ConnectionUpdated extends DBusSignal {
 
 		private final Long id;
@@ -249,6 +268,8 @@ public interface VPN extends IVPN<VPNConnection>, DBusInterface {
 		}
 	}
 
+    @Reflectable
+    @TypeReflect(methods = true, constructors = true)
 	public class ConnectionUpdating extends DBusSignal {
 
 		private final Long id;
@@ -263,6 +284,8 @@ public interface VPN extends IVPN<VPNConnection>, DBusInterface {
 		}
 	}
 
+    @Reflectable
+    @TypeReflect(methods = true, constructors = true)
 	public class GlobalConfigChange extends DBusSignal {
 
 		private final String name;
@@ -284,6 +307,8 @@ public interface VPN extends IVPN<VPNConnection>, DBusInterface {
 
 	}
 
+    @Reflectable
+    @TypeReflect(methods = true, constructors = true)
 	public static  class Exit extends DBusSignal {
 		public Exit(String path) throws DBusException {
 			super(path);

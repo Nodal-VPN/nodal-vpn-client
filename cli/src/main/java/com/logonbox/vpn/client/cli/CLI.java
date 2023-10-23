@@ -24,9 +24,9 @@ import com.logonbox.vpn.client.common.dbus.AbstractDBusClient;
 import com.logonbox.vpn.client.common.dbus.DBusClient;
 import com.logonbox.vpn.client.common.dbus.VPN;
 import com.logonbox.vpn.client.common.dbus.VPNConnection;
+import com.logonbox.vpn.client.common.logging.SimpleLoggerConfiguration;
 import com.logonbox.vpn.drivers.lib.util.Util;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.freedesktop.dbus.DBusMatchRule;
 import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
@@ -35,7 +35,6 @@ import org.freedesktop.dbus.interfaces.DBusSigHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.CookieStore;
@@ -50,10 +49,14 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.Spec;
+import uk.co.bithatch.nativeimage.annotations.Bundle;
+import uk.co.bithatch.nativeimage.annotations.Resource;
 
 @Command(name = "logonbox-vpn-cli", usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.", subcommands = {
 		Connections.class, Connect.class, Create.class, Delete.class, Disconnect.class, Exit.class, Show.class,
 		About.class, Edit.class, Update.class, Debug.class, Config.class, Shutdown.class })
+@Bundle
+@Resource({"default-log4j-cli.properties"})
 public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBusClient<VPNConnection> {
 
 	static Logger log;
@@ -62,18 +65,8 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 
 	public static void main(String[] args) throws Exception {
 
-		String logConfigPath = System.getProperty("logonbox.vpn.logConfiguration", "");
-		if (logConfigPath.equals("")) {
-			/* Load default */
-			PropertyConfigurator.configure(CLI.class.getResource("/default-log4j-cli.properties"));
-		} else {
-			File logConfigFile = new File(logConfigPath);
-			if (logConfigFile.exists())
-				PropertyConfigurator.configureAndWatch(logConfigPath);
-			else
-				PropertyConfigurator.configure(CLI.class.getResource("/default-log4j-cli.properties"));
-		}
 
+        System.setProperty(SimpleLoggerConfiguration.CONFIGURATION_FILE_KEY, "default-log-cli.properties");
 		log = LoggerFactory.getLogger(CLI.class);
 		;
 

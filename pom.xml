@@ -58,6 +58,7 @@
         
         <dbus.version>5.0.0-SNAPSHOT</dbus.version>
         <logonbox.vpn.drivers.version>0.0.1-SNAPSHOT</logonbox.vpn.drivers.version>
+        <native.image.annotations.version>0.9.0</native.image.annotations.version>
 	</properties>
 
 	<modules>
@@ -68,10 +69,10 @@
 		<module>gui-debugger</module>
 		<module>desktop</module>
 		<module>desktop-service</module>
-        <module>gluon</module>
-		<module>mobile</module>
 		<module>cli</module>
 		<module>dbconvert</module>
+        <module>gluon</module>
+        <module>mobile</module>
 		<module>installer</module>
 		<!-- <module>client-logonbox-vpn-winsrv</module> -->
 	</modules>
@@ -85,6 +86,11 @@
 			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>uk.co.bithatch</groupId>
+            <artifactId>native-image-annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
 
     <dependencyManagement>
@@ -132,11 +138,6 @@
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-reload4j</artifactId>
-                <version>2.0.9</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
                 <version>2.0.9</version>
             </dependency>
@@ -161,6 +162,12 @@
                         <artifactId>slf4j-api</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>uk.co.bithatch</groupId>
+                <artifactId>native-image-annotations</artifactId>
+                <version>${native.image.annotations.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -195,7 +202,17 @@
 					<source>17</source>
 					<target>17</target>
 					<encoding>UTF-8</encoding>
-				</configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>uk.co.bithatch</groupId>
+                            <artifactId>native-image-annotations</artifactId>
+                            <version>${native.image.annotations.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
+                    </compilerArgs>
+                </configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

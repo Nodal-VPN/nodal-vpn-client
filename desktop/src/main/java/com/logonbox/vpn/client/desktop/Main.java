@@ -9,15 +9,14 @@ import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.dbus.AbstractDBusClient;
+import com.logonbox.vpn.client.common.logging.SimpleLogger;
+import com.logonbox.vpn.client.common.logging.SimpleLoggerConfiguration;
 import com.logonbox.vpn.client.gui.jfx.AppContext;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
-import com.logonbox.vpn.client.gui.jfx.UI;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
 import com.sshtools.liftlib.OS;
 import  com.sun.jna.platform.win32.Advapi32Util;
 
-import org.apache.log4j.Priority;
-import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -100,8 +99,6 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 	@Parameters(index = "0", arity = "0..1", description = "Connect to a particular server using a URI. Acceptable formats include <server[<port>]> or https://<server[<port>]>[/path]. If a pre-configured connection matching this URI already exists, it will be used.")
 	private String uri;
 
-	private Level defaultLogLevel;
-
 	private static Optional<UIContext<?>> uiContext = Optional.empty();
 
 	public Main() {
@@ -123,26 +120,14 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 	        }
 		}
 
-		String logConfigPath = System.getProperty("logonbox.vpn.logConfiguration", "");
-		if (logConfigPath.equals("")) {
-			/* Load default */
-			PropertyConfigurator.configure(UI.class.getResource("/default-log4j-gui.properties"));
-		} else {
-			File logConfigFile = new File(logConfigPath);
-			if (logConfigFile.exists())
-				PropertyConfigurator.configureAndWatch(logConfigPath);
-			else
-				PropertyConfigurator.configure(UI.class.getResource("/default-log4j-gui.properties"));
-		}
+		System.setProperty(SimpleLoggerConfiguration.CONFIGURATION_FILE_KEY, "default-log-gui.properties");
 
 		String cfgLevel = Configuration.getDefault().logLevelProperty().get();
-		defaultLogLevel = log4JToSLF4JLevel(org.apache.log4j.Logger.getRootLogger().getLevel());
 		if(Utils.isNotBlank(cfgLevel)) {
 			try {
 				setLevel(Level.valueOf(cfgLevel));
 			}
 			catch(IllegalArgumentException iae) {
-				setLevel(defaultLogLevel);				
 			}
 		}
 		log = LoggerFactory.getLogger(Main.class);
@@ -157,50 +142,9 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 		StartupNotification.registerStartupListener(this);
 	}
 
-	static org.apache.log4j.Level slf4jToLog4JLevel(String lvl) {
-		try {
-			return slf4jToLog4JLevel(Level.valueOf(lvl));
-		}
-		catch(IllegalArgumentException iae) {
-			return org.apache.log4j.Level.INFO;
-		}
-	}
-
-	static org.apache.log4j.Level slf4jToLog4JLevel(Level lvl) {
-		switch(lvl) {
-		case DEBUG:
-			return org.apache.log4j.Level.DEBUG;
-		case ERROR:
-			return org.apache.log4j.Level.ERROR;
-		case TRACE:
-			return org.apache.log4j.Level.TRACE;
-		case WARN:
-			return org.apache.log4j.Level.WARN;
-		default:
-			return org.apache.log4j.Level.INFO;
-		}
-		
-	}
-	static Level log4JToSLF4JLevel(org.apache.log4j.Level lvl) {
-		switch(lvl.toInt()) {
-		case Priority.ALL_INT:
-			return Level.TRACE;
-		case Priority.DEBUG_INT:
-			return Level.DEBUG;
-		case Priority.WARN_INT:
-			return Level.WARN;
-		case Priority.FATAL_INT:
-		case Priority.ERROR_INT:
-		case Priority.OFF_INT:
-			return Level.ERROR;
-		default:
-			return Level.INFO;
-		}
-	}
-
 	@Override
 	public void setLevel(Level level) {
-		org.apache.log4j.Logger.getRootLogger().setLevel(slf4jToLog4JLevel(level));
+	    System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, level.toString());
 	}
 	
 	@Override
@@ -211,7 +155,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 
 	@Override
 	public Level getDefaultLogLevel() {
-		return defaultLogLevel;
+		return Level.WARN;
 	}
 
 	@Override

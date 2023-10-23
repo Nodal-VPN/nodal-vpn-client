@@ -7,8 +7,6 @@ open module com.logonbox.vpn.client.desktop {
     requires com.goxr3plus.fxborderlessscene;
     requires com.jthemedetector;
     requires java.desktop;
-    requires transitive slf4j.reload4j;
-    requires reload4j;
     requires org.kordamp.ikonli.fontawesome;
     requires SystemTray;
     requires info.picocli;

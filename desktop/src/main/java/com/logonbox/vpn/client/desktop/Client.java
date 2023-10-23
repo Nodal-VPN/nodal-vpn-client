@@ -22,13 +22,11 @@ import com.sshtools.twoslices.ToasterFactory;
 import com.sshtools.twoslices.ToasterSettings.SystemTrayIconMode;
 import com.sshtools.twoslices.impl.JavaFXToaster;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.SplashScreen;
 import java.awt.Taskbar;
-import java.io.File;
 import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -264,8 +262,6 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 		});
 
 		Platform.setImplicitExit(false);
-		PropertyConfigurator.configureAndWatch(
-				System.getProperty("logonbox.vpn.logConfiguration", "conf" + File.separator + "log4j.properties"));
 	}
 
 	@Override

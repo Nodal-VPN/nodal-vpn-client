@@ -734,65 +734,6 @@
   "queriedMethods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
 },
 {
-  "name":"org.apache.log4j.Appender"
-},
-{
-  "name":"org.apache.log4j.AppenderSkeleton",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"org.apache.log4j.Category"
-},
-{
-  "name":"org.apache.log4j.CategoryKey"
-},
-{
-  "name":"org.apache.log4j.ConsoleAppender",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"org.apache.log4j.FileAppender",
-  "queryAllPublicMethods":true,
-  "methods":[
-    {"name":"setAppend","parameterTypes":["boolean"] }, 
-    {"name":"setFile","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"org.apache.log4j.Layout",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"org.apache.log4j.Logger"
-},
-{
-  "name":"org.apache.log4j.PatternLayout",
-  "queryAllPublicMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setConversionPattern","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"org.apache.log4j.RollingFileAppender",
-  "queryAllPublicMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setMaxBackupIndex","parameterTypes":["int"] }, 
-    {"name":"setMaxFileSize","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"org.apache.log4j.WriterAppender",
-  "queryAllPublicMethods":true
-},
-{
-  "name":"org.apache.log4j.helpers.Loader"
-},
-{
-  "name":"org.apache.log4j.spi.OptionHandler"
-},
-{
   "name":"org.freedesktop.dbus.interfaces.DBus$NameAcquired",
   "queryAllDeclaredConstructors":true
 },
