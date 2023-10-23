@@ -1,0 +1,6 @@
+[
+{
+  "name":"com.sun.security.auth.module.UnixSystem",
+  "fields":[{"name":"gid"}, {"name":"groups"}, {"name":"uid"}, {"name":"username"}]
+}
+]

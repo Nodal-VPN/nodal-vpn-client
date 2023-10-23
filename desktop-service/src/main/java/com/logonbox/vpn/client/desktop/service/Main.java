@@ -11,10 +11,10 @@ import com.logonbox.vpn.client.common.api.IVPN;
 import com.logonbox.vpn.client.common.dbus.VPN;
 import com.logonbox.vpn.client.common.dbus.VPNConnection;
 import com.logonbox.vpn.client.common.dbus.VPNFrontEnd;
-import com.logonbox.vpn.client.common.logging.SimpleLogger;
-import com.logonbox.vpn.client.common.logging.SimpleLoggerConfiguration;
 import com.logonbox.vpn.client.desktop.service.dbus.VPNConnectionImpl;
 import com.logonbox.vpn.client.desktop.service.dbus.VPNImpl;
+import com.logonbox.vpn.client.logging.SimpleLogger;
+import com.logonbox.vpn.client.logging.SimpleLoggerConfiguration;
 import com.logonbox.vpn.client.service.ClientService.Listener;
 import com.sshtools.liftlib.OS;
 
@@ -26,6 +26,7 @@ import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.connections.transports.TransportBuilder;
 import org.freedesktop.dbus.connections.transports.TransportBuilder.SaslAuthMode;
+import org.freedesktop.dbus.errors.AccessDenied;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.messages.Message;
 import org.freedesktop.dbus.utils.Util;
@@ -760,17 +761,17 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 	
 			try {
 				/* NOTE: Work around for Hello message not having been completely sent before trying to request name */
-//				while(true) {
-//					try {
+				while(true) {
+					try {
 						((DBusConnection)conn).requestBusName("com.logonbox.vpn");
-//						break;
-//					}
-//					catch(DBusException dbe) {
+						break;
+					}
+					catch(Exception dbe) {
 //						if(!(dbe.getCause() instanceof AccessDenied))
 //							throw dbe;
-//						Thread.sleep(500);
-//					}
-//				}
+						Thread.sleep(500);
+					}
+				}
 				
 				// Now can tell the client
 				storeAddress(busAddress.toString());

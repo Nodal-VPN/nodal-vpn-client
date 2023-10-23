@@ -9,11 +9,11 @@ import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.dbus.AbstractDBusClient;
-import com.logonbox.vpn.client.common.logging.SimpleLogger;
-import com.logonbox.vpn.client.common.logging.SimpleLoggerConfiguration;
 import com.logonbox.vpn.client.gui.jfx.AppContext;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
+import com.logonbox.vpn.client.logging.SimpleLogger;
+import com.logonbox.vpn.client.logging.SimpleLoggerConfiguration;
 import com.sshtools.liftlib.OS;
 import  com.sun.jna.platform.win32.Advapi32Util;
 

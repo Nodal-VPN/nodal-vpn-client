@@ -102,7 +102,11 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import netscape.javascript.JSObject;
+import uk.co.bithatch.nativeimage.annotations.Bundle;
+import uk.co.bithatch.nativeimage.annotations.Resource;
 
+@Bundle
+@Resource("com/logonbox/vpn/client/jfx/.*")
 public class UI<CONX extends IVPNConnection> extends AnchorPane {
 
 

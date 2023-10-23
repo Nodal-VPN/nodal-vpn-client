@@ -1,0 +1,41 @@
+[
+{
+  "name":"java.lang.Thread",
+  "fields":[{"name":"threadLocalRandomProbe"}]
+},
+{
+  "name":"java.security.SecureRandomParameters"
+},
+{
+  "name":"java.util.concurrent.atomic.AtomicBoolean",
+  "fields":[{"name":"value"}]
+},
+{
+  "name":"java.util.concurrent.atomic.Striped64",
+  "fields":[{"name":"base"}, {"name":"cellsBusy"}]
+},
+{
+  "name":"org.freedesktop.dbus.bin.DBusDaemon$DBusServer",
+  "methods":[{"name":"AddMatch","parameterTypes":["java.lang.String"] }, {"name":"GetConnectionSELinuxSecurityContext","parameterTypes":["java.lang.String"] }, {"name":"GetConnectionUnixProcessID","parameterTypes":["java.lang.String"] }, {"name":"GetConnectionUnixUser","parameterTypes":["java.lang.String"] }, {"name":"GetNameOwner","parameterTypes":["java.lang.String"] }, {"name":"Hello","parameterTypes":[] }, {"name":"Introspect","parameterTypes":[] }, {"name":"ListActivatableNames","parameterTypes":[] }, {"name":"ListNames","parameterTypes":[] }, {"name":"ListQueuedOwners","parameterTypes":["java.lang.String"] }, {"name":"NameHasOwner","parameterTypes":["java.lang.String"] }, {"name":"ReleaseName","parameterTypes":["java.lang.String"] }, {"name":"ReloadConfig","parameterTypes":[] }, {"name":"RemoveMatch","parameterTypes":["java.lang.String"] }, {"name":"RequestName","parameterTypes":["java.lang.String","org.freedesktop.dbus.types.UInt32"] }, {"name":"StartServiceByName","parameterTypes":["java.lang.String","org.freedesktop.dbus.types.UInt32"] }]
+},
+{
+  "name":"org.freedesktop.dbus.interfaces.DBus$NameLost",
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"org.freedesktop.dbus.interfaces.DBus$NameOwnerChanged",
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"sun.security.provider.MD5",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.NativePRNG$NonBlocking",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"<init>","parameterTypes":["java.security.SecureRandomParameters"] }]
+},
+{
+  "name":"sun.security.provider.SHA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+}
+]

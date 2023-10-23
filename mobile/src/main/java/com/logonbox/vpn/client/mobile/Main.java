@@ -10,9 +10,9 @@ import com.logonbox.vpn.client.common.HypersocketVersion;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.api.IVPN;
-import com.logonbox.vpn.client.common.logging.SimpleLoggerConfiguration;
 import com.logonbox.vpn.client.gui.jfx.AppContext;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
+import com.logonbox.vpn.client.logging.SimpleLoggerConfiguration;
 import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
 
 import org.slf4j.Logger;

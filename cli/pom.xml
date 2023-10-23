@@ -86,6 +86,11 @@
             <artifactId>jul-to-slf4j</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.logonbox</groupId>
+            <artifactId>client-logonbox-vpn-logging</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.hypfvieh</groupId>
             <artifactId>dbus-java-transport-tcp</artifactId>
             <exclusions>
@@ -161,7 +166,6 @@
                     <plugin>
                         <groupId>org.graalvm.buildtools</groupId>
                         <artifactId>native-maven-plugin</artifactId>
-                        <version>${native.maven.plugin.version}</version>
                         <extensions>true</extensions>
                         <executions>
                             <execution>

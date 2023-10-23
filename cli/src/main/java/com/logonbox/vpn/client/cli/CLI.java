@@ -24,7 +24,7 @@ import com.logonbox.vpn.client.common.dbus.AbstractDBusClient;
 import com.logonbox.vpn.client.common.dbus.DBusClient;
 import com.logonbox.vpn.client.common.dbus.VPN;
 import com.logonbox.vpn.client.common.dbus.VPNConnection;
-import com.logonbox.vpn.client.common.logging.SimpleLoggerConfiguration;
+import com.logonbox.vpn.client.logging.SimpleLoggerConfiguration;
 import com.logonbox.vpn.drivers.lib.util.Util;
 
 import org.freedesktop.dbus.DBusMatchRule;

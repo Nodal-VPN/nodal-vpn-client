@@ -9,5 +9,6 @@ open module com.logonbox.vpn.client.cli {
     requires info.picocli;
     requires com.sshtools.liftlib;
     requires jakarta.json;
+    requires com.logonbox.vpn.client.logging;
     
 }

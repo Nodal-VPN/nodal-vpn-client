@@ -11,6 +11,7 @@ open module com.logonbox.vpn.client.desktop.service {
     requires org.freedesktop.dbus;
     requires jul.to.slf4j;
     requires java.logging;
+    requires com.logonbox.vpn.client.logging;
     
     uses PlatformServiceFactory; 
 }

@@ -4,9 +4,8 @@
 	at http://www.gnu.org/licenses/gpl.html -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>client-logonbox-vpn-desktop-service</artifactId>
-    <name>LogonBox VPN - Privilged Service For Desktop Builds</name>
-    <description>This implementation of the service is to be run as a privileged root service. It provides a DBUS API, used by the command line tool and desktop GUI.</description>
+    <artifactId>client-logonbox-vpn-dbus-daemon</artifactId>
+    <name>LogonBox VPN - DBus Daemon for Platforms without their own</name>
 
     <parent>
         <groupId>com.logonbox</groupId>
@@ -54,28 +53,17 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>com.sshtools</groupId>
-            <artifactId>liftlib</artifactId>
-            <version>0.9.5</version>
-        </dependency>
-        <dependency>
             <groupId>com.logonbox</groupId>
             <artifactId>client-logonbox-vpn-logging</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-common-dbus</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.hypfvieh</groupId>
+            <artifactId>dbus-java-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.hypfvieh</groupId>
@@ -89,50 +77,6 @@
 
 
     <profiles>
-        <profile>
-            <id>windows</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>logonbox-vpn-windows</artifactId>
-                    <version>${logonbox.vpn.drivers.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>linux</id>
-            <activation>
-                <os>
-                    <family>linux</family>
-                </os>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>logonbox-vpn-linux</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>macos</id>
-            <activation>
-                <os>
-                    <family>mac</family>
-                </os>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>logonbox-vpn-macos</artifactId>
-                    <version>${logonbox.vpn.drivers.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
         <profile>
             <id>native-image</id>
             <build>
@@ -161,8 +105,8 @@
                             <metadataRepository>
                                 <enabled>true</enabled>
                             </metadataRepository>
-                            <imageName>lbvpn-desktop-service</imageName>
-                            <mainClass>com.logonbox.vpn.client.desktop.service.Main</mainClass>
+                            <imageName>lbvpn-dbusd</imageName>
+                            <mainClass>com.logonbox.vpn.client.dbus.daemon.DBusDaemon</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>
                                 <buildArg>--report-unsupported-elements-at-runtime</buildArg>

@@ -17,6 +17,7 @@ open module com.logonbox.vpn.client.gui.jfx {
     requires transitive jdk.jsobject;
     requires com.sshtools.liftlib;
     requires jakarta.json;
+    requires static uk.co.bithatch.nativeimage.annotations;
     
     uses PowerMonitor;
 }

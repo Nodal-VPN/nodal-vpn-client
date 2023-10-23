@@ -65,7 +65,9 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import uk.co.bithatch.nativeimage.annotations.Bundle;
 
+@Bundle
 public class Client extends Application implements Listener, UIContext<VPNConnection> {
 
 	static final boolean allowBranding = System.getProperty("logonbox.vpn.allowBranding", "true").equals("true");

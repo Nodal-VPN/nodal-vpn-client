@@ -55,6 +55,7 @@
 		<hypersocket.languages>da,nl,fi,fr,de,it,no,pl,ru,sv,es,ja,he,pt,tr</hypersocket.languages>
 		
         <native.maven.plugin.version>0.9.23</native.maven.plugin.version>
+        <gluonfx.maven.plugin.version>1.0.21</gluonfx.maven.plugin.version>
         
         <dbus.version>5.0.0-SNAPSHOT</dbus.version>
         <logonbox.vpn.drivers.version>0.0.1-SNAPSHOT</logonbox.vpn.drivers.version>
@@ -62,8 +63,10 @@
 	</properties>
 
 	<modules>
+        <module>logging</module>
         <module>common</module>
         <module>dbus</module>
+        <module>dbus-daemon</module>
 		<module>service</module>
 		<module>gui</module>
 		<module>gui-debugger</module>
@@ -74,7 +77,6 @@
         <module>gluon</module>
         <module>mobile</module>
 		<module>installer</module>
-		<!-- <module>client-logonbox-vpn-winsrv</module> -->
 	</modules>
 
 	<dependencies>
@@ -262,6 +264,16 @@
 		</plugins>
 		<pluginManagement>
 			<plugins>
+                <plugin>
+                    <groupId>com.gluonhq</groupId>
+                    <artifactId>gluonfx-maven-plugin</artifactId>
+                    <version>${gluonfx.maven.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.graalvm.buildtools</groupId>
+                    <artifactId>native-maven-plugin</artifactId>
+                    <version>${native.maven.plugin.version}</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>

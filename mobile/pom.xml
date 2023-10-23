@@ -25,6 +25,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.logonbox</groupId>
+            <artifactId>client-logonbox-vpn-logging</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
@@ -111,7 +116,6 @@
             <plugin>
                 <groupId>com.gluonhq</groupId>
                 <artifactId>gluonfx-maven-plugin</artifactId>
-                <version>1.0.21</version>
                 <configuration>
                     <verbose>true</verbose>
                     <graalvmHome>${java.home}</graalvmHome>
