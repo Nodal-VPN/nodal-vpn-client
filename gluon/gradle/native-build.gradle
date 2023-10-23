@@ -234,13 +234,25 @@ ext.aarBuild = { buildDir, projectDir, name, os ->
     project.delete(files(dalvikOutput))
 
     // build aar
-    file("$tempDir/gradlew")
-    def aarArgs = ["-p", file("$tempDir/library").getAbsolutePath(), "assembleDebug"].flatten()
-    exec {
-        environment ANDROID_HOME: sdk, JAVA_HOME: JAVAHOME
-        executable file("$tempDir/gradlew").getAbsolutePath()
-        args aarArgs
-    }
+    def windows = System.getProperty('os.name').toLowerCase().contains("windows")
+    if(windows) {
+	    file("$tempDir/gradlew.bat")
+	    def aarArgs = ["-p", file("$tempDir/library").getAbsolutePath(), "assembleDebug"].flatten()
+	    exec {
+	        environment ANDROID_HOME: sdk, JAVA_HOME: JAVAHOME
+	        executable file("$tempDir/gradlew.bat").getAbsolutePath()
+	        args aarArgs
+	    }
+	}
+	else {
+	    file("$tempDir/gradlew")
+	    def aarArgs = ["-p", file("$tempDir/library").getAbsolutePath(), "assembleDebug"].flatten()
+	    exec {
+	        environment ANDROID_HOME: sdk, JAVA_HOME: JAVAHOME
+	        executable file("$tempDir/gradlew").getAbsolutePath()
+	        args aarArgs
+	    }
+	}
 
     // copy aar, dependencies
     project.copy {

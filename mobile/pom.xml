@@ -184,7 +184,6 @@
                 <dependency>
                     <groupId>com.logonbox</groupId>
                     <artifactId>logonbox-vpn-windows</artifactId>
-                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
         </profile>

@@ -14,6 +14,14 @@
     <packaging>pom</packaging>
 
     <name>LogonBox VPN - Gluon Attach Libraries</name>
+    
+    <dependencies>
+        <dependency>
+            <groupId>com.gluonhq.attach</groupId>
+            <artifactId>util</artifactId>
+            <version>4.0.19</version>
+        </dependency>
+	</dependencies>
 
     <build>
         <plugins>
@@ -63,7 +71,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <gradleVersion>8.1.1</gradleVersion>
+                    <gradleVersion>8.4</gradleVersion>
                 </configuration>
             </plugin>
             <plugin>
