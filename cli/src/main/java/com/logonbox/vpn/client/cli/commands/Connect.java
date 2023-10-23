@@ -4,10 +4,10 @@ import com.logonbox.vpn.client.cli.CLIContext;
 import com.logonbox.vpn.client.cli.StateHelper;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IVPNConnection;
 import com.logonbox.vpn.client.common.dbus.VPNConnection;
 
-import org.apache.commons.lang3.StringUtils;
 import org.freedesktop.dbus.exceptions.DBusException;
 
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class Connect extends AbstractConnectionCommand implements Callable<Integ
 		var pattern = getPattern(cli, new String[] { uri });
 		var c = getConnectionsMatching(pattern, cli);
 		if (c.isEmpty()) {
-			if (StringUtils.isNotEmpty(uri)) {
+			if (Utils.isNotBlank(uri)) {
 				if (!uri.startsWith("https://")) {
 					if (uri.indexOf("://") != -1) {
 						throw new IllegalArgumentException("Only HTTPS is supported.");

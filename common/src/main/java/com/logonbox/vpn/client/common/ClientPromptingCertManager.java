@@ -4,9 +4,9 @@ import java.util.ResourceBundle;
 
 public abstract class ClientPromptingCertManager extends PromptingCertManager {
 	
-	private final VpnManager context;
+	private final VpnManager<?> context;
 
-	public ClientPromptingCertManager(ResourceBundle bundle, VpnManager dbusClient) {
+	public ClientPromptingCertManager(ResourceBundle bundle, VpnManager<?> dbusClient) {
 		super(bundle);
 		this.context = dbusClient;
 	}

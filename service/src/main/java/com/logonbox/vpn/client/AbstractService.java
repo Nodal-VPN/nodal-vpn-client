@@ -6,7 +6,9 @@ import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.ConnectionRepository;
 import com.logonbox.vpn.client.common.CustomCookieStore;
 import com.logonbox.vpn.client.common.PromptingCertManager;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IVPN;
+import com.logonbox.vpn.client.common.api.IVPNConnection;
 import com.logonbox.vpn.client.ini.ConnectionRepositoryImpl;
 import com.logonbox.vpn.client.service.ClientService;
 import com.logonbox.vpn.client.service.ClientService.Listener;
@@ -15,7 +17,6 @@ import com.logonbox.vpn.client.service.ConfigurationRepositoryImpl;
 import com.logonbox.vpn.drivers.lib.PlatformService;
 import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -33,7 +34,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
-public abstract class AbstractService implements LocalContext, Listener {
+public abstract class AbstractService<CONX extends IVPNConnection> implements LocalContext<CONX>, Listener {
 
 	public static final String ARTIFACT_COORDS = "com.logonbox/client-logonbox-vpn-service";
 
@@ -42,14 +43,14 @@ public abstract class AbstractService implements LocalContext, Listener {
 	private ScheduledExecutorService queue = Executors.newSingleThreadScheduledExecutor();
 	private CookieStore cookieStore;
 	private ConnectionRepository connectionRepository;
-	private ClientServiceImpl clientService;
+	private ClientServiceImpl<CONX> clientService;
 
 	private PromptingCertManager promptingCertManager;
 	private ConfigurationRepositoryImpl configurationRepository;
 	private final ResourceBundle bundle;
     private PlatformService<?> platformService;
 
-    private IVPN vpn;
+    private IVPN<CONX> vpn;
 
 	protected AbstractService(ResourceBundle bundle) {
 		this.bundle = bundle;
@@ -85,7 +86,7 @@ public abstract class AbstractService implements LocalContext, Listener {
 		if (item == ConfigurationItem.LOG_LEVEL) {
 			String value = (String)newValue;
 			try {
-				if (StringUtils.isBlank(value))
+				if (Utils.isBlank(value))
 					setLevel(getDefaultLevel());
 				else
 					setLevel(Level.valueOf(value));
@@ -106,7 +107,7 @@ public abstract class AbstractService implements LocalContext, Listener {
 	}
 
 	@Override
-    public final  ClientService getClientService() {
+    public final  ClientService<CONX> getClientService() {
 		return clientService;
 	}
 
@@ -145,7 +146,7 @@ public abstract class AbstractService implements LocalContext, Listener {
 	}
 
     @Override
-	public IVPN getVPN() {
+	public IVPN<CONX> getVPN() {
 	    return vpn;
 	}
 
@@ -153,7 +154,7 @@ public abstract class AbstractService implements LocalContext, Listener {
 		log.info("Using file data backend");
 		connectionRepository = new ConnectionRepositoryImpl();
 		configurationRepository = new ConfigurationRepositoryImpl();
-		clientService = new ClientServiceImpl(this, connectionRepository, configurationRepository);
+		clientService = new ClientServiceImpl<>(this, connectionRepository, configurationRepository);
 		clientService.addListener(this);
 		log.info("Creating platform service");
 		var fact = createPlatformServiceFactory();
@@ -221,11 +222,11 @@ public abstract class AbstractService implements LocalContext, Listener {
         return vpn != null;
     }
     
-    protected abstract Optional<IVPN> buildVpn();
+    protected abstract Optional<IVPN<CONX>> buildVpn();
 
 	protected final boolean startServices() {
 		log.info("Starting internal services.");
-		promptingCertManager = new ServicePromptingCertManager(bundle, this);
+		promptingCertManager = new ServicePromptingCertManager<CONX>(bundle, this);
 		promptingCertManager.installCertificateVerifier();
 
 		try {

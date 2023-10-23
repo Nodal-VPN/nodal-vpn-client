@@ -1,6 +1,5 @@
 package com.logonbox.vpn.client.common;
 
-import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 
 import java.io.File;
@@ -27,15 +26,20 @@ public class HypersocketVersion {
 	}
 	
 	public static String getSerial() {
-		Preferences pref = Preferences.userNodeForPackage(HypersocketVersion.class);
+        Preferences pref = Preferences.userRoot().node("com/hypersocket/json/version");
+        Preferences newPrefs = Preferences.userNodeForPackage(HypersocketVersion.class);
+        
+		var hypersocketId = System.getProperty("hypersocket.id", "hypersocket-one");
+		if(pref.get(hypersocketId, null) != null) {
+		    newPrefs.put("serial", hypersocketId);
+		    pref.remove(hypersocketId);
+		}
 		
-		String hypersocketId = System.getProperty("hypersocket.id", "hypersocket-one");
-		if(pref.get("hypersocket.serial", null)!=null) {
-			pref.put(hypersocketId, pref.get("hypersocket.serial", UUID.randomUUID().toString()));
-			pref.remove("hypersocket.serial");
-		} 
-		String serial = pref.get(hypersocketId, UUID.randomUUID().toString());
-		pref.put(hypersocketId, serial);
+		var serial = newPrefs.get("serial", null);
+		if(serial == null) {
+		    serial = UUID.randomUUID().toString();
+	        pref.put("serial", serial);
+		}
 		return serial;
 	}
 	
@@ -67,9 +71,9 @@ public class HypersocketVersion {
 		    	try(InputStream in = url.openStream()) {
 			    	Manifest mf = new Manifest(in);	
 			    	String extensionVersion = mf.getMainAttributes().getValue("X-Extension-Version");
-			    	if(StringUtils.isNotBlank(extensionVersion)) {
+			    	if(Utils.isNotBlank(extensionVersion)) {
 				    	String priorityStr = mf.getMainAttributes().getValue("X-Extension-Priority");
-				    	int priority = StringUtils.isBlank(priorityStr) ? 0 : Integer.parseInt(priorityStr);
+				    	int priority = Utils.isBlank(priorityStr) ? 0 : Integer.parseInt(priorityStr);
 				    	if(priority > highestPriority) {
 				    		highestPriorityVersion = extensionVersion;
 				    	}
@@ -84,7 +88,7 @@ public class HypersocketVersion {
 	    }
 
 	    // try to load from maven properties first
-		if(StringUtils.isBlank(detectedVersion)) {
+		if(Utils.isBlank(detectedVersion)) {
 		    try {
 		        Properties p = new Properties();
 		        InputStream is = cl.getResourceAsStream("META-INF/maven/com.hypersocket/" + artifactId + "/pom.properties");
@@ -101,7 +105,7 @@ public class HypersocketVersion {
 		}
 
 	    // fallback to using Java API
-		if(StringUtils.isBlank(detectedVersion)) {
+		if(Utils.isBlank(detectedVersion)) {
 	        Package aPackage = HypersocketVersion.class.getPackage();
 	        if (aPackage != null) {
 	            detectedVersion = aPackage.getImplementationVersion();
@@ -111,7 +115,7 @@ public class HypersocketVersion {
 	        }
 	    }
 
-		if(StringUtils.isBlank(detectedVersion)) {
+		if(Utils.isBlank(detectedVersion)) {
 	    	try {
 	    		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 	            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -122,7 +126,7 @@ public class HypersocketVersion {
 	        
 	    }
 
-		if(StringUtils.isBlank(detectedVersion)) {
+		if(Utils.isBlank(detectedVersion)) {
 			detectedVersion = "DEV_VERSION";
 		}
 

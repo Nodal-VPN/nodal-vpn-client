@@ -1,16 +1,15 @@
 package com.logonbox.vpn.client.cli.commands;
 
+import com.logonbox.vpn.client.cli.CLIContext;
+import com.logonbox.vpn.client.cli.ConsoleProvider;
+import com.logonbox.vpn.client.common.Utils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Map;
 import java.util.concurrent.Callable;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.logonbox.vpn.client.cli.CLIContext;
-import com.logonbox.vpn.client.cli.ConsoleProvider;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -29,12 +28,12 @@ public class Debug implements Callable<Integer> {
 		PrintWriter out = console.out();
 		out.println("Environment:");
 		for(Map.Entry<String, String> ee : System.getenv().entrySet()) {
-			out.println(String.format("  %s=%s", ee.getKey(), StringUtils.abbreviate(ee.getValue(), 40)));
+			out.println(String.format("  %s=%s", ee.getKey(), Utils.abbreviate(ee.getValue(), 40)));
 		}
 		out.println();
 		out.println("System:");
 		for(Map.Entry<Object, Object> ee : System.getProperties().entrySet()) {
-			out.println(String.format("  %s=%s", ee.getKey(), StringUtils.abbreviate((String)ee.getValue(), 40)));
+			out.println(String.format("  %s=%s", ee.getKey(), Utils.abbreviate((String)ee.getValue(), 40)));
 		}
 		out.println();
 		out.println("TTY:");

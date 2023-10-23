@@ -5,9 +5,9 @@ import java.util.prefs.Preferences;
 
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConfigurationRepository;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.ConfigurationItem.Scope;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 		
 		Preferences node = getNode(owner, key);
 		
-		if(StringUtils.isNotBlank(owner)) {
+		if(Utils.isNotBlank(owner)) {
 			/* For backwards compatibility before scoped configuration was introduced */
 			var oldVal = NODE.get(key.getKey() + "." + owner, ""); 
 			if(!oldVal.equals("")) {
@@ -48,7 +48,7 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 	public <V> void setValue(String owner, ConfigurationItem<V> key, V value) {
 		Preferences node = getNode(owner, key);
 		
-		if(StringUtils.isNotBlank(owner)) {
+		if(Utils.isNotBlank(owner)) {
 			/* For backwards compatibility before scoped configuration was introduced.
 			 * It is unlikely the key will be set before it is get, but just in case */
 			var oldVal = NODE.get(key.getKey() + "." + owner, ""); 
@@ -72,7 +72,7 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
 	protected <V> Preferences getNode(String owner, ConfigurationItem<V> key) {
 		Preferences node = NODE;
-		if(key.getScope() == Scope.USER && StringUtils.isBlank(owner)) {
+		if(key.getScope() == Scope.USER && Utils.isBlank(owner)) {
 			throw new IllegalArgumentException(String.format("No owner provided for a %s scoped configuration item, '%s'.", key.getScope(), key.getKey()));
 		}
 		else if(key.getScope() == Scope.USER) {

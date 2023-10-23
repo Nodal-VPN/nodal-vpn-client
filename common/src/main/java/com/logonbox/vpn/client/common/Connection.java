@@ -2,8 +2,6 @@ package com.logonbox.vpn.client.common;
 
 import com.logonbox.vpn.drivers.lib.VpnConfiguration;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -162,7 +160,7 @@ public interface Connection extends VpnConfiguration {
     void setRouteAll(boolean routeAll);
 
     default boolean isLogonBoxVPN() {
-        return StringUtils.isNotBlank(getHostname());
+        return Utils.isNotBlank(getHostname());
     }
 
     void setUserPrivateKey(String privateKey);

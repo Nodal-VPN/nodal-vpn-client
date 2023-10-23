@@ -13,10 +13,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.logonbox.vpn.client.common.api.Branding;
-import com.logonbox.vpn.client.common.api.BrandingInfo;
+import com.logonbox.vpn.client.common.lbapi.Branding;
+import com.logonbox.vpn.client.common.lbapi.BrandingInfo;
+import com.sshtools.liftlib.OS;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +24,9 @@ import javafx.scene.paint.Color;
 
 public class Styling {
 	static Logger log = LoggerFactory.getLogger(Styling.class);
-	private UIContext context;
+	private UIContext<?> context;
 
-	public Styling(UIContext context) {
+	public Styling(UIContext<?> context) {
 		this.context = context;
 	}
 
@@ -58,9 +58,9 @@ public class Styling {
 
 	public Color getBase() {
 		if (context.isDarkMode()) {
-			if (SystemUtils.IS_OS_LINUX)
+			if (OS.isLinux())
 				return Color.valueOf("#1c1f22");
-			else if (SystemUtils.IS_OS_MAC_OSX)
+			else if (OS.isMacOs())
 				return Color.valueOf("#231f25");
 			else
 				return Color.valueOf("#202020");
@@ -82,9 +82,9 @@ public class Styling {
 
 		// Get the base colour. All other colours are derived from this
 		Color backgroundColour = Color
-				.valueOf(branding == null ? BrandingInfo.DEFAULT_BACKGROUND : branding.getResource().getBackground());
+				.valueOf(branding == null ? BrandingInfo.DEFAULT_BACKGROUND : branding.resource().background());
 		Color foregroundColour = Color
-				.valueOf(branding == null ? BrandingInfo.DEFAULT_FOREGROUND : branding.getResource().getForeground());
+				.valueOf(branding == null ? BrandingInfo.DEFAULT_FOREGROUND : branding.resource().foreground());
 
 		if (backgroundColour.getOpacity() == 0) {
 			// Prevent total opacity, as mouse events won't be received
@@ -163,8 +163,8 @@ public class Styling {
 		String url = toUri(tmpFile).toExternalForm();
 		if (log.isDebugEnabled())
 			log.debug(String.format("Writing local web style sheet to %s", url));
-		String bgStr = branding == null ? BrandingInfo.DEFAULT_BACKGROUND : branding.getResource().getBackground();
-		String fgStr = branding == null ? BrandingInfo.DEFAULT_FOREGROUND : branding.getResource().getForeground();
+		String bgStr = branding == null ? BrandingInfo.DEFAULT_BACKGROUND : branding.resource().background();
+		String fgStr = branding == null ? BrandingInfo.DEFAULT_FOREGROUND : branding.resource().foreground();
 		Color fgColor = Color.valueOf(fgStr);
 		Color bgColor = Color.valueOf(bgStr);
 		Color baseColor = getBase();

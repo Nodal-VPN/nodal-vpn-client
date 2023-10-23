@@ -4,13 +4,14 @@ import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.ConnectionStatus;
+import com.logonbox.vpn.client.common.api.IVPNConnection;
 import com.logonbox.vpn.client.common.Connection.Mode;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-public interface ClientService  {
+public interface ClientService<CONX extends IVPNConnection>  {
 	
 	public interface Listener {
 		void configurationChange(ConfigurationItem<?> item, Object oldValue, Object newValue);
@@ -82,5 +83,5 @@ public interface ClientService  {
 
 	Connection getConnectionStatus(Connection connection) throws IOException;
 
-	LocalContext getContext();
+	LocalContext<CONX> getContext();
 }

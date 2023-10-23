@@ -10,7 +10,6 @@ import com.logonbox.vpn.client.common.HypersocketVersion;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.api.IVPN;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
 import com.logonbox.vpn.client.gui.jfx.AppContext;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
 import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
@@ -40,7 +39,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.")
-public class Main extends AbstractClient implements Callable<Integer>, AppContext  {
+public class Main extends AbstractClient<EmbeddedVPNConnection> implements Callable<Integer>, AppContext  {
 
 	static {
 		//System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "Debug");
@@ -113,7 +112,7 @@ public class Main extends AbstractClient implements Callable<Integer>, AppContex
     private Level defaultLogLevel = Level.INFO;
     private  EmbeddedService srv;
 
-    protected static Optional<UIContext> uiContext = Optional.empty();
+    protected static Optional<UIContext<EmbeddedVPNConnection>> uiContext = Optional.empty();
 
     public Main() {
         super();
@@ -269,7 +268,7 @@ public class Main extends AbstractClient implements Callable<Integer>, AppContex
     }
 
     @SuppressWarnings("unchecked")
-    public <M extends AppContext> M uiContext(UIContext uiContext) {
+    public <M extends AppContext> M uiContext(UIContext<EmbeddedVPNConnection> uiContext) {
         if(Main.uiContext.isPresent())
             throw new IllegalStateException("Already registered.");
         Main.uiContext = Optional.of(uiContext);
@@ -281,12 +280,12 @@ public class Main extends AbstractClient implements Callable<Integer>, AppContex
     }
 
     @Override
-    public List<IVPNConnection> getVPNConnections() {
+    public List<EmbeddedVPNConnection> getVPNConnections() {
         return getVPNOrFail().getConnections();
     }
 
     @Override
-    public IVPNConnection getVPNConnection(long id) {
+    public EmbeddedVPNConnection getVPNConnection(long id) {
         return getVPNOrFail().getConnection(id);
     }
 
@@ -306,13 +305,13 @@ public class Main extends AbstractClient implements Callable<Integer>, AppContex
         init();
     }
     
-    final class EmbeddedService extends AbstractService {
+    final class EmbeddedService extends AbstractService<EmbeddedVPNConnection> {
 
 		private Level logLevel = Level.INFO;
 		private final Level defaultLogLevel = logLevel;
-        private final Supplier<IVPN> vpn;
+        private final Supplier<IVPN<EmbeddedVPNConnection>> vpn;
 
-		protected EmbeddedService(ResourceBundle bundle, Supplier<IVPN> vpn) throws Exception {
+		protected EmbeddedService(ResourceBundle bundle, Supplier<IVPN<EmbeddedVPNConnection>> vpn) throws Exception {
 			super(bundle);
 			this.vpn = vpn;
 			
@@ -366,8 +365,8 @@ public class Main extends AbstractClient implements Callable<Integer>, AppContex
 			this.logLevel = level;
 		}
 		
-		IVPNConnection wrapConnection(Connection connection) {
-		    return new EmbeddedVPNConnectionImpl(srv, connection);
+		EmbeddedVPNConnection wrapConnection(Connection connection) {
+		    return new EmbeddedVPNConnection(srv, connection);
 		}
 
         @Override
@@ -463,7 +462,7 @@ public class Main extends AbstractClient implements Callable<Integer>, AppContex
         }
 
         @Override
-        protected Optional<IVPN> buildVpn() {
+        protected Optional<IVPN<EmbeddedVPNConnection>> buildVpn() {
             return Optional.of(vpn.get());
         }
 

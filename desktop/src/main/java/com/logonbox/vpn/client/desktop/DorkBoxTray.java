@@ -1,7 +1,8 @@
 package com.logonbox.vpn.client.desktop;
 
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.VpnManager;
+import com.logonbox.vpn.client.common.dbus.VPNConnection;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.Tray;
 
@@ -39,11 +40,15 @@ public class DorkBoxTray extends AbstractTray implements AutoCloseable, Tray {
 	
 	private List<Entry> menuEntries = new ArrayList<>();
 	private SystemTray systemTray;
+    private final VpnManager<VPNConnection> mgr;
 
 	public DorkBoxTray(Client context) throws Exception {
 		super(context);
+		mgr = context.getManager();
 		queueGuiOp(() ->
-			adjustTray(context.getManager().isBusAvailable(), context.getManager().getVPNConnections())
+			{
+                adjustTray(mgr.isBusAvailable(), mgr.getVPNConnections());
+            }
 		);
 	}
 
@@ -66,7 +71,7 @@ public class DorkBoxTray extends AbstractTray implements AutoCloseable, Tray {
 		queueGuiOp(() -> {
 			try {
 				boolean connected = context.getManager().isBusAvailable();
-				List<IVPNConnection> conx = connected ? context.getManager().getVPNConnections() : Collections.emptyList();
+				List<VPNConnection> conx = connected ? mgr.getVPNConnections() : Collections.emptyList();
 				rebuildMenu(connected, conx);
 				setImage(connected, conx);
 			} catch (Exception re) {
@@ -88,7 +93,7 @@ public class DorkBoxTray extends AbstractTray implements AutoCloseable, Tray {
 			log.debug("Ignoring request to queue task, queue is shutdown.");
 	}
 
-	Menu addDevice(IVPNConnection device, Menu toMenu, List<IVPNConnection> devs) throws IOException {
+	Menu addDevice(VPNConnection device, Menu toMenu, List<VPNConnection> devs) throws IOException {
 		Menu menu = null;
 		if (toMenu == null) {
 			if (menu == null)
@@ -115,7 +120,7 @@ public class DorkBoxTray extends AbstractTray implements AutoCloseable, Tray {
 		return menu;
 	}
 
-	void adjustTray(boolean connected, List<IVPNConnection> devs) {
+	void adjustTray(boolean connected, List<VPNConnection> devs) {
 		var icon = Configuration.getDefault().trayModeProperty().get();
 		if (systemTray == null && !Objects.equals(icon, Configuration.TRAY_MODE_OFF)) {
 			systemTray = SystemTray.get();
@@ -159,7 +164,7 @@ public class DorkBoxTray extends AbstractTray implements AutoCloseable, Tray {
 		menuEntries.clear();
 	}
 
-	private void rebuildMenu(boolean connected, List<IVPNConnection> devs) {
+	private void rebuildMenu(boolean connected, List<VPNConnection> devs) {
 		clearMenus();
 		if (systemTray != null) {
 			var menu = systemTray.getMenu();
@@ -205,7 +210,7 @@ public class DorkBoxTray extends AbstractTray implements AutoCloseable, Tray {
 		}
 	}
 
-	private void setImage(boolean connected, List<IVPNConnection> devs) {
+	private void setImage(boolean connected, List<VPNConnection> devs) {
 		if (context.getManager().isBusAvailable()) {
 			String icon = Configuration.getDefault().trayModeProperty().get();
 			if (Configuration.TRAY_MODE_LIGHT.equals(icon)) {

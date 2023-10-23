@@ -1,13 +1,12 @@
 package com.logonbox.vpn.client.cli.commands;
 
+import com.logonbox.vpn.client.cli.CLIContext;
+import com.logonbox.vpn.client.cli.ConsoleProvider;
+import com.logonbox.vpn.client.common.Utils;
+
 import java.io.PrintWriter;
 import java.util.Map;
 import java.util.concurrent.Callable;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.logonbox.vpn.client.cli.CLIContext;
-import com.logonbox.vpn.client.cli.ConsoleProvider;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -29,7 +28,7 @@ public class Help implements Callable<Integer> {
 		CLIContext cli = (CLIContext) spec.parent().userObject();
 		ConsoleProvider console = cli.getConsole();
 		PrintWriter out = console.out();
-		if(StringUtils.isNotBlank(command)) {
+		if(Utils.isNotBlank(command)) {
 			CommandLine cmd = spec.parent().subcommands().get(command);
 			if(cmd == null)
 				throw new IllegalArgumentException("No such command.");

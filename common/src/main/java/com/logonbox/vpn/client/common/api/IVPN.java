@@ -2,11 +2,11 @@ package com.logonbox.vpn.client.common.api;
 
 import java.util.List;
 
-public interface IVPN {
+public interface IVPN<CONX extends IVPNConnection> {
 
-	List<IVPNConnection> getConnections();
+	List<CONX> getConnections();
 
-    IVPNConnection getConnection(long id);
+	CONX getConnection(long id);
 	
 	long getMaxMemory();
 	

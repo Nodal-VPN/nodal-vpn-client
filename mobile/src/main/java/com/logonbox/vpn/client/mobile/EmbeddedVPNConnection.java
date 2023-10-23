@@ -1,18 +1,18 @@
 package com.logonbox.vpn.client.mobile;
 
-import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static com.logonbox.vpn.client.common.Utils.defaultIfBlank;
 
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionUtil;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IVPNConnection;
 import com.logonbox.vpn.drivers.lib.util.Keys;
 import com.sshtools.jini.INIReader;
 import com.sshtools.jini.INIReader.MultiValueMode;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,13 +20,13 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Arrays;
 
-public class EmbeddedVPNConnectionImpl implements IVPNConnection {
-    static Logger log = LoggerFactory.getLogger(EmbeddedVPNConnectionImpl.class);
+public class EmbeddedVPNConnection implements IVPNConnection {
+    static Logger log = LoggerFactory.getLogger(EmbeddedVPNConnection.class);
 
     private final Connection connection;
-    private final LocalContext ctx;
+    private final LocalContext<EmbeddedVPNConnection> ctx;
 
-    public EmbeddedVPNConnectionImpl(LocalContext ctx, Connection connection) {
+    public EmbeddedVPNConnection(LocalContext<EmbeddedVPNConnection> ctx, Connection connection) {
         this.connection = connection;
         this.ctx = ctx;
     }
@@ -73,7 +73,7 @@ public class EmbeddedVPNConnectionImpl implements IVPNConnection {
             int idx = endpoint.lastIndexOf(':');
             setEndpointAddress(endpoint.substring(0, idx));
             setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
-            setPeristentKeepalive(peerSection.getInt("PersistentKeepalive"));
+            setPersistentKeepalive(peerSection.getInt("PersistentKeepalive"));
             setAllowedIps(peerSection.getAllOr("AllowedIPs", new String[0]));
 
             return "";
@@ -217,7 +217,7 @@ public class EmbeddedVPNConnectionImpl implements IVPNConnection {
 
     @Override
     public String getUsernameHint() {
-        return StringUtils.defaultIfBlank(connection.getUsernameHint(), "");
+        return Utils.defaultIfBlank(connection.getUsernameHint(), "");
     }
 
     @Override
@@ -301,11 +301,11 @@ public class EmbeddedVPNConnectionImpl implements IVPNConnection {
 
     @Override
     public void setName(String name) {
-        connection.setName(StringUtils.isBlank(name) ? null : name);
+        connection.setName(Utils.isBlank(name) ? null : name);
     }
 
     @Override
-    public void setPeristentKeepalive(int peristentKeepalive) {
+    public void setPersistentKeepalive(int peristentKeepalive) {
         connection.setPeristentKeepalive(peristentKeepalive);
     }
 
@@ -457,7 +457,7 @@ public class EmbeddedVPNConnectionImpl implements IVPNConnection {
         if (detail != null && detail.error().isPresent())
             return detail.error().get();
         else
-            return StringUtils.defaultString(status.getConnection().getError(), "");
+            return Utils.defaultIfBlank(status.getConnection().getError(), "");
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.HypersocketVersion;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IVPN;
 import com.logonbox.vpn.client.common.dbus.VPN;
 import com.logonbox.vpn.client.common.dbus.VPNConnection;
@@ -15,8 +16,6 @@ import com.logonbox.vpn.client.desktop.service.dbus.VPNImpl;
 import com.logonbox.vpn.client.service.ClientService.Listener;
 import com.sshtools.liftlib.OS;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.Priority;
 import org.apache.log4j.PropertyConfigurator;
 import org.freedesktop.dbus.bin.EmbeddedDBusDaemon;
@@ -27,12 +26,12 @@ import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.connections.transports.TransportBuilder;
 import org.freedesktop.dbus.connections.transports.TransportBuilder.SaslAuthMode;
-import org.freedesktop.dbus.errors.AccessDenied;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.messages.Message;
 import org.freedesktop.dbus.utils.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.slf4j.event.Level;
 
 import java.io.File;
@@ -55,19 +54,21 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Handler;
+import java.util.logging.LogManager;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "logonbox-vpn-server", mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.")
-public class Main extends AbstractService implements Callable<Integer>, DesktopServiceContext, Listener {
+public class Main extends AbstractService<VPNConnection> implements Callable<Integer>, DesktopServiceContext, Listener {
 
 	public final static ResourceBundle BUNDLE = ResourceBundle.getBundle(Main.class.getName());
 	
 	final static int DEFAULT_TIMEOUT = 10000;
 
-	static Logger log = LoggerFactory.getLogger(Main.class);
+	static Logger log;
     static final long PING_TIMEOUT = TimeUnit.SECONDS.toMillis(45);
 
 	public static void main(String[] args) throws Exception {
@@ -85,8 +86,15 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 	private ScheduledFuture<?> connTask;
 	private ScheduledFuture<?> checkTask;
 
+    @Option(names = { "-L", "--log-level" }, paramLabel = "LEVEL", description = "Logging level for trouble-shooting.")
+    private Optional<Level> level;
+
 	@Option(names = { "-a", "--address" }, description = "Address of Bus.")
 	private String address;
+
+    @Option(names = { "-C",
+            "--log-to-console" }, description = "Also direct all log output to console, unless logging configuration is overridden with `logonbox.vpn.logConfiguration` system property.")
+    private boolean logToConsole;
 
 	@Option(names = { "-e",
 			"--embedded-bus" }, description = "Force use of embedded DBus service. Usually it is enabled by default for anything other than Linux.")
@@ -167,17 +175,29 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 		File logs = new File("logs");
 		logs.mkdirs();
 
-		String logConfigPath = System.getProperty("hypersocket.logConfiguration", "");
+		String logConfigPath = System.getProperty("logonbox.vpn.logConfiguration", "");
 		if (logConfigPath.equals("")) {
 			/* Load default */
-			PropertyConfigurator.configure(Main.class.getResource("/default-log4j-service.properties"));
+            if(logToConsole)
+                PropertyConfigurator.configure(Main.class.getResource("/default-log4j-service-console.properties"));
+            else
+                PropertyConfigurator.configure(Main.class.getResource("/default-log4j-service.properties"));
 		} else {
 			File logConfigFile = new File(logConfigPath);
 			if (logConfigFile.exists())
 				PropertyConfigurator.configureAndWatch(logConfigPath);
-			else
-				PropertyConfigurator.configure(Main.class.getResource("/default-log4j-service.properties"));
+			else {
+			    if(logToConsole)
+	                PropertyConfigurator.configure(Main.class.getResource("/default-log4j-service-console.properties"));
+			    else
+			        PropertyConfigurator.configure(Main.class.getResource("/default-log4j-service.properties"));
+			}
 		}
+
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+
+        log = LoggerFactory.getLogger(Main.class);
 
 		try {
 
@@ -191,7 +211,10 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 			 */
 			Level cfgLevel = getConfigurationRepository().getValue(null, ConfigurationItem.LOG_LEVEL);
 			defaultLogLevel = log4JToSLF4JLevel(org.apache.log4j.Logger.getRootLogger().getLevel());
-			if (cfgLevel != null) {
+			if(level.isPresent()) {
+                setLevel(level.get());
+			}
+			else if (cfgLevel != null) {
 				setLevel(cfgLevel);
 			}
 			log.info(String.format("LogonBox VPN Client, version %s",
@@ -236,6 +259,11 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 	@Override
 	public void setLevel(Level level) {
 		org.apache.log4j.Logger.getRootLogger().setLevel(slf4jToLog4JLevel(level));
+        java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
+        rootLogger.setLevel(toJulLevel(level));
+        for (Handler h : rootLogger.getHandlers()) {
+            h.setLevel(toJulLevel(level));
+        }
 	}
 
     @Override
@@ -264,7 +292,7 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
         
     }
 
-    protected final Optional<IVPN> buildVpn() {
+    protected final Optional<IVPN<VPNConnection>> buildVpn() {
 
         try {
             /* DBus */
@@ -541,7 +569,7 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 			}
 	
 			String newAddress = address;
-			if (SystemUtils.IS_OS_LINUX && !embeddedBus) {
+			if (OS.isLinux() && !embeddedBus) {
 				log.info("Will use built-in Linux DBus");
 				if (newAddress != null) {
 					log.info(String.format("Connectin to DBus @%s", newAddress));
@@ -568,7 +596,7 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 				busAddress = BusAddress.of(newAddress);
 				
 			} else {
-				log.info(String.format("Creating new DBus broker. Initial address is %s", StringUtils.isBlank(newAddress) ? "BLANK" : newAddress));
+				log.info(String.format("Creating new DBus broker. Initial address is %s", Utils.isBlank(newAddress) ? "BLANK" : newAddress));
 				if (newAddress == null) {
 					if (!tcpBus || unixBus) {
 						log.info("Using UNIX domain socket bus");
@@ -602,7 +630,7 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 				 * somewhere that can be read by anyone. C:/Windows/TEMP cannot be 
 				 * read by a "Normal User" without elevating.
 				 */
-				if (SystemUtils.IS_OS_WINDOWS && busAddress.getBusType().equals("UNIX")) {
+				if (OS.isWindows() && busAddress.getBusType().equals("UNIX")) {
 					File publicDir = new File("C:\\Users\\Public");
 					if (publicDir.exists()) {
 						File vpnAppData = new File(publicDir, "AppData\\LogonBox\\VPN");
@@ -639,7 +667,7 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 						busAddress = BusAddress.of(newAddress);
 					}
 				}
-				else if (SystemUtils.IS_OS_MAC_OSX && busAddress.getBusType().equals("UNIX")) {
+				else if (OS.isMacOs() && busAddress.getBusType().equals("UNIX")) {
 					/* Work around for Mac OS X. We need the domain socket file to be created
 					 * somewhere that can be read by anyone. /var/folders/zz/XXXXXXXXXXXXXXXXXXXXxxx/T/dbus-XXXXXXXXX cannot be 
 					 * read by a "Normal User" without elevating.
@@ -670,50 +698,14 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 							listenBusAddress.toString(), authMode));
 					daemon = new EmbeddedDBusDaemon(listenBusAddress);
 					daemon.setSaslAuthMode(authMode);
-					daemon.startInBackground();
+					daemon.startInBackgroundAndWait();
 					
-					try {
-
-						/* Argh! FIX this upstream. Without it, attempt to
-						 * connect to embedded daemon very soon after it 
-						 * starts up intermittently fails. The symptoms
-						 * will be the JFX client continues to spin, waiting
-						 * for the service to be fully exported
-						 * 
-						 *  See also below, this is why this operation is in
-						 *  a loop, we work around problems by just trying again. */
-						Thread.sleep(1000);
-					} catch (InterruptedException e1) {
-					} 
-	
 					log.info(String.format("Started embedded bus on address %s", listenBusAddress));				
 	
 					log.info(String.format("Connecting to embedded DBus %s", busAddress));
-					long expire = TimeUnit.SECONDS.toMillis(15) + System.currentTimeMillis();
-					while(System.currentTimeMillis() < expire) {
-						try {
 							conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress)).build();
 							log.info(String.format("Connected to embedded DBus %s", busAddress));
-							break;
-						} catch (DBusException dbe) {
-							try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-							}
-						}
-					}
-					if(conn == null) {
-						/* See above for reason for this loop */
-						try {
-							daemon.close();
-							daemon = null;
-						}
-						catch(Exception e) {
-						}
-						log.warn("Activated work around, no local DBus connection yet. Trying again");
-						continue;
-					}
-	
+
 					startedBus = true;
 					
 				}
@@ -775,17 +767,17 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 	
 			try {
 				/* NOTE: Work around for Hello message not having been completely sent before trying to request name */
-				while(true) {
-					try {
+//				while(true) {
+//					try {
 						((DBusConnection)conn).requestBusName("com.logonbox.vpn");
-						break;
-					}
-					catch(DBusException dbe) {
-						if(!(dbe.getCause() instanceof AccessDenied))
-							throw dbe;
-						Thread.sleep(500);
-					}
-				}
+//						break;
+//					}
+//					catch(DBusException dbe) {
+//						if(!(dbe.getCause() instanceof AccessDenied))
+//							throw dbe;
+//						Thread.sleep(500);
+//					}
+//				}
 				
 				// Now can tell the client
 				storeAddress(busAddress.toString());
@@ -834,14 +826,10 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 
 	private File getPropertiesFile(String type) {
 		File file;
-		String path = System.getProperty("hypersocket." + type);
-
-		if (log.isInfoEnabled()) {
-			log.info(String.format("%s Path: %s", type.toUpperCase(), path));
-		}
+		String path = System.getProperty("logonbox." + type);
 		if (path != null) {
 			file = new File(path);
-		} else if (Boolean.getBoolean("hypersocket.development")) {
+		} else if (Boolean.getBoolean("logonbox.development")) {
 			file = new File(AbstractClient.CLIENT_CONFIG_HOME, type + ".properties");
 		} else {
 			file = new File("conf" + File.separator + type + ".properties");
@@ -897,6 +885,23 @@ public class Main extends AbstractService implements Callable<Integer>, DesktopS
 			}
 		}
 	}
+	
+	static java.util.logging.Level toJulLevel(Level defaultLevel) {
+        switch(defaultLevel) {
+        case TRACE:
+            return java.util.logging.Level.FINEST;
+        case DEBUG:
+            return java.util.logging.Level.FINE;
+        case INFO:
+            return java.util.logging.Level.INFO;
+        case WARN:
+            return java.util.logging.Level.WARNING;
+        case ERROR:
+            return java.util.logging.Level.SEVERE;
+        default:
+            return java.util.logging.Level.OFF;
+        }
+    }
 
 	static org.apache.log4j.Level slf4jToLog4JLevel(String lvl) {
 		try {

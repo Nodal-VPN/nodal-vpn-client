@@ -10,7 +10,6 @@ open module com.logonbox.vpn.client.mobile {
     requires com.sshtools.twoslices;
     requires transitive org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.fontawesome;
-    requires org.apache.commons.lang3;
     requires info.picocli;
     requires com.gluonhq.charm.glisten;
     requires com.gluonhq.attach.display;
@@ -20,5 +19,6 @@ open module com.logonbox.vpn.client.mobile {
     requires com.gluonhq.attach.util;
     requires reload4j;
     requires jul.to.slf4j;
+    requires com.sshtools.liftlib;
     uses PlatformServiceFactory;
 }

@@ -9,22 +9,21 @@ import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.HypersocketVersion;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.api.IVPN;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
 
 import java.util.List;
 import java.util.UUID;
 
-class EmbeddedVPN implements IVPN {
+class EmbeddedVPN implements IVPN<EmbeddedVPNConnection> {
     /**
      * 
      */
-    private final VpnManager vpnManager;
-    private final LocalContext ctx;
+    private final VpnManager<EmbeddedVPNConnection> vpnManager;
+    private final LocalContext<EmbeddedVPNConnection> ctx;
 
     /**
      * @param main
      */
-    EmbeddedVPN(LocalContext ctx, VpnManager vpnManager) {
+    EmbeddedVPN(LocalContext<EmbeddedVPNConnection> ctx, VpnManager<EmbeddedVPNConnection> vpnManager) {
         this.ctx = ctx;
         this.vpnManager = vpnManager;
     }
@@ -53,16 +52,16 @@ class EmbeddedVPN implements IVPN {
     }
 
     @Override
-    public IVPNConnection getConnection(long id) {
-        return new EmbeddedVPNConnectionImpl(ctx, ctx.getClientService().getStatus(id).getConnection());
+    public EmbeddedVPNConnection getConnection(long id) {
+        return new EmbeddedVPNConnection(ctx, ctx.getClientService().getStatus(id).getConnection());
     }
 
 
     @Override
-    public List<IVPNConnection> getConnections() {
+    public List<EmbeddedVPNConnection> getConnections() {
         try {
             return ctx.getClientService().getStatus(Main.getOwner()).stream()
-                    .map(s -> (IVPNConnection)(new EmbeddedVPNConnectionImpl(ctx, s.getConnection()))).toList();
+                    .map(s -> new EmbeddedVPNConnection(ctx, s.getConnection())).toList();
         } catch (Exception e) { 
             throw new IllegalStateException("Failed to get connections.", e);
         }

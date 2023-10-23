@@ -2,6 +2,11 @@ package com.logonbox.vpn.client.cli;
 
 import static java.util.Locale.ENGLISH;
 
+import com.sshtools.liftlib.OS;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.Console;
 import java.io.IOException;
@@ -12,10 +17,6 @@ import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class NativeConsoleDevice implements ConsoleProvider {
 	static Logger log = LoggerFactory.getLogger(NativeConsoleDevice.class);
@@ -76,9 +77,9 @@ public class NativeConsoleDevice implements ConsoleProvider {
 		if(width == -1 || last < now - 1000) {
 			last = now;
 			final AtomicInteger size = new AtomicInteger(-1);
-			final String[] cmd = (SystemUtils.IS_OS_WINDOWS && !isPseudoTTY())
+			final String[] cmd = (OS.isWindows() && !isPseudoTTY())
 					? new String[] { "cmd.exe", "/c", "mode con" }
-					: (SystemUtils.IS_OS_MAC_OSX ? new String[] { "tput", "cols" }
+					: (OS.isMacOs() ? new String[] { "tput", "cols" }
 							: new String[] { "stty", "-a", "-F", "/dev/tty" });
 			Thread t = new Thread(new Runnable() {
 				public void run() {
@@ -101,9 +102,9 @@ public class NativeConsoleDevice implements ConsoleProvider {
 							txt += " " + line;
 						}
 						log.debug("getTerminalWidth() parsing output: %s%n", txt);
-						Pattern pattern = (SystemUtils.IS_OS_WINDOWS && !isPseudoTTY())
+						Pattern pattern = (OS.isWindows() && !isPseudoTTY())
 								? Pattern.compile(".*?:\\s*(\\d+)\\D.*?:\\s*(\\d+)\\D.*", Pattern.DOTALL)
-								: (SystemUtils.IS_OS_MAC_OSX ? Pattern.compile("(\\s*)(\\d+)\\s*")
+								: (OS.isMacOs() ? Pattern.compile("(\\s*)(\\d+)\\s*")
 										: Pattern.compile(".*olumns(:)?\\s+(\\d+)\\D.*", Pattern.DOTALL));
 						Matcher matcher = pattern.matcher(txt);
 						if (matcher.matches()) {
@@ -141,7 +142,7 @@ public class NativeConsoleDevice implements ConsoleProvider {
 	}
 
 	private static boolean isPseudoTTY() {
-		return SystemUtils.IS_OS_WINDOWS && (isXterm() || isCygwin() || hasOsType());
+		return OS.isWindows() && (isXterm() || isCygwin() || hasOsType());
 	}
 
 	private static boolean hasOsType() {

@@ -1,23 +1,17 @@
 package com.logonbox.vpn.client.common;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hypersocket.json.AuthenticationRequiredResult;
-import com.hypersocket.json.AuthenticationResult;
-import com.hypersocket.json.JsonLogonResult;
-import com.hypersocket.json.JsonSession;
-import com.hypersocket.json.input.InputField;
 import com.logonbox.vpn.client.common.api.IVPNConnection;
-import com.logonbox.vpn.client.common.api.PeerResponse;
+import com.logonbox.vpn.client.common.lbapi.InputField;
+import com.logonbox.vpn.client.common.lbapi.LogonResult;
+import com.logonbox.vpn.client.common.lbapi.Session;
+import com.logonbox.vpn.client.common.lbapi.PeerResponse;
 import com.logonbox.vpn.drivers.lib.util.OsUtil;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -33,8 +27,12 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.net.ssl.HostnameVerifier;
+
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 
 public class ServiceClient {
 
@@ -75,23 +73,21 @@ public class ServiceClient {
 
 		void authorized() throws IOException;
 
-		void collect(JsonNode i18n, AuthenticationRequiredResult result, Map<InputField, NameValuePair> results)
+		void collect(JsonObject i18n, LogonResult result, Map<InputField, NameValuePair> results)
 				throws IOException;
 
-		void error(JsonNode i18n, AuthenticationResult logonResult);
+		void error(JsonObject i18n, LogonResult logonResult);
 
 	}
 
 	static Logger log = LoggerFactory.getLogger(ServiceClient.class);
 
-	private ObjectMapper mapper;
 	private CookieHandler cookieHandler;
 	private Authenticator authenticator;
 	private CookieStore cookieStore;
 	private PromptingCertManager certManager;
 
 	public ServiceClient(CookieStore cookieStore, Authenticator authenticator, PromptingCertManager certManager) {
-		mapper = new ObjectMapper();
 		this.cookieStore = cookieStore;
 		this.authenticator = authenticator;
 		this.certManager = certManager;
@@ -106,8 +102,9 @@ public class ServiceClient {
 
 		var client = getHttpClient(connection);
 		var builder = HttpRequest.newBuilder(new URI(connection.getUri(false) + url));
-		for (NameValuePair nvp : headers)
-			builder.header(nvp.getName(), nvp.getValue());
+		
+		Stream.of(headers).forEach(hdr -> builder.header(hdr.getName(), hdr.getValue()));
+		
 		var request = builder.build();
 
 		log.info("Executing request " + request.toString());
@@ -140,66 +137,66 @@ public class ServiceClient {
 
 	}
 
-	protected void debugJSON(String json) throws JsonParseException, JsonMappingException, IOException {
+	protected JsonObject parseJSON(String json) {
 		if (log.isDebugEnabled()) {
-			Object obj = mapper.readValue(json, Object.class);
-			String ret = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
-			log.debug(ret);
+			log.debug(json);
 		}
 
+		try(var rdr = Json.createReader(new StringReader(json))) {
+		    return rdr.readObject();
+		}
 	}
 
 	public void register(IVPNConnection connection) throws IOException, URISyntaxException {
-		JsonSession session;
+		Session session;
 		try {
 			session = auth(connection);
 		} catch (InterruptedException e) {
 			throw new IOException("Authentication interrupted.");
 		}
-		String deviceId = authenticator.getUUID();
+		var deviceId = authenticator.getUUID();
 		try {
 			try {
-				StringBuilder keyParameters = new StringBuilder();
+				var keyParameters = new StringBuilder();
 				keyParameters.append("os=" + OsUtil.getOS());
 				keyParameters.append('&');
 				keyParameters.append("mode=" + connection.getMode());
 				keyParameters.append('&');
 				keyParameters.append("deviceName=" + URLEncoder.encode(OsUtil.getOS(), "UTF-8"));
-				if (StringUtils.isNotBlank(connection.getUserPublicKey())) {
+				if (Utils.isNotBlank(connection.getUserPublicKey())) {
 					keyParameters.append('&');
 					keyParameters.append("publicKey=" + URLEncoder.encode(connection.getUserPublicKey(), "UTF-8"));
 				}
 				keyParameters.append('&');
-				keyParameters.append("token=" + URLEncoder.encode(session.getCsrfToken(), "UTF-8"));
+				keyParameters.append("token=" + URLEncoder.encode(session.csrfToken(), "UTF-8"));
+				
 				log.info(String.format("Retrieving peers for %s", deviceId));
-				String json = doGet(connection, "/api/peers/get?" + keyParameters.toString());
-				debugJSON(json);
-				PeerResponse result = mapper.readValue(json, PeerResponse.class);
-				boolean success = result.isSuccess();
+				
+				var obj = parseJSON(doGet(connection, "/api/peers/get?" + keyParameters.toString()));
+				var result = PeerResponse.of(obj);
 
-				if (success) {
+				if (result.success()) {
 					log.info("Retrieved peers");
-					String deviceUUID = result.getDeviceUUID();
-					if (StringUtils.isNotBlank(deviceUUID) && result.getResource() == null) {
-						json = doGet(connection, "/api/peers/register?" + keyParameters.toString());
-						debugJSON(json);
-						result = mapper.readValue(json, PeerResponse.class);
-						if (result.isSuccess()) {
+					var deviceUUID = result.deviceUUID();
+					if (Utils.isNotBlank(deviceUUID) && result.resource() == null) {
+						obj = parseJSON(doGet(connection, "/api/peers/register?" + keyParameters.toString()));
+						result = PeerResponse.of(obj);
+						if (result.success()) {
 							log.info(String.format("Device UUID registered. %s", deviceUUID));
-							configure(connection, result.getContent(),
-									session.getCurrentPrincipal().getPrincipalName());
+							configure(connection, result.content(),
+									session.currentPrincipal().principalName());
 						} else {
-							throw new IOException("Failed to register. " + result.getMessage());
+							throw new IOException("Failed to register. " + result.message());
 						}
 					} else {
 						log.info("Already have UUID, passing on configuration");
-						configure(connection, result.getContent(), session.getCurrentPrincipal().getPrincipalName());
+						configure(connection, result.content(), session.currentPrincipal().principalName());
 					}
 				} else
-					throw new IOException("Failed to query for existing peers. " + result.getMessage());
+					throw new IOException("Failed to query for existing peers. " + result.message());
 			} finally {
 				try {
-					doGet(connection, "/api/logoff?token=" + URLEncoder.encode(session.getCsrfToken(), "UTF-8"));
+					doGet(connection, "/api/logoff?token=" + URLEncoder.encode(session.csrfToken(), "UTF-8"));
 				}
 				catch(Exception e) {
 					log.warn("Failed to logoff session from server. Continuing, but the session may still exist on the server until it times-out.", e);
@@ -213,8 +210,9 @@ public class ServiceClient {
 	protected void configure(IVPNConnection config, String configIniFile, String usernameHint) throws IOException {
 		log.info(String.format("Configuration for %s", usernameHint));
 		config.setUsernameHint(usernameHint);
-		String error = config.parse(configIniFile);
-		if (StringUtils.isNotBlank(error))
+		
+		var error = config.parse(configIniFile);
+		if (Utils.isNotBlank(error))
 			throw new IOException(error);
 
 		config.save();
@@ -222,50 +220,42 @@ public class ServiceClient {
 		config.authorized();
 	}
 
-	protected JsonSession auth(IVPNConnection connection) throws IOException, URISyntaxException, InterruptedException {
+	protected Session auth(IVPNConnection connection) throws IOException, URISyntaxException, InterruptedException {
 
-		JsonNode i18n;
+		JsonObject i18n;
 		try {
 			/* 2.4 server */
-			String i18njson = doGet(connection, "/api/i18n/group/_default_i18n_group");
-			i18n = mapper.readTree(i18njson);
+			i18n = parseJSON(doGet(connection, "/api/i18n/group/_default_i18n_group"));
 		} catch (IOException cpe) {
-			/* 2.3 server */
-			String i18njson = doGet(connection, "/api/i18n");
-			i18n = mapper.readTree(i18njson);
+			/* 2.3 server */         
+		    i18n = parseJSON(doGet(connection, "/api/i18n"));
 		}
 
 		// main.getServer().
-		String json = doGet(connection, "/api/logon");
-		debugJSON(json);
+		var obj = parseJSON(doGet(connection, "/api/logon"));
 
-		AuthenticationRequiredResult result;
-		String logonJson;
-		Map<InputField, NameValuePair> results = new HashMap<>();
+		LogonResult result;
+		var results = new HashMap<InputField, NameValuePair>();
 		while (true) {
-			result = mapper.readValue(json, AuthenticationRequiredResult.class);
+			result = LogonResult.of(obj);
 
-			if (result.getSuccess())
+			if (result.success())
 				throw new IllegalStateException("Didn't expect to be already logged in.");
 
 			authenticator.collect(i18n, result, results);
 
-			logonJson = doPost(connection, "/api/logon", results.values().toArray(new NameValuePair[0]));
-			debugJSON(logonJson);
+			result = LogonResult.of(parseJSON(doPost(connection, "/api/logon", results.values().toArray(new NameValuePair[0]))));
 
-			AuthenticationResult logonResult = mapper.readValue(logonJson, AuthenticationResult.class);
-			if (logonResult.getSuccess()) {
-				JsonLogonResult logon = mapper.readValue(logonJson, JsonLogonResult.class);
-				return logon.getSession();
+			if (result.success()) {
+				return result.session();
 			} else {
-				authenticator.error(i18n, logonResult);
+				authenticator.error(i18n, result);
 			}
 
 			if (result.isLast())
 				break;
 
-			json = doGet(connection, "/api/logon");
-			debugJSON(json);
+			result = LogonResult.of(parseJSON(doGet(connection, "/api/logon")));
 		}
 
 		throw new IOException("Authentication failed.");

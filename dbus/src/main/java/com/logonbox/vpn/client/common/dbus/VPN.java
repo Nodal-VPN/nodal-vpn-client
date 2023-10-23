@@ -2,19 +2,142 @@ package com.logonbox.vpn.client.common.dbus;
 
 import com.logonbox.vpn.client.common.api.IVPN;
 
+import org.freedesktop.dbus.annotations.DBusBoundProperty;
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
+import org.freedesktop.dbus.annotations.DBusMemberName;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.DBusInterface;
 import org.freedesktop.dbus.messages.DBusSignal;
 
-@DBusInterfaceName("com.logonbox.vpn.VPN")
-public interface VPN extends IVPN, DBusInterface {
+import java.util.List;
 
+@DBusInterfaceName("com.logonbox.vpn.VPN")
+public interface VPN extends IVPN<VPNConnection>, DBusInterface {
+
+    @DBusMemberName("Ping")
     void ping();
 
+    @DBusMemberName("Deregister")
     void deregister();
 
+    @DBusMemberName("Register")
     void register(String username, boolean interactive, boolean supportsAuthorization);
+    
+    @Override
+    @DBusBoundProperty
+    long getMaxMemory();
+
+    @Override
+    @DBusBoundProperty
+    long getFreeMemory();
+
+    @Override
+    @DBusBoundProperty
+    String getUUID();
+
+    @Override
+    @DBusBoundProperty
+    String getVersion();
+
+    @Override
+    @DBusBoundProperty
+    String getDeviceName();
+
+    @Override
+    @DBusMemberName("Shutdown")
+    void shutdown(boolean restart);
+
+    @Override
+    @DBusMemberName("ImportConfiguration")
+    long importConfiguration(String configuration);
+
+    @Override
+    @DBusMemberName("GetConnectionIdForURI")
+    long getConnectionIdForURI(String uri);
+
+    @Override
+    @DBusMemberName("CreateConnection")
+    long createConnection(String uri, boolean connectAtStartup, boolean stayConnected, String mode);
+
+    @Override
+    @DBusBoundProperty
+    int getNumberOfConnections();
+
+    @Override
+    @DBusMemberName("Connect")
+    long connect(String uri);
+
+    @Override
+    @DBusMemberName("GetValue")
+    String getValue(String key);
+
+    @Override
+    @DBusMemberName("GetIntValue")
+    int getIntValue(String key);
+
+    @Override
+    @DBusMemberName("GetLongValue")
+    long getLongValue(String key);
+
+    @Override
+    @DBusMemberName("GetBooleanValue")
+    boolean getBooleanValue(String key);
+
+    @Override
+    @DBusMemberName("SetValue")
+    void setValue(String key, String value); 
+
+    @Override
+    @DBusMemberName("SetIntValue")
+    void setIntValue(String key, int value); 
+
+    @Override
+    @DBusMemberName("SetLongValue")
+    void setLongValue(String key, long value); 
+
+    @Override
+    @DBusMemberName("SetBooleanValue")
+    void setBooleanValue(String key, boolean value);
+
+    @Override
+    @DBusMemberName("DisconnectAll")
+    void disconnectAll();
+
+    @Override
+    @DBusBoundProperty
+    int getActiveButNonPersistentConnections();
+
+    @Override
+    @DBusMemberName("IsCertAccepted")
+    boolean isCertAccepted(String encodedKey);
+
+    @Override
+    @DBusMemberName("AcceptCert")
+    void acceptCert(String encodedKey);
+
+    @Override
+    @DBusMemberName("RejectCert")
+    void rejectCert(String encodedKey);
+
+    @Override
+    @DBusMemberName("SaveCert")
+    void saveCert(String encodedKey);
+
+    @Override
+    @DBusMemberName("GetKeys")
+    String[] getKeys();
+
+    @Override
+    @DBusMemberName("IsMatchesAnyServerURI")
+    boolean isMatchesAnyServerURI(String uri);
+    
+    @Override
+    @DBusMemberName("GetConnections")
+    List<VPNConnection> getConnections();
+    
+    @Override
+    @DBusMemberName("GetConnection")
+    VPNConnection getConnection(long id);
 
 //
 	public class CertificatePrompt extends DBusSignal {

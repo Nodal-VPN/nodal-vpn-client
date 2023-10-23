@@ -7,13 +7,12 @@ module com.logonbox.vpn.client.service {
     
     requires transitive com.logonbox.vpn.common.client;
     requires org.slf4j;
-    requires org.apache.commons.lang3;
     requires java.prefs;
     requires java.net.http;
     
     requires commons.ip.math;
     requires com.sshtools.jini;
-    requires com.hypersocket.json;
+    requires com.sshtools.liftlib;
     
     uses PlatformServiceFactory;
 }

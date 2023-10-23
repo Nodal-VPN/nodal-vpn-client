@@ -5,11 +5,11 @@ import static com.logonbox.vpn.drivers.lib.util.Util.toHumanSize;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.HypersocketVersion;
-import com.logonbox.vpn.client.common.api.Branding;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IVPN;
 import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.lbapi.Branding;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -28,7 +28,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public class DOMProcessor {
+public class DOMProcessor<CONX extends IVPNConnection> {
 	final static Logger log = LoggerFactory.getLogger(DOMProcessor.class);
 
 	private Map<String, String> replacements = new HashMap<>();
@@ -39,7 +39,7 @@ public class DOMProcessor {
 	private ResourceBundle resources;
 	private Map<String, Collection<String>> collections;
 
-	public DOMProcessor(UIContext context, IVPN vpn, IVPNConnection connection, Map<String, Collection<String>> collections,
+	public DOMProcessor(UIContext<CONX> context, IVPN<CONX> vpn, IVPNConnection connection, Map<String, Collection<String>> collections,
 			String lastErrorMessage, String lastErrorCause, String lastException, Branding branding,
 			ResourceBundle pageBundle, ResourceBundle resources, Element documentElement, String disconnectionReason) {
 
@@ -93,9 +93,9 @@ public class DOMProcessor {
 		replacements.put("snapshot", String.valueOf(version.indexOf("-SNAPSHOT") != -1));
 		replacements.put("brand",
 				MessageFormat.format(resources.getString("brand"),
-						(branding == null || branding.getResource() == null
-								|| StringUtils.isBlank(branding.getResource().getName()) ? "LogonBox"
-										: branding.getResource().getName())));
+						(branding == null || branding.resource() == null
+								|| Utils.isBlank(branding.resource().name()) ? "LogonBox"
+										: branding.resource().name())));
 		replacements.put("trayConfigurable", String.valueOf(context.isTrayConfigurable()));
 
 		/* Connection */

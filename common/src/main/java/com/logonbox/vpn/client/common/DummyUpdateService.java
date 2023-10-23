@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public class DummyUpdateService extends AbstractUpdateService {
 
-	public DummyUpdateService(VpnManager context) {
+	public DummyUpdateService(VpnManager<?> context) {
 		super(context);
 	}
 

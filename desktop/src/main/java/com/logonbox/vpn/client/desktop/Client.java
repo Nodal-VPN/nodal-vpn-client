@@ -3,8 +3,10 @@ package com.logonbox.vpn.client.desktop;
 import com.goxr3plus.fxborderlessscene.borderless.BorderlessScene;
 import com.jthemedetecor.OsThemeDetector;
 import com.logonbox.vpn.client.common.PromptingCertManager;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.VpnManager;
-import com.logonbox.vpn.client.common.api.Branding;
+import com.logonbox.vpn.client.common.dbus.VPNConnection;
+import com.logonbox.vpn.client.common.lbapi.Branding;
 import com.logonbox.vpn.client.gui.jfx.AppContext;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.Debugger;
@@ -15,12 +17,11 @@ import com.logonbox.vpn.client.gui.jfx.Styling;
 import com.logonbox.vpn.client.gui.jfx.Tray;
 import com.logonbox.vpn.client.gui.jfx.UI;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
+import com.sshtools.liftlib.OS;
 import com.sshtools.twoslices.ToasterFactory;
 import com.sshtools.twoslices.ToasterSettings.SystemTrayIconMode;
 import com.sshtools.twoslices.impl.JavaFXToaster;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class Client extends Application implements Listener, UIContext {
+public class Client extends Application implements Listener, UIContext<VPNConnection> {
 
 	static final boolean allowBranding = System.getProperty("logonbox.vpn.allowBranding", "true").equals("true");
 
@@ -110,7 +111,7 @@ public class Client extends Application implements Listener, UIContext {
 	private Stage primaryStage;
 	private Tray tray;
 	private boolean waitingForExitChoice;
-	private UI ui;
+	private UI<VPNConnection> ui;
 	private Main app;
 	private Styling styling;
 	private TitleBar titleBar;
@@ -151,7 +152,7 @@ public class Client extends Application implements Listener, UIContext {
 		settings.setAppName(BUNDLE.getString("appName"));
 		settings.setSystemTrayIconMode(SystemTrayIconMode.HIDDEN);
 		var css = Client.class.getResource(Client.class.getSimpleName() + ".css").toExternalForm();
-		if(SystemUtils.IS_OS_MAC_OSX) {
+		if(OS.isMacOs()) {
 			settings.setPreferredToasterClassName(JavaFXToaster.class.getName());
 		}
 		properties.put(JavaFXToaster.DARK, isDarkMode());
@@ -231,7 +232,7 @@ public class Client extends Application implements Listener, UIContext {
 	}
 
 	@Override
-	public VpnManager getManager() {
+	public VpnManager<VPNConnection> getManager() {
 		return app;
 	}
 
@@ -264,7 +265,7 @@ public class Client extends Application implements Listener, UIContext {
 
 		Platform.setImplicitExit(false);
 		PropertyConfigurator.configureAndWatch(
-				System.getProperty("hypersocket.logConfiguration", "conf" + File.separator + "log4j.properties"));
+				System.getProperty("logonbox.vpn.logConfiguration", "conf" + File.separator + "log4j.properties"));
 	}
 
 	@Override
@@ -418,7 +419,7 @@ public class Client extends Application implements Listener, UIContext {
 		else if(h  > 1024) {
 			h = 1024;
 		}
-		if (StringUtils.isNotBlank(main.getSize())) {
+		if (Utils.isNotBlank(main.getSize())) {
 			String[] sizeParts = main.getSize().toLowerCase().split("x");
 			w = Integer.parseInt(sizeParts[0]);
 			h = Integer.parseInt(sizeParts[1]);
@@ -460,10 +461,10 @@ public class Client extends Application implements Listener, UIContext {
 		});
 
 		if (!main.isNoSystemTray()) {
-			if (Taskbar.isTaskbarSupported() && SystemUtils.IS_OS_MAC_OSX) {
+			if (Taskbar.isTaskbarSupported() && OS.isMacOs()) {
 				tray = new AWTTaskbarTray(this);
 			} else if (System.getProperty("logonbox.vpn.useAWTTray", "false").equals("true")
-					|| (SystemUtils.IS_OS_MAC_OSX && isHidpi()) || SystemUtils.IS_OS_WINDOWS)
+					|| (OS.isMacOs() && isHidpi()) || OS.isWindows())
 				tray = new AWTTray(this);
 			else
 				tray = new DorkBoxTray(this);
@@ -516,7 +517,7 @@ public class Client extends Application implements Listener, UIContext {
 
 	protected Scene createWindows(Stage primaryStage) throws IOException {
 
-		ui = new UI(this);
+		ui = new UI<>(this);
 		
 		// Open the actual scene
 		var border = new BorderPane();

@@ -1,8 +1,7 @@
 package com.logonbox.vpn.client.cli.commands;
 
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IVPNConnection;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.PrintWriter;
 
@@ -56,13 +55,13 @@ public class Show extends AbstractConnectionCommand {
 			writer.println(String.format(" Server Public Key: %s", connection.getPublicKey()));
 			writer.println(String.format(" MTU: %s", connection.getMtu()));
 			writer.println(String.format(" Persistent Keep Alive: %s", connection.getPersistentKeepalive()));
-			if(StringUtils.isNotBlank(connection.getPreUp()))
+			if(Utils.isNotBlank(connection.getPreUp()))
 				writer.println(String.format(" Pre-Up: %s", connection.getPreUp()));
-			if(StringUtils.isNotBlank(connection.getPostUp()))
+			if(Utils.isNotBlank(connection.getPostUp()))
 				writer.println(String.format(" Post-Up: %s", connection.getPostUp()));
-			if(StringUtils.isNotBlank(connection.getPreDown()))
+			if(Utils.isNotBlank(connection.getPreDown()))
 				writer.println(String.format(" Pre-Down: %s", connection.getPreDown()));
-			if(StringUtils.isNotBlank(connection.getPostDown()))
+			if(Utils.isNotBlank(connection.getPostDown()))
 				writer.println(String.format(" Post-Down: %s", connection.getPostDown()));
 		}
 	}

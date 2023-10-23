@@ -6,12 +6,13 @@ import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.HypersocketVersion;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
 import com.logonbox.vpn.client.common.dbus.VPN;
+import com.logonbox.vpn.client.common.dbus.VPNConnection;
 import com.logonbox.vpn.client.common.dbus.VPNFrontEnd;
 import com.logonbox.vpn.client.desktop.service.DesktopServiceContext;
 
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
+import org.freedesktop.dbus.exceptions.DBusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +24,8 @@ import java.util.stream.Collectors;
 public class VPNImpl extends AbstractVPNComponent implements VPN {
 	static Logger log = LoggerFactory.getLogger(VPNImpl.class);
 
-	private DesktopServiceContext ctx;
-
 	public VPNImpl(DesktopServiceContext ctx) {
 		super(ctx);
-		this.ctx = ctx;
 	}
 
 	@Override
@@ -101,7 +99,7 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 	}
 
 	@Override
-	public List<IVPNConnection> getConnections() {
+	public List<VPNConnection> getConnections() {
 		assertRegistered();
 		try {
 			return ctx.getClientService().getStatus(getOwner()).stream()
@@ -276,8 +274,12 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 	}
 
     @Override
-    public IVPNConnection getConnection(long id) {
+    public VPNConnection getConnection(long id) {
         assertRegistered();
-        return new VPNConnectionImpl(ctx, ctx.getClientService().getStatus(id).getConnection());
+        try {
+            return ctx.getConnection().getExportedObject(getDeviceName(), "/com/logonbox/vpn/" + id, VPNConnection.class);
+        } catch (DBusException e) {
+            throw new IllegalStateException("Failed to get connection.", e);
+        }
     }
 }

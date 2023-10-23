@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public abstract class AbstractVPNComponent {
 
-	private DesktopServiceContext ctx;
+	protected final DesktopServiceContext ctx;
 
 	protected AbstractVPNComponent(DesktopServiceContext ctx) {
 		this.ctx = ctx;

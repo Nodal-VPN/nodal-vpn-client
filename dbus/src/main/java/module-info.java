@@ -8,5 +8,4 @@ open module com.logonbox.vpn.client.common.dbus {
     requires java.naming;
     requires java.prefs;
     requires info.picocli;
-    requires org.apache.commons.lang3;
 }

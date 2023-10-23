@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public interface VpnManager {
+public interface VpnManager<CONX extends IVPNConnection> {
 
     public interface Handle extends Closeable {
         @Override
@@ -19,15 +19,15 @@ public interface VpnManager {
     }
 
     @FunctionalInterface
-    public interface Authorize {
+    public interface Authorize<CONX extends IVPNConnection> {
 
-        void authorize(IVPNConnection connection, String uri, Mode mode);
+        void authorize(CONX connection, String uri, Mode mode);
     }
 
     @FunctionalInterface
-    public interface Failure {
+    public interface Failure<CONX extends IVPNConnection> {
 
-        void failure(IVPNConnection connection, String reason, String cause, String trace);
+        void failure(CONX connection, String reason, String cause, String trace);
     }
     
     /**
@@ -38,9 +38,9 @@ public interface VpnManager {
 
     boolean isBusAvailable();
 
-    Optional<IVPN> getVPN();
+    Optional<IVPN<CONX>> getVPN();
     
-    default IVPN getVPNOrFail() {
+    default IVPN<CONX> getVPNOrFail() {
         return getVPN().orElseThrow(() -> new IllegalStateException("Vpn server not available."));
     }
 
@@ -52,17 +52,17 @@ public interface VpnManager {
 
     UpdateService getUpdateService();
 
-    List<IVPNConnection> getVPNConnections();
+    List<CONX> getVPNConnections();
 
-    IVPNConnection getVPNConnection(long id);
+    CONX getVPNConnection(long id);
 
     PromptingCertManager getCertManager();
 
     CookieStore getCookieStore();
     
-    Handle onConnectionAdded(Consumer<IVPNConnection> callback);
+    Handle onConnectionAdded(Consumer<CONX> callback);
     
-    Handle onConnectionUpdated(Consumer<IVPNConnection> callback);
+    Handle onConnectionUpdated(Consumer<CONX> callback);
     
     Handle onConnectionRemoved(Consumer<Long> callback);
     
@@ -72,28 +72,28 @@ public interface VpnManager {
     
     Handle onVpnAvailable(Runnable callback);
     
-    Handle onAuthorize(Authorize callback);
+    Handle onAuthorize(Authorize<CONX> callback);
     
-    Handle onConnecting(Consumer<IVPNConnection> callback);
+    Handle onConnecting(Consumer<CONX> callback);
     
-    Handle onConnected(Consumer<IVPNConnection> callback);
+    Handle onConnected(Consumer<CONX> callback);
     
-    Handle onDisconnecting(BiConsumer<IVPNConnection, String> callback);
+    Handle onDisconnecting(BiConsumer<CONX, String> callback);
     
-    Handle onDisconnected(BiConsumer<IVPNConnection, String> callback);
+    Handle onDisconnected(BiConsumer<CONX, String> callback);
     
-    Handle onTemporarilyOffline(BiConsumer<IVPNConnection, String> callback);
+    Handle onTemporarilyOffline(BiConsumer<CONX, String> callback);
     
-    Handle onFailure(Failure failure);
+    Handle onFailure(Failure<CONX> failure);
 
     default void checkVpnManagerAvailable() throws IllegalStateException {
         if(!isBusAvailable())
             throw new IllegalStateException("Vpn manager not available.");
     }
 
-    Handle onConnectionUpdating(Consumer<IVPNConnection> callback);
+    Handle onConnectionUpdating(Consumer<CONX> callback);
 
-    Handle onConnectionRemoving(Consumer<IVPNConnection> callback);
+    Handle onConnectionRemoving(Consumer<CONX> callback);
 
     Handle onConnectionAdding(Runnable callback);
 

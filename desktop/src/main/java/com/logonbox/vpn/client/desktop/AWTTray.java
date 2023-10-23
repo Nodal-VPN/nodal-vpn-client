@@ -2,6 +2,7 @@ package com.logonbox.vpn.client.desktop;
 
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.dbus.VPNConnection;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 
 import org.kordamp.ikonli.fontawesome.FontAwesome;
@@ -74,7 +75,7 @@ public class AWTTray extends AbstractTray {
 		});
 	}
 
-	Menu addDevice(IVPNConnection device, Menu toMenu, List<IVPNConnection> devs) throws IOException {
+	Menu addDevice(IVPNConnection device, Menu toMenu, List<VPNConnection> devs) throws IOException {
 		Menu menu = null;
 		if (toMenu == null) {
 			if (menu == null)
@@ -105,7 +106,7 @@ public class AWTTray extends AbstractTray {
 		return menu;
 	}
 
-	void adjustTray(boolean connected, List<IVPNConnection> devs) {
+	void adjustTray(boolean connected, List<VPNConnection> devs) {
 		String icon = Configuration.getDefault().trayModeProperty().get();
 		if (systemTray == null && !Objects.equals(icon, Configuration.TRAY_MODE_OFF)) {
 			systemTray = SystemTray.getSystemTray();
@@ -147,7 +148,7 @@ public class AWTTray extends AbstractTray {
 		menuEntries.clear();
 	}
 
-	private void rebuildMenu(boolean connected, List<IVPNConnection> devs) {
+	private void rebuildMenu(boolean connected, List<VPNConnection> devs) {
 		clearMenus();
 		if (systemTray != null) {
 			var menu = trayIcon.getPopupMenu();
@@ -198,11 +199,11 @@ public class AWTTray extends AbstractTray {
 		}
 	}
 
-	private void setImage(boolean connected, List<IVPNConnection> devs) {
+	private void setImage(boolean connected, List<VPNConnection> devs) {
 		trayIcon.setImage(getImage(connected, devs));
 	}
 
-	private Image getImage(boolean connected, List<IVPNConnection> devs) {
+	private Image getImage(boolean connected, List<VPNConnection> devs) {
 		if (context.getManager().isBusAvailable()) {
 			String icon = Configuration.getDefault().trayModeProperty().get();
 			if (Configuration.TRAY_MODE_LIGHT.equals(icon)) {

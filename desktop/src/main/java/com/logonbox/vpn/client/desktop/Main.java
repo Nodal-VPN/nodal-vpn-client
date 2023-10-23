@@ -7,16 +7,15 @@ import com.logonbox.vpn.client.common.HypersocketVersion;
 import com.logonbox.vpn.client.common.NoUpdateService;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.UpdateService;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.dbus.AbstractDBusClient;
 import com.logonbox.vpn.client.gui.jfx.AppContext;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.UI;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
+import com.sshtools.liftlib.OS;
 import  com.sun.jna.platform.win32.Advapi32Util;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.Priority;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -26,11 +25,10 @@ import org.slf4j.event.Level;
 import java.awt.Taskbar;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
@@ -104,7 +102,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 
 	private Level defaultLogLevel;
 
-	private static Optional<UIContext> uiContext = Optional.empty();
+	private static Optional<UIContext<?>> uiContext = Optional.empty();
 
 	public Main() {
 		super();
@@ -114,7 +112,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 		if(Taskbar.isTaskbarSupported()) {
 	        try {
 	    		final Taskbar taskbar = Taskbar.getTaskbar();
-	    		if(SystemUtils.IS_OS_MAC_OSX)
+	    		if(OS.isMacOs())
 		            taskbar.setIconImage(java.awt.Toolkit.getDefaultToolkit()
 							.getImage(Main.class.getResource("mac-logo128px.png")));
 	    		else
@@ -125,7 +123,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 	        }
 		}
 
-		String logConfigPath = System.getProperty("hypersocket.logConfiguration", "");
+		String logConfigPath = System.getProperty("logonbox.vpn.logConfiguration", "");
 		if (logConfigPath.equals("")) {
 			/* Load default */
 			PropertyConfigurator.configure(UI.class.getResource("/default-log4j-gui.properties"));
@@ -139,7 +137,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 
 		String cfgLevel = Configuration.getDefault().logLevelProperty().get();
 		defaultLogLevel = log4JToSLF4JLevel(org.apache.log4j.Logger.getRootLogger().getLevel());
-		if(StringUtils.isNotBlank(cfgLevel)) {
+		if(Utils.isNotBlank(cfgLevel)) {
 			try {
 				setLevel(Level.valueOf(cfgLevel));
 			}
@@ -306,7 +304,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 	}
 
 	boolean isElevatableToAdministrator() {
-		if(SystemUtils.IS_OS_WINDOWS) {
+		if(OS.isWindows()) {
 			for(var grp : Advapi32Util.getCurrentUserGroups()) {
 				if(SID_ADMINISTRATORS_GROUP.equals(grp.sidString)) {
 					return true;
@@ -314,14 +312,14 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 			}
 			return false;
 		}
-		else if(SystemUtils.IS_OS_LINUX) {
+		else if(OS.isLinux()) {
 			try {
 				return Arrays.asList(String.join(" ", runCommandAndCaptureOutput("id", "-Gn")).split("\\s+")).contains("sudo");
 			} catch (IOException e) {
 				getLog().error("Failed to test for user groups, assuming can elevate.", e);
 			}
 		}
-		else if(SystemUtils.IS_OS_MAC_OSX) {
+		else if(OS.isMacOs()) {
 			try {
 				return Arrays.asList(String.join(" ", runCommandAndCaptureOutput("id", "-Gn")).split("\\s+")).contains("admin");
 			} catch (IOException e) {
@@ -391,28 +389,28 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 	}
 
 	@SuppressWarnings("unchecked")
-	public <M extends AppContext> M uiContext(UIContext uiContext) {
+	public <M extends AppContext> M uiContext(UIContext<?> uiContext) {
 		if(Main.uiContext.isPresent())
 			throw new IllegalStateException("Already registered.");
 		Main.uiContext = Optional.of(uiContext);
 		return (M) this;
 	}
 	
-	static Collection<String> runCommandAndCaptureOutput(String... args) throws IOException {
-		List<String> largs = new ArrayList<String>(Arrays.asList(args));
-		var pb = new ProcessBuilder(largs);
-		pb.redirectErrorStream(true);
-		Process p = pb.start();
-		Collection<String> lines = IOUtils.readLines(p.getInputStream(), Charset.defaultCharset());
-		try {
-			int ret = p.waitFor();
-			if (ret != 0) {
-				throw new IOException("Command '" + String.join(" ", largs)
-						+ "' returned non-zero status. Returned " + ret + ". " + String.join("\n", lines));
-			}
-		} catch (InterruptedException e) {
-			throw new IOException(e.getMessage(), e);
-		}
-		return lines;
-	}
+    static Collection<String> runCommandAndCaptureOutput(String... args) throws IOException {
+        var largs = new ArrayList<String>(Arrays.asList(args));
+        var pb = new ProcessBuilder(largs);
+        pb.redirectErrorStream(true);
+        Process p = pb.start();
+        var lines = Utils.readLines(new InputStreamReader(p.getInputStream()));
+        try {
+            int ret = p.waitFor();
+            if (ret != 0) {
+                throw new IOException("Command '" + String.join(" ", largs) + "' returned non-zero status. Returned "
+                        + ret + ". " + String.join("\n", lines));
+            }
+        } catch (InterruptedException e) {
+            throw new IOException(e.getMessage(), e);
+        }
+        return lines;
+    }
 }

@@ -25,10 +25,10 @@ public abstract class AbstractUpdateService implements UpdateService {
 	private ScheduledFuture<?> checkTask;
 	private long deferUntil;
 
-	protected final VpnManager context;
+	protected final VpnManager<?> context;
 	protected final ScheduledExecutorService scheduler;
 
-	protected AbstractUpdateService(VpnManager context) {
+	protected AbstractUpdateService(VpnManager<?> context) {
 		this.context = context;
 		scheduler = Executors.newScheduledThreadPool(1);
 		checkIfBusAvailable();

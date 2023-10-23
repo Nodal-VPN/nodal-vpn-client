@@ -3,6 +3,7 @@ package com.logonbox.vpn.client.desktop;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.VpnManager.Handle;
 import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.dbus.VPNConnection;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.Tray;
 
@@ -141,7 +142,7 @@ public abstract class AbstractTray implements AutoCloseable, Tray {
 		return context.isDarkMode();
 	}
 
-	protected Image overlay(URL resource, int sz, List<IVPNConnection> devs) {
+	protected Image overlay(URL resource, int sz, List<VPNConnection> devs) {
 		try {
 			int connecting = 0;
 			int connected = 0;

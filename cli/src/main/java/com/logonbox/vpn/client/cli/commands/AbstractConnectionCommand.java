@@ -1,20 +1,16 @@
 package com.logonbox.vpn.client.cli.commands;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.hypersocket.json.AuthenticationRequiredResult;
-import com.hypersocket.json.AuthenticationResult;
-import com.hypersocket.json.input.InputField;
-import com.hypersocket.json.input.Option;
-import com.hypersocket.json.input.SelectInputField;
 import com.logonbox.vpn.client.cli.CLI;
 import com.logonbox.vpn.client.cli.CLIContext;
 import com.logonbox.vpn.client.cli.ConsoleProvider;
 import com.logonbox.vpn.client.cli.StateHelper;
-import com.logonbox.vpn.client.common.ServiceClient;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
+import com.logonbox.vpn.client.common.ServiceClient;
 import com.logonbox.vpn.client.common.ServiceClient.NameValuePair;
 import com.logonbox.vpn.client.common.api.IVPNConnection;
 import com.logonbox.vpn.client.common.dbus.VPNConnection;
+import com.logonbox.vpn.client.common.lbapi.InputField;
+import com.logonbox.vpn.client.common.lbapi.LogonResult;
 
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.slf4j.Logger;
@@ -33,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 
+import jakarta.json.JsonObject;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
 
@@ -120,90 +117,89 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 			}
 
 			@Override
-			public void error(JsonNode i18n, AuthenticationResult logonResult) {
-				if (logonResult.isLastErrorIsResourceKey())
-					out.println(String.format("Login error. %s", i18n.get(logonResult.getErrorMsg()).asText()));
+			public void error(JsonObject i18n, LogonResult logonResult) {
+				if (logonResult.lastErrorIsResourceKey())
+					out.println(String.format("Login error. %s", i18n.getString(logonResult.errorMsg())));
 				else
-					out.println(String.format("Login error. %s", logonResult.getErrorMsg()));
+					out.println(String.format("Login error. %s", logonResult.errorMsg()));
 
 			}
 
 			@Override
-			public void collect(JsonNode i18n, AuthenticationRequiredResult result,
+			public void collect(JsonObject i18n, LogonResult result,
 					Map<InputField, NameValuePair> results) throws IOException {
 				out.println(MessageFormat.format(CLI.BUNDLE.getString("authenticationRequired"),
-						i18n.get("authentication." + result.getFormTemplate().getResourceKey()).asText()));
+						i18n.getString("authentication." + result.formTemplate().resourceKey())));
 				int fieldNo = 0;
-				for (InputField field : result.getFormTemplate().getInputFields()) {
-					boolean loop = true;
+				for (var field : result.formTemplate().inputFields()) {
+				    var loop = true;
 					while (loop) {
-						switch (field.getType()) {
+						switch (field.type()) {
 						case select:
-							out.println(field.getLabel());
-							SelectInputField sel = (SelectInputField) field;
+							out.println(field.label());
 							int idx = 1;
-							for (Option opt : sel.getOptions()) {
+							for (var opt : field.options()) {
 								out.println(String.format("%d. %s",
 										idx,
-										opt.getIsNameResourceKey() ? i18n.get(opt.getName()).asText() : opt.getName()));
+										opt.isNameResourceKey() ? i18n.getString(opt.name()) : opt.name()));
 								idx++;
 							}
 							String reply;
 							while(true) {
 								reply = cli.getConsole().readLine("Option> ");
 								if(reply.equals("")) {
-									reply = field.getDefaultValue();
+									reply = field.defaultValue();
 									break;
 								}
 								else {
 									try {
-										reply = sel.getOptions().get(Integer.parseInt(reply) -1).getValue();
+										reply = field.options().get(Integer.parseInt(reply) -1).value();
 										break;
 									}
 									catch(Exception e) {
 									}
 								}
 							}
-							results.put(field, new NameValuePair(field.getResourceKey(), reply));
+							results.put(field, new NameValuePair(field.resourceKey(), reply));
 							break;
 						case password:
-							char[] pw = cli.getConsole().readPassword(field.getLabel() + ": ");
+							char[] pw = cli.getConsole().readPassword(field.label() + ": ");
 							if (pw == null)
 								throw new EOFException();
-							if (pw.length > 0 || !field.isRequired()) {
-								results.put(field, new NameValuePair(field.getResourceKey(), new String(pw)));
+							if (pw.length > 0 || !field.required()) {
+								results.put(field, new NameValuePair(field.resourceKey(), new String(pw)));
 								loop = false;
 							}
 							break;
 						case a:
-							out.println(field.getLabel() + ": " + field.getDefaultValue());
+							out.println(field.label() + ": " + field.defaultValue());
 							break;
 						case text:
 						case textarea:
-							String input = cli.getConsole().readLine(field.getLabel() + ": ");
+							var input = cli.getConsole().readLine(field.label() + ": ");
 							if (input == null)
 								throw new EOFException();
-							if (input.length() > 0 || !field.isRequired()) {
-								results.put(field, new NameValuePair(field.getResourceKey(),
-										input.equals("") ? field.getDefaultValue() : input));
+							if (input.length() > 0 || !field.required()) {
+								results.put(field, new NameValuePair(field.resourceKey(),
+										input.equals("") ? field.defaultValue() : input));
 								loop = false;
 							} else if (input.length() == 0 && fieldNo == 0) {
 								throw new IllegalStateException("Aborted.");
 							}
 							break;
 						case hidden:
-							results.put(field, new NameValuePair(field.getResourceKey(), field.getDefaultValue()));
+							results.put(field, new NameValuePair(field.resourceKey(), field.defaultValue()));
 							break;
 						case p:
 						case div:
 						case pre:
-							out.println(field.getDefaultValue());
+							out.println(field.defaultValue());
 							break;
 						case checkbox:
-							if ("true".equals(field.getDefaultValue()))
-								input = cli.getConsole().readLine(field.getLabel() + " (Y)/N: ");
+							if ("true".equals(field.defaultValue()))
+								input = cli.getConsole().readLine(field.label() + " (Y)/N: ");
 							else
-								input = cli.getConsole().readLine(field.getLabel() + " Y/(N): ");
+								input = cli.getConsole().readLine(field.label() + " Y/(N): ");
 							if (input == null)
 								throw new EOFException();
 							input = input.toLowerCase();
@@ -212,17 +208,17 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 							else if (input.equals("n") || input.equals("no"))
 								input = "false";
 							else if (input.equals(""))
-								input = field.getDefaultValue().equals("true") ? "true" : "false";
+								input = field.defaultValue().equals("true") ? "true" : "false";
 							else
 								input = "";
 							if (!input.equals("")) {
-								results.put(field, new NameValuePair(field.getResourceKey(), input));
+								results.put(field, new NameValuePair(field.resourceKey(), input));
 								loop = false;
 							}
 							break;
 						default:
 							throw new UnsupportedOperationException(
-									String.format("Field type %s is not supported.", field.getType()));
+									String.format("Field type %s is not supported.", field.type()));
 						}
 					}
 					fieldNo++;

@@ -107,7 +107,7 @@ public interface IVPNConnection {
 
     void setEndpointPort(int endpointPort);
 
-    void setPeristentKeepalive(int peristentKeepalive);
+    void setPersistentKeepalive(int peristentKeepalive);
 
     void setPublicKey(String publicKey);
 

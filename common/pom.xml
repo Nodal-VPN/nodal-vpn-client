@@ -21,11 +21,11 @@
             <groupId>com.logonbox</groupId>
             <artifactId>logonbox-vpn-lib</artifactId>
         </dependency>   
-		<dependency>
+		<!--<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.7</version>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>com.install4j</groupId>
 			<artifactId>install4j-runtime</artifactId>
@@ -39,11 +39,17 @@
             <version>2.11.0</version>
         </dependency>-->
         
-		<dependency>
+		<!--<dependency>
 			<groupId>com.sshtools</groupId>
 			<artifactId>hypersocket-json-client</artifactId>
             <version>2.0.1-SNAPSHOT</version>
-		</dependency>
+		</dependency>-->
+        <dependency>
+    <groupId>jakarta.json</groupId>
+    <artifactId>jakarta.json-api</artifactId>
+    <version>2.1.3</version>
+</dependency>
+
 
 		<dependency>
 			<groupId>info.picocli</groupId>

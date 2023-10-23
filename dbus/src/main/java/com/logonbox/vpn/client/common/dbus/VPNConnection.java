@@ -2,13 +2,311 @@ package com.logonbox.vpn.client.common.dbus;
 
 import com.logonbox.vpn.client.common.api.IVPNConnection;
 
+import org.freedesktop.dbus.annotations.DBusBoundProperty;
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
+import org.freedesktop.dbus.annotations.DBusMemberName;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.DBusInterface;
 import org.freedesktop.dbus.messages.DBusSignal;
 
 @DBusInterfaceName("com.logonbox.vpn.Connection")
 public interface VPNConnection extends DBusInterface, IVPNConnection {
+    
+    @Override
+    @DBusMemberName("Update")
+    void update(String name, String uri, boolean connectAtStartup, boolean stayConnected);
+
+    @Override
+    @DBusMemberName("Save")
+    long save();
+
+    @Override
+    @DBusBoundProperty
+    String getHostname();
+
+    @Override
+    @DBusBoundProperty
+    String getMode();
+
+    @Override
+    @DBusBoundProperty
+    int getPort();
+
+    @Override
+    @DBusMemberName("GetUri")
+    String getUri(boolean withUsername);
+
+    @Override
+    @DBusMemberName("GetConnectionTestUri")
+    String getConnectionTestUri(boolean withUsername);
+
+    @Override
+    @DBusBoundProperty
+    boolean isTransient();
+
+    @Override
+    @DBusBoundProperty
+    long getId();
+
+    @Override
+    @DBusBoundProperty
+    String getName();
+
+    @Override
+    @DBusBoundProperty
+    String getInterfaceName();
+
+    @Override
+    @DBusBoundProperty
+    String getDisplayName();
+
+    @Override
+    @DBusBoundProperty
+    String getDefaultDisplayName();
+
+    @Override
+    @DBusBoundProperty
+    boolean isConnectAtStartup();
+
+    @Override
+    @DBusBoundProperty
+    boolean isTemporarilyOffline();
+
+    @Override
+    @DBusBoundProperty
+    boolean isStayConnected();
+
+    @Override
+    @DBusBoundProperty
+    void setStayConnected(boolean stayConnected);
+
+    @Override
+    @DBusMemberName("Delete")
+    void delete();
+
+    @Override
+    @DBusMemberName("Disconnect")
+    void disconnect(String reason);
+
+    @Override
+    @DBusMemberName("Connect")
+    void connect();
+
+    @Override
+    @DBusBoundProperty
+    String getStatus();
+
+    @Override
+    @DBusMemberName("Authorize")
+    void authorize();
+
+    @Override
+    @DBusMemberName("Authorized")
+    void authorized();
+
+    @Override
+    @DBusMemberName("Deauthorized")
+    void deauthorize();
+
+    @Override
+    @DBusBoundProperty
+    String getUsernameHint();
+
+    @Override
+    @DBusBoundProperty
+    String getUserPublicKey();
+
+    @Override
+    @DBusBoundProperty
+    boolean hasPrivateKey();
+
+    @Override
+    @DBusBoundProperty
+    String getPublicKey();
+
+    @Override
+    @DBusBoundProperty
+    String getEndpointAddress();
+
+    @Override
+    @DBusBoundProperty
+    int getEndpointPort();
+
+    @Override
+    @DBusBoundProperty
+    int getMtu();
+
+    @Override
+    @DBusBoundProperty
+    String getAddress();
+
+    @Override
+    @DBusBoundProperty
+    String[] getDns();
+
+    @Override
+    @DBusBoundProperty
+    int getPersistentKeepalive();
+
+    @Override
+    @DBusBoundProperty
+    String[] getAllowedIps();
+
+    @Override
+    @DBusBoundProperty
+    boolean isAuthorized();
+
+    @Override
+    @DBusBoundProperty
+    boolean isShared();
+
+    @Override
+    @DBusBoundProperty
+    boolean isFavourite();
+
+    @Override
+    @DBusMemberName("SetAsFavourite")
+    void setAsFavourite();
+
+    @Override
+    @DBusBoundProperty
+    String getOwner();
+
+    @Override
+    @DBusBoundProperty
+    long getLastHandshake();
+
+    @Override
+    @DBusBoundProperty
+    long getRx();
+
+    @Override
+    @DBusBoundProperty
+    long getTx();
+
+    @Override
+    @DBusBoundProperty
+    void setConnectAtStartup(boolean connectAtStartup);
+
+    @Override
+    @DBusBoundProperty
+    void setName(String name);
+
+    @Override
+    @DBusBoundProperty
+    void setHostname(String host);
+
+    @Override
+    @DBusBoundProperty
+    void setPort(int port);
+
+    @Override
+    @DBusBoundProperty
+    void setUsernameHint(String usernameHint);
+
+    @Override
+    @DBusBoundProperty
+    void setUserPrivateKey(String base64PrivateKey);
+
+    @Override
+    @DBusBoundProperty
+    void setUserPublicKey(String base64PublicKey);
+
+    @Override
+    @DBusBoundProperty
+    void setEndpointAddress(String endpointAddress);
+
+    @Override
+    @DBusBoundProperty
+    void setEndpointPort(int endpointPort);
+
+    @Override
+    @DBusBoundProperty
+    void setPersistentKeepalive(int peristentKeepalive);
+
+    @Override
+    @DBusBoundProperty
+    void setPublicKey(String publicKey);
+
+    @Override
+    @DBusBoundProperty
+    void setAllowedIps(String[] allowedIps);
+
+    @Override
+    @DBusBoundProperty
+    void setAddress(String address);
+
+    @Override
+    @DBusBoundProperty
+    void setDns(String[] dns);
+
+    @Override
+    @DBusBoundProperty
+    void setPath(String path);
+
+    @Override
+    @DBusBoundProperty
+    void setOwner(String owner);
+
+    @Override
+    @DBusBoundProperty
+    void setShared(boolean shared);
+
+    @Override
+    @DBusBoundProperty
+    void setPreUp(String preUp);
+
+    @Override
+    @DBusBoundProperty
+    void setPostUp(String preUp);
+
+    @Override
+    @DBusBoundProperty
+    void setPreDown(String preDown);
+
+    @Override
+    @DBusBoundProperty
+    void setPostDown(String preDown);
+
+    @Override
+    @DBusBoundProperty
+    void setRouteAll(boolean routeAll);
+
+    @Override
+    @DBusBoundProperty
+    boolean isRouteAll();
+
+    @Override
+    @DBusBoundProperty
+    String getPreUp();
+
+    @Override
+    @DBusBoundProperty
+    String getPostUp();
+
+    @Override
+    @DBusBoundProperty
+    String getPreDown();
+
+    @Override
+    @DBusBoundProperty
+    String getPostDown();
+
+    @Override
+    @DBusBoundProperty
+    String getPath();
+
+    @Override
+    @DBusMemberName("Parse")
+    String parse(String configIniFile);
+
+    @Override
+    @DBusBoundProperty
+    String getLastError();
+
+    @Override
+    @DBusBoundProperty
+    String getAuthorizeUri();
 
 	public static class Connected extends DBusSignal {
 		public Connected(String path) throws DBusException {

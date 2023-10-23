@@ -6,7 +6,7 @@ import com.gluonhq.charm.glisten.control.AppBar;
 import com.gluonhq.charm.glisten.mvc.View;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.VpnManager;
-import com.logonbox.vpn.client.common.api.Branding;
+import com.logonbox.vpn.client.common.lbapi.Branding;
 import com.logonbox.vpn.client.gui.jfx.AppContext;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.Debugger;
@@ -16,11 +16,11 @@ import com.logonbox.vpn.client.gui.jfx.PowerMonitor.Listener;
 import com.logonbox.vpn.client.gui.jfx.Styling;
 import com.logonbox.vpn.client.gui.jfx.UI;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
+import com.sshtools.liftlib.OS;
 import com.sshtools.twoslices.ToasterFactory;
 import com.sshtools.twoslices.ToasterSettings.SystemTrayIconMode;
 import com.sshtools.twoslices.impl.SysOutToaster;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
@@ -58,7 +58,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 
-public class Client extends MobileApplication implements Listener, UIContext, Navigator {
+public class Client extends MobileApplication implements Listener, UIContext<EmbeddedVPNConnection>, Navigator {
 
 	static final boolean allowBranding = System.getProperty("logonbox.vpn.allowBranding", "true").equals("true");
 
@@ -98,7 +98,7 @@ public class Client extends MobileApplication implements Listener, UIContext, Na
 	private ExecutorService opQueue = Executors.newSingleThreadExecutor();
 	private boolean waitingForExitChoice;
 	private UI ui;
-	private VpnManager app;
+	private VpnManager<EmbeddedVPNConnection> app;
 	private Scene scene;
 	private Styling styling;
 	private Hyperlink back;
@@ -167,7 +167,7 @@ public class Client extends MobileApplication implements Listener, UIContext, Na
 	}
 
 	@Override
-	public VpnManager getManager() {
+	public VpnManager<EmbeddedVPNConnection> getManager() {
 		return app;
 	}
 
@@ -292,9 +292,9 @@ public class Client extends MobileApplication implements Listener, UIContext, Na
 
 	protected Color getBase() {
 		if (isDarkMode()) {
-			if (SystemUtils.IS_OS_LINUX)
+			if (OS.isLinux())
 				return Color.valueOf("#1c1f22");
-			else if (SystemUtils.IS_OS_MAC_OSX)
+			else if (OS.isMacOs())
 				return Color.valueOf("#231f25");
 			else
 				return Color.valueOf("#202020");

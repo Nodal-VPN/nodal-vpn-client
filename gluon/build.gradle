@@ -23,8 +23,8 @@ subprojects {
     apply plugin: "org.openjfx.javafxplugin"
     apply from: rootProject.file('gradle/mavenPublish.gradle')
 
-    sourceCompatibility = 21
-    targetCompatibility = 21
+    sourceCompatibility = 17
+    targetCompatibility = 17
 
     repositories {
         mavenLocal()

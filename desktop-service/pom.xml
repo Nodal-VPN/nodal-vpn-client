@@ -112,7 +112,7 @@
             </dependencies>
         </profile>
         <profile>
-            <id>native</id>
+            <id>native-image</id>
             <build>
                 <plugins>
                     <plugin>

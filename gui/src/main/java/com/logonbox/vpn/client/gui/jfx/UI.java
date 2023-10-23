@@ -1,35 +1,28 @@
 package com.logonbox.vpn.client.gui.jfx;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hypersocket.json.AuthenticationRequiredResult;
-import com.hypersocket.json.AuthenticationResult;
-import com.hypersocket.json.input.InputField;
 import com.logonbox.vpn.client.common.AuthenticationCancelledException;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
+import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus;
+import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
 import com.logonbox.vpn.client.common.HypersocketVersion;
 import com.logonbox.vpn.client.common.ServiceClient;
+import com.logonbox.vpn.client.common.ServiceClient.NameValuePair;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.VpnManager;
-import com.logonbox.vpn.client.common.Connection.Mode;
-import com.logonbox.vpn.client.common.ConnectionStatus.Type;
-import com.logonbox.vpn.client.common.ServiceClient.NameValuePair;
-import com.logonbox.vpn.client.common.api.Branding;
 import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.lbapi.Branding;
+import com.logonbox.vpn.client.common.lbapi.InputField;
+import com.logonbox.vpn.client.common.lbapi.LogonResult;
 import com.logonbox.vpn.drivers.lib.util.OsUtil;
 import com.logonbox.vpn.drivers.lib.util.Util;
 import com.sshtools.twoslices.Slice;
 import com.sshtools.twoslices.Toast;
 import com.sshtools.twoslices.ToastType;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +30,6 @@ import org.slf4j.event.Level;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -66,7 +58,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +73,8 @@ import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import javax.net.ssl.HostnameVerifier;
 
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import javafx.animation.KeyFrame;
 import javafx.animation.RotateTransition;
 import javafx.animation.Timeline;
@@ -110,7 +103,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import netscape.javascript.JSObject;
 
-public class UI extends AnchorPane {
+public class UI<CONX extends IVPNConnection> extends AnchorPane {
 
 
 	static UUID localWebServerCookie = UUID.randomUUID();
@@ -123,15 +116,15 @@ public class UI extends AnchorPane {
 
 	private static final String DEFAULT_LOCALHOST_ADDR = "http://localhost:59999/";
 
-	public static final class ServiceClientAuthenticator implements ServiceClient.Authenticator {
+	public static final class ServiceClientAuthenticator<CONX extends IVPNConnection> implements ServiceClient.Authenticator {
 		private final WebEngine engine;
 		private final Semaphore authorizedLock;
-		private final UIContext context;
+		private final UIContext<CONX> context;
 		private Map<InputField, NameValuePair> results;
-		private AuthenticationRequiredResult result;
+		private LogonResult result;
 		private boolean error;
 
-		public ServiceClientAuthenticator(UIContext context, WebEngine engine, Semaphore authorizedLock) {
+		public ServiceClientAuthenticator(UIContext<CONX> context, WebEngine engine, Semaphore authorizedLock) {
 			this.engine = engine;
 			this.context = context;
 			this.authorizedLock = authorizedLock;
@@ -144,9 +137,9 @@ public class UI extends AnchorPane {
 		}
 
 		public void submit(JSObject obj) {
-			for (InputField field : result.getFormTemplate().getInputFields()) {
-				results.put(field, new NameValuePair(field.getResourceKey(),
-						memberOrDefault(obj, field.getResourceKey(), String.class, "")));
+			for (var field : result.formTemplate().inputFields()) {
+				results.put(field, new NameValuePair(field.resourceKey(),
+						memberOrDefault(obj, field.resourceKey(), String.class, "")));
 			}
 			authorizedLock.release();
 		}
@@ -162,20 +155,20 @@ public class UI extends AnchorPane {
 		}
 
 		@Override
-		public void error(JsonNode i18n, AuthenticationResult logonResult) {
+		public void error(JsonObject i18n, LogonResult logonResult) {
 			maybeRunLater(() -> {
-				if (logonResult.isLastErrorIsResourceKey())
+				if (logonResult.lastErrorIsResourceKey())
 					engine.executeScript("authorizationError('"
-							+ StringEscapeUtils.escapeEcmaScript(i18n.get(logonResult.getErrorMsg()).asText()) + "');");
+							+ Utils.escapeEcmaScript(i18n.getString(logonResult.errorMsg())) + "');");
 				else
 					engine.executeScript("authorizationError('"
-							+ StringEscapeUtils.escapeEcmaScript(logonResult.getErrorMsg()) + "');");
+							+ Utils.escapeEcmaScript(logonResult.errorMsg()) + "');");
 
 			});
 		}
 
 		@Override
-		public void collect(JsonNode i18n, AuthenticationRequiredResult result, Map<InputField, NameValuePair> results)
+		public void collect(JsonObject i18n, LogonResult result, Map<InputField, NameValuePair> results)
 				throws IOException {
 			this.results = results;
 			this.result = result;
@@ -209,12 +202,12 @@ public class UI extends AnchorPane {
 		}
 	}
 
-	public static final class Register implements Runnable {
+	public static final class Register<CONX extends IVPNConnection> implements Runnable {
 		private final IVPNConnection selectedConnection;
 		private final ServiceClient serviceClient;
-		private final UI ui;
+		private final UI<CONX> ui;
 
-		public Register(IVPNConnection selectedConnection, ServiceClient serviceClient, UI ui) {
+		public Register(IVPNConnection selectedConnection, ServiceClient serviceClient, UI<CONX> ui) {
 			this.selectedConnection = selectedConnection;
 			this.serviceClient = serviceClient;
 			this.ui = ui;
@@ -246,7 +239,7 @@ public class UI extends AnchorPane {
 				Boolean connectAtStartup = (Boolean) o.getMember("connectAtStartup");
 				Boolean stayConnected = (Boolean) o.getMember("stayConnected");
 				String server = (String) o.getMember("serverUrl");
-				if (StringUtils.isBlank(server))
+				if (Utils.isBlank(server))
 					throw new IllegalArgumentException(bundle.getString("error.invalidUri"));
 				Mode mode = Mode.valueOf(memberOrDefault(o, "mode", String.class, Mode.CLIENT.name()));
 				UI.this.addConnection(stayConnected, connectAtStartup, server, mode);
@@ -490,7 +483,7 @@ public class UI extends AnchorPane {
 	private UpdateService updateService;
 
 	
-	public UI(UIContext context) {
+	public UI(UIContext<CONX> context) {
 		this.context = context;
 		
 		location = getClass().getResource("UI.fxml");
@@ -656,7 +649,7 @@ public class UI extends AnchorPane {
                      * detail, add it to that.
                      */
                     clearNotificationForConnection(conx.getId());
-                    if (StringUtils.isBlank(reason)
+                    if (Utils.isBlank(reason)
                             || bundle.getString("cancelled").equals(reason))
                         putNotificationForConnection(conx.getId(), Toast.builder()
                                 .title(bundle.getString("appName"))
@@ -714,7 +707,7 @@ public class UI extends AnchorPane {
 		}
 	}
 
-	protected UIContext context;
+	protected UIContext<CONX> context;
 	protected URL location;
 	private RotateTransition loadingRotation;
 
@@ -739,7 +732,7 @@ public class UI extends AnchorPane {
 
 		context.getOpQueue().execute(() -> {
 			try {
-				sel.disconnect(StringUtils.defaultIfBlank(reason, ""));
+				sel.disconnect(Utils.defaultIfBlank(reason, ""));
 			} catch (Exception e) {
 				Platform.runLater(() -> showError("Failed to disconnect.", e));
 			}
@@ -892,7 +885,7 @@ public class UI extends AnchorPane {
 	protected void importConnection(Path file)
 			throws IOException {
 		try(var r = Files.newBufferedReader(file)) {
-			String content = IOUtils.toString(r);
+			String content = Utils.toString(r);
 			context.getOpQueue().execute(() -> {
 				try {
 					context.getManager().getVPNOrFail().importConfiguration(content);
@@ -1071,11 +1064,11 @@ public class UI extends AnchorPane {
 		}
 	}
 
-	protected IVPNConnection getFavouriteConnection() {
+	protected CONX getFavouriteConnection() {
 		return getFavouriteConnection(getAllConnections());
 	}
 
-	protected IVPNConnection getFavouriteConnection(Collection<? extends IVPNConnection> list) {
+	protected CONX getFavouriteConnection(Collection<CONX> list) {
 		var fav = list.isEmpty() ? 0l : context.getManager().getVPNOrFail().getLongValue(ConfigurationItem.FAVOURITE.getKey());
 		for (var connection : list) {
 			if (list.size() == 1 || connection.getId() == fav)
@@ -1252,9 +1245,7 @@ public class UI extends AnchorPane {
 					if (customLocalWebCSSFile.exists()) {
 						if (LOG.isDebugEnabled())
 							LOG.debug(String.format("Setting user stylesheet at %s", customLocalWebCSSFile));
-						byte[] localCss = IOUtils.toByteArray(customLocalWebCSSFile.toURI());
-						String datauri = "data:text/css;base64," + Base64.getEncoder().encodeToString(localCss);
-						webView.getEngine().setUserStyleSheetLocation(datauri);
+						webView.getEngine().setUserStyleSheetLocation("data:text/css;base64," +Base64.getEncoder().encodeToString(Utils.toByteArray(customLocalWebCSSFile)));
 					} else {
 						if (LOG.isDebugEnabled())
 							LOG.debug(String.format("No user stylesheet at %s", customLocalWebCSSFile));
@@ -1341,7 +1332,7 @@ public class UI extends AnchorPane {
                     new Timeline(new KeyFrame(Duration.seconds(5), ae -> context.getAppContext().restart())).play();
                 } else {
                     String unprocessedUri = context.getAppContext().getUri();
-                    if (StringUtils.isNotBlank(unprocessedUri)) {
+                    if (Utils.isNotBlank(unprocessedUri)) {
                         connectToUri(unprocessedUri);
                     } else {
                         initUi();
@@ -1429,11 +1420,11 @@ public class UI extends AnchorPane {
 				throw new IllegalStateException("Already acquired authorize lock.");
 			}
 
-			var authenticator = new ServiceClientAuthenticator(context, engine, authorizedLock);
+			var authenticator = new ServiceClientAuthenticator<CONX>(context, engine, authorizedLock);
 			jsobj.setMember("authenticator", authenticator);
 			var serviceClient = new ServiceClient(context.getManager().getCookieStore(), authenticator, context.getManager().getCertManager());
 			jsobj.setMember("serviceClient", serviceClient);
-			jsobj.setMember("register", new Register(selectedConnection, serviceClient, this));
+			jsobj.setMember("register", new Register<CONX>(selectedConnection, serviceClient, this));
 		}
 
 		/* Override log. TODO: Not entirely sure this works entirely */
@@ -1478,7 +1469,7 @@ public class UI extends AnchorPane {
 	private void processDOM() {
 		var busAvailable = context.getManager().isBusAvailable();
 		var connection = busAvailable ? getForegroundConnection() : null;
-		var processor = new DOMProcessor(context, busAvailable ? context.getManager().getVPNOrFail() : null, connection,
+		var processor = new DOMProcessor<CONX>(context, busAvailable ? context.getManager().getVPNOrFail() : null, connection,
 				collections, lastErrorMessage, lastErrorCause, lastException, branding, pageBundle, bundle,
 				webView.getEngine().getDocument().getDocumentElement(),
 				connection == null ? disconnectionReason : connection.getLastError());
@@ -1539,7 +1530,7 @@ public class UI extends AnchorPane {
 			LOG.info(String.format("Configuration for %s on %s", usernameHint, config.getDisplayName()));
 			config.setUsernameHint(usernameHint);
 			String error = config.parse(configIniFile);
-			if (StringUtils.isNotBlank(error))
+			if (Utils.isNotBlank(error))
 				throw new IOException(error);
 
 			config.save();
@@ -1615,20 +1606,20 @@ public class UI extends AnchorPane {
 		} else {
 			if (LOG.isDebugEnabled())
 				LOG.debug("Adding custom branding");
-			String logo = branding.getLogo();
+			String logo = branding.logo();
 
 			/* Create branded splash */
 			BufferedImage bim = null;
 			Graphics2D graphics = null;
-			if (branding.getResource() != null && StringUtils.isNotBlank(branding.getResource().getBackground())) {
+			if (branding.resource() != null && Utils.isNotBlank(branding.resource().background())) {
 				bim = new BufferedImage(SPLASH_WIDTH, SPLASH_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 				graphics = (Graphics2D) bim.getGraphics();
-				graphics.setColor(java.awt.Color.decode(branding.getResource().getBackground()));
+				graphics.setColor(java.awt.Color.decode(branding.resource().background()));
 				graphics.fillRect(0, 0, SPLASH_WIDTH, SPLASH_HEIGHT);
 			}
 
 			/* Create logo file */
-			if (StringUtils.isNotBlank(logo)) {
+			if (Utils.isNotBlank(logo)) {
 				var newLogoFile = getCustomLogoFile(favouriteConnection);
 				try {
 					if (!Files.exists(newLogoFile)) {
@@ -1646,7 +1637,7 @@ public class UI extends AnchorPane {
 						newLogoFile.toFile().deleteOnExit();
 					}
 					logoFile = newLogoFile;
-					branding.setLogo(logoFile.toUri().toString());
+					branding = branding.logo(logoFile.toUri().toString());
 
 					/* Draw the logo on the custom splash */
 					if (graphics != null) {
@@ -1660,7 +1651,7 @@ public class UI extends AnchorPane {
 
 				} catch (Exception e) {
 					LOG.error(String.format("Failed to cache logo"), e);
-					branding.setLogo(null);
+					branding = branding.logo(null);
 				}
 			} else if (logoFile != null) {
 				try {
@@ -1698,8 +1689,8 @@ public class UI extends AnchorPane {
 		var vmOptionsFile = getConfigDir().resolve("gui.vmoptions");
 		List<String> lines;
 		if(Files.exists(vmOptionsFile)) {
-			try(BufferedReader r = Files.newBufferedReader(vmOptionsFile)) {
-				lines = IOUtils.readLines(r);
+			try(var r = Files.newBufferedReader(vmOptionsFile)) {
+				lines = Utils.readLines(r);
 			}
 			catch(IOException ioe) {
 				throw new IllegalStateException("Failed to read .vmoptions.", ioe);
@@ -1708,8 +1699,8 @@ public class UI extends AnchorPane {
 		else {
 			lines = new ArrayList<>();
 		}
-		for(Iterator<String> lineIt = lines.iterator(); lineIt.hasNext(); ) {
-			String line = lineIt.next();
+		for(var lineIt = lines.iterator(); lineIt.hasNext(); ) {
+			var line = lineIt.next();
 			if(line.startsWith("-splash:")) {
 				lineIt.remove();
 			}
@@ -1725,7 +1716,7 @@ public class UI extends AnchorPane {
 		}
 		else {
 			try(BufferedWriter r = Files.newBufferedWriter(vmOptionsFile)) {
-				IOUtils.writeLines(lines, System.getProperty("line.separator"), r);
+				Utils.writeLines(lines, System.getProperty("line.separator"), r);
 			}
 			catch(IOException ioe) {
 				throw new IllegalStateException("Failed to read .vmoptions.", ioe);
@@ -1752,12 +1743,12 @@ public class UI extends AnchorPane {
 
 	private void reapplyLogo() {
 		String defaultLogo = UI.class.getResource("logonbox-titlebar-logo.png").toExternalForm();
-		if ((branding == null || StringUtils.isBlank(branding.getLogo())
+		if ((branding == null || Utils.isBlank(branding.logo())
 				&& !defaultLogo.equals(context.navigator().getImage().getUrl()))) {
 			context.navigator().setImage(new Image(defaultLogo, true));
-		} else if (branding != null && !defaultLogo.equals(branding.getLogo())
-				&& !StringUtils.isBlank(branding.getLogo())) {
-			context.navigator().setImage(new Image(branding.getLogo(), true));
+		} else if (branding != null && !defaultLogo.equals(branding.logo())
+				&& !Utils.isBlank(branding.logo())) {
+			context.navigator().setImage(new Image(branding.logo(), true));
 		}
 	}
 
@@ -1844,7 +1835,7 @@ public class UI extends AnchorPane {
 		reapplyLogo();
 	}
 
-	private List<IVPNConnection> getAllConnections() {
+	private List<CONX> getAllConnections() {
 		return context.getManager().isBusAvailable() ? context.getManager().getVPNConnections() : Collections.emptyList();
 	}
 
@@ -1918,7 +1909,7 @@ public class UI extends AnchorPane {
 					if (context.getManager().getVPNConnections().isEmpty()) {
 						if (context.getAppContext().isNoAddWhenNoConnections()) {
 							if (context.getAppContext().isConnect()
-									|| StringUtils.isNotBlank(context.getAppContext().getUri()))
+									|| Utils.isNotBlank(context.getAppContext().getUri()))
 								setHtmlPage("busy.html");
 							else
 								setHtmlPage("connections.html");
@@ -2055,11 +2046,10 @@ public class UI extends AnchorPane {
 	}
 
 	public Branding getBranding(IVPNConnection connection) {
-		ObjectMapper mapper = new ObjectMapper();
 		Branding branding = null;
 		if (connection != null) {
 			try {
-				branding = getBrandingForConnection(mapper, connection);
+				branding = getBrandingForConnection( connection);
 			} catch (IOException ioe) {
 				LOG.info(String.format("Skipping %s:%d because it appears offline.", connection.getHostname(),
 						connection.getPort()));
@@ -2067,9 +2057,9 @@ public class UI extends AnchorPane {
 		}
 		else {
     		if (branding == null) {
-    			for (IVPNConnection conx : context.getManager().getVPNConnections()) {
+    			for (var conx : context.getManager().getVPNConnections()) {
     				try {
-    					branding = getBrandingForConnection(mapper, conx);
+    					branding = getBrandingForConnection(conx);
     				} catch (IOException ioe) {
     					LOG.info(String.format("Skipping %s:%d because it appears offline.", conx.getHostname(),
     							conx.getPort()));
@@ -2081,10 +2071,10 @@ public class UI extends AnchorPane {
 		return branding;
 	}
 
-	protected Branding getBrandingForConnection(ObjectMapper mapper, IVPNConnection connection)
-			throws UnknownHostException, IOException, JsonProcessingException, JsonMappingException {
+	protected Branding getBrandingForConnection(IVPNConnection connection)
+			throws UnknownHostException, IOException {
 		synchronized (brandingCache) {
-			BrandingCacheItem item = brandingCache.get(connection);
+			var item = brandingCache.get(connection);
 			if (item != null && item.isExpired()) {
 				item = null;
 			}
@@ -2093,13 +2083,14 @@ public class UI extends AnchorPane {
 				brandingCache.put(connection, item);
 				String uri = connection.getUri(false) + "/api/brand/info";
 				LOG.info(String.format("Retrieving branding from %s", uri));
-				URL url = URI.create(uri).toURL();
-				URLConnection urlConnection = url.openConnection();
+				var url = URI.create(uri).toURL();
+				var urlConnection = url.openConnection();
 				urlConnection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(6));
 				urlConnection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(6));
 				try (InputStream in = urlConnection.getInputStream()) {
-					Branding brandingObj = mapper.readValue(in, Branding.class);
-					brandingObj.setLogo("https://" + connection.getHostname() + ":" + connection.getPort()
+				    var rdr = Json.createReader(in);
+					var brandingObj = Branding.of(rdr.readObject());
+					brandingObj = brandingObj.logo("https://" + connection.getHostname() + ":" + connection.getPort()
 							+ connection.getPath() + "/api/brand/logo");
 					item.branding = brandingObj;
 				}
@@ -2131,9 +2122,4 @@ public class UI extends AnchorPane {
 		webView.getEngine().load(url);
 		LOG.info("Loaded " + url);
 	}
-
-//	private void setPort(int port) {
-//		assert myStateProvider != null;
-//		myStateProvider.getState().put("debugPort", port);
-//	}
 }

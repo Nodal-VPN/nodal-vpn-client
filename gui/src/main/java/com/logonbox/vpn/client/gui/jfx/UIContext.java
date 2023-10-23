@@ -2,7 +2,8 @@ package com.logonbox.vpn.client.gui.jfx;
 
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.VpnManager;
-import com.logonbox.vpn.client.common.api.Branding;
+import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.lbapi.Branding;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -10,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert.AlertType;
 
-public interface UIContext {
+public interface UIContext<CONX extends IVPNConnection> {
 	
 	Navigator navigator();
 	
@@ -20,7 +21,7 @@ public interface UIContext {
 	
 	AppContext getAppContext();
 
-	VpnManager getManager();
+	VpnManager<CONX> getManager();
 
 	boolean isTrayConfigurable();
 

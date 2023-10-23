@@ -24,6 +24,6 @@ public interface Debugger extends Closeable {
 	@Override
 	void close();
 
-    void setup(UIContext context);
+    void setup(UIContext<?> context);
 
 }

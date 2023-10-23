@@ -3,6 +3,7 @@ package com.logonbox.vpn.client.cli;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.VpnManager;
+import com.logonbox.vpn.client.common.dbus.VPNConnection;
 
 import org.freedesktop.dbus.connections.AbstractConnection;
 
@@ -11,7 +12,7 @@ import java.net.CookieStore;
 
 public interface CLIContext {
 
-    VpnManager getVpnManager();
+    VpnManager<VPNConnection> getVpnManager();
     
 	ConsoleProvider getConsole();
 

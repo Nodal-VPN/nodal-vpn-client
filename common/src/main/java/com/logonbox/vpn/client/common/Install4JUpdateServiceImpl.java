@@ -17,7 +17,7 @@ public class Install4JUpdateServiceImpl extends AbstractUpdateService {
 
 	static Logger log = LoggerFactory.getLogger(Install4JUpdateServiceImpl.class);
 
-	public Install4JUpdateServiceImpl(VpnManager context) {
+	public Install4JUpdateServiceImpl(VpnManager<?> context) {
 		super(context);
 	}
 

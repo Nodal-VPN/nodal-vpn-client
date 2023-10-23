@@ -5,10 +5,9 @@ import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.apache.commons.lang3.SystemUtils;
-
 import com.logonbox.vpn.client.gui.jfx.Navigator;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
+import com.sshtools.liftlib.OS;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -33,9 +32,9 @@ public class TitleBar extends AnchorPane implements Navigator {
 	@FXML
 	private Hyperlink close;
 	
-	private UIContext context;
+	private UIContext<?> context;
 
-	public TitleBar(UIContext context) {
+	public TitleBar(UIContext<?> context) {
 		this.context = context;
 		
 		var loader = new FXMLLoader(getClass().getResource("TitleBar.fxml"));
@@ -54,7 +53,7 @@ public class TitleBar extends AnchorPane implements Navigator {
 	public void initialize() {
 
 		/* If on Mac, swap which side minimize / close is on */
-		if (SystemUtils.IS_OS_MAC_OSX) {
+		if (OS.isMacOs()) {
 			var tempL = new ArrayList<>(titleLeft.getChildren());
 			var tempR = new ArrayList<>(titleRight.getChildren());
 			Collections.reverse(tempL);

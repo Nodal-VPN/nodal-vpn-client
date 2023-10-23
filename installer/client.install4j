@@ -113,7 +113,7 @@
   <launchers>
     <launcher name="logonbox-vpn-service" id="583" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientService">
       <executable name="logonbox-vpn-service" stderrFile="logs/service-forker-launcher.err" redirectStdout="true" stdoutFile="logs/service-forker-launcher.out" failOnStderrOutput="false" executableMode="service" dpiAware="false" />
-      <java mainClass="com.logonbox.vpn.client.Main" vmParameters="-Xmx64m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Djna.nosys=true -Dhypersocket.logConfiguration=conf/log4j-service.properties -Djdk.internal.httpclient.disableHostnameVerification=true">
+      <java mainClass="com.logonbox.vpn.client.Main" vmParameters="-Xmx64m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Djna.nosys=true -Dlogonbox.vpn.logConfiguration=conf/log4j-service.properties -Djdk.internal.httpclient.disableHostnameVerification=true">
         <classPath>
           <scanDirectory location="service" failOnError="false" />
         </classPath>
@@ -132,7 +132,7 @@
         <content>-include-options ${HOME}/.logonbox-vpn-client/gui.vmoptions
 -Xmx128m
 -Djdk.internal.httpclient.disableHostnameVerification=true
--Dhypersocket.logConfiguration=conf/log4j-gui.properties
+-Dlogonbox.vpn.logConfiguration=conf/log4j-gui.properties
 -Djna.nosys=true
 -Djna_tmpdir="${launcher:sys.tempDir}"
 -Djava.net.preferIPv4Stack=true</content>
@@ -148,7 +148,7 @@
     </launcher>
     <launcher name="logonbox-vpn-cli" id="1488" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientCLI">
       <executable name="logonbox-vpn-cli" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false" />
-      <java mainClass="com.logonbox.vpn.client.cli.CLI" vmParameters="-Xmx32m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Dhypersocket.logConfiguration=conf/log4j-cli.properties -Djna.nosys=true">
+      <java mainClass="com.logonbox.vpn.client.cli.CLI" vmParameters="-Xmx32m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Dlogonbox.vpn.logConfiguration=conf/log4j-cli.properties -Djna.nosys=true">
         <classPath>
           <scanDirectory location="cli" failOnError="false" />
         </classPath>
@@ -162,7 +162,7 @@
     </launcher>
     <launcher name="logonbox-vpn-service-console" id="2029" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientServiceConsole">
       <executable name="logonbox-vpn-service-console" redirectStderr="false" stderrFile="logs/service-forker-launcher.err" stdoutFile="logs/service-forker-launcher.out" failOnStderrOutput="false" executableMode="console" dpiAware="false" />
-      <java mainClass="com.logonbox.vpn.client.Main" vmParameters="-Xmx64m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Djna.nosys=true -Dhypersocket.logConfiguration=conf/log4j-service-console.properties">
+      <java mainClass="com.logonbox.vpn.client.Main" vmParameters="-Xmx64m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Djna.nosys=true -Dhlogonbox.vpn.logConfiguration=conf/log4j-service-console.properties">
         <classPath>
           <scanDirectory location="service" failOnError="false" />
         </classPath>
@@ -181,7 +181,7 @@
         <content>-include-options ${HOME}/.logonbox-vpn-client/gui.vmoptions
 -Xmx128m
 -Djdk.internal.httpclient.disableHostnameVerification=true
--Dhypersocket.logConfiguration=conf/log4j-gui.properties
+-Dlogonbox.vpn.logConfiguration=conf/log4j-gui.properties
 -Djna.nosys=true
 -Djna_tmpdir="${launcher:sys.tempDir}"
 -Djava.net.preferIPv4Stack=true</content>

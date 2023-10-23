@@ -1,7 +1,8 @@
 package com.logonbox.vpn.client.service;
 
-import com.hypersocket.json.utils.HypersocketUtils;
-import com.hypersocket.json.version.HypersocketVersion;
+import static com.logonbox.vpn.client.common.Utils.isBlank;
+import static java.util.Arrays.asList;
+
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConfigurationRepository;
@@ -11,9 +12,12 @@ import com.logonbox.vpn.client.common.ConnectionRepository;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
+import com.logonbox.vpn.client.common.HypersocketVersion;
 import com.logonbox.vpn.client.common.PromptingCertManager;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.UserCancelledException;
 import com.logonbox.vpn.client.common.VpnManager;
+import com.logonbox.vpn.client.common.api.IVPNConnection;
 import com.logonbox.vpn.drivers.lib.AbstractSystemContext;
 import com.logonbox.vpn.drivers.lib.PlatformService;
 import com.logonbox.vpn.drivers.lib.SystemConfiguration;
@@ -23,10 +27,8 @@ import com.logonbox.vpn.drivers.lib.util.Keys;
 import com.logonbox.vpn.drivers.lib.util.Util;
 import com.sshtools.jini.INIReader;
 import com.sshtools.jini.INIReader.MultiValueMode;
+import com.sshtools.liftlib.OS;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +72,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ssl.SSLHandshakeException;
 
-public class ClientServiceImpl extends AbstractSystemContext implements ClientService {
+public class ClientServiceImpl<CONX extends IVPNConnection> extends AbstractSystemContext implements ClientService<CONX> {
 	private static final String X_VPN_RESPONSE = "X-VPN-Response";
 	private static final String X_VPN_CHALLENGE = "X-VPN-Challenge";
 
@@ -83,21 +85,21 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 
 	private static final String AUTHORIZE_URI = "/logonBoxVPNClient/";
 
-	protected Map<Connection, VPNSession> activeSessions = new HashMap<>();
+	protected Map<Connection, VPNSession<CONX>> activeSessions = new HashMap<>();
 	protected Map<Connection, ScheduledFuture<?>> authorizingClients = new HashMap<>();
-	protected Map<Connection, VPNSession> connectingSessions = new HashMap<>();
+	protected Map<Connection, VPNSession<CONX>> connectingSessions = new HashMap<>();
 	protected Set<Connection> disconnectingClients = new HashSet<>();
 	protected Set<Connection> temporarilyOffline = new HashSet<>();
 
 	private ConfigurationRepository configurationRepository;
 	private ConnectionRepository connectionRepository;
-	private LocalContext context;
+	private LocalContext<CONX> context;
 	private Semaphore startupLock = new Semaphore(1);
 	private AtomicLong transientConnectionId = new AtomicLong();
 	private List<Listener> listeners = new ArrayList<>();
 	private Set<Long> deleting = Collections.synchronizedSet(new LinkedHashSet<>());
 
-	public ClientServiceImpl(LocalContext context, ConnectionRepository connectionRepository,
+	public ClientServiceImpl(LocalContext<CONX> context, ConnectionRepository connectionRepository,
 			ConfigurationRepository configurationRepository) {
 		this.context = context;
 		this.configurationRepository = configurationRepository;
@@ -150,7 +152,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 			c.setError(null);
 			save(c);
 
-			VPNSession task = createJob(c);
+			var task = createJob(c);
 			temporarilyOffline.remove(c);
 			task.setTask(context.getQueue().schedule(() -> doConnect(task), 1, TimeUnit.MILLISECONDS));
 		}
@@ -258,9 +260,9 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 					reason == null ? "" : reason));
 		}
 		boolean disconnect = false;
-		VPNSession wireguardSession = null;
+		VPNSession<CONX> wireguardSession = null;
 		synchronized (activeSessions) {
-			c.setError(StringUtils.isBlank(reason) ? null : reason);
+			c.setError(Utils.isBlank(reason) ? null : reason);
 			save(c);
 			temporarilyOffline.remove(c);
 			if (!disconnectingClients.contains(c)) {
@@ -353,7 +355,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 
 	@Override
 	public Connection getConnectionStatus(Connection connection) throws IOException {
-		if(!connection.isAuthorized() || StringUtils.isBlank(connection.getUserPrivateKey()))
+		if(!connection.isAuthorized() || Utils.isBlank(connection.getUserPrivateKey()))
 			return connection;
 
 		var prms = context.getSSLParameters();
@@ -679,20 +681,20 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 
 	@Override
 	public String getDeviceName() {
-		String hostname = SystemUtils.getHostName();
-		if (StringUtils.isBlank(hostname)) {
+		var hostname = Utils.getHostName();
+		if (Utils.isBlank(hostname)) {
 			try {
 				hostname = InetAddress.getLocalHost().getHostName();
 			} catch (Exception e) {
 				hostname = "Unknown Host";
 			}
 		}
-		String os = System.getProperty("os.name");
-		if (SystemUtils.IS_OS_WINDOWS) {
+		var os = System.getProperty("os.name");
+		if (OS.isWindows()) {
 			os = "Windows";
-		} else if (SystemUtils.IS_OS_LINUX) {
+		} else if (OS.isLinux()) {
 			os = "Linux";
-		} else if (SystemUtils.IS_OS_MAC_OSX) {
+		} else if (OS.isMacOs()) {
 			os = "Mac OSX";
 		}
 		return os + " " + hostname;
@@ -786,7 +788,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 	}
 
 	@Override
-	public LocalContext getContext() {
+	public LocalContext<CONX> getContext() {
 		return context;
 	}
 
@@ -900,7 +902,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 			if (connection == null) {
 				log.warn("Ignoring a scheduled connection that no longer exists, probably deleted.");
 			} else {
-				VPNSession job = createJob(c);
+				var job = createJob(c);
 				job.setReconnect(reconnect);
 				job.setTask(context.getQueue().schedule(() -> doConnect(job), reconnectSeconds, TimeUnit.SECONDS));
 			}
@@ -928,7 +930,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 		for (var session : started) {
 		    session.configuration().firstPeer().ifPresent(peer -> {
 	            var connection = getStatusForPublicKey(peer.publicKey()).getConnection();
-	            activeSessions.put(connection, new VPNSession(connection, context, session)); 
+	            activeSessions.put(connection, new VPNSession<>(connection, context, session)); 
 		    });
 		}
 
@@ -952,7 +954,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 		try {
 			log.info("Starting saved connections");
 			int connected = 0;
-			for (Connection c : connectionRepository.getConnections(null)) {
+			for (var c : connectionRepository.getConnections(null)) {
 				if (c.isConnectAtStartup() && getStatusType(c) == Type.DISCONNECTED) {
 					try {
 						connect(c);
@@ -984,8 +986,8 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 		}
 	}
 
-	protected VPNSession createJob(Connection c) {
-		return new VPNSession(c, getContext());
+	protected VPNSession<CONX> createJob(Connection c) {
+		return new VPNSession<>(c, getContext());
 	}
 
 	protected boolean isUseAllCloudPhases() {
@@ -1021,7 +1023,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 		for (Connection c : connections) {
 			if (!added.contains(c) && !deleting.contains(c.getId())) {
 				var status = VpnInterfaceInformation.EMPTY;
-				VPNSession session = activeSessions.get(c);
+				var session = activeSessions.get(c);
 				if (session != null) {
 					try {
 					    status = session.getSession().get().information();
@@ -1053,7 +1055,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 				log.debug("Checking {} active sessions to see if they are alive.", activeSessions.size());
 			}
 			synchronized (activeSessions) {
-				for (Map.Entry<Connection, VPNSession> sessionEn : new HashMap<>(activeSessions).entrySet()) {
+				for (var sessionEn : new HashMap<>(activeSessions).entrySet()) {
 					Connection connection = sessionEn.getKey();
 
 					if (temporarilyOffline.contains(connection)) {
@@ -1180,7 +1182,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 		}
 	}
 
-	private void doConnect(VPNSession job) {
+	private void doConnect(VPNSession<CONX> job) {
 		try {
 
 			var connection = job.getConnection();
@@ -1334,6 +1336,7 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 	public static void resolveRemoteDependencies(PromptingCertManager certManager, String url, String[] repos, String version, String serial,
 			String product, String customer, String... targets) throws IOException {
 
+	    var reposList = new ArrayList<String>(asList(repos));
 		var httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2)
 				.sslContext(certManager.getSSLContext()).sslParameters(certManager.getSSLParameters())
 				.connectTimeout(Duration.ofSeconds(15)).followRedirects(HttpClient.Redirect.NORMAL).build();
@@ -1344,35 +1347,36 @@ public class ClientServiceImpl extends AbstractSystemContext implements ClientSe
 				if (log.isInfoEnabled()) {
 					log.info(String.format("Adding private repos %s", additionalRepos));
 				}
-				repos = ArrayUtils.addAll(repos, additionalRepos.split(","));
+				reposList.addAll(asList(additionalRepos.split(",")));
 			}
-			if (StringUtils.isBlank(additionalRepos)) {
+			
+			if (isBlank(additionalRepos)) {
 				additionalRepos = System.getProperty("hypersocket.additionalRepos");
 				if (additionalRepos != null) {
 					if (log.isInfoEnabled()) {
 						log.info(String.format("Adding additional repos %s", additionalRepos));
 					}
-					repos = ArrayUtils.addAll(repos, additionalRepos.split(","));
+	                reposList.addAll(asList(additionalRepos.split(",")));
 				}
 			}
-			var updateUrl = String.format("%s/%s/%s/%s/%s", url, version, HypersocketUtils.csv(repos), serial,
-					HypersocketUtils.csv(targets));
+			
+			var updateUrl = String.format("%s/%s/%s/%s/%s", url, version, String.join(",", reposList), serial,
+			        String.join(",", targets));
 
 			if (log.isInfoEnabled()) {
 				log.info("Checking for updates from " + updateUrl);
 			}
 
-			var params = new HashMap<String, String>();
-			params.put("product", product);
-			params.put("customer", customer);
-
 			var request = HttpRequest.newBuilder(new URI(updateUrl)).header("Accept", "application/json")
-					.header("Content-Type", "application/x-www-form-urlencoded").POST(ConnectionUtil.ofMap(params)).build();
+					.header("Content-Type", "application/x-www-form-urlencoded").POST(ConnectionUtil.ofMap(Map.of(
+	            "product", product,
+	            "customer", customer
+			))).build();
 
 			var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
 			if (log.isDebugEnabled()) {
-				log.debug(HypersocketUtils.prettyPrintJson(response.body()));
+				log.debug(response.body());
 			}
 
 		} catch (Exception ex) {

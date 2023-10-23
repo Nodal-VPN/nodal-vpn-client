@@ -4,13 +4,13 @@ import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionUtil;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.dbus.VPNConnection;
 import com.logonbox.vpn.client.desktop.service.DesktopServiceContext;
 import com.logonbox.vpn.drivers.lib.util.Keys;
 import com.sshtools.jini.INIReader;
 import com.sshtools.jini.INIReader.MultiValueMode;
 
-import org.apache.commons.lang3.StringUtils;
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +74,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 			int idx = endpoint.lastIndexOf(':');
 			setEndpointAddress(endpoint.substring(0, idx));
 			setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
-			setPeristentKeepalive(peerSection.getInt("PersistentKeepalive"));
+			setPersistentKeepalive(peerSection.getInt("PersistentKeepalive"));
 			setAllowedIps(peerSection.getAllOr("AllowedIPs", new String[0]));
 			
 			return "";
@@ -125,7 +125,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	@Override
 	public String getAddress() {
 		assertRegistered();
-		return StringUtils.defaultIfBlank(connection.getAddress(), "");
+		return Utils.defaultIfBlank(connection.getAddress(), "");
 	}
 
 	@Override
@@ -143,13 +143,13 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	@Override
 	public String getDisplayName() {
 		assertRegistered();
-		return StringUtils.defaultIfBlank(connection.getDisplayName(), "");
+		return Utils.defaultIfBlank(connection.getDisplayName(), "");
 	}
 
 	@Override
 	public String getDefaultDisplayName() {
 		assertRegistered();
-		return StringUtils.defaultIfBlank(connection.getDefaultDisplayName(), "");
+		return Utils.defaultIfBlank(connection.getDefaultDisplayName(), "");
 	}
 
 	@Override
@@ -161,7 +161,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	@Override
 	public String getEndpointAddress() {
 		assertRegistered();
-		return StringUtils.defaultIfBlank(connection.getEndpointAddress(), "");
+		return Utils.defaultIfBlank(connection.getEndpointAddress(), "");
 	}
 
 	@Override
@@ -173,7 +173,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	@Override
 	public String getHostname() {
 		assertRegistered();
-		return StringUtils.defaultIfBlank(connection.getHostname(), "");
+		return Utils.defaultIfBlank(connection.getHostname(), "");
 	}
 
 	@Override
@@ -191,7 +191,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	@Override
 	public String getName() {
 		assertRegistered();
-		return StringUtils.defaultIfBlank(connection.getName(), "");
+		return Utils.defaultIfBlank(connection.getName(), "");
 	}
 
 	@Override
@@ -202,7 +202,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	@Override
 	public String getPath() {
 		assertRegistered();
-		return StringUtils.defaultIfBlank(connection.getPath(), "");
+		return Utils.defaultIfBlank(connection.getPath(), "");
 	}
 
 	@Override
@@ -220,7 +220,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	@Override
 	public String getPublicKey() {
 		assertRegistered();
-		return StringUtils.defaultIfBlank(connection.getPublicKey(), "");
+		return Utils.defaultIfBlank(connection.getPublicKey(), "");
 	}
 
 	@Override
@@ -250,13 +250,13 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	@Override
 	public String getUsernameHint() {
 		assertRegistered();
-		return StringUtils.defaultIfBlank(connection.getUsernameHint(), "");
+		return Utils.defaultIfBlank(connection.getUsernameHint(), "");
 	}
 
 	@Override
 	public String getUserPublicKey() {
 		assertRegistered();
-		return StringUtils.defaultIfBlank(connection.getUserPublicKey(), "");
+		return Utils.defaultIfBlank(connection.getUserPublicKey(), "");
 	}
 
 	@Override
@@ -352,11 +352,11 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	@Override
 	public void setName(String name) {
 		assertRegistered();
-		connection.setName(StringUtils.isBlank(name) ? null : name);
+		connection.setName(Utils.isBlank(name) ? null : name);
 	}
 
 	@Override
-	public void setPeristentKeepalive(int peristentKeepalive) {
+	public void setPersistentKeepalive(int peristentKeepalive) {
 		assertRegistered();
 		connection.setPeristentKeepalive(peristentKeepalive);
 	}
@@ -521,7 +521,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 		if(detail != null && detail.error().isPresent())
 			return detail.error().get();
 		else
-			return StringUtils.defaultString(status.getConnection().getError(), "");
+			return Utils.defaultIfBlank(status.getConnection().getError(), "");
 	}
 
 	@Override

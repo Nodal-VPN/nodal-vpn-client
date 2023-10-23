@@ -3,6 +3,7 @@ package com.logonbox.vpn.client.ini;
 import static com.logonbox.vpn.drivers.lib.util.Util.isBlank;
 
 import com.logonbox.vpn.client.common.Connection;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.drivers.lib.VpnPeer;
 import com.logonbox.vpn.drivers.lib.util.Keys;
 import com.logonbox.vpn.drivers.lib.util.Util;
@@ -11,8 +12,6 @@ import com.sshtools.jini.INIReader;
 import com.sshtools.jini.INIReader.MultiValueMode;
 import com.sshtools.jini.INIWriter;
 import com.sshtools.jini.INIWriter.StringQuoteMode;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -456,7 +455,7 @@ public class ConnectionImpl implements Connection, Serializable {
 
 	@Override
 	public boolean isAuthorized() {
-		return StringUtils.isNotBlank(endpointAddress);
+		return Utils.isNotBlank(endpointAddress);
 	}
 
 	@Override
@@ -492,19 +491,19 @@ public class ConnectionImpl implements Connection, Serializable {
 		if (!connection.getDns().isEmpty())
 			interfaceSection.putAll("DNS", connection.getDns().toArray(new String[0]));
 		interfaceSection.put("PrivateKey", connection.getUserPrivateKey());
-		if (StringUtils.isNotBlank(connection.getPreUp()))
+		if (Utils.isNotBlank(connection.getPreUp()))
 			interfaceSection.putAll("PreUp", connection.getPreUp().split("\\n"));
-		if (StringUtils.isNotBlank(connection.getPostUp()))
+		if (Utils.isNotBlank(connection.getPostUp()))
 			interfaceSection.putAll("PostUp", connection.getPostUp().split("\\n"));
-		if (StringUtils.isNotBlank(connection.getPreDown()))
+		if (Utils.isNotBlank(connection.getPreDown()))
 			interfaceSection.putAll("PreDown", connection.getPreDown().split("\\n"));
-		if (StringUtils.isNotBlank(connection.getPostDown()))
+		if (Utils.isNotBlank(connection.getPostDown()))
 			interfaceSection.putAll("PostDown", connection.getPostDown().split("\\n"));
 		if(connection.getFwMark() > 0)
 		    interfaceSection.put("FwMark", connection.getFwMark());
 		if(connection.isSaveConfig())
             interfaceSection.put("SaveConfig", connection.isSaveConfig());
-		if(StringUtils.isNotBlank("Table"))
+		if(Utils.isNotBlank("Table"))
             interfaceSection.put("Table", connection.getTable());
 
 		/* Custom LogonBox */
@@ -514,33 +513,33 @@ public class ConnectionImpl implements Connection, Serializable {
 		logonBoxSection.put("ConnectAtStartup", connection.isConnectAtStartup());
 		logonBoxSection.put("StayConnected", connection.isStayConnected());
 		logonBoxSection.put("Mode", connection.getMode().name());
-		if (StringUtils.isNotBlank(connection.getOwner()))
+		if (Utils.isNotBlank(connection.getOwner()))
 			logonBoxSection.put("Owner", connection.getOwner());
-		if (StringUtils.isNotBlank(connection.getUsernameHint()))
+		if (Utils.isNotBlank(connection.getUsernameHint()))
 			logonBoxSection.put("UsernameHint", connection.getUsernameHint());
-		if (StringUtils.isNotBlank(connection.getHostname()))
+		if (Utils.isNotBlank(connection.getHostname()))
 			logonBoxSection.put("Hostname", connection.getHostname());
-		if (StringUtils.isNotBlank(connection.getPath()))
+		if (Utils.isNotBlank(connection.getPath()))
 			logonBoxSection.put("Path", connection.getPath());
-		if (StringUtils.isNotBlank(connection.getError()))
+		if (Utils.isNotBlank(connection.getError()))
 			logonBoxSection.put("Error", connection.getError());
-		if (StringUtils.isNotBlank(connection.getName()))
+		if (Utils.isNotBlank(connection.getName()))
 			logonBoxSection.put("Name", connection.getName());
-		if (StringUtils.isNotBlank(connection.getLastKnownServerIpAddress()))
+		if (Utils.isNotBlank(connection.getLastKnownServerIpAddress()))
 			logonBoxSection.put("LastKnownServerIpAddress", connection.getLastKnownServerIpAddress());
 		logonBoxSection.put("Port", connection.getPort());
 		if (connection.getMtu() > 0)
 			logonBoxSection.put("MTU", connection.getMtu());
 
 		/* Peer (them) */
-		if (StringUtils.isNotBlank(connection.getPublicKey())) {
+		if (Utils.isNotBlank(connection.getPublicKey())) {
 			var peerSection = ini.create("Peer");
 			peerSection.put("PublicKey", connection.getPublicKey());
 			peerSection.put("Endpoint", connection.getEndpointAddress() + ":" + connection.getEndpointPort());
 			peerSection.put("PersistentKeepalive", connection.getPersistentKeepalive());
 			if (!connection.getAllowedIps().isEmpty())
 				peerSection.putAll("AllowedIPs", connection.getAllowedIps().toArray(new String[0]));
-			if(StringUtils.isNotBlank(connection.getPresharedKey()))
+			if(Utils.isNotBlank(connection.getPresharedKey()))
 			    peerSection.put("PresharedKey", connection.getPresharedKey());
 			    
 		}
@@ -611,7 +610,7 @@ public class ConnectionImpl implements Connection, Serializable {
 
     @Override
     public List<VpnPeer> peers() {
-        if(StringUtils.isNotBlank(getPublicKey())) {
+        if(Utils.isNotBlank(getPublicKey())) {
             return Arrays.asList(peer);
         }
         else

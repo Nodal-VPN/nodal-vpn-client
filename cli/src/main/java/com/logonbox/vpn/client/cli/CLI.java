@@ -17,14 +17,15 @@ import com.logonbox.vpn.client.cli.commands.Update;
 import com.logonbox.vpn.client.common.ClientPromptingCertManager;
 import com.logonbox.vpn.client.common.HypersocketVersion;
 import com.logonbox.vpn.client.common.PromptingCertManager;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.dbus.AbstractDBusClient;
 import com.logonbox.vpn.client.common.dbus.DBusClient;
 import com.logonbox.vpn.client.common.dbus.VPN;
+import com.logonbox.vpn.client.common.dbus.VPNConnection;
 import com.logonbox.vpn.drivers.lib.util.Util;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.freedesktop.dbus.DBusMatchRule;
 import org.freedesktop.dbus.connections.AbstractConnection;
@@ -39,7 +40,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.CookieStore;
 import java.text.MessageFormat;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import picocli.CommandLine;
@@ -54,7 +54,7 @@ import picocli.CommandLine.Spec;
 @Command(name = "logonbox-vpn-cli", usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.", subcommands = {
 		Connections.class, Connect.class, Create.class, Delete.class, Disconnect.class, Exit.class, Show.class,
 		About.class, Edit.class, Update.class, Debug.class, Config.class, Shutdown.class })
-public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBusClient {
+public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBusClient<VPNConnection> {
 
 	static Logger log;
 
@@ -62,7 +62,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 
 	public static void main(String[] args) throws Exception {
 
-		String logConfigPath = System.getProperty("hypersocket.logConfiguration", "");
+		String logConfigPath = System.getProperty("logonbox.vpn.logConfiguration", "");
 		if (logConfigPath.equals("")) {
 			/* Load default */
 			PropertyConfigurator.configure(CLI.class.getResource("/default-log4j-cli.properties"));
@@ -167,7 +167,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 	}
 
 	@Override
-    public VpnManager getVpnManager() {
+    public VpnManager<VPNConnection> getVpnManager() {
         return this;
     }
 
@@ -215,23 +215,23 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 		} catch (Exception e1) {
 			throw new IllegalStateException("Failed to open console.", e1);
 		} finally {
-			exitCLI();
+	        exit();
 		}
 	}
 
 	private void runPrompt() throws IOException {
-		PrintWriter err = console.err();
+		var err = console.err();
 		do {
 			try {
-				String cmd = console.readLine("LogonBox VPN> ");
+				var cmd = console.readLine("LogonBox VPN> ");
 				if (cmd == null) {
 					exitWhenDone = true;
-				} else if (StringUtils.isNotBlank(cmd)) {
-					List<String> newargs = Util.parseQuotedString(cmd);
+				} else if (Utils.isNotBlank(cmd)) {
+					var newargs = Util.parseQuotedString(cmd);
 					newargs.removeIf(item -> item == null || "".equals(item));
-					String[] args = newargs.toArray(new String[0]);
+					var args = newargs.toArray(new String[0]);
 					if (args.length > 0) {
-						CommandLine cl = new CommandLine(new InteractiveConsole());
+						var cl = new CommandLine(new InteractiveConsole());
 						cl.setExecutionExceptionHandler(new IExecutionExceptionHandler() {
 
 							@Override
@@ -283,7 +283,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 					ou.println();
 
 					/* Title */
-					if (StringUtils.isNotBlank(title)) {
+					if (Utils.isNotBlank(title)) {
 						ou.println(title);
 						ou.println(Util.titleUnderline(title.length()));
 						ou.println();
@@ -351,7 +351,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 		}
 
 		@Override
-        public VpnManager getVpnManager() {
+        public VpnManager<VPNConnection> getVpnManager() {
             return CLI.this;
         }
 

@@ -5,9 +5,8 @@ import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.Utils;
 
-import org.apache.commons.lang3.StringUtils;
 import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.connections.IDisconnectCallback;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
@@ -31,7 +30,7 @@ import java.util.stream.Collectors;
 
 import picocli.CommandLine.Option;
 
-public abstract class AbstractDBusClient extends AbstractClient implements DBusClient {
+public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> implements DBusClient<VPNConnection> {
 
 	public final static File CLIENT_HOME = new File(
 			System.getProperty("user.home") + File.separator + ".logonbox-vpn-client");
@@ -59,18 +58,13 @@ public abstract class AbstractDBusClient extends AbstractClient implements DBusC
 	@Option(names = { "-sb", "--session-bus" }, description = "Use session bus.")
 	private boolean sessionBus;
 	
-	@Option(names = { "-u",
-			"--as-user" }, description = "Act on behalf of another user, only an adminstrator can do this.")
-	private String asUser;
-
-
     private AbstractConnection conn;
     private Object initLock = new Object();
 	private ScheduledFuture<?> pingTask;
     private boolean supportsAuthorization;
     private Map<Long, List<AutoCloseable>> eventsMap = new HashMap<>();
     private boolean busAvailable;
-    private List<AutoCloseable> handles;
+    private List<AutoCloseable> handles = Collections.emptyList();
 
 	protected AbstractDBusClient() {
 	    super();
@@ -116,12 +110,12 @@ public abstract class AbstractDBusClient extends AbstractClient implements DBusC
 	}
 
 	@Override
-    public List<IVPNConnection> getVPNConnections() {
+    public List<VPNConnection> getVPNConnections() {
 	    if(isBusAvailable())
     		return getVPNOrFail().getConnections().stream().map(p -> {
     		    /* TODO check this is needed still, why can't instances be directly used */
     			try {
-    				return conn.getExportedObject(BUS_NAME, p.getPath(), VPNConnection.class);
+    				return conn.getExportedObject(BUS_NAME, p.getObjectPath(), VPNConnection.class);
     			} catch (DBusException e) {
     				throw new IllegalStateException(String.format("Failed to get connection %s.", p.getPath()));
     			}
@@ -154,7 +148,7 @@ public abstract class AbstractDBusClient extends AbstractClient implements DBusC
         }
     }
 
-    protected void listenConnectionEvents(IVPNConnection connection)  {        
+    protected void listenConnectionEvents(VPNConnection connection)  {        
         var id = connection.getId();
         try {
             eventsMap.put(id, Arrays.asList(
@@ -193,7 +187,7 @@ public abstract class AbstractDBusClient extends AbstractClient implements DBusC
 	protected final void onInit() throws Exception {
 
 		String fixedAddress = getServerDBusAddress(addressFile);
-		if (conn == null || !conn.isConnected() || (StringUtils.isNotBlank(fixedAddress) && !fixedAddress.equals(conn.getAddress().toString()) )) {
+		if (conn == null || !conn.isConnected() || (Utils.isNotBlank(fixedAddress) && !fixedAddress.equals(conn.getAddress().toString()) )) {
 			conn = createBusConnection();
 			getLog().info("Got bus connection.");
 			busAvailable = true;
@@ -214,7 +208,7 @@ public abstract class AbstractDBusClient extends AbstractClient implements DBusC
 
 		String fixedAddress = getServerDBusAddress(addressFile);
 		String busAddress = this.busAddress;
-		if (StringUtils.isNotBlank(busAddress)) {
+		if (Utils.isNotBlank(busAddress)) {
 			if (getLog().isDebugEnabled())
 				getLog().debug("Getting bus. " + this.busAddress);
 			return configureBuilder(DBusConnectionBuilder.forAddress(busAddress)).build();
@@ -312,7 +306,7 @@ public abstract class AbstractDBusClient extends AbstractClient implements DBusC
 		
 
         /* Listen for events on all existing connections */
-		for (IVPNConnection vpnConnection : getVPNOrFail().getConnections()) {
+		for (var vpnConnection : getVPNOrFail().getConnections()) {
 		      listenConnectionEvents(vpnConnection);
 		}
 

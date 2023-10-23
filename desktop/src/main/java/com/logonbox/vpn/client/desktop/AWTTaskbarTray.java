@@ -2,6 +2,7 @@ package com.logonbox.vpn.client.desktop;
 
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.dbus.VPNConnection;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.Tray;
 
@@ -59,7 +60,7 @@ public class AWTTaskbarTray extends AbstractTray implements AutoCloseable, Tray 
 		queueGuiOp(() -> {
 			try {
 				var connected = context.getManager().isBusAvailable();
-				List<IVPNConnection> conx = connected ? context.getManager().getVPNConnections() : Collections.emptyList();
+				List<VPNConnection> conx = connected ? context.getManager().getVPNConnections() : Collections.emptyList();
 				rebuildMenu(connected, conx);
 				setImage(connected, conx);
 			} catch (Exception re) {
@@ -101,7 +102,7 @@ public class AWTTaskbarTray extends AbstractTray implements AutoCloseable, Tray 
 			SwingUtilities.invokeLater(r);
 	}
 
-	Menu addDevice(IVPNConnection device, Menu toMenu, List<IVPNConnection> devs) throws IOException {
+	Menu addDevice(IVPNConnection device, Menu toMenu, List<VPNConnection> devs) throws IOException {
 		Menu menu = null;
 		if (toMenu == null) {
 			if (menu == null)
@@ -128,7 +129,7 @@ public class AWTTaskbarTray extends AbstractTray implements AutoCloseable, Tray 
 		return menu;
 	}
 
-	void adjustTray(boolean connected, List<IVPNConnection> devs) {
+	void adjustTray(boolean connected, List<VPNConnection> devs) {
 		String icon = Configuration.getDefault().trayModeProperty().get();
 		if (taskbar == null && !Objects.equals(icon, Configuration.TRAY_MODE_OFF)) {
 			taskbar = Taskbar.getTaskbar();
@@ -160,7 +161,7 @@ public class AWTTaskbarTray extends AbstractTray implements AutoCloseable, Tray 
 		}
 	}
 
-	private void rebuildMenu(boolean connected, List<IVPNConnection> devs) {
+	private void rebuildMenu(boolean connected, List<VPNConnection> devs) {
 		clearMenus();
 		if (taskbar != null) {
 			var menu = taskbar.getMenu();
@@ -200,7 +201,7 @@ public class AWTTaskbarTray extends AbstractTray implements AutoCloseable, Tray 
 		}
 	}
 
-	private void setImage(boolean connected, List<IVPNConnection> devs) {
+	private void setImage(boolean connected, List<VPNConnection> devs) {
 		if (context.getManager().isBusAvailable()) {
 			taskbar.setIconImage(overlay(Main.class.getResource("mac-logo128px.png"), 128, devs));
 		} else {

@@ -1,10 +1,10 @@
 package com.logonbox.vpn.client.cli.commands;
 
-import org.apache.commons.lang3.StringUtils;
-import org.freedesktop.dbus.exceptions.DBusExecutionException;
-
 import com.logonbox.vpn.client.cli.CLIContext;
 import com.logonbox.vpn.client.cli.ConsoleProvider;
+import com.logonbox.vpn.client.common.Utils;
+
+import org.freedesktop.dbus.exceptions.DBusExecutionException;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
@@ -22,11 +22,11 @@ public class Config extends AbstractConnectionCommand {
 	public Integer call() throws Exception {
 		CLIContext cli = getCLI();
 		ConsoleProvider console = cli.getConsole();
-		if (StringUtils.isBlank(name)) {
+		if (Utils.isBlank(name)) {
 			for (String n : cli.getVpnManager().getVPNOrFail().getKeys()) {
 				console.out().println(String.format("%-30s %s", n, cli.getVpnManager().getVPNOrFail().getValue(n)));
 			}
-		} else if (StringUtils.isBlank(value)) {
+		} else if (Utils.isBlank(value)) {
 			try {
 				console.out().println(cli.getVpnManager().getVPNOrFail().getValue(name));
 			}

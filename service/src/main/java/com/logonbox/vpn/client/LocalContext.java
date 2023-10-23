@@ -4,6 +4,7 @@ import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.api.IVPN;
+import com.logonbox.vpn.client.common.api.IVPNConnection;
 import com.logonbox.vpn.client.service.ClientService;
 import com.logonbox.vpn.drivers.lib.PlatformService;
 
@@ -16,11 +17,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
-public interface LocalContext extends Closeable {
+public interface LocalContext<CONX extends IVPNConnection> extends Closeable {
 
     PlatformService<?> getPlatformService();
 
-    ClientService getClientService();
+    ClientService<CONX> getClientService();
 
     void shutdown(boolean restart);
 
@@ -72,6 +73,6 @@ public interface LocalContext extends Closeable {
     
     void fireExit();
 
-    IVPN getVPN();
+    IVPN<CONX> getVPN();
 
 }

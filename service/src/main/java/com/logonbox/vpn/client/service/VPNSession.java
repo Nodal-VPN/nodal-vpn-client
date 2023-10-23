@@ -3,6 +3,7 @@ package com.logonbox.vpn.client.service;
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.ConnectionStatus;
+import com.logonbox.vpn.client.common.api.IVPNConnection;
 import com.logonbox.vpn.drivers.lib.NoHandshakeException;
 import com.logonbox.vpn.drivers.lib.StartRequest;
 import com.logonbox.vpn.drivers.lib.VpnAdapter;
@@ -16,23 +17,23 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 
-public class VPNSession implements Closeable {
+public class VPNSession<CONX extends IVPNConnection> implements Closeable {
 
     public static final int MAX_INTERFACES = Integer.parseInt(System.getProperty("wireguard.maxInterfaces", "10"));
 
     static Logger log = LoggerFactory.getLogger(VPNSession.class);
 
-    private LocalContext localContext;
+    private LocalContext<CONX> localContext;
     private ScheduledFuture<?> task;
     private boolean reconnect;
     private Optional<VpnAdapter> session = Optional.empty();
     private final Connection connection;
 
-    public VPNSession(Connection connection, LocalContext localContext) {
+    public VPNSession(Connection connection, LocalContext<CONX> localContext) {
         this(connection, localContext, null);
     }
 
-    public VPNSession(Connection connection, LocalContext localContext, VpnAdapter session) {
+    public VPNSession(Connection connection, LocalContext<CONX> localContext, VpnAdapter session) {
         this.localContext = localContext;
         this.connection = connection;
         this.session = Optional.ofNullable(session);
@@ -50,7 +51,7 @@ public class VPNSession implements Closeable {
         this.reconnect = reconnect;
     }
 
-    public LocalContext getLocalContext() {
+    public LocalContext<CONX> getLocalContext() {
         return localContext;
     }
 
@@ -104,7 +105,7 @@ public class VPNSession implements Closeable {
     }
 
     public void open() throws IOException {
-        LocalContext cctx = getLocalContext();
+        LocalContext<CONX> cctx = getLocalContext();
         ConnectionStatus connection = cctx.getClientService().getStatus(this.connection.getId());
         Connection vpnConnection = connection.getConnection();
         if (log.isInfoEnabled()) {
