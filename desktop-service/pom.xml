@@ -5,7 +5,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>client-logonbox-vpn-desktop-service</artifactId>
-    <name>LogonBox VPN - Privilged Service For Desktop Builds</name>
+    <name>LogonBox VPN - Privileged Manager Service</name>
     <description>This implementation of the service is to be run as a privileged root service. It provides a DBUS API, used by the command line tool and desktop GUI.</description>
 
     <parent>

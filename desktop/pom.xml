@@ -248,7 +248,7 @@
     </repositories>
     <profiles>
         <profile>
-            <id>native-image</id>
+            <id>XXnative-image</id>
             <build>
                 <plugins>
                     <plugin>
