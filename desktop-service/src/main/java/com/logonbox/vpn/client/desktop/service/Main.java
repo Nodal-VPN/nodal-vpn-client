@@ -225,6 +225,8 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 			}
 			log.info(String.format("VPN Desktop Service Version: %s",
 					AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop-service")));
+			log.info(String.format("VPN Library Version: %s",
+                    AppVersion.getVersion("com.logonbox", "logonbox-vpn-lib")));
 	        log.info(String.format("DBus Version: %s", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")));
 			log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch")
 					+ " (" + System.getProperty("os.version") + ")"));
