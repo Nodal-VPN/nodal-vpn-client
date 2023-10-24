@@ -60,11 +60,11 @@ public class TrayDaemon extends AbstractDBusClient implements Callable<Integer> 
 
 	@Override
 	public Integer call() throws Exception {
-		getLog().info(String.format("LogonBox VPN Client Tray, version %s", AppVersion.getVersion(ARTIFACT_COORDS)));
-		getLog().info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " ("
+		log.info(String.format("LogonBox VPN Client Tray, version %s", AppVersion.getVersion(ARTIFACT_COORDS)));
+		log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " ("
 				+ System.getProperty("os.version") + ")"));
 		try {
-			getLog().info(String.format("CWD: %s", new File(".").getCanonicalPath()));
+			log.info(String.format("CWD: %s", new File(".").getCanonicalPath()));
 		} catch (IOException e) {
 		}
 
@@ -101,7 +101,7 @@ public class TrayDaemon extends AbstractDBusClient implements Callable<Integer> 
     	            notifyMessage(conx.getId(), reason, ToastType.ERROR);
     	        }),
     	        onDisconnected((conx, thisDisconnectionReason) -> {
-    	            getLog().info("Disconnected " + conx.getId());
+    	            log.info("Disconnected " + conx.getId());
     	            try {
     	                /*
     	                 * WARN: Do not try to get a connection object directly here. The disconnection
@@ -128,7 +128,7 @@ public class TrayDaemon extends AbstractDBusClient implements Callable<Integer> 
     	                                        getScheduler().execute(() -> getVPNConnection(conx.getId()).connect());
     	                                    }).timeout(0).toast());
     	            } catch (Exception e) {
-    	                getLog().error("Failed to get connection, delete not possible.", e);
+    	                log.error("Failed to get connection, delete not possible.", e);
     	            }
     	        })));
     		
@@ -248,7 +248,7 @@ public class TrayDaemon extends AbstractDBusClient implements Callable<Integer> 
 	public void confirmExit() {
 		try {
 			int active = getVPNOrFail().getActiveButNonPersistentConnections();
-			getLog().info("{} non-persistent connections", active);
+			log.info("{} non-persistent connections", active);
 			if (active == 0)
 				throw new Exception("No active connections, just exit.");
 			getBus().getRemoteObject(RemoteUI.BUS_NAME, RemoteUI.OBJECT_PATH, RemoteUI.class).confirmExit();

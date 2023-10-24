@@ -1,5 +1,8 @@
 [
 {
   "name":"org.eclipse.swt.widgets.Display"
+},
+{
+  "name":"java.lang.String"
 }
 ]
