@@ -68,16 +68,7 @@
             <groupId>com.logonbox</groupId>
             <artifactId>client-logonbox-vpn-common</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-        <!-- <dependency> <groupId>com.google.code.jgntp</groupId> <artifactId>jgntp</artifactId> 
-			<version>1.2.1</version> </dependency> -->
-       
         <dependency>
             <groupId>com.sshtools</groupId>
             <artifactId>two-slices</artifactId>
@@ -93,11 +84,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!--<dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <version>1.9</version>
-        </dependency>-->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
@@ -111,72 +97,14 @@
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-javafx</artifactId>
-            <version>12.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-fontawesome-pack</artifactId>
-            <version>12.0.0</version>
-        </dependency>
+        </dependency> 
 
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases />
-        </repository>
-        <repository>
-            <id>public-releases</id>
-            <name>public-releases</name>
-            <url>https://artifactory.jadaptive.com/public-releases</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases />
-        </repository>
-        <repository>
-            <id>public-snapshots</id>
-            <name>public-snapshots</name>
-            <url>https://artifactory.jadaptive.com/public-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots />
-        </repository>
-        <repository>
-            <id>opensource-releases</id>
-            <name>opensource-releases</name>
-            <url>https://artifactory.jadaptive.com/opensource-releases</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases />
-        </repository>
-        <repository>
-            <id>opensource-snapshots</id>
-            <name>opensource-snapshots</name>
-            <url>https://artifactory.jadaptive.com/opensource-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots />
-        </repository>
-        <repository>
-            <id>oss-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
     <profiles>
         <profile>
             <id>native</id>

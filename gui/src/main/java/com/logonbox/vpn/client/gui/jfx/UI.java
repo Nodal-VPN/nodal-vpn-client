@@ -7,7 +7,7 @@ import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
-import com.logonbox.vpn.client.common.HypersocketVersion;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ServiceClient;
 import com.logonbox.vpn.client.common.ServiceClient.NameValuePair;
 import com.logonbox.vpn.client.common.Utils;
@@ -103,10 +103,12 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import netscape.javascript.JSObject;
 import uk.co.bithatch.nativeimage.annotations.Bundle;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 
 @Bundle
-@Resource("com/logonbox/vpn/client/jfx/.*")
+@Resource(siblings = true)
+@Reflectable
 public class UI<CONX extends IVPNConnection> extends AnchorPane {
 
 
@@ -462,26 +464,37 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 	private Map<Long, Slice> notificationsForConnections = new HashMap<>();
 
 	@FXML
+	@Reflectable
 	private Label messageIcon;
 	@FXML
+	@Reflectable
 	private Label messageText;
 	@FXML
+	@Reflectable
 	private Hyperlink options;
 	@FXML
+	@Reflectable
 	private VBox root;
 	@FXML
+	@Reflectable
 	private WebView webView;
 	@FXML
+	@Reflectable
 	private AnchorPane loading;
 	@FXML
+	@Reflectable
 	private FontIcon loadingSpinner;
 	@FXML
+	@Reflectable
 	private Parent debugBar;
 	@FXML
+	@Reflectable
 	private Hyperlink debuggerLink;
 	@FXML
+	@Reflectable
 	private Button startDebugger;
 	@FXML
+	@Reflectable
 	private Button stopDebugger;
 
 	private UpdateService updateService;
@@ -921,7 +934,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		String ua = engine.getUserAgent();
 		LOG.info("User Agent: " + ua);
 		engine.setUserAgent(ua + " " + "LogonBoxVPNClient/"
-				+ HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx"));
+				+ AppVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx"));
 		engine.setOnAlert((e) -> {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.initModality(Modality.APPLICATION_MODAL);
@@ -1782,16 +1795,19 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 	}
 
 	@FXML
+	@Reflectable
 	private void evtAddConnection() {
 		addConnection();
 	}
 
 	@FXML
+	@Reflectable
 	private void evtLaunchDebugger() {
 		context.debugger().ifPresent(d -> d.launch());
 	}
 
 	@FXML
+	@Reflectable
 	private void evtStartDebugger() {
 		context.debugger().orElseThrow().startDebugging((ex) -> {
 			// failed to start
@@ -1810,6 +1826,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 	}
 
 	@FXML
+	@Reflectable
 	private void evtStopDebugger() {
 		context.debugger().orElseThrow().stopDebugging((e) -> {
 			startDebugger.setDisable(false);
@@ -1818,6 +1835,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 	}
 
 	@FXML
+	@Reflectable
 	private void evtOptions() throws Exception {
 		options();
 	}

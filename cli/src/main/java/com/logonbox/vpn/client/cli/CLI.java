@@ -15,7 +15,7 @@ import com.logonbox.vpn.client.cli.commands.Show;
 import com.logonbox.vpn.client.cli.commands.Shutdown;
 import com.logonbox.vpn.client.cli.commands.Update;
 import com.logonbox.vpn.client.common.ClientPromptingCertManager;
-import com.logonbox.vpn.client.common.HypersocketVersion;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.UpdateService;
@@ -56,7 +56,7 @@ import uk.co.bithatch.nativeimage.annotations.Resource;
 		Connections.class, Connect.class, Create.class, Delete.class, Disconnect.class, Exit.class, Show.class,
 		About.class, Edit.class, Update.class, Debug.class, Config.class, Shutdown.class })
 @Bundle
-@Resource({"default-log4j-cli.properties"})
+@Resource({"default-log4j-cli\\.properties"})
 public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBusClient<VPNConnection> {
 
 	static Logger log;
@@ -65,10 +65,8 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 
 	public static void main(String[] args) throws Exception {
 
-
         System.setProperty(SimpleLoggerConfiguration.CONFIGURATION_FILE_KEY, "default-log-cli.properties");
 		log = LoggerFactory.getLogger(CLI.class);
-		;
 
 		CLI cli = new CLI();
 		try {
@@ -187,8 +185,8 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 
 	@Override
 	public void about() throws IOException {
-		ConsoleProvider console = getConsole();
-		PrintWriter writer = console.out();
+		var console = getConsole();
+		var writer = console.out();
 		writer.println(String.format("CLI Version: %s", getVersion()));
 		getVPN().ifPresentOrElse(vpn -> {
 			writer.println(String.format("Service Version: %s", vpn.getVersion()));
@@ -201,6 +199,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 	@Override
 	public void run() {
 		try {
+		    lazyInit();
 			about();
 			runPrompt();
 			console.out().println();
@@ -392,7 +391,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 
 	@Override
 	public String getVersion() {
-		return HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-cli");
+		return AppVersion.getVersion("com.logonbox/client-logonbox-vpn-cli");
 	}
 
 	@Override

@@ -21,7 +21,10 @@ public class ConfigurationItem<T> {
 	public enum Scope {
 		GLOBAL, USER
 	}
-	
+
+    public enum TrayMode {
+        DARK, COLOR, LIGHT, AUTO, OFF
+    }
 	
 	public static String[] dnsProviders() {
 	    var l = new ArrayList<String>();
@@ -44,6 +47,7 @@ public class ConfigurationItem<T> {
 	public final static ConfigurationItem<Integer> MTU = add("mtu", Integer.class, Scope.GLOBAL, 0);
 	public final static ConfigurationItem<Long> FAVOURITE = add("favourite", Long.class, Scope.USER, 0l);
 	public final static ConfigurationItem<String> DEVICE_UUID = add("deviceUUID", String.class, Scope.USER, "");
+    public final static ConfigurationItem<TrayMode> TRAY_MODE = add("trayMode", TrayMode.class, Scope.USER, TrayMode.AUTO, TrayMode.values());
 	
 	private final String key;
 	private final Class<?> type;

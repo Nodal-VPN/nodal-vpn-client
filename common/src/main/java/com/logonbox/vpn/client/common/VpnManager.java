@@ -97,4 +97,8 @@ public interface VpnManager<CONX extends IVPNConnection> {
 
     Handle onConnectionAdding(Runnable callback);
 
+    void confirmExit();
+
+    Handle onConfirmedExit(Runnable callback);
+
 }

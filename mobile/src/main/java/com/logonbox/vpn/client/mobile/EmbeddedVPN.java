@@ -6,7 +6,7 @@ import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
-import com.logonbox.vpn.client.common.HypersocketVersion;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.api.IVPN;
 
@@ -43,7 +43,7 @@ class EmbeddedVPN implements IVPN<EmbeddedVPNConnection> {
 
     @Override
     public String getVersion() {
-        return HypersocketVersion.getVersion(AbstractService.ARTIFACT_COORDS);
+        return AppVersion.getVersion(AbstractService.ARTIFACT_COORDS);
     }
 
     @Override

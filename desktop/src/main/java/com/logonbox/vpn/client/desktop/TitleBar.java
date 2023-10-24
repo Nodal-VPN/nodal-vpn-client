@@ -16,20 +16,33 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
 
+@Reflectable
 public class TitleBar extends AnchorPane implements Navigator {
 
 	@FXML
+	@Reflectable
 	private HBox titleLeft;
+	
 	@FXML
+    @Reflectable
 	private HBox titleRight;
+	
 	@FXML
+    @Reflectable
 	private ImageView titleBarImageView;
+	
 	@FXML
+    @Reflectable
 	private Hyperlink back;
+	
 	@FXML
+    @Reflectable
 	private Hyperlink minimize;
+	
 	@FXML
+    @Reflectable
 	private Hyperlink close;
 	
 	private UIContext<?> context;
@@ -72,16 +85,19 @@ public class TitleBar extends AnchorPane implements Navigator {
 	}
 
 	@FXML
+    @Reflectable
 	private void evtClose() {
 		context.maybeExit();
 	}
 
 	@FXML
+    @Reflectable
 	private void evtBack() {
 		context.back();
 	}
 
 	@FXML
+    @Reflectable
 	private void evtMinimize() {
 		context.minimize();
 	}

@@ -5,16 +5,14 @@ import com.jthemedetecor.OsThemeDetector;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.VpnManager;
+import com.logonbox.vpn.client.common.dbus.RemoteUI;
 import com.logonbox.vpn.client.common.dbus.VPNConnection;
 import com.logonbox.vpn.client.common.lbapi.Branding;
 import com.logonbox.vpn.client.gui.jfx.AppContext;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.Debugger;
 import com.logonbox.vpn.client.gui.jfx.Navigator;
-import com.logonbox.vpn.client.gui.jfx.PowerMonitor;
-import com.logonbox.vpn.client.gui.jfx.PowerMonitor.Listener;
 import com.logonbox.vpn.client.gui.jfx.Styling;
-import com.logonbox.vpn.client.gui.jfx.Tray;
 import com.logonbox.vpn.client.gui.jfx.UI;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
 import com.sshtools.liftlib.OS;
@@ -25,8 +23,7 @@ import com.sshtools.twoslices.impl.JavaFXToaster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.SplashScreen;
-import java.awt.Taskbar;
+//import java.awt.SplashScreen;
 import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -66,21 +63,27 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import uk.co.bithatch.nativeimage.annotations.Bundle;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
+import uk.co.bithatch.nativeimage.annotations.Resource;
+import uk.co.bithatch.nativeimage.annotations.TypeReflect;
 
 @Bundle
-public class Client extends Application implements Listener, UIContext<VPNConnection> {
+@Resource(siblings = true)
+@Reflectable
+@TypeReflect(constructors = true, classes = true)
+public class Client extends Application implements UIContext<VPNConnection>, RemoteUI {
 
 	static final boolean allowBranding = System.getProperty("logonbox.vpn.allowBranding", "true").equals("true");
 
 	public static ResourceBundle BUNDLE = ResourceBundle.getBundle(Client.class.getName());
-	
+
 	static Logger log = LoggerFactory.getLogger(Client.class);
-	
+
 	public static Alert createAlertWithOptOut(AlertType type, String title, String headerText, String message,
 			String optOutMessage, Consumer<Boolean> optOutAction, ButtonType... buttonTypes) {
 		var alert = new Alert(type);
 		alert.getDialogPane().applyCss();
-		
+
 		var graphic = alert.getDialogPane().getGraphic();
 		alert.setDialogPane(new DialogPane() {
 			@Override
@@ -109,7 +112,6 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 	private OsThemeDetector detector;
 	private ExecutorService opQueue = Executors.newSingleThreadExecutor();
 	private Stage primaryStage;
-	private Tray tray;
 	private boolean waitingForExitChoice;
 	private UI<VPNConnection> ui;
 	private Main app;
@@ -120,10 +122,11 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 		app = Main.getInstance().uiContext(this);
 	}
 
-	public void applyColors(Branding branding, Parent node) {
+	@Override
+    public void applyColors(Branding branding, Parent node) {
 		if (node == null && ui != null)
 			node = ui.getScene().getRoot();
-		
+
 		if(node == null) {
 			return;
 		}
@@ -162,7 +165,7 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 		ss.add(css);
 
 	}
-	
+
 	@Override
 	public void back() {
 		ui.back();
@@ -173,8 +176,9 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 		opQueue = Executors.newSingleThreadExecutor();
 	}
 
-	public void confirmExit() {
-		int active = 0;
+	@Override
+    public void confirmExit() {
+		var active = 0;
 		try {
 			active = getManager().getVPNOrFail().getActiveButNonPersistentConnections();
 		} catch (Exception e) {
@@ -182,37 +186,47 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 		}
 
 		if (active > 0) {
-			Alert alert = new Alert(AlertType.CONFIRMATION);
+			var alert = new Alert(AlertType.CONFIRMATION);
 			alert.initModality(Modality.APPLICATION_MODAL);
 			alert.initOwner(getStage());
 			alert.setTitle(BUNDLE.getString("exit.confirm.title"));
 			alert.setHeaderText(BUNDLE.getString("exit.confirm.header"));
 			alert.setContentText(BUNDLE.getString("exit.confirm.content"));
 
-			ButtonType disconnect = new ButtonType(BUNDLE.getString("exit.confirm.disconnect"));
-			ButtonType stayConnected = new ButtonType(BUNDLE.getString("exit.confirm.stayConnected"));
-			ButtonType cancel = new ButtonType(BUNDLE.getString("exit.confirm.cancel"), ButtonData.CANCEL_CLOSE);
+			var disconnect = new ButtonType(BUNDLE.getString("exit.confirm.disconnect"));
+			var stayConnected = new ButtonType(BUNDLE.getString("exit.confirm.stayConnected"));
+			var cancel = new ButtonType(BUNDLE.getString("exit.confirm.cancel"), ButtonData.CANCEL_CLOSE);
 
 			alert.getButtonTypes().setAll(disconnect, stayConnected, cancel);
-			waitingForExitChoice = true;
-			try {
-				Optional<ButtonType> result = alert.showAndWait();
+            waitingForExitChoice = true;
+            try {
+                var result = alert.showAndWait();
+                opQueue.execute(() -> {
+                    if (result.get() == disconnect) {
+                        getManager().getVPNOrFail().disconnectAll();
+                    }
 
-				if (result.get() == disconnect) {
-					opQueue.execute(() -> {
-						getManager().getVPNOrFail().disconnectAll();
-						exitApp();
-					});
-				} else if (result.get() == stayConnected) {
-					exitApp();
-				}
-			} finally {
-				waitingForExitChoice = false;
-			}
+                    if (result.get() == disconnect || result.get() == stayConnected) {
+                        try {
+                            getManager().confirmExit();
+                            Thread.sleep(1000);
+                        } catch (Exception e) {
+                        }
+                        exitApp();
+                    }
+                });
+            } finally {
+                waitingForExitChoice = false;
+            }
 		} else {
 			exitApp();
 		}
 	}
+
+    @Override
+    public String getObjectPath() {
+        return RemoteUI.OBJECT_PATH;
+    }
 
 	@Override
 	public Optional<Debugger> debugger() {
@@ -245,10 +259,6 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 		return primaryStage;
 	}
 
-	public Tray getTray() {
-		return tray;
-	}
-
 	@Override
 	public void init() throws Exception {
 		styling = new Styling(this);
@@ -276,7 +286,8 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 		return debugger().isPresent();
 	}
 
-	public boolean isDarkMode() {
+	@Override
+    public boolean isDarkMode() {
 		var mode = Configuration.getDefault().darkModeProperty().get();
 		if (mode.equals(Configuration.DARK_MODE_AUTO))
 			return detector.isDark();
@@ -286,16 +297,18 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 			return false;
 	}
 
-	public boolean isMinimizeAllowed() {
-		return tray == null || tray instanceof AWTTaskbarTray;
+	@Override
+    public boolean isMinimizeAllowed() {
+		return true;
 	}
 
 	@Override
 	public boolean isTrayConfigurable() {
-		return tray != null && tray.isConfigurable();
+		return true;
 	}
 
-	public boolean isUndecoratedWindow() {
+	@Override
+    public boolean isUndecoratedWindow() {
 		return System.getProperty("logonbox.vpn.undecoratedWindow", "true").equals("true");
 	}
 
@@ -303,12 +316,9 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 		return waitingForExitChoice;
 	}
 
-	public void maybeExit() {
-		if (tray == null || !tray.isActive()) {
+	@Override
+    public void maybeExit() {
 			confirmExit();
-		} else {
-			Platform.runLater(() -> primaryStage.hide());
-		}
 	}
 
 	@Override
@@ -321,7 +331,8 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 		return titleBar;
 	}
 
-	public void open() {
+	@Override
+    public void open() {
 		log.info("Open request");
 		UI.maybeRunLater(() -> {
 			if (primaryStage.isIconified())
@@ -336,12 +347,14 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 		getHostServices().showDocument(url);
 	}
 
-	public void options() {
+	@Override
+    public void options() {
 		open();
 		Platform.runLater(() -> ui.options());
 	}
 
-	public boolean promptForCertificate(AlertType alertType, String title, String content, String key,
+	@Override
+    public boolean promptForCertificate(AlertType alertType, String title, String content, String key,
 			String hostname, String message, PromptingCertManager mgr) {
 		var reject = new ButtonType(BUNDLE.getString("certificate.confirm.reject"));
 		var accept = new ButtonType(BUNDLE.getString("certificate.confirm.accept"));
@@ -368,12 +381,6 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		var powerMonitor = PowerMonitor.get();
-		powerMonitor.ifPresent(p -> {
-			p.addListener(this);
-			p.start();
-		});
-
 		this.primaryStage = primaryStage;
 		detector = OsThemeDetector.getDetector();
 		debugger.ifPresent(d->d.setup(this));
@@ -458,21 +465,12 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 			we.consume();
 		});
 
-		if (!main.isNoSystemTray()) {
-			if (Taskbar.isTaskbarSupported() && OS.isMacOs()) {
-				tray = new AWTTaskbarTray(this);
-			} else if (System.getProperty("logonbox.vpn.useAWTTray", "false").equals("true")
-					|| (OS.isMacOs() && isHidpi()) || OS.isWindows())
-				tray = new AWTTray(this);
-			else
-				tray = new DorkBoxTray(this);
-		}
 		ui.setAvailable();
 
-		final SplashScreen splash = SplashScreen.getSplashScreen();
-		if (splash != null) {
-			splash.close();
-		}
+//		final SplashScreen splash = SplashScreen.getSplashScreen();
+//		if (splash != null) {
+//			splash.close();
+//		}
 
 		keepInBounds(primaryStage);
 		Screen.getScreens().addListener(new ListChangeListener<Screen>() {
@@ -492,21 +490,8 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 		return styling;
 	}
 
-	@Override
-	public void wake() {
-		log.info("Got Wake event.");
-		ui.refresh();
-	}
-
 	protected void cleanUp() {
 	    debugger.ifPresent(d -> d.close());
-
-		if (tray != null) {
-			try {
-				tray.close();
-			} catch (Exception e) {
-			}
-		}
 	}
 
 	protected CookieManager createCookieManager() {
@@ -516,7 +501,7 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 	protected Scene createWindows(Stage primaryStage) throws IOException {
 
 		ui = new UI<>(this);
-		
+
 		// Open the actual scene
 		var border = new BorderPane();
 		border.setTop(titleBar);
@@ -560,12 +545,12 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 	}
 
 	protected void keepInBounds(Stage primaryStage) {
-	    
+
 		var screens = Screen.getScreensForRectangle(primaryStage.getX(), primaryStage.getY(),
 				primaryStage.getWidth(), primaryStage.getHeight());
 		var screen = screens.isEmpty() ? Screen.getPrimary() : screens.get(0);
 		var bounds = screen.getVisualBounds();
-		
+
 		log.info(String.format("Moving into bounds %s from %f,%f", bounds, primaryStage.getX(), primaryStage.getY()));
 		if (primaryStage.getX() < bounds.getMinX()) {
 			primaryStage.setX(bounds.getMinX());
@@ -583,7 +568,7 @@ public class Client extends Application implements Listener, UIContext<VPNConnec
 		var default1 = CookieHandler.getDefault();
 		var isPersistJar = default1 instanceof CookieManager;
 		var wantsPeristJar = Boolean.valueOf(System.getProperty("logonbox.vpn.saveCookies", "false"));
-		
+
 		if (isPersistJar != wantsPeristJar) {
 			if (wantsPeristJar) {
 				log.info("Using in custom cookie manager");

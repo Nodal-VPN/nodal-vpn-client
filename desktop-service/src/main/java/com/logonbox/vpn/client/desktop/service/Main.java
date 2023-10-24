@@ -4,7 +4,7 @@ import com.logonbox.vpn.client.AbstractService;
 import com.logonbox.vpn.client.common.AbstractClient;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
-import com.logonbox.vpn.client.common.HypersocketVersion;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IVPN;
@@ -66,7 +66,7 @@ import uk.co.bithatch.nativeimage.annotations.Resource;
 
 @Command(name = "logonbox-vpn-service", mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.")
 @Bundle
-@Resource({"default-log-service.properties", "default-log4j-service-console.properties"})
+@Resource({"default-log-service\\.properties", "default-log4j-service-console\\.properties"})
 public class Main extends AbstractService<VPNConnection> implements Callable<Integer>, DesktopServiceContext, Listener {
 
 	public final static ResourceBundle BUNDLE = ResourceBundle.getBundle(Main.class.getName());
@@ -207,7 +207,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 				setLevel(cfgLevel);
 			}
 			log.info(String.format("LogonBox VPN Client, version %s",
-					HypersocketVersion.getVersion(Main.ARTIFACT_COORDS)));
+					AppVersion.getVersion(Main.ARTIFACT_COORDS)));
 			log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch")
 					+ " (" + System.getProperty("os.version") + ")"));
 

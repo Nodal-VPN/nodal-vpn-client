@@ -11,8 +11,6 @@ import com.logonbox.vpn.client.gui.jfx.AppContext;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.Debugger;
 import com.logonbox.vpn.client.gui.jfx.Navigator;
-import com.logonbox.vpn.client.gui.jfx.PowerMonitor;
-import com.logonbox.vpn.client.gui.jfx.PowerMonitor.Listener;
 import com.logonbox.vpn.client.gui.jfx.Styling;
 import com.logonbox.vpn.client.gui.jfx.UI;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
@@ -58,7 +56,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 
-public class Client extends MobileApplication implements Listener, UIContext<EmbeddedVPNConnection>, Navigator {
+public class Client extends MobileApplication implements UIContext<EmbeddedVPNConnection>, Navigator {
 
 	static final boolean allowBranding = System.getProperty("logonbox.vpn.allowBranding", "true").equals("true");
 
@@ -238,12 +236,6 @@ public class Client extends MobileApplication implements Listener, UIContext<Emb
 
 		addViewFactory(HOME_VIEW, () -> {
 
-			var powerMonitor = PowerMonitor.get();
-			powerMonitor.ifPresent(p -> {
-				p.addListener(this);
-				p.start();
-			});
-
 			ui = new UI(this);
 			ui.setPrefHeight(600);
             ui.setPrefWidth(400);
@@ -380,12 +372,6 @@ public class Client extends MobileApplication implements Listener, UIContext<Emb
 			return true;
 		else
 			return false;
-	}
-
-	@Override
-	public void wake() {
-		log.info("Got Wake event.");
-		ui.refresh();
 	}
 
 	@Override

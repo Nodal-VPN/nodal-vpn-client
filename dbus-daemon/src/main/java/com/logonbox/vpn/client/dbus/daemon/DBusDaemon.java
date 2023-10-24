@@ -38,7 +38,7 @@ import uk.co.bithatch.nativeimage.annotations.Resource;
 /**
  * A replacement DBusDaemon
  */
-@Resource("default-log-dbus-daemon.properties")
+@Resource("default-log-dbus-daemon\\.properties")
 public class DBusDaemon extends Thread implements Closeable {
     public static final int                                                     QUEUE_POLL_WAIT = 500;
 

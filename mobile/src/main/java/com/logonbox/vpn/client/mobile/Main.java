@@ -3,10 +3,10 @@ package com.logonbox.vpn.client.mobile;
 import com.logonbox.vpn.client.AbstractService;
 import com.logonbox.vpn.client.attach.wireguard.MobilePlatformService;
 import com.logonbox.vpn.client.common.AbstractClient;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ClientPromptingCertManager;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
-import com.logonbox.vpn.client.common.HypersocketVersion;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.api.IVPN;
@@ -124,12 +124,17 @@ public class Main extends AbstractClient<EmbeddedVPNConnection> implements Calla
         instance = this;
         log = LoggerFactory.getLogger(Main.class);
 
-        log.info(String.format("LogonBox VPN Client GUI, version %s", HypersocketVersion.getVersion(ARTIFACT_COORDS)));
+        log.info(String.format("LogonBox VPN Client GUI, version %s", AppVersion.getVersion(ARTIFACT_COORDS)));
         log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " (" + System.getProperty("os.version") + ")"));
         try {
             log.info(String.format("CWD: %s", new File(".").getCanonicalPath()));
         } catch (IOException e) {
         }
+    }
+
+    @Override
+    public void confirmExit() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -259,7 +264,7 @@ public class Main extends AbstractClient<EmbeddedVPNConnection> implements Calla
 
     @Override
     public String getVersion() {
-        return HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-mobile");
+        return AppVersion.getVersion("com.logonbox/client-logonbox-vpn-mobile");
     }
 
     @Override

@@ -1,4 +1,3 @@
-import com.logonbox.vpn.client.gui.jfx.PowerMonitor;
 
 open module com.logonbox.vpn.client.gui.jfx {
     exports com.logonbox.vpn.client.gui.jfx;
@@ -19,5 +18,4 @@ open module com.logonbox.vpn.client.gui.jfx {
     requires jakarta.json;
     requires static uk.co.bithatch.nativeimage.annotations;
     
-    uses PowerMonitor;
 }

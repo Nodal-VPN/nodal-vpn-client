@@ -4,7 +4,7 @@ import static com.logonbox.vpn.drivers.lib.util.Util.toHumanSize;
 
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConnectionStatus;
-import com.logonbox.vpn.client.common.HypersocketVersion;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IVPN;
 import com.logonbox.vpn.client.common.api.IVPNConnection;
@@ -59,7 +59,7 @@ public class DOMProcessor<CONX extends IVPNConnection> {
         var vpnMaxMemory = vpn == null ? 0 : vpn.getMaxMemory();
         var freeMemory = Runtime.getRuntime().freeMemory();
         var maxMemory = Runtime.getRuntime().maxMemory();
-        var version = HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx");
+        var version = AppVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx");
         var statusType = connection == null ? "" : connection.getStatus();
 
 		/* VPN service */

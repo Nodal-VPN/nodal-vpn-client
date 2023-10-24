@@ -12,7 +12,7 @@ import com.logonbox.vpn.client.common.ConnectionRepository;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
-import com.logonbox.vpn.client.common.HypersocketVersion;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.UserCancelledException;
@@ -937,7 +937,7 @@ public class ClientServiceImpl<CONX extends IVPNConnection> extends AbstractSyst
 		context.getQueue().scheduleWithFixedDelay(() -> {
 			try {
 				resolveRemoteDependencies(context.getCertManager(), Util.checkEndsWithSlash(getExtensionStoreRoot()) + "api/store/repos2",
-						new String[] { "logonbox-vpn-client" }, HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-service"), HypersocketVersion.getSerial(),
+						new String[] { "logonbox-vpn-client" }, AppVersion.getVersion("com.logonbox/client-logonbox-vpn-service"), AppVersion.getSerial(),
 						"VPN Client", getCustomerInfo(), "CLIENT_SERVICE");
 			} catch (Exception e) {
 				if (log.isDebugEnabled()) {

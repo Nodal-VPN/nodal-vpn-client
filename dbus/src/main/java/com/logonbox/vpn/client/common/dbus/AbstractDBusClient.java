@@ -5,10 +5,12 @@ import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
+import com.logonbox.vpn.client.common.dbus.RemoteUI.ConfirmedExit;
 import com.logonbox.vpn.client.common.Utils;
 
 import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.connections.IDisconnectCallback;
+import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.errors.ServiceUnknown;
 import org.freedesktop.dbus.errors.UnknownObject;
@@ -44,7 +46,7 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
 	}
 
 	final static int DEFAULT_TIMEOUT = 10000;
-	static Logger log;
+	private static Logger log;
 
 	private static final String BUS_NAME = "com.logonbox.vpn";
 	private static final String ROOT_OBJECT_PATH = "/com/logonbox/vpn";
@@ -58,13 +60,15 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
 	@Option(names = { "-sb", "--session-bus" }, description = "Use session bus.")
 	private boolean sessionBus;
 	
-    private AbstractConnection conn;
+    private DBusConnection conn;
     private Object initLock = new Object();
 	private ScheduledFuture<?> pingTask;
     private boolean supportsAuthorization;
     private Map<Long, List<AutoCloseable>> eventsMap = new HashMap<>();
     private boolean busAvailable;
     private List<AutoCloseable> handles = Collections.emptyList();
+    private List<AutoCloseable> altHandles = Collections.emptyList();
+    private DBusConnection altConn;
 
 	protected AbstractDBusClient() {
 	    super();
@@ -82,25 +86,52 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
         });
 	}
 
+    public DBusConnection getAltBus() {
+        synchronized (initLock) {
+            lazyInit();
+            if (conn != null && conn.isConnected() && altConn == null) {
+                if (conn.getAddress().getBusType().equals(DBusConnection.DBusBusType.SYSTEM.name())) {
+                    try {
+                        altConn = conn = DBusConnectionBuilder.forSessionBus().withShared(false).build();
+                    } catch (DBusException e) {
+                        throw new IllegalStateException("Could not get alternate bus.");
+                    }
+                } else {
+                    altConn = conn;
+                }
+            }
+            return altConn;
+        }
+    }
+
 	@Override
-    public boolean isBusAvailable() {
+    public void confirmExit() {
+	    try {
+            getBus().sendMessage(new ConfirmedExit(RemoteUI.OBJECT_PATH));
+        } catch (DBusException e) {
+            throw new IllegalStateException("Failed to confirm exit.");
+        }
+    }
+
+    @Override
+    public final boolean isBusAvailable() {
         return busAvailable;
     }
 
-    public boolean isSupportsAuthorization() {
+    public final boolean isSupportsAuthorization() {
 		return supportsAuthorization;
 	}
 
-	public void setSupportsAuthorization(boolean supportsAuthorization) {
+	public final void setSupportsAuthorization(boolean supportsAuthorization) {
 		this.supportsAuthorization = supportsAuthorization;
 	}
 
-	public AbstractConnection getBus() {
+	public final DBusConnection getBus() {
 		return conn;
 	}
 
 	@Override
-    public VPNConnection getVPNConnection(long id) {
+    public final VPNConnection getVPNConnection(long id) {
 		lazyInit();
 		try {
 			return conn.getExportedObject(BUS_NAME, String.format("%s/%d", ROOT_OBJECT_PATH, id), VPNConnection.class);
@@ -110,7 +141,7 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
 	}
 
 	@Override
-    public List<VPNConnection> getVPNConnections() {
+    public final List<VPNConnection> getVPNConnections() {
 	    if(isBusAvailable())
     		return getVPNOrFail().getConnections().stream().map(p -> {
     		    /* TODO check this is needed still, why can't instances be directly used */
@@ -126,7 +157,7 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
 	
 	
 	@Override
-    public void checkVpnManagerAvailable() throws IllegalStateException {
+    public final void checkVpnManagerAvailable() throws IllegalStateException {
 	    try {
 	        ((VPN)getVPNOrFail()).ping();
 	    }
@@ -135,7 +166,7 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
 	    }
     }
 
-    protected void removeConnectionEvents(Long id)  {
+    protected final void removeConnectionEvents(Long id)  {
         var map = eventsMap.remove(id);
         if (map != null) {
             map.forEach(m -> {
@@ -148,7 +179,7 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
         }
     }
 
-    protected void listenConnectionEvents(VPNConnection connection)  {        
+    protected final void listenConnectionEvents(VPNConnection connection)  {        
         var id = connection.getId();
         try {
             eventsMap.put(id, Arrays.asList(
@@ -180,7 +211,7 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
         }
     }
 
-    protected void disconnectFromBus() {
+    protected final void disconnectFromBus() {
 		conn.disconnect();
 	}
 
@@ -189,7 +220,7 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
 		String fixedAddress = getServerDBusAddress(addressFile);
 		if (conn == null || !conn.isConnected() || (Utils.isNotBlank(fixedAddress) && !fixedAddress.equals(conn.getAddress().toString()) )) {
 			conn = createBusConnection();
-			getLog().info("Got bus connection.");
+			 getLog().debug("Got bus connection.");
 			busAvailable = true;
 		}
 
@@ -204,7 +235,7 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
 		loadRemote();
 	}
 
-	protected AbstractConnection createBusConnection() throws Exception {
+	protected final DBusConnection createBusConnection() throws Exception {
 
 		String fixedAddress = getServerDBusAddress(addressFile);
 		String busAddress = this.busAddress;
@@ -256,7 +287,7 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
 	}
 
 	private void loadRemote() throws DBusException {
-		getLog().info("Loading remote objects.");
+		getLog().debug("Loading remote objects.");
 		VPN newVpn = conn.getExportedObject(BUS_NAME, ROOT_OBJECT_PATH, VPN.class);
 		getLog().info("Got remote object, registering with DBus.");
 		getLog().info("Registering with VPN service.");
@@ -303,7 +334,20 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
                         onGlobalConfigChanged.forEach(r -> r.accept(item, sig.getValue())); 
                     })
 		);
-		
+
+
+        /* Only active if GUI is */
+		var altBus = getAltBus();
+		try {
+            altHandles = Arrays.asList(
+                altBus.addSigHandler(RemoteUI.ConfirmedExit.class, RemoteUI.OBJECT_PATH, sig -> {
+                    onConfirmedExit.forEach(r -> r.run());
+                })
+            );
+		}
+		catch(DBusException dbe) {
+		    altHandles = Collections.emptyList();
+		}
 
         /* Listen for events on all existing connections */
 		for (var vpnConnection : getVPNOrFail().getConnections()) {
@@ -339,7 +383,7 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
 			cm.runOnToolkitThread(() -> handleCertPromptRequest(sig));
 	}
 
-	private void cancelPingTask() {
+	private final void cancelPingTask() {
 		if (pingTask != null) {
 			getLog().info("Stopping pinging.");
 			pingTask.cancel(false);
@@ -347,7 +391,7 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
 		}
 	}
 
-	private void busGone() {
+	private final void busGone() {
 		synchronized (initLock) {
 			cancelPingTask();
 
@@ -356,7 +400,23 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
 				busAvailable = false;
 				
 				onVpnGone.forEach(Runnable::run);
-				
+
+                if (altConn != null && !altConn.equals(conn)) {
+                    altHandles.forEach(h -> {
+                        try {
+                            h.close();
+                        } catch (Exception e) {
+                        }
+                    });
+                    try {
+                        altConn.disconnect();
+                    }
+                    catch(Exception e) {
+                    }
+                    finally {
+                        altConn = null;
+                    }
+                }
 				if (conn != null) {
 	                handles.forEach(h -> {
 	                    try {

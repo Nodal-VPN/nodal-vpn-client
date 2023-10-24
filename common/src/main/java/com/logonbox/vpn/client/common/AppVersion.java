@@ -17,7 +17,7 @@ import java.util.prefs.Preferences;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-public class HypersocketVersion {
+public class AppVersion {
 
 	static Map<String,String> versions = Collections.synchronizedMap(new HashMap<>());
 	
@@ -27,7 +27,7 @@ public class HypersocketVersion {
 	
 	public static String getSerial() {
         Preferences pref = Preferences.userRoot().node("com/hypersocket/json/version");
-        Preferences newPrefs = Preferences.userNodeForPackage(HypersocketVersion.class);
+        Preferences newPrefs = Preferences.userNodeForPackage(AppVersion.class);
         
 		var hypersocketId = System.getProperty("hypersocket.id", "hypersocket-one");
 		if(pref.get(hypersocketId, null) != null) {
@@ -61,7 +61,7 @@ public class HypersocketVersion {
 	     */
 	    ClassLoader cl = Thread.currentThread().getContextClassLoader();
 	    if(cl == null)
-	    	cl = HypersocketVersion.class.getClassLoader();
+	    	cl = AppVersion.class.getClassLoader();
 		try {
 			int highestPriority = -1;
 			String highestPriorityVersion = null;
@@ -93,7 +93,7 @@ public class HypersocketVersion {
 		        Properties p = new Properties();
 		        InputStream is = cl.getResourceAsStream("META-INF/maven/com.hypersocket/" + artifactId + "/pom.properties");
 		        if(is == null) {
-			        is = HypersocketVersion.class.getResourceAsStream("/META-INF/maven/com.hypersocket/" + artifactId + "/pom.properties");
+			        is = AppVersion.class.getResourceAsStream("/META-INF/maven/com.hypersocket/" + artifactId + "/pom.properties");
 		        }
 		        if (is != null) { 
 		            p.load(is);
@@ -106,7 +106,7 @@ public class HypersocketVersion {
 
 	    // fallback to using Java API
 		if(Utils.isBlank(detectedVersion)) {
-	        Package aPackage = HypersocketVersion.class.getPackage();
+	        Package aPackage = AppVersion.class.getPackage();
 	        if (aPackage != null) {
 	            detectedVersion = aPackage.getImplementationVersion();
 	            if (detectedVersion == null) {

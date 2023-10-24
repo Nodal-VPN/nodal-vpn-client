@@ -3,7 +3,7 @@ package com.logonbox.vpn.client.desktop;
 import com.install4j.api.launcher.StartupNotification;
 import com.install4j.api.launcher.StartupNotification.Listener;
 import com.logonbox.vpn.client.common.ClientPromptingCertManager;
-import com.logonbox.vpn.client.common.HypersocketVersion;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.NoUpdateService;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.UpdateService;
@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
-import java.awt.Taskbar;
+//import java.awt.Taskbar;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,8 +31,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+//import javax.swing.UIManager;
+//import javax.swing.UnsupportedLookAndFeelException;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -106,19 +106,19 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 		instance = this;
 		setSupportsAuthorization(true);
 
-		if(Taskbar.isTaskbarSupported()) {
-	        try {
-	    		final Taskbar taskbar = Taskbar.getTaskbar();
-	    		if(OS.isMacOs())
-		            taskbar.setIconImage(java.awt.Toolkit.getDefaultToolkit()
-							.getImage(Main.class.getResource("mac-logo128px.png")));
-	    		else
-		            taskbar.setIconImage(java.awt.Toolkit.getDefaultToolkit()
-							.getImage(Main.class.getResource("logonbox-icon128x128.png")));
-	        } catch (final UnsupportedOperationException e) {
-	        } catch (final SecurityException e) {
-	        }
-		}
+//		if(Taskbar.isTaskbarSupported()) {
+//	        try {
+//	    		final Taskbar taskbar = Taskbar.getTaskbar();
+//	    		if(OS.isMacOs())
+//		            taskbar.setIconImage(java.awt.Toolkit.getDefaultToolkit()
+//							.getImage(Main.class.getResource("mac-logo128px.png")));
+//	    		else
+//		            taskbar.setIconImage(java.awt.Toolkit.getDefaultToolkit()
+//							.getImage(Main.class.getResource("logonbox-icon128x128.png")));
+//	        } catch (final UnsupportedOperationException e) {
+//	        } catch (final SecurityException e) {
+//	        }
+//		}
 
 		System.setProperty(SimpleLoggerConfiguration.CONFIGURATION_FILE_KEY, "default-log-gui.properties");
 
@@ -132,7 +132,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 		}
 		log = LoggerFactory.getLogger(Main.class);
 
-		log.info(String.format("LogonBox VPN Client GUI, version %s", HypersocketVersion.getVersion(ARTIFACT_COORDS)));
+		log.info(String.format("LogonBox VPN Client GUI, version %s", AppVersion.getVersion(ARTIFACT_COORDS)));
 		log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " (" + System.getProperty("os.version") + ")"));
 		try {
 			log.info(String.format("CWD: %s", new File(".").getCanonicalPath()));
@@ -283,11 +283,11 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 	 */
 	public static void main(String[] args) throws Exception {
 		uiContext.ifPresentOrElse(c -> c.open(), () -> {
-			try {
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-					| UnsupportedLookAndFeelException e) {
-			}
+//			try {
+//				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+//					| UnsupportedLookAndFeelException e) {
+//			}
 			System.exit(
 					new CommandLine(new Main()).execute(args));
 		});
@@ -319,7 +319,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 
 	@Override
 	public String getVersion() {
-		return HypersocketVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx");
+		return AppVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx");
 	}
 
 	@Override

@@ -59,6 +59,7 @@ public abstract class AbstractClient<CONX extends IVPNConnection> implements Vpn
     protected final List<Consumer<CONX>> onConnectionUpdating = Collections.synchronizedList(new ArrayList<>());
     protected final List<BiConsumer<ConfigurationItem<?>, String>> onGlobalConfigChanged = Collections.synchronizedList(new ArrayList<>());
     protected final List<Runnable> onVpnGone = Collections.synchronizedList(new ArrayList<>());
+    protected final List<Runnable> onConfirmedExit = Collections.synchronizedList(new ArrayList<>());
     protected final List<Runnable> onVpnAvailable = Collections.synchronizedList(new ArrayList<>());
     protected final List<Authorize<CONX>> onAuthorize = Collections.synchronizedList(new ArrayList<>());
     protected final List<Consumer<CONX>> onConnecting= Collections.synchronizedList(new ArrayList<>());
@@ -70,7 +71,9 @@ public abstract class AbstractClient<CONX extends IVPNConnection> implements Vpn
 
 	protected AbstractClient() {
 		certManager = createCertManager();
-		certManager.installCertificateVerifier();
+		if(certManager != null)
+		    certManager.installCertificateVerifier();
+		
 		scheduler = Executors.newScheduledThreadPool(1);
 
 		var instancePropertiesFile = Paths.get("conf/instance.properties");
@@ -166,6 +169,12 @@ public abstract class AbstractClient<CONX extends IVPNConnection> implements Vpn
     }
 
     @Override
+    public final Handle onConfirmedExit(Runnable callback) {
+        onConfirmedExit.add(callback);
+        return () -> onConfirmedExit.remove(callback);
+    }
+
+    @Override
     public final Handle onVpnAvailable(Runnable callback) {
         onVpnAvailable.add(callback);
         return () -> onVpnAvailable.remove(callback);
@@ -230,10 +239,22 @@ public abstract class AbstractClient<CONX extends IVPNConnection> implements Vpn
 
 	@Override
     public final void exit() {
-		scheduler.shutdown();
-		if(updateService != null)
-			getUpdateService().shutdown();
+	    beforeExit();
+	    try {
+    		scheduler.shutdown();
+    		if(updateService != null)
+    			getUpdateService().shutdown();
+	    }
+	    finally {
+	        afterExit();
+	    }
 	}
+	
+	protected void beforeExit() {
+	}
+    
+    protected void afterExit() {
+    }
 
 	protected final void init() throws Exception {
 
