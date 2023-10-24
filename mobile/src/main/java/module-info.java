@@ -20,5 +20,6 @@ open module com.logonbox.vpn.client.mobile {
     requires jul.to.slf4j;
     requires com.sshtools.liftlib;
     requires com.logonbox.vpn.client.logging;
+    requires static uk.co.bithatch.nativeimage.annotations;
     uses PlatformServiceFactory;
 }

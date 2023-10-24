@@ -145,8 +145,8 @@ public class DBusD implements Callable<Integer> {
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {
-                getVersion("com.logonbox", "client-logonbox-vpn-dbus-daemon"),
-                "dbus-java-" + getVersion("com.github.hypfvieh", "dbus-java-core")
+                "DBus Daemon: " + getVersion("com.logonbox", "client-logonbox-vpn-dbus-daemon"),
+                "DBus Java: " + getVersion("com.github.hypfvieh", "dbus-java-core")
             };
         }
     }

@@ -64,8 +64,8 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {
-                AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-cli"),
-                "dbus-java-" + AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
+                "CLI: " + AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-cli"),
+                "DBus Java: " + AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
             };
         }
     }

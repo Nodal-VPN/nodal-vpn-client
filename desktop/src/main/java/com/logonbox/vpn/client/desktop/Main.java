@@ -39,12 +39,26 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert.AlertType;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.IVersionProvider;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
 
-@Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.")
+@Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.", versionProvider = Main.VersionProvider.class
+)
 public class Main extends AbstractDBusClient implements Callable<Integer>, Listener, AppContext {
 	static Logger log;
+	
+	@Reflectable
+	public class VersionProvider implements IVersionProvider {
+        @Override
+        public String[] getVersion() throws Exception {
+            return new String[] {
+                "GUI: " + AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop"),
+                "DBus Java: " + AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
+            };
+        }
+    }
 
 	public final static String SID_ADMINISTRATORS_GROUP = "S-1-5-32-544";
 

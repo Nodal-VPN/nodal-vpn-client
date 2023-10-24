@@ -36,17 +36,18 @@ import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 import uk.co.bithatch.nativeimage.annotations.TypeReflect;
 
-@Command(name = "lbvpn-tray", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN system tray.")
+@Command(name = "lbvpn-tray", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN system tray.", versionProvider = TrayDaemon.VersionProvider.class)
 @Resource(siblings = true, value = { "default-log4j-tray\\.properties" })
 @Reflectable
 @TypeReflect(classes = true, fields = true, methods = true)
 public class TrayDaemon extends AbstractDBusClient implements Callable<Integer> {
+    @Reflectable
     public class VersionProvider implements IVersionProvider {
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {
-                AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-tray"),
-                "dbus-java-" + AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
+                "Tray: " + AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-tray"),
+                "DBus Java: " + AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
             };
         }
     }

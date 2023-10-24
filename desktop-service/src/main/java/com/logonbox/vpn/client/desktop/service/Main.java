@@ -60,16 +60,30 @@ import java.util.logging.LogManager;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.IVersionProvider;
 import picocli.CommandLine.Option;
 import uk.co.bithatch.nativeimage.annotations.Bundle;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 
-@Command(name = "lbvpn-service", mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.")
+@Command(name = "lbvpn-service", mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.", versionProvider =  IVersionProvider.class)
 @Bundle
 @Resource({"default-log-service\\.properties", "default-log4j-service-console\\.properties"})
 public class Main extends AbstractService<VPNConnection> implements Callable<Integer>, DesktopServiceContext, Listener {
 
 	public final static ResourceBundle BUNDLE = ResourceBundle.getBundle(Main.class.getName());
+
+	@Reflectable
+	public class VersionProvider implements IVersionProvider {
+        @Override
+        public String[] getVersion() throws Exception {
+            return new String[] {
+                "Service: " + AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop-service"),
+                "VPN Library: " + AppVersion.getVersion("com.logonbox", "logonbox-vpn-lib"),
+                "DBus Java: " +AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
+            };
+        }
+    }
 	
 	final static int DEFAULT_TIMEOUT = 10000;
 

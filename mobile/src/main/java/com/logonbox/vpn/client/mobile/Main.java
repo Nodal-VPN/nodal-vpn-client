@@ -35,15 +35,24 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert.AlertType;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.IVersionProvider;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
 
-@Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.")
+@Command(name = "lbvpn-mobile-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.", versionProvider = Main.VersionProvider.class)
 public class Main extends AbstractClient<EmbeddedVPNConnection> implements Callable<Integer>, AppContext  {
 
-	static {
-		//System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "Debug");
-	}
+    @Reflectable
+    public class VersionProvider implements IVersionProvider {
+        @Override
+        public String[] getVersion() throws Exception {
+            return new String[] {
+                "Mobile GUI: " + AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-mobile"),
+                "VPN Library: " + AppVersion.getVersion("com.logonbox", "logonbox-vpn-lib"),
+            };
+        }
+    }
 
 	static Logger log;
 
