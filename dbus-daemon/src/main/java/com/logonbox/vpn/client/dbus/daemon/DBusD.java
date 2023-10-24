@@ -41,7 +41,7 @@ public class DBusD implements Callable<Integer> {
     static Logger log;
     
     @Reflectable(all= true)
-    public static class VersionProvider implements IVersionProvider {
+    public final static class VersionProvider implements IVersionProvider {
         static Map<String, String> versions = Collections.synchronizedMap(new HashMap<>());
 
         public VersionProvider() {

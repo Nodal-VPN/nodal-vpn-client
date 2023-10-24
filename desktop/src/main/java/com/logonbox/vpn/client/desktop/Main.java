@@ -50,7 +50,10 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 	static Logger log;
 	
 	@Reflectable
-	public class VersionProvider implements IVersionProvider {
+    public final static class VersionProvider implements IVersionProvider {
+        
+        public VersionProvider() {}
+        
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {

@@ -44,7 +44,10 @@ import uk.co.bithatch.nativeimage.annotations.Reflectable;
 public class Main extends AbstractClient<EmbeddedVPNConnection> implements Callable<Integer>, AppContext  {
 
     @Reflectable
-    public class VersionProvider implements IVersionProvider {
+    public final static class VersionProvider implements IVersionProvider {
+        
+        public VersionProvider() {}
+        
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {

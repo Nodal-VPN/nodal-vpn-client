@@ -42,7 +42,9 @@ import uk.co.bithatch.nativeimage.annotations.TypeReflect;
 @TypeReflect(classes = true, fields = true, methods = true)
 public class TrayDaemon extends AbstractDBusClient implements Callable<Integer> {
     @Reflectable
-    public class VersionProvider implements IVersionProvider {
+    public final static class VersionProvider implements IVersionProvider {
+        
+        public VersionProvider() {}
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {

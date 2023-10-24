@@ -51,6 +51,7 @@ import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.Spec;
 import uk.co.bithatch.nativeimage.annotations.Bundle;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 
 @Command(name = "lbvpn-cli", versionProvider = CLI.VersionProvider.class, usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.", subcommands = {
@@ -60,7 +61,11 @@ import uk.co.bithatch.nativeimage.annotations.Resource;
 @Resource({"default-log4j-cli\\.properties"})
 public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBusClient<VPNConnection> {
 
-	public class VersionProvider implements IVersionProvider {
+    @Reflectable
+	public final static class VersionProvider implements IVersionProvider {
+	    
+	    public VersionProvider() {} 
+	    
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {
