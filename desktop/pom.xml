@@ -300,7 +300,7 @@
                              <!-- TODO Control with profile, only needed on Linux? -->
                             <linkerArgs>
                                 <linkerArg>${java.home}/lib/static/linux-amd64/glibc/libjaas.a</linkerArg>
-                                <linkerArg>${java.home}/lib/static/linux-amd64/glibc/libawt.a</linkerArg>
+                                <linkerArg>${java.home}/lib/static/linux-amd64/glibc/libawt_xawt.a</linkerArg>
                             </linkerArgs>
                             <nativeImageArgs>
                                 <nativeImageArg>--no-fallback</nativeImageArg>

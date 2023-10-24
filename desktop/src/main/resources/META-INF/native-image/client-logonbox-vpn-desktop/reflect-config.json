@@ -205,50 +205,6 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"dorkbox.jna.linux.FuncCallback",
-  "queryAllDeclaredMethods":true,
-  "queryAllPublicMethods":true
-},
-{
-  "name":"dorkbox.jna.linux.GCallback",
-  "queryAllDeclaredMethods":true,
-  "queryAllPublicMethods":true
-},
-{
-  "name":"dorkbox.jna.linux.GEventCallback",
-  "queryAllDeclaredMethods":true,
-  "queryAllPublicMethods":true
-},
-{
-  "name":"dorkbox.jna.linux.GMainContext",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"dorkbox.jna.linux.GMainLoop",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"dorkbox.jna.linux.GObject",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"dorkbox.jna.linux.Gtk3",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"dorkbox.jna.linux.Gtk3VersionInfo",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"dorkbox.jna.linux.structs.GtkRequisition",
-  "allDeclaredFields":true
-},
-{
-  "name":"dorkbox.systemTray.ui.gtk._GtkStatusIconNativeTray",
-  "queryAllPublicConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","dorkbox.systemTray.util.ImageResizeUtil","java.lang.Runnable"] }]
-},
-{
   "name":"java.beans.PropertyVetoException"
 },
 {

@@ -497,18 +497,6 @@
   "methods":[{"name":"fwkCancel","parameterTypes":[] }]
 },
 {
-  "name":"dorkbox.jna.linux.FuncCallback",
-  "methods":[{"name":"callback","parameterTypes":["com.sun.jna.Pointer"] }]
-},
-{
-  "name":"dorkbox.jna.linux.GCallback",
-  "methods":[{"name":"callback","parameterTypes":["com.sun.jna.Pointer","com.sun.jna.Pointer"] }]
-},
-{
-  "name":"dorkbox.jna.linux.GEventCallback",
-  "methods":[{"name":"callback","parameterTypes":["com.sun.jna.Pointer","dorkbox.jna.linux.structs.GdkEventButton"] }]
-},
-{
   "name":"java.awt.AlphaComposite",
   "fields":[
     {"name":"extraAlpha"}, 
