@@ -75,8 +75,8 @@
 		<module>desktop-service</module>
 		<module>cli</module>
 		<module>dbconvert</module>
-        <module>gluon</module>
-        <module>mobile</module>
+       <!-- <module>gluon</module>
+        <module>mobile</module>-->
 		<module>installer</module>
 	</modules>
 
@@ -98,6 +98,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>4.7.5</version>
+            </dependency>
             <dependency>
                 <groupId>org.kordamp.ikonli</groupId>
                 <artifactId>ikonli-javafx</artifactId>

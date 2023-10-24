@@ -26,6 +26,10 @@
             <groupId>com.github.hypfvieh</groupId>
             <artifactId>dbus-java-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId> 
+        </dependency>
     </dependencies>
     <build>
         <plugins>

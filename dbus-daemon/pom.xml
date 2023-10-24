@@ -62,6 +62,10 @@
             <artifactId>jul-to-slf4j</artifactId>
         </dependency>
         <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId> 
+        </dependency>
+        <dependency>
             <groupId>com.github.hypfvieh</groupId>
             <artifactId>dbus-java-core</artifactId>
         </dependency>
@@ -105,8 +109,8 @@
                             <metadataRepository>
                                 <enabled>true</enabled>
                             </metadataRepository>
-                            <imageName>lbvpn-dbusd</imageName>
-                            <mainClass>com.logonbox.vpn.client.dbus.daemon.DBusDaemon</mainClass>
+                            <imageName>lbvpn-dbus-daemon</imageName>
+                            <mainClass>com.logonbox.vpn.client.dbus.daemon.DBusD</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>
                                 <buildArg>--report-unsupported-elements-at-runtime</buildArg>

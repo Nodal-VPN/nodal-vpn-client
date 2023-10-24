@@ -2,9 +2,9 @@ package com.logonbox.vpn.client.desktop.service;
 
 import com.logonbox.vpn.client.AbstractService;
 import com.logonbox.vpn.client.common.AbstractClient;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
-import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IVPN;
@@ -26,7 +26,6 @@ import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.connections.transports.TransportBuilder;
 import org.freedesktop.dbus.connections.transports.TransportBuilder.SaslAuthMode;
-import org.freedesktop.dbus.errors.AccessDenied;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.messages.Message;
 import org.freedesktop.dbus.utils.Util;
@@ -40,6 +39,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,7 +93,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
     @Option(names = { "-L", "--log-level" }, paramLabel = "LEVEL", description = "Logging level for trouble-shooting.")
     private Optional<Level> level;
 
-	@Option(names = { "-a", "--address" }, description = "Address of Bus.")
+	@Option(names = { "-ba", "--bus-address" }, description = "Address of Bus.")
 	private String address;
 
     @Option(names = { "-C",
@@ -123,7 +123,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 	@Option(names = { "-u", "--auth" }, description = "Mask of SASL authentication method to use.")
 	private SaslAuthMode authMode = SaslAuthMode.AUTH_ANONYMOUS;
 
-	private BusAddress busAddress;
+	private BusAddress embeddedBusAddress;
     private Map<String, VPNFrontEnd> frontEnds = Collections.synchronizedMap(new HashMap<>());
 
 	public Main() throws Exception {
@@ -545,16 +545,27 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 			}
 		}
 	}
+    
+    private boolean isSideBySideDbusDaemonAvailable() {
+        if(Files.exists(Paths.get("pom.xml"))) {
+            log.info("In developer mode (pom.xml exists), looking for side-by-side `dbus-daemon` running instance.");
+            var dbusProps = getSideBySideDbusDaemonPropertiesPath();
+            if(Files.exists(dbusProps)) {
+                log.warn("Using developer dbus-daemon that exists side-by-side with this module. If this is not what you want, remove {}", dbusProps);
+                return true;
+            }
+            else
+                log.info("No side-by-side daemon, using default algorithm to determine bus address");
+        }
+        return false;
+        
+    }
+
+    private Path getSideBySideDbusDaemonPropertiesPath() {
+        return Paths.get("..", "dbus-daemon", "conf", "dbus.properties");
+    }
 
 	private boolean connect() throws DBusException, IOException {
-		
-		/*
-		 * NOTE: This whole process takes too long when using EmbeddedDBusDaemon
-		 * embedded DBUS daemon, due to an upstream bug.
-		 * 
-		 * There are work around's consisting of sleeps, polls and timeouts
-		 * that ideally should not be here. 
-		 */
 		
 		while(true) {
 			if (connTask != null) {
@@ -563,7 +574,17 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 			}
 	
 			String newAddress = address;
-			if (OS.isLinux() && !embeddedBus) {
+			if(!embeddedBus && isSideBySideDbusDaemonAvailable()) {
+			    try(var in = Files.newBufferedReader(getSideBySideDbusDaemonPropertiesPath())) {
+			        var p = new Properties();
+			        p.load(in);
+			        newAddress = p.getProperty("address");
+			    }
+                log.info(String.format("Connectin to DBus @%s", newAddress));
+                conn = configureBuilder(DBusConnectionBuilder.forAddress(newAddress)).build();
+                log.info(String.format("Ready on DBus @%s", newAddress));
+			}
+			else if (OS.isLinux() && !embeddedBus) {
 				log.info("Will use built-in Linux DBus");
 				if (newAddress != null) {
 					log.info(String.format("Connectin to DBus @%s", newAddress));
@@ -587,7 +608,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 					log.info("Ready on Session DBus");
 					newAddress = conn.getAddress().toString();
 				}
-				busAddress = BusAddress.of(newAddress);
+				embeddedBusAddress = BusAddress.of(newAddress);
 				
 			} else {
 				log.info(String.format("Creating new DBus broker. Initial address is %s", Utils.isBlank(newAddress) ? "BLANK" : newAddress));
@@ -607,24 +628,24 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 					}
 				}
 	
-				busAddress = BusAddress.of(newAddress);
-				if (!busAddress.hasParameter("guid")) {
+				embeddedBusAddress = BusAddress.of(newAddress);
+				if (!embeddedBusAddress.hasParameter("guid")) {
 					/* Add a GUID if user supplied bus address without one */
 					newAddress += ",guid=" + Util.genGUID();
-					busAddress = BusAddress.of(newAddress);
+					embeddedBusAddress = BusAddress.of(newAddress);
 				}
 	
-				if (busAddress.isListeningSocket()) {
+				if (embeddedBusAddress.isListeningSocket()) {
 					/* Strip listen=true to get the address to uses as a client */
 					newAddress = newAddress.replace(",listen=true", "");
-					busAddress = BusAddress.of(newAddress);
+					embeddedBusAddress = BusAddress.of(newAddress);
 				}
 				
 				/* Work around for Windows. We need the domain socket file to be created
 				 * somewhere that can be read by anyone. C:/Windows/TEMP cannot be 
 				 * read by a "Normal User" without elevating.
 				 */
-				if (OS.isWindows() && busAddress.getBusType().equals("UNIX")) {
+				if (OS.isWindows() && embeddedBusAddress.getBusType().equals("UNIX")) {
 					File publicDir = new File("C:\\Users\\Public");
 					if (publicDir.exists()) {
 						File vpnAppData = new File(publicDir, "AppData\\LogonBox\\VPN");
@@ -657,11 +678,11 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 	
 						newAddress = newAddress.replace("path=" + System.getProperty("java.io.tmpdir"),
 								"path=" + vpnAppData.getAbsolutePath().replace('/', '\\') + "\\");
-						log.info(String.format("Adjusting DBus path from %s to %s (%s)", busAddress, newAddress, System.getProperty("java.io.tmpdir")));
-						busAddress = BusAddress.of(newAddress);
+						log.info(String.format("Adjusting DBus path from %s to %s (%s)", embeddedBusAddress, newAddress, System.getProperty("java.io.tmpdir")));
+						embeddedBusAddress = BusAddress.of(newAddress);
 					}
 				}
-				else if (OS.isMacOs() && busAddress.getBusType().equals("UNIX")) {
+				else if (OS.isMacOs() && embeddedBusAddress.getBusType().equals("UNIX")) {
 					/* Work around for Mac OS X. We need the domain socket file to be created
 					 * somewhere that can be read by anyone. /var/folders/zz/XXXXXXXXXXXXXXXXXXXXxxx/T/dbus-XXXXXXXXX cannot be 
 					 * read by a "Normal User" without elevating.
@@ -674,8 +695,8 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 	
 						newAddress = newAddress.replace("path=" + System.getProperty("java.io.tmpdir"),
 								"path=" + vpnAppData.getAbsolutePath() + "/");
-						log.info(String.format("Adjusting DBus path from %s to %s (%s)", busAddress, newAddress, System.getProperty("java.io.tmpdir")));
-						busAddress = BusAddress.of(newAddress);
+						log.info(String.format("Adjusting DBus path from %s to %s (%s)", embeddedBusAddress, newAddress, System.getProperty("java.io.tmpdir")));
+						embeddedBusAddress = BusAddress.of(newAddress);
 					}
 				}
 	
@@ -696,16 +717,16 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 					
 					log.info(String.format("Started embedded bus on address %s", listenBusAddress));				
 	
-					log.info(String.format("Connecting to embedded DBus %s", busAddress));
-							conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress)).build();
-							log.info(String.format("Connected to embedded DBus %s", busAddress));
+					log.info(String.format("Connecting to embedded DBus %s", embeddedBusAddress));
+							conn = configureBuilder(DBusConnectionBuilder.forAddress(embeddedBusAddress)).build();
+							log.info(String.format("Connected to embedded DBus %s", embeddedBusAddress));
 
 					startedBus = true;
 					
 				}
 				else {
-					log.info(String.format("Connecting to embedded DBus %s", busAddress));
-					conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress)).build();
+					log.info(String.format("Connecting to embedded DBus %s", embeddedBusAddress));
+					conn = configureBuilder(DBusConnectionBuilder.forAddress(embeddedBusAddress)).build();
 				}
 	
 				/*
@@ -715,8 +736,8 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 				 * TODO secure this a bit. at least use a group permission
 				 */
 				if (startedBus) {
-					if (busAddress.getBusType().equals("UNIX")) {
-						var busPath = Paths.get(busAddress.getParameterValue("path"));
+					if (embeddedBusAddress.getBusType().equals("UNIX")) {
+						var busPath = Paths.get(embeddedBusAddress.getParameterValue("path"));
 						getPlatformService().openToEveryone(busPath);
 						log.info("Monitoring {}", busPath);
 						checkTask = getQueue().scheduleAtFixedRate(() -> {
@@ -774,7 +795,9 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 				}
 				
 				// Now can tell the client
-				storeAddress(busAddress.toString());
+				if(embeddedBusAddress != null)
+				    storeAddress(embeddedBusAddress.toString());
+				
 				return true;
 			} catch (Exception e) {
 				log.error("Failed to connect to DBus. No remote state monitoring or management.", e);
@@ -860,10 +883,10 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 			shutdownEmbeddedDaemon();
 		}
 		finally {
-			if(busAddress != null && embedded) {
+			if(embeddedBusAddress != null && embedded) {
 				for(int i = 0 ; i < 10 ; i++) {
 					try {
-						String path = busAddress.getParameterValue("path");
+						String path = embeddedBusAddress.getParameterValue("path");
 						if(path == null)
 							break;
 						Files.delete(Paths.get(path));

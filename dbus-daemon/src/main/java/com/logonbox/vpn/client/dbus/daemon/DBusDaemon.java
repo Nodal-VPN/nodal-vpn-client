@@ -1,53 +1,56 @@
 package com.logonbox.vpn.client.dbus.daemon;
 
-import com.logonbox.vpn.client.logging.SimpleLoggerConfiguration;
-
 import org.freedesktop.dbus.Marshalling;
-import org.freedesktop.dbus.bin.EmbeddedDBusDaemon;
-import org.freedesktop.dbus.connections.BusAddress;
-import org.freedesktop.dbus.connections.transports.*;
-import org.freedesktop.dbus.connections.transports.TransportBuilder.SaslAuthMode;
+import org.freedesktop.dbus.connections.transports.AbstractTransport;
+import org.freedesktop.dbus.connections.transports.TransportConnection;
 import org.freedesktop.dbus.errors.AccessDenied;
 import org.freedesktop.dbus.errors.MatchRuleInvalid;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.exceptions.DBusExecutionException;
-import org.freedesktop.dbus.interfaces.*;
+import org.freedesktop.dbus.interfaces.DBus;
 import org.freedesktop.dbus.interfaces.DBus.NameOwnerChanged;
-import org.freedesktop.dbus.messages.*;
+import org.freedesktop.dbus.interfaces.FatalException;
+import org.freedesktop.dbus.interfaces.Introspectable;
+import org.freedesktop.dbus.interfaces.Peer;
+import org.freedesktop.dbus.messages.DBusSignal;
+import org.freedesktop.dbus.messages.Message;
+import org.freedesktop.dbus.messages.MessageFactory;
+import org.freedesktop.dbus.messages.MethodCall;
 import org.freedesktop.dbus.types.UInt32;
 import org.freedesktop.dbus.types.Variant;
 import org.freedesktop.dbus.utils.Hexdump;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.prefs.Preferences;
-
-import uk.co.bithatch.nativeimage.annotations.Resource;
 
 /**
  * A replacement DBusDaemon
  */
-@Resource("default-log-dbus-daemon\\.properties")
 public class DBusDaemon extends Thread implements Closeable {
     public static final int                                                     QUEUE_POLL_WAIT = 500;
 
-    private final static Logger                                                 LOGGER;
-    
-    static {
-        System.setProperty(SimpleLoggerConfiguration.CONFIGURATION_FILE_KEY, "default-log-dbus-daemon.properties");
-        LOGGER = LoggerFactory.getLogger(DBusDaemon.class);
-    }
+    private final static Logger                                                 LOGGER = LoggerFactory.getLogger(DBusDaemon.class);
     
     private final Map<ConnectionStruct, DBusDaemonReaderThread>                 conns           =
             new ConcurrentHashMap<>();
@@ -269,136 +272,6 @@ public class DBusDaemon extends Thread implements Closeable {
         DBusDaemonReaderThread r = new DBusDaemonReaderThread(c);
         conns.put(c, r);
         r.start();
-    }
-
-    public static void syntax() {
-        System.out.println("Syntax: DBusDaemon [--version] [-v] [--help] [-h] [--listen address] "
-                + "[-l address] [--print-address] [-r] [--pidfile file] [-p file] [--addressfile file] "
-                + "[--auth-mode AUTH_ANONYMOUS|AUTH_COOKIE|AUTH_EXTERNAL] [-m AUTH_ANONYMOUS|AUTH_COOKIE|AUTH_EXTERNAL]"
-                + "[-a file] [--unix] [-u] [--tcp] [-t] ");
-        System.exit(1);
-    }
-
-    public static void version() {
-        System.out.println("D-Bus Java Version: " + System.getProperty("Version"));
-        System.exit(1);
-    }
-
-    public static void saveFile(String _data, String _file, boolean _insecure) throws IOException {
-    	File fileObject = new File(_file);
-    	fileObject.deleteOnExit();
-        try (PrintWriter w = new PrintWriter(new FileOutputStream(fileObject))) {
-            w.println(_data);
-        }
-    	if(_insecure) {
-	    	fileObject.setReadable(true, false);
-	    	fileObject.setWritable(true, false);
-    	}
-    }
-
-    public static void main(String[] _args) throws Exception {
-
-        String addr = null;
-        String pidfile = null;
-        String addrfile = null;
-        String authModeStr = null;
-        boolean printaddress = false;
-        boolean unix = true;
-        boolean tcp = false;
-        boolean insecure = false;
-        Preferences addrpref = null;
-        String addrkey = "dbusAddress";
-        
-        // parse options
-        try {
-            for (int i = 0; i < _args.length; i++) {
-                if ("--help".equals(_args[i]) || "-h".equals(_args[i])) {
-                    syntax();
-                } else if ("--version".equals(_args[i]) || "-v".equals(_args[i])) {
-                    version();
-                } else if ("--listen".equals(_args[i]) || "-l".equals(_args[i])) {
-                    addr = _args[++i];
-                } else if ("--insecure".equals(_args[i]) || "-I".equals(_args[i])) {
-                	insecure = true;
-                } else if ("--pidfile".equals(_args[i]) || "-p".equals(_args[i])) {
-                    pidfile = _args[++i];
-                } else if ("--addressfile".equals(_args[i]) || "-a".equals(_args[i])) {
-                    addrfile = _args[++i];
-                } else if ("--print-address".equals(_args[i]) || "-r".equals(_args[i])) {
-                    printaddress = true;
-                } else if ("--unix".equals(_args[i]) || "-u".equals(_args[i])) {
-                    unix = true;
-                    tcp = false;
-                } else if ("--tcp".equals(_args[i]) || "-t".equals(_args[i])) {
-                    tcp = true;
-                    unix = false;
-                } else if ("--auth-mode".equals(_args[i]) || "-m".equals(_args[i])) {
-                    authModeStr = _args[++i];
-                }  else if ("--addresspref".equals(_args[i]) || "-A".equals(_args[i])) {
-                	String prefspec = _args[++i]; 
-                	if(prefspec.equals("default")) {
-                		addrkey = "dbusAddress";
-                		addrpref = Preferences.systemNodeForPackage(DBusDaemon.class);
-                	}
-                	else {
-	                	int idx = prefspec.indexOf(':');
-	                	String node = idx == -1 ? prefspec : prefspec.substring(0, idx);
-	                	addrkey = idx == -1 ? "dbusAddress" : prefspec.substring(idx + 1);
-	                    addrpref = Preferences.systemRoot().node(node);	
-                	}
-                }else {
-                    syntax();
-                }
-            }
-        } catch (ArrayIndexOutOfBoundsException _ex) {
-            syntax();
-        }
-
-        // generate a random address if none specified
-        if (null == addr && unix) {
-            addr = TransportBuilder.createDynamicSession("UNIX", true);
-        } else if (null == addr && tcp) {
-            addr = TransportBuilder.createDynamicSession("TCP", true);
-        }
-
-        BusAddress address = BusAddress.of(addr);
-
-        // print address to stdout
-        if (printaddress) {
-            System.out.println(addr);
-        }
-
-        SaslAuthMode saslAuthMode = null;
-        if (authModeStr != null) {
-            String selectedMode = authModeStr;
-            saslAuthMode = Arrays.stream(SaslAuthMode.values())
-                    .filter(e -> e.name().toLowerCase().matches(selectedMode.toLowerCase()))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Auth mode '" + selectedMode + "' unsupported"));
-        }
-
-        // print address to file
-        if (null != addrfile) {
-            saveFile(addr, addrfile, insecure);
-        }
-
-        // print PID to file
-        if (null != pidfile) {
-            saveFile(System.getProperty("Pid"), pidfile, insecure);
-        }
-
-        // print address to a preference key
-        if (null != addrpref) {
-        	addrpref.put(addrkey, addr.replace("listen=true,", ""));
-        }
-
-        // start the daemon
-        LOGGER.info("Binding to {}", addr);
-        try (EmbeddedDBusDaemon daemon = new EmbeddedDBusDaemon(address)) {
-            daemon.setSaslAuthMode(saslAuthMode);
-            daemon.startInForeground();
-        }
-
     }
 
     /**
