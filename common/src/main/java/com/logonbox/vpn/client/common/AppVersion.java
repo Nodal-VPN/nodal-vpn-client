@@ -1,155 +1,140 @@
 package com.logonbox.vpn.client.common;
 
-import org.w3c.dom.Document;
-
 import java.io.File;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.jar.Manifest;
 import java.util.prefs.Preferences;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import uk.co.bithatch.nativeimage.annotations.Resource;
+
+@Resource("META-INF/maven/.*")
 public class AppVersion {
 
-	static Map<String,String> versions = Collections.synchronizedMap(new HashMap<>());
-	
-	public static String getVersion() {
-		return getVersion("hypersocket-common");
+	static Map<String, String> versions = Collections.synchronizedMap(new HashMap<>());
+
+	public static String getVersion(String groupId, String artifactId) {
+		return getVersion(null, groupId, artifactId);
 	}
 	
-	public static String getSerial() {
-        Preferences pref = Preferences.userRoot().node("com/hypersocket/json/version");
-        Preferences newPrefs = Preferences.userNodeForPackage(AppVersion.class);
+	public static boolean isDeveloperWorkspace() {
+		return new File("pom.xml").exists();
+	}
+    
+    public static String getSerial() {
+        var pref = Preferences.userRoot().node("com/hypersocket/json/version");
+        var newPrefs = Preferences.userNodeForPackage(AppVersion.class);
         
-		var hypersocketId = System.getProperty("hypersocket.id", "hypersocket-one");
-		if(pref.get(hypersocketId, null) != null) {
-		    newPrefs.put("serial", hypersocketId);
-		    pref.remove(hypersocketId);
-		}
-		
-		var serial = newPrefs.get("serial", null);
-		if(serial == null) {
-		    serial = UUID.randomUUID().toString();
-	        pref.put("serial", serial);
-		}
-		return serial;
-	}
+        var hypersocketId = System.getProperty("hypersocket.id", "hypersocket-one");
+        if(pref.get(hypersocketId, null) != null) {
+            newPrefs.put("serial", hypersocketId);
+            pref.remove(hypersocketId);
+        }
+        
+        var serial = newPrefs.get("serial", null);
+        if(serial == null) {
+            serial = UUID.randomUUID().toString();
+            pref.put("serial", serial);
+        }
+        return serial;
+    }
 	
-	public static String getVersion(String artifactId) {
-		String fakeVersion = Boolean.getBoolean("hypersocket.development") ? 
-				System.getProperty("hypersocket.development.version", System.getProperty("hypersocket.devVersion")) : null;
-		if(fakeVersion != null) {
+	public static String getVersion(String installerShortName, String groupId, String artifactId) {
+		String fakeVersion = Boolean.getBoolean("jadaptive.development")
+				? System.getProperty("jadaptive.development.version", System.getProperty("jadaptive.devVersion"))
+				: null;
+		if (fakeVersion != null) {
 			return fakeVersion;
 		}
+
+		String detectedVersion = versions.getOrDefault(groupId+ ":" + artifactId, "");
+		if (!detectedVersion.equals(""))
+			return detectedVersion;
 		
-	    String detectedVersion = versions.get(artifactId);
-	    if(detectedVersion != null)
-	    	return detectedVersion;
-
-	    /* Load the MANIFEST.MF from all jars looking for the X-Extension-Version
-	     * attribute. Any jar that has the attribute also can optionally have
-	     * an X-Extension-Priority attribute. The highest priority is the
-	     * version that will be used.
-	     */
-	    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-	    if(cl == null)
-	    	cl = AppVersion.class.getClassLoader();
-		try {
-			int highestPriority = -1;
-			String highestPriorityVersion = null;
-		    for(Enumeration<URL> en = cl.getResources("META-INF/MANIFEST.MF");
-		    		en.hasMoreElements(); ) {
-		    	URL url = en.nextElement();
-		    	try(InputStream in = url.openStream()) {
-			    	Manifest mf = new Manifest(in);	
-			    	String extensionVersion = mf.getMainAttributes().getValue("X-Extension-Version");
-			    	if(Utils.isNotBlank(extensionVersion)) {
-				    	String priorityStr = mf.getMainAttributes().getValue("X-Extension-Priority");
-				    	int priority = Utils.isBlank(priorityStr) ? 0 : Integer.parseInt(priorityStr);
-				    	if(priority > highestPriority) {
-				    		highestPriorityVersion = extensionVersion;
-				    	}
-			    	}
-		    	}
-		    }
-		    if(highestPriorityVersion != null)
-		    	detectedVersion = highestPriorityVersion;
-	    }
-	    catch(Exception e) {
-
-	    }
-
-	    // try to load from maven properties first
-		if(Utils.isBlank(detectedVersion)) {
-		    try {
-		        Properties p = new Properties();
-		        InputStream is = cl.getResourceAsStream("META-INF/maven/com.hypersocket/" + artifactId + "/pom.properties");
-		        if(is == null) {
-			        is = AppVersion.class.getResourceAsStream("/META-INF/maven/com.hypersocket/" + artifactId + "/pom.properties");
-		        }
-		        if (is != null) { 
-		            p.load(is);
-		            detectedVersion = p.getProperty("version", "");
-		        }
-		    } catch (Exception e) {
-		        // ignore
-		    }
+		/* installed apps may have a .install4j/i4jparams.conf. If this XML
+		 * file exists, it will contain the full application version which
+		 * will have the build number in it too. 
+		 */
+		if(installerShortName != null) {
+			try {
+				var docBuilderFactory = DocumentBuilderFactory.newInstance();
+				var docBuilder = docBuilderFactory.newDocumentBuilder();
+				var appDir = new File(System.getProperty("install4j.installationDir", System.getProperty("user.dir")));
+				var doc = docBuilder.parse(new File(new File(appDir, ".install4j"),"i4jparams.conf"));
+				var el = doc.getDocumentElement().getElementsByTagName("general").item(0);
+				var mediaName = el.getAttributes().getNamedItem("mediaName").getTextContent();
+				if(mediaName.startsWith(installerShortName + "-")) {
+					detectedVersion = el.getAttributes().getNamedItem("applicationVersion").getTextContent();
+				}
+			} catch (Exception e) {
+			}
 		}
 
-	    // fallback to using Java API
-		if(Utils.isBlank(detectedVersion)) {
-	        Package aPackage = AppVersion.class.getPackage();
-	        if (aPackage != null) {
-	            detectedVersion = aPackage.getImplementationVersion();
-	            if (detectedVersion == null) {
-	                detectedVersion = aPackage.getSpecificationVersion();
-	            }
-	        }
-	    }
+		if (detectedVersion.equals("")) {		
+	
+			// try to load from maven properties first
+			try {
+				var p = new Properties();
+				var is = AppVersion.class.getClassLoader()
+						.getResourceAsStream("META-INF/maven/" + groupId + "/" + artifactId + "/pom.properties");
+				if (is == null) {
+					is = AppVersion.class
+							.getResourceAsStream("/META-INF/maven/" + groupId + "/" + artifactId + "/pom.properties");
+				}
+				if (is != null) {
+					try {
+						p.load(is);
+						detectedVersion = p.getProperty("version", "");
+					} finally {
+						is.close();
+					}
+				}
+			} catch (Exception e) {
+				// ignore
+			}
+		}
 
-		if(Utils.isBlank(detectedVersion)) {
-	    	try {
-	    		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-	            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-	            Document doc = docBuilder.parse (new File("pom.xml"));
-	            detectedVersion = doc.getDocumentElement().getElementsByTagName("version").item(0).getTextContent();
-	    	} catch (Exception e) {
-			} 
-	        
-	    }
+		// fallback to using Java API
+		if (detectedVersion.equals("")) {
+			var aPackage = AppVersion.class.getPackage();
+			if (aPackage != null) {
+				detectedVersion = aPackage.getImplementationVersion();
+				if (detectedVersion == null) {
+					detectedVersion = aPackage.getSpecificationVersion();
+				}
+			}
+			if (detectedVersion == null)
+				detectedVersion = "";
+		}
 
-		if(Utils.isBlank(detectedVersion)) {
+		if (detectedVersion.equals("")) {
+			try {
+				var docBuilderFactory = DocumentBuilderFactory.newInstance();
+				var docBuilder = docBuilderFactory.newDocumentBuilder();
+				var doc = docBuilder.parse(new File("pom.xml"));
+				if(doc.getDocumentElement().getElementsByTagName("name").item(0).getTextContent().equals(artifactId) && doc.getDocumentElement().getElementsByTagName("group").item(0).getTextContent().equals(groupId)) {
+					detectedVersion = doc.getDocumentElement().getElementsByTagName("version").item(0).getTextContent();
+				}
+			} catch (Exception e) {
+			}
+
+		}
+
+		if (detectedVersion.equals("")) {
 			detectedVersion = "DEV_VERSION";
 		}
 
-	    /* Treat snapshot versions as build zero */
-	    if(detectedVersion.endsWith("-SNAPSHOT")) {
-	    	detectedVersion = detectedVersion.substring(0, detectedVersion.length() - 9) + "-0";
-	    }
-
-	    versions.put(artifactId, detectedVersion);
-
-	    return detectedVersion;
-	}
-
-	public static String getProductId() {
-		return System.getProperty("hypersocket.id", "hypersocket-one");
-	} 
-	
-	public static String getBrandId() {
-		String id = getProductId();
-		int idx = id.indexOf('-');
-		if(idx==-1) {
-			throw new IllegalStateException("Product id must consist of string formatted like <brand>-<product>");
+		/* Treat snapshot versions as build zero */
+		if (detectedVersion.endsWith("-SNAPSHOT")) {
+			detectedVersion = detectedVersion.substring(0, detectedVersion.length() - 9) + "-0";
 		}
-		return id.substring(0, idx);
-	} 
+
+		versions.put(groupId+ ":" + artifactId, detectedVersion);
+
+		return detectedVersion;
+	}
 }

@@ -1,12 +1,11 @@
 package com.logonbox.vpn.client.mobile;
 
-import com.logonbox.vpn.client.AbstractService;
 import com.logonbox.vpn.client.LocalContext;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
-import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.api.IVPN;
 
@@ -43,7 +42,7 @@ class EmbeddedVPN implements IVPN<EmbeddedVPNConnection> {
 
     @Override
     public String getVersion() {
-        return AppVersion.getVersion(AbstractService.ARTIFACT_COORDS);
+        return AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-mobile");
     }
 
     @Override

@@ -1,6 +1,6 @@
 module com.logonbox.vpn.tray {
 	requires info.picocli;
-	requires uk.co.bithatch.nativeimage.annotations;
+	requires static uk.co.bithatch.nativeimage.annotations;
 	requires com.logonbox.vpn.client.common.dbus;
     requires com.logonbox.vpn.client.logging;
 	requires org.slf4j;

@@ -11,23 +11,145 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.slf4j.event.Level;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.prefs.Preferences;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.IVersionProvider;
 import picocli.CommandLine.Option;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
+import uk.co.bithatch.nativeimage.annotations.Resource;
 
-@Command(name = "lbvpn-dbus-daemon", usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "A DBus Daemon.")
+@Command(name = "lbvpn-dbus-daemon", usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "A DBus Daemon.", versionProvider = DBusD.VersionProvider.class)
+@Resource("META-INF/maven/.*")
 public class DBusD implements Callable<Integer> {
     static Logger log;
+    
+    @Reflectable(all= true)
+    public static class VersionProvider implements IVersionProvider {
+        static Map<String, String> versions = Collections.synchronizedMap(new HashMap<>());
+
+        public VersionProvider() {
+        }
+        
+        public static String getVersion(String groupId, String artifactId) {
+            return getVersion(null, groupId, artifactId);
+        }
+        
+        public static boolean isDeveloperWorkspace() {
+            return Files.exists(Paths.get("pom.xml"));
+        }
+        
+        public static String getSerial() {
+            var pref = Preferences.userRoot().node("com/hypersocket/json/version");
+            var newPrefs = Preferences.userNodeForPackage(DBusD.class);
+            
+            var hypersocketId = System.getProperty("hypersocket.id", "hypersocket-one");
+            if(pref.get(hypersocketId, null) != null) {
+                newPrefs.put("serial", hypersocketId);
+                pref.remove(hypersocketId);
+            }
+            
+            var serial = newPrefs.get("serial", null);
+            if(serial == null) {
+                serial = UUID.randomUUID().toString();
+                pref.put("serial", serial);
+            }
+            return serial;
+        }
+        
+        public static String getVersion(String installerShortName, String groupId, String artifactId) {
+            String detectedVersion = versions.getOrDefault(groupId+ ":" + artifactId, "");
+            if (!detectedVersion.equals(""))
+                return detectedVersion;
+            
+            if (detectedVersion.equals("")) {       
+        
+                // try to load from maven properties first
+                try {
+                    var p = new Properties();
+                    var is = DBusD.class.getClassLoader()
+                            .getResourceAsStream("META-INF/maven/" + groupId + "/" + artifactId + "/pom.properties");
+                    if (is == null) {
+                        is = DBusD.class
+                                .getResourceAsStream("/META-INF/maven/" + groupId + "/" + artifactId + "/pom.properties");
+                    }
+                    if (is != null) {
+                        try {
+                            p.load(is);
+                            detectedVersion = p.getProperty("version", "");
+                        } finally {
+                            is.close();
+                        }
+                    }
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+
+            // fallback to using Java API
+            if (detectedVersion.equals("")) {
+                var aPackage = DBusD.class.getPackage();
+                if (aPackage != null) {
+                    detectedVersion = aPackage.getImplementationVersion();
+                    if (detectedVersion == null) {
+                        detectedVersion = aPackage.getSpecificationVersion();
+                    }
+                }
+                if (detectedVersion == null)
+                    detectedVersion = "";
+            }
+
+            if (detectedVersion.equals("")) {
+                try {
+                    var docBuilderFactory = DocumentBuilderFactory.newInstance();
+                    var docBuilder = docBuilderFactory.newDocumentBuilder();
+                    var doc = docBuilder.parse(new File("pom.xml"));
+                    if(doc.getDocumentElement().getElementsByTagName("name").item(0).getTextContent().equals(artifactId) && doc.getDocumentElement().getElementsByTagName("group").item(0).getTextContent().equals(groupId)) {
+                        detectedVersion = doc.getDocumentElement().getElementsByTagName("version").item(0).getTextContent();
+                    }
+                } catch (Exception e) {
+                }
+
+            }
+
+            if (detectedVersion.equals("")) {
+                detectedVersion = "DEV_VERSION";
+            }
+
+            /* Treat snapshot versions as build zero */
+            if (detectedVersion.endsWith("-SNAPSHOT")) {
+                detectedVersion = detectedVersion.substring(0, detectedVersion.length() - 9) + "-0";
+            }
+
+            versions.put(groupId+ ":" + artifactId, detectedVersion);
+
+            return detectedVersion;
+        }
+
+        @Override
+        public String[] getVersion() throws Exception {
+            return new String[] {
+                getVersion("com.logonbox", "client-logonbox-vpn-dbus-daemon"),
+                "dbus-java-" + getVersion("com.github.hypfvieh", "dbus-java-core")
+            };
+        }
+    }
 
     public static void main(String[] args) throws Exception {
         System.exit(new CommandLine(new DBusD()).execute(args));
@@ -123,7 +245,7 @@ public class DBusD implements Callable<Integer> {
             addr = address.get();
 
         // developer mode
-        if (Files.exists(Paths.get("pom.xml"))) {
+        if (VersionProvider.isDeveloperWorkspace()) {
             if (addressfile.isEmpty()) {
                 var conf = Paths.get("conf");
                 Files.createDirectories(conf);

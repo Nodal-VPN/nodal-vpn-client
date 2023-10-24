@@ -59,7 +59,7 @@ public class DOMProcessor<CONX extends IVPNConnection> {
         var vpnMaxMemory = vpn == null ? 0 : vpn.getMaxMemory();
         var freeMemory = Runtime.getRuntime().freeMemory();
         var maxMemory = Runtime.getRuntime().maxMemory();
-        var version = AppVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx");
+        var version = AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-gui-jfx");
         var statusType = connection == null ? "" : connection.getStatus();
 
 		/* VPN service */

@@ -937,7 +937,7 @@ public class ClientServiceImpl<CONX extends IVPNConnection> extends AbstractSyst
 		context.getQueue().scheduleWithFixedDelay(() -> {
 			try {
 				resolveRemoteDependencies(context.getCertManager(), Util.checkEndsWithSlash(getExtensionStoreRoot()) + "api/store/repos2",
-						new String[] { "logonbox-vpn-client" }, AppVersion.getVersion("com.logonbox/client-logonbox-vpn-service"), AppVersion.getSerial(),
+						new String[] { "logonbox-vpn-client" }, AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-service"), AppVersion.getSerial(),
 						"VPN Client", getCustomerInfo(), "CLIENT_SERVICE");
 			} catch (Exception e) {
 				if (log.isDebugEnabled()) {

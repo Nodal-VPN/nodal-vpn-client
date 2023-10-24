@@ -31,21 +31,26 @@ import java.util.concurrent.Callable;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.IVersionProvider;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 import uk.co.bithatch.nativeimage.annotations.TypeReflect;
 
-@Command(name = "logonbox-vpn-tray", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN system tray.")
+@Command(name = "lbvpn-tray", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN system tray.")
 @Resource(siblings = true, value = { "default-log4j-tray\\.properties" })
 @Reflectable
 @TypeReflect(classes = true, fields = true, methods = true)
 public class TrayDaemon extends AbstractDBusClient implements Callable<Integer> {
-
-	/**
-	 * Used to get version from Maven meta-data
-	 */
-	public static final String ARTIFACT_COORDS = "com.logonbox/client-logonbox-vpn-tray";
-
+    public class VersionProvider implements IVersionProvider {
+        @Override
+        public String[] getVersion() throws Exception {
+            return new String[] {
+                AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-tray"),
+                "dbus-java-" + AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
+            };
+        }
+    }
+    
 	private static TrayDaemon instance;
     private static Logger log;
 
@@ -60,7 +65,8 @@ public class TrayDaemon extends AbstractDBusClient implements Callable<Integer> 
 
 	@Override
 	public Integer call() throws Exception {
-		log.info(String.format("LogonBox VPN Client Tray, version %s", AppVersion.getVersion(ARTIFACT_COORDS)));
+		log.info(String.format("System Tray Version: %s", AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-tray")));
+        log.info(String.format("DBus Version: %s", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")));
 		log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " ("
 				+ System.getProperty("os.version") + ")"));
 		try {
@@ -197,7 +203,7 @@ public class TrayDaemon extends AbstractDBusClient implements Callable<Integer> 
 
 	@Override
 	public String getVersion() {
-		return AppVersion.getVersion("com.logonbox/client-logonbox-vpn-tray");
+		return AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-tray");
 	}
 
 	@Override

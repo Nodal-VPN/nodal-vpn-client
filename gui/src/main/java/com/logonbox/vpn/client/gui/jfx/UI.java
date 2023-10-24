@@ -934,7 +934,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		String ua = engine.getUserAgent();
 		LOG.info("User Agent: " + ua);
 		engine.setUserAgent(ua + " " + "LogonBoxVPNClient/"
-				+ AppVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx"));
+				+ AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-gui-jfx"));
 		engine.setOnAlert((e) -> {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.initModality(Modality.APPLICATION_MODAL);

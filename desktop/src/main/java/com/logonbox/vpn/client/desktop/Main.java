@@ -132,7 +132,8 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 		}
 		log = LoggerFactory.getLogger(Main.class);
 
-		log.info(String.format("LogonBox VPN Client GUI, version %s", AppVersion.getVersion(ARTIFACT_COORDS)));
+		log.info(String.format("Desktop App Version: %s", AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop")));
+        log.info(String.format("DBus Version: %s", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")));
 		log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " (" + System.getProperty("os.version") + ")"));
 		try {
 			log.info(String.format("CWD: %s", new File(".").getCanonicalPath()));
@@ -319,7 +320,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 
 	@Override
 	public String getVersion() {
-		return AppVersion.getVersion("com.logonbox/client-logonbox-vpn-gui-jfx");
+		return AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop");
 	}
 
 	@Override

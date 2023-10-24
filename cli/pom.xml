@@ -184,7 +184,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <imageName>${project.artifactId}</imageName>
+                            <imageName>lbvpn-cli</imageName>
                             <mainClass>com.logonbox.vpn.client.cli.CLI</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>

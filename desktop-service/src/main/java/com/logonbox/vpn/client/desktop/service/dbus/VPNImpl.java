@@ -1,11 +1,10 @@
 package com.logonbox.vpn.client.desktop.service.dbus;
 
-import com.logonbox.vpn.client.AbstractService;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
-import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.dbus.VPN;
 import com.logonbox.vpn.client.common.dbus.VPNConnection;
 import com.logonbox.vpn.client.common.dbus.VPNFrontEnd;
@@ -54,7 +53,7 @@ public class VPNImpl extends AbstractVPNComponent implements VPN {
 	@Override
 	public String getVersion() {
 		assertRegistered();
-		return AppVersion.getVersion(AbstractService.ARTIFACT_COORDS);
+		return AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop-service");
 	}
 
 	@Override

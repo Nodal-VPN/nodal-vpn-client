@@ -44,6 +44,7 @@ import java.util.ResourceBundle;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.IExecutionExceptionHandler;
+import picocli.CommandLine.IVersionProvider;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
@@ -52,14 +53,24 @@ import picocli.CommandLine.Spec;
 import uk.co.bithatch.nativeimage.annotations.Bundle;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 
-@Command(name = "logonbox-vpn-cli", usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.", subcommands = {
+@Command(name = "lbvpn-cli", versionProvider = CLI.VersionProvider.class, usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.", subcommands = {
 		Connections.class, Connect.class, Create.class, Delete.class, Disconnect.class, Exit.class, Show.class,
 		About.class, Edit.class, Update.class, Debug.class, Config.class, Shutdown.class })
 @Bundle
 @Resource({"default-log4j-cli\\.properties"})
 public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBusClient<VPNConnection> {
 
-	static Logger log;
+	public class VersionProvider implements IVersionProvider {
+        @Override
+        public String[] getVersion() throws Exception {
+            return new String[] {
+                AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-cli"),
+                "dbus-java-" + AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
+            };
+        }
+    }
+
+    static Logger log;
 
 	public final static ResourceBundle BUNDLE = ResourceBundle.getBundle(CLI.class.getName());
 
@@ -188,6 +199,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 		var console = getConsole();
 		var writer = console.out();
 		writer.println(String.format("CLI Version: %s", getVersion()));
+        writer.println(String.format("DBus Version: %s", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")));
 		getVPN().ifPresentOrElse(vpn -> {
 			writer.println(String.format("Service Version: %s", vpn.getVersion()));
 			writer.println(String.format("Device Name: %s", vpn.getDeviceName()));
@@ -391,7 +403,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 
 	@Override
 	public String getVersion() {
-		return AppVersion.getVersion("com.logonbox/client-logonbox-vpn-cli");
+		return AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-cli");
 	}
 
 	@Override

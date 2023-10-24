@@ -35,8 +35,6 @@ import javax.net.ssl.SSLParameters;
 
 public abstract class AbstractService<CONX extends IVPNConnection> implements LocalContext<CONX>, Listener {
 
-	public static final String ARTIFACT_COORDS = "com.logonbox/client-logonbox-vpn-service";
-
 //	static Logger log;
 
 	private ScheduledExecutorService queue = Executors.newSingleThreadScheduledExecutor();

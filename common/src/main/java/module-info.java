@@ -15,6 +15,7 @@ open module com.logonbox.vpn.common.client {
     requires java.prefs;
     requires java.xml;
     requires com.sshtools.liftlib;
+    requires static uk.co.bithatch.nativeimage.annotations;
     requires transitive jakarta.json;
     
     uses DNSProvider.Factory;

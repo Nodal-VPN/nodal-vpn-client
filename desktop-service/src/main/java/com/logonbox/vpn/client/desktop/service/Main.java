@@ -64,7 +64,7 @@ import picocli.CommandLine.Option;
 import uk.co.bithatch.nativeimage.annotations.Bundle;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 
-@Command(name = "logonbox-vpn-service", mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.")
+@Command(name = "lbvpn-service", mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.")
 @Bundle
 @Resource({"default-log-service\\.properties", "default-log4j-service-console\\.properties"})
 public class Main extends AbstractService<VPNConnection> implements Callable<Integer>, DesktopServiceContext, Listener {
@@ -206,8 +206,9 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 			else if (cfgLevel != null) {
 				setLevel(cfgLevel);
 			}
-			log.info(String.format("LogonBox VPN Client, version %s",
-					AppVersion.getVersion(Main.ARTIFACT_COORDS)));
+			log.info(String.format("VPN Desktop Service Version: %s",
+					AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop-service")));
+	        log.info(String.format("DBus Version: %s", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")));
 			log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch")
 					+ " (" + System.getProperty("os.version") + ")"));
 
@@ -758,28 +759,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 					disconnectAndRetry();
 			    }
 			});
-	//		conn.addSigHandler(org.freedesktop.dbus.interfaces.Local.Disconnected.class,
-	//				new DBusSigHandler<org.freedesktop.dbus.interfaces.Local.Disconnected>() {
-	//
-	//					@Override
-	//					public void handle(org.freedesktop.dbus.interfaces.Local.Disconnected sig) {
-	//						try {
-	//							conn.removeSigHandler(org.freedesktop.dbus.interfaces.Local.Disconnected.class, this);
-	//						} catch (DBusException e1) {
-	//						}
-	//						log.info("Disconnected from Bus, retrying");
-	//						conn = null;
-	//						connTask = queue.schedule(() -> {
-	//							try {
-	//								connect();
-	//								publishDefaultServices();
-	//							} catch (DBusException | IOException e) {
-	//							}
-	//						}, 10, TimeUnit.SECONDS);
-	//
-	//					}
-	//				});
-	
+
 			try {
 				/* NOTE: Work around for Hello message not having been completely sent before trying to request name */
 				while(true) {
