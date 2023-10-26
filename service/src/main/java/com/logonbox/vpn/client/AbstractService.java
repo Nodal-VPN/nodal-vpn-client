@@ -1,6 +1,6 @@
 package com.logonbox.vpn.client;
 
-import com.logonbox.vpn.client.common.AbstractClient;
+import com.logonbox.vpn.client.common.App;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.ConnectionRepository;
@@ -113,7 +113,7 @@ public abstract class AbstractService<CONX extends IVPNConnection> implements Lo
 	@Override
 	public final  CookieStore getCookieStore() {
 		if (cookieStore == null) {
-			cookieStore = new CustomCookieStore(new File(AbstractClient.CLIENT_HOME, "service-cookies.dat"));
+			cookieStore = new CustomCookieStore(new File(App.CLIENT_HOME, "service-cookies.dat"));
 		}
 		return cookieStore;
 	}

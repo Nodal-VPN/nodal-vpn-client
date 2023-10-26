@@ -7,16 +7,14 @@ open module com.logonbox.vpn.client.common {
     exports com.logonbox.vpn.client.common.lbapi;
 
     requires transitive com.logonbox.vpn.drivers.lib;
-    requires org.slf4j;
-    requires info.picocli;
     requires transitive java.net.http;
-    requires static com.install4j.runtime;
     requires java.naming;
     requires java.prefs;
     requires java.xml;
-    requires com.sshtools.liftlib;
-    requires static uk.co.bithatch.nativeimage.annotations;
+    requires transitive com.sshtools.liftlib;
     requires transitive jakarta.json;
+    
+    requires static uk.co.bithatch.nativeimage.annotations;
     
     uses DNSProvider.Factory;
 }

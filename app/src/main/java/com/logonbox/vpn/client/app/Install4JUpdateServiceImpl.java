@@ -1,4 +1,4 @@
-package com.logonbox.vpn.client.common;
+package com.logonbox.vpn.client.app;
 
 import com.install4j.api.context.UserCanceledException;
 import com.install4j.api.launcher.ApplicationLauncher;
@@ -6,6 +6,8 @@ import com.install4j.api.update.ApplicationDisplayMode;
 import com.install4j.api.update.UpdateChecker;
 import com.install4j.api.update.UpdateDescriptor;
 import com.install4j.api.update.UpdateDescriptorEntry;
+import com.logonbox.vpn.client.common.AbstractUpdateService;
+import com.logonbox.vpn.client.common.VpnManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,7 @@
 package com.logonbox.vpn.client.desktop.service;
 
 import com.logonbox.vpn.client.AbstractService;
-import com.logonbox.vpn.client.common.AbstractClient;
+import com.logonbox.vpn.client.common.App;
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
@@ -16,6 +16,7 @@ import com.logonbox.vpn.client.desktop.service.dbus.VPNImpl;
 import com.logonbox.vpn.client.logging.SimpleLogger;
 import com.logonbox.vpn.client.logging.SimpleLoggerConfiguration;
 import com.logonbox.vpn.client.service.ClientService.Listener;
+import com.sshtools.liftlib.Helper;
 import com.sshtools.liftlib.OS;
 
 import org.freedesktop.dbus.bin.EmbeddedDBusDaemon;
@@ -107,6 +108,9 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 	private ScheduledFuture<?> connTask;
 	private ScheduledFuture<?> checkTask;
 
+    @Option(names = { "--elevate" }, hidden = true, paramLabel = "URI", description = "Elevated helper.")
+    private Optional<String> elevate = Optional.empty();
+
     @Option(names = { "-L", "--log-level" }, paramLabel = "LEVEL", description = "Logging level for trouble-shooting.")
     private Optional<Level> level;
 
@@ -191,7 +195,11 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
     }
 
 	@Override
-	public Integer call() throws Exception {
+	public final Integer call() throws Exception {
+	    if(elevate.isPresent()) {
+	        Helper.main(new String[] {elevate.get()});
+	        return 0;
+	    }
 
 		File logs = new File("logs");
 		logs.mkdirs();
@@ -846,7 +854,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 		if (path != null) {
 			file = new File(path);
 		} else if (Boolean.getBoolean("logonbox.development")) {
-			file = new File(AbstractClient.CLIENT_CONFIG_HOME, type + ".properties");
+			file = new File(App.CLIENT_CONFIG_HOME, type + ".properties");
 		} else {
 			file = new File("conf" + File.separator + type + ".properties");
 		}

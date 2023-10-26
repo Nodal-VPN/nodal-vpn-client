@@ -1,7 +1,7 @@
 package com.logonbox.vpn.client.mobile;
 
+import com.logonbox.vpn.client.app.AbstractApp;
 import com.logonbox.vpn.client.attach.wireguard.MobilePlatformService;
-import com.logonbox.vpn.client.common.AbstractClient;
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ClientPromptingCertManager;
 import com.logonbox.vpn.client.common.PromptingCertManager;
@@ -34,7 +34,7 @@ import picocli.CommandLine.Parameters;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;
 
 @Command(name = "lbvpn-mobile-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.", versionProvider = Main.VersionProvider.class)
-public class Main extends AbstractClient<EmbeddedVPNConnection> implements Callable<Integer>, AppContext  {
+public class Main extends AbstractApp<EmbeddedVPNConnection> implements Callable<Integer>, AppContext  {
 
     @Reflectable
     public final static class VersionProvider implements IVersionProvider {

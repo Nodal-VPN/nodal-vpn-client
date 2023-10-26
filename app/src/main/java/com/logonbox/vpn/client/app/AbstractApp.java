@@ -1,6 +1,13 @@
-package com.logonbox.vpn.client.common;
+package com.logonbox.vpn.client.app;
 
+import com.logonbox.vpn.client.common.AbstractVpnManager;
+import com.logonbox.vpn.client.common.CustomCookieStore;
+import com.logonbox.vpn.client.common.DummyUpdateService;
+import com.logonbox.vpn.client.common.NoUpdateService;
+import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
+import com.logonbox.vpn.client.common.UpdateService;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IVPN;
 import com.logonbox.vpn.client.common.api.IVPNConnection;
 import com.logonbox.vpn.drivers.lib.util.OsUtil;
@@ -23,11 +30,7 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
-public abstract class AbstractClient<CONX extends IVPNConnection> extends AbstractVpnManager<CONX> {
-
-	public final static File CLIENT_HOME = new File(
-			System.getProperty("user.home") + File.separator + ".logonbox-vpn-client");
-	public final static File CLIENT_CONFIG_HOME = new File(CLIENT_HOME, "conf");
+public abstract class AbstractApp<CONX extends IVPNConnection> extends AbstractVpnManager<CONX> {
 
 	final static int DEFAULT_TIMEOUT = 10000;
 	static Logger log;
@@ -47,7 +50,7 @@ public abstract class AbstractClient<CONX extends IVPNConnection> extends Abstra
 	private CookieStore cookieStore;
 	private Properties instanceProperties = new Properties();
 
-	protected AbstractClient() {
+	protected AbstractApp() {
 		certManager = createCertManager();
 		if(certManager != null)
 		    certManager.installCertificateVerifier();
@@ -156,7 +159,7 @@ public abstract class AbstractClient<CONX extends IVPNConnection> extends Abstra
 
 	protected Logger getLog() {
 		if (log == null) {
-			log = LoggerFactory.getLogger(AbstractClient.class);
+			log = LoggerFactory.getLogger(AbstractApp.class);
 		}
 		return log;
 	}

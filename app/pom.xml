@@ -6,8 +6,8 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>client-logonbox-vpn-common-dbus</artifactId>
-    <name>LogonBox VPN - Common DBus Classes</name>
+    <artifactId>client-logonbox-vpn-app</artifactId>
+    <name>LogonBox VPN - Application Classes</name>
 
     <parent>
         <groupId>com.logonbox</groupId>
@@ -20,11 +20,18 @@
         <dependency>
             <groupId>com.logonbox</groupId>
             <artifactId>client-logonbox-vpn-common</artifactId>
-            <version>${project.version}</version>
+            <version>4.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.github.hypfvieh</groupId>
-            <artifactId>dbus-java-core</artifactId>
+            <groupId>com.install4j</groupId>
+            <artifactId>install4j-runtime</artifactId>
+
+            <!-- MUST be provided, the runtime is added by I4J itself -->
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -64,5 +71,5 @@
             </plugin>
         </plugins>
     </build>
-    <description>Library for all components of the VPN client that use DBus.</description>
+    <description>Library for all applications in the VPN client suite.</description>
 </project>

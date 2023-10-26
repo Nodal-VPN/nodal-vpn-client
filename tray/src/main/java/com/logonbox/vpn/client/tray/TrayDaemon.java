@@ -5,9 +5,9 @@ import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.Utils;
-import com.logonbox.vpn.client.common.dbus.AbstractDBusClient;
 import com.logonbox.vpn.client.common.dbus.RemoteUI;
 import com.logonbox.vpn.client.common.dbus.VPNConnection;
+import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
 import com.logonbox.vpn.client.logging.SimpleLoggerConfiguration;
 import com.sshtools.liftlib.OS;
 import com.sshtools.twoslices.Slice;
@@ -40,7 +40,7 @@ import uk.co.bithatch.nativeimage.annotations.TypeReflect;
 @Resource(siblings = true, value = { "default-log4j-tray\\.properties" })
 @Reflectable
 @TypeReflect(classes = true, fields = true, methods = true)
-public class TrayDaemon extends AbstractDBusClient implements Callable<Integer> {
+public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
     @Reflectable
     public final static class VersionProvider implements IVersionProvider {
         

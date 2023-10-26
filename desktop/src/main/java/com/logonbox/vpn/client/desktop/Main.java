@@ -8,7 +8,7 @@ import com.logonbox.vpn.client.common.NoUpdateService;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.Utils;
-import com.logonbox.vpn.client.common.dbus.AbstractDBusClient;
+import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
 import com.logonbox.vpn.client.gui.jfx.AppContext;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
@@ -46,7 +46,7 @@ import uk.co.bithatch.nativeimage.annotations.Reflectable;
 
 @Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.", versionProvider = Main.VersionProvider.class
 )
-public class Main extends AbstractDBusClient implements Callable<Integer>, Listener, AppContext {
+public class Main extends AbstractDBusApp implements Callable<Integer>, Listener, AppContext {
 	static Logger log;
 	
 	@Reflectable

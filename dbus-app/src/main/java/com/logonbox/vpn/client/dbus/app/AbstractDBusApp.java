@@ -1,14 +1,16 @@
-package com.logonbox.vpn.client.common.dbus;
+package com.logonbox.vpn.client.dbus.app;
 
-import com.logonbox.vpn.client.common.AbstractClient;
+import com.logonbox.vpn.client.app.AbstractApp;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
-import com.logonbox.vpn.client.common.dbus.RemoteUI.ConfirmedExit;
 import com.logonbox.vpn.client.common.Utils;
+import com.logonbox.vpn.client.common.dbus.RemoteUI;
+import com.logonbox.vpn.client.common.dbus.RemoteUI.ConfirmedExit;
+import com.logonbox.vpn.client.common.dbus.VPN;
+import com.logonbox.vpn.client.common.dbus.VPNConnection;
 
-import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.connections.IDisconnectCallback;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
@@ -19,31 +21,23 @@ import org.freedesktop.dbus.exceptions.DBusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import picocli.CommandLine.Option;
 
-public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> implements DBusClient<VPNConnection> {
-
-	public final static File CLIENT_HOME = new File(
-			System.getProperty("user.home") + File.separator + ".logonbox-vpn-client");
-	public final static File CLIENT_CONFIG_HOME = new File(CLIENT_HOME, "conf");
-
-	public interface BusLifecycleListener {
-		void busInitializer(AbstractConnection connection) throws DBusException;
-
-		default void busGone() {
-		}
-	}
+public abstract class AbstractDBusApp extends AbstractApp<VPNConnection> {
 
 	final static int DEFAULT_TIMEOUT = 10000;
 	private static Logger log;
@@ -70,7 +64,7 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
     private List<AutoCloseable> altHandles = Collections.emptyList();
     private DBusConnection altConn;
 
-	protected AbstractDBusClient() {
+	protected AbstractDBusApp() {
 	    super();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -272,7 +266,7 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
 
 	protected Logger getLog() {
 		if (log == null) {
-			log = LoggerFactory.getLogger(AbstractDBusClient.class);
+			log = LoggerFactory.getLogger(AbstractDBusApp.class);
 		}
 		return log;
 	}
@@ -462,5 +456,37 @@ public abstract class AbstractDBusClient extends AbstractClient<VPNConnection> i
 	}
 
 	protected abstract PromptingCertManager createCertManager();
-
+	
+	static String getServerDBusAddress(String addressFile) {
+        Properties properties = new Properties();
+        Path file;
+        if(addressFile != null)
+            file = Paths.get(addressFile);
+        else if (System.getProperty("lbvpn.dbus") != null) {
+            file = Paths.get(System.getProperty("lbvpn.dbus"));
+        } else if (Files.exists(Paths.get("pom.xml"))) {
+            /* Decide whether to look for side-by-side `dbus-daemon`, or if the
+             * service is running with an embedded bus (legacy mode)
+             */
+            var dbusDaemonProps = Paths.get("..", "dbus-daemon", "conf", "dbus.properties");
+            if(Files.exists(dbusDaemonProps))
+                file = dbusDaemonProps;
+            else
+                file = Paths.get("..", "service", "conf", "dbus.properties");
+        } else {
+            file = Paths.get("conf", "dbus.properties");
+        }
+        if (Files.exists(file)) {
+            try (var in = Files.newInputStream(file)) {
+                properties.load(in);
+                String addr = properties.getProperty("address", "");
+                if (addr.equals(""))
+                    throw new IllegalStateException("DBus address file exists, but has no content.");
+                return addr;
+            } catch (IOException ioe) {
+                throw new IllegalStateException("Failed to read DBus address file.", ioe);
+            }
+        } else
+            return null;
+    }
 }

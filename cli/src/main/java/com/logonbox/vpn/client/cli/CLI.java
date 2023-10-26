@@ -14,16 +14,15 @@ import com.logonbox.vpn.client.cli.commands.Help;
 import com.logonbox.vpn.client.cli.commands.Show;
 import com.logonbox.vpn.client.cli.commands.Shutdown;
 import com.logonbox.vpn.client.cli.commands.Update;
-import com.logonbox.vpn.client.common.ClientPromptingCertManager;
 import com.logonbox.vpn.client.common.AppVersion;
+import com.logonbox.vpn.client.common.ClientPromptingCertManager;
 import com.logonbox.vpn.client.common.PromptingCertManager;
-import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.UpdateService;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.VpnManager;
-import com.logonbox.vpn.client.common.dbus.AbstractDBusClient;
-import com.logonbox.vpn.client.common.dbus.DBusClient;
 import com.logonbox.vpn.client.common.dbus.VPN;
 import com.logonbox.vpn.client.common.dbus.VPNConnection;
+import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
 import com.logonbox.vpn.client.logging.SimpleLoggerConfiguration;
 import com.logonbox.vpn.drivers.lib.util.Util;
 
@@ -59,7 +58,7 @@ import uk.co.bithatch.nativeimage.annotations.Resource;
 		About.class, Edit.class, Update.class, Debug.class, Config.class, Shutdown.class })
 @Bundle
 @Resource({"default-log4j-cli\\.properties"})
-public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBusClient<VPNConnection> {
+public class CLI extends AbstractDBusApp implements Runnable, CLIContext {
 
     @Reflectable
 	public final static class VersionProvider implements IVersionProvider {

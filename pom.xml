@@ -68,6 +68,8 @@
         <module>common</module>
         <module>dbus</module>
         <module>dbus-daemon</module>
+        <module>dbus-client</module>
+        <module>app</module>
 		<module>service</module>
 		<module>tray</module>
 		<module>embedded</module>
