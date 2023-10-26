@@ -53,6 +53,14 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-jpms</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform-jpms</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.logonbox</groupId>
             <artifactId>client-logonbox-vpn-logging</artifactId>
             <version>${project.version}</version>

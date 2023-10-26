@@ -1,6 +1,6 @@
 import com.logonbox.vpn.drivers.lib.DNSProvider;
 
-open module com.logonbox.vpn.common.client {
+open module com.logonbox.vpn.client.common {
 
     exports com.logonbox.vpn.client.common;
     exports com.logonbox.vpn.client.common.api;

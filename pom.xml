@@ -56,6 +56,7 @@
 		
         <native.maven.plugin.version>0.9.23</native.maven.plugin.version>
         <gluonfx.maven.plugin.version>1.0.21</gluonfx.maven.plugin.version>
+        <jna.version>5.13.0</jna.version>
         
         <dbus.version>5.0.0-SNAPSHOT</dbus.version>
         <logonbox.vpn.drivers.version>0.0.1-SNAPSHOT</logonbox.vpn.drivers.version>
@@ -69,6 +70,7 @@
         <module>dbus-daemon</module>
 		<module>service</module>
 		<module>tray</module>
+		<module>embedded</module>
 		<module>gui</module>
 		<module>gui-debugger</module>
 		<module>desktop</module>
@@ -186,6 +188,16 @@
                 <artifactId>native-image-annotations</artifactId>
                 <version>${native.image.annotations.version}</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna-jpms</artifactId>
+                <version>${jna.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna-platform-jpms</artifactId>
+                <version>${jna.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

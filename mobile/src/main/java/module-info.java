@@ -4,7 +4,7 @@ open module com.logonbox.vpn.client.mobile {
     exports com.logonbox.vpn.client.mobile;
 
     requires transitive com.logonbox.vpn.client.gui.jfx;
-    requires transitive com.logonbox.vpn.client.service;
+    requires transitive com.logonbox.vpn.client.embedded;
     requires com.logonbox.vpn.client.attach.lbvpn; 
     
     requires com.sshtools.twoslices;

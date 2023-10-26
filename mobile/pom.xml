@@ -30,6 +30,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.logonbox</groupId>
+            <artifactId>client-logonbox-vpn-embedded</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>

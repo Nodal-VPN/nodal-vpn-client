@@ -399,7 +399,6 @@ public class DBusDaemon extends Thread implements Closeable {
         }
 
         @Override
-        @SuppressWarnings("checkstyle:innerassignment")
         public UInt32 RequestName(String _name, UInt32 _flags) {
             boolean exists = false;
             synchronized (names) {

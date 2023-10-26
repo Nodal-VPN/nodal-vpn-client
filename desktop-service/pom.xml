@@ -100,7 +100,6 @@
                 <dependency>
                     <groupId>com.logonbox</groupId>
                     <artifactId>logonbox-vpn-windows</artifactId>
-                    <version>${logonbox.vpn.drivers.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -129,7 +128,6 @@
                 <dependency>
                     <groupId>com.logonbox</groupId>
                     <artifactId>logonbox-vpn-macos</artifactId>
-                    <version>${logonbox.vpn.drivers.version}</version>
                 </dependency>
             </dependencies>
         </profile>

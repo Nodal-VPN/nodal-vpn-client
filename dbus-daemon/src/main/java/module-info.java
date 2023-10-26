@@ -7,5 +7,7 @@ open module com.logonbox.vpn.client.dbus.daemon {
     requires com.logonbox.vpn.client.logging;
     requires info.picocli;
     requires jul.to.slf4j;
+    requires com.sun.jna;
+    requires com.sun.jna.platform;
     
 }

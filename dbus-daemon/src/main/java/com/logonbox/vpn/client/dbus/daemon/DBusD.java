@@ -2,155 +2,41 @@ package com.logonbox.vpn.client.dbus.daemon;
 
 import com.logonbox.vpn.client.logging.SimpleLoggerConfiguration;
 
-import org.freedesktop.dbus.bin.EmbeddedDBusDaemon;
 import org.freedesktop.dbus.connections.BusAddress;
+import org.freedesktop.dbus.connections.transports.AbstractTransport;
 import org.freedesktop.dbus.connections.transports.TransportBuilder;
 import org.freedesktop.dbus.connections.transports.TransportBuilder.SaslAuthMode;
+import org.freedesktop.dbus.exceptions.AuthenticationException;
+import org.freedesktop.dbus.exceptions.SocketClosedException;
+import org.freedesktop.dbus.utils.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.slf4j.event.Level;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.prefs.Preferences;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.IVersionProvider;
 import picocli.CommandLine.Option;
-import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 
-@Command(name = "lbvpn-dbus-daemon", usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "A DBus Daemon.", versionProvider = DBusD.VersionProvider.class)
+@Command(name = "lbvpn-dbus-daemon", usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "A DBus Daemon.", versionProvider = VersionProvider.class)
 @Resource("META-INF/maven/.*")
 public class DBusD implements Callable<Integer> {
     static Logger log;
     
-    @Reflectable(all= true)
-    public final static class VersionProvider implements IVersionProvider {
-        static Map<String, String> versions = Collections.synchronizedMap(new HashMap<>());
-
-        public VersionProvider() {
-        }
-        
-        public static String getVersion(String groupId, String artifactId) {
-            return getVersion(null, groupId, artifactId);
-        }
-        
-        public static boolean isDeveloperWorkspace() {
-            return Files.exists(Paths.get("pom.xml"));
-        }
-        
-        public static String getSerial() {
-            var pref = Preferences.userRoot().node("com/hypersocket/json/version");
-            var newPrefs = Preferences.userNodeForPackage(DBusD.class);
-            
-            var hypersocketId = System.getProperty("hypersocket.id", "hypersocket-one");
-            if(pref.get(hypersocketId, null) != null) {
-                newPrefs.put("serial", hypersocketId);
-                pref.remove(hypersocketId);
-            }
-            
-            var serial = newPrefs.get("serial", null);
-            if(serial == null) {
-                serial = UUID.randomUUID().toString();
-                pref.put("serial", serial);
-            }
-            return serial;
-        }
-        
-        public static String getVersion(String installerShortName, String groupId, String artifactId) {
-            String detectedVersion = versions.getOrDefault(groupId+ ":" + artifactId, "");
-            if (!detectedVersion.equals(""))
-                return detectedVersion;
-            
-            if (detectedVersion.equals("")) {       
-        
-                // try to load from maven properties first
-                try {
-                    var p = new Properties();
-                    var is = DBusD.class.getClassLoader()
-                            .getResourceAsStream("META-INF/maven/" + groupId + "/" + artifactId + "/pom.properties");
-                    if (is == null) {
-                        is = DBusD.class
-                                .getResourceAsStream("/META-INF/maven/" + groupId + "/" + artifactId + "/pom.properties");
-                    }
-                    if (is != null) {
-                        try {
-                            p.load(is);
-                            detectedVersion = p.getProperty("version", "");
-                        } finally {
-                            is.close();
-                        }
-                    }
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
-
-            // fallback to using Java API
-            if (detectedVersion.equals("")) {
-                var aPackage = DBusD.class.getPackage();
-                if (aPackage != null) {
-                    detectedVersion = aPackage.getImplementationVersion();
-                    if (detectedVersion == null) {
-                        detectedVersion = aPackage.getSpecificationVersion();
-                    }
-                }
-                if (detectedVersion == null)
-                    detectedVersion = "";
-            }
-
-            if (detectedVersion.equals("")) {
-                try {
-                    var docBuilderFactory = DocumentBuilderFactory.newInstance();
-                    var docBuilder = docBuilderFactory.newDocumentBuilder();
-                    var doc = docBuilder.parse(new File("pom.xml"));
-                    if(doc.getDocumentElement().getElementsByTagName("name").item(0).getTextContent().equals(artifactId) && doc.getDocumentElement().getElementsByTagName("group").item(0).getTextContent().equals(groupId)) {
-                        detectedVersion = doc.getDocumentElement().getElementsByTagName("version").item(0).getTextContent();
-                    }
-                } catch (Exception e) {
-                }
-
-            }
-
-            if (detectedVersion.equals("")) {
-                detectedVersion = "DEV_VERSION";
-            }
-
-            /* Treat snapshot versions as build zero */
-            if (detectedVersion.endsWith("-SNAPSHOT")) {
-                detectedVersion = detectedVersion.substring(0, detectedVersion.length() - 9) + "-0";
-            }
-
-            versions.put(groupId+ ":" + artifactId, detectedVersion);
-
-            return detectedVersion;
-        }
-
-        @Override
-        public String[] getVersion() throws Exception {
-            return new String[] {
-                "DBus Daemon: " + getVersion("com.logonbox", "client-logonbox-vpn-dbus-daemon"),
-                "DBus Java: " + getVersion("com.github.hypfvieh", "dbus-java-core")
-            };
-        }
-    }
-
     public static void main(String[] args) throws Exception {
         System.exit(new CommandLine(new DBusD()).execute(args));
     }
@@ -239,6 +125,22 @@ public class DBusD implements Callable<Integer> {
         // generate a random address if none specified
         if (address.isEmpty() && (unix || !tcp)) {
             addr = TransportBuilder.createDynamicSession("UNIX", true);
+            var sysTemp = System.getProperty("java.io.tmpdir");
+            
+            if (SystemUtil.isUnixLike()) {
+                /* Work around for Mac OS X. We need the domain socket file to be created
+                 * somewhere that can be read by anyone. /var/folders/zz/XXXXXXXXXXXXXXXXXXXXxxx/T/dbus-XXXXXXXXX cannot be 
+                 * read by a "Normal User" without elevating.
+                 */
+                addr = adjustListeningPathToPublicPath("/var/run", "lbvpn-dbus-daemon", addr, sysTemp);
+            }
+            else if (Util.isWindows()) {
+                /* Work around for Windows. We need the domain socket file to be created
+                 * somewhere that can be read by anyone. 
+                 * C:\Windows\Temp\dbus-XXXXXXXXX cannot be read by a "Normal User" without elevating.
+                 */
+                addr = adjustListeningPathToPublicPath("C:\\User\\Public", "LogonBox\\VPN", addr, sysTemp);
+            }
         } else if (address.isEmpty() && tcp) {
             addr = TransportBuilder.createDynamicSession("TCP", true);
         } else
@@ -283,12 +185,69 @@ public class DBusD implements Callable<Integer> {
 
         // start the daemon
         log.info("Binding to {}", addr);
-        try (EmbeddedDBusDaemon daemon = new EmbeddedDBusDaemon(BusAddress.of(addr))) {
-            daemon.setSaslAuthMode(authMode);
-            daemon.startInForeground();
-        }
+        try (AbstractTransport transport = TransportBuilder.create(addr).configure()
+                .withUnixSocketFilePermissions(PosixFilePermission.values())
+                .withAfterBindCallback(x -> {
+                    var busAddr = x.getTransportConfig().getBusAddress();
+                    if (Util.isWindows() && busAddr.getBusType().equals("UNIX")) {
+                        var busPath = Paths.get(busAddr.getParameterValue("path"));
+                        try {
+                            WindowsFileSecurity.openToEveryone(busPath);
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    }
+                })
+                .withAutoConnect(false)
+                .configureSasl().
+                    withAuthMode(authMode).
+                back()
+                .back()
+                .build()) {
+            
+            try(var daemon = new DBusDaemon(transport)) {
+                do {
+                    try {
+                        log.debug("Begin listening to: {}", transport);
+                        var s = transport.listen();
+                        daemon.addSock(s);
+                    } catch (AuthenticationException _ex) {
+                        log.error("Authentication failed", _ex);
+                    } catch (SocketClosedException _ex) {
+                        log.debug("Connection closed", _ex);
+                    }
 
-        return null;
+                } while (daemon.isRunning());    
+            }
+        }
+        
+        return 0;
+    }
+
+    private String adjustListeningPathToPublicPath(String publicDirStr, String childDir, String addr, String sysTemp) throws IOException {
+        Path publicDir;
+        if(VersionProvider.isDeveloperWorkspace()) {
+            publicDir = Paths.get("tmp", "run");
+            if (!Files.exists(publicDir)) {
+                Files.createDirectories(publicDir);
+            }
+        }
+        else {
+            publicDir = Paths.get(publicDirStr);
+        }
+        if (Files.exists(publicDir)) {
+            var vpnAppData = publicDir.resolve(childDir);
+            if (!Files.exists(vpnAppData))
+                Files.createDirectories(vpnAppData);
+
+            var newAddr = addr.replace("path=" + sysTemp,
+                    "path=" + vpnAppData.toString());
+            if(!Objects.equals(newAddr, addr)) {
+                log.info(String.format("Adjusting DBus path from %s to %s (%s)", addr, newAddr, sysTemp));
+                addr = newAddr;
+            }
+        }
+        return addr;
     }
 
     private static void saveFile(String _data, Path file, boolean _insecure, String key) throws IOException {

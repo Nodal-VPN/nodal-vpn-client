@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.6" transformSequenceNumber="10">
-  <directoryPresets config="./os/windows/win32-x86-64/vcruntime140.dll" />
+  <directoryPresets config="../cli" />
   <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" pack200Compression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="20" javaMaxVersion="20" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
@@ -14,7 +14,6 @@
   </application>
   <files keepModificationTimes="true" globalExcludeSuffixes="*.ser" defaultOverwriteMode="1" defaultUninstallMode="2">
     <roots>
-      <root id="2027" location="${installer:sys.system32Dir}" />
       <root id="2036" location="/etc/dbus-1/system.d" />
     </roots>
     <mountPoints>
@@ -26,7 +25,6 @@
       <mountPoint id="2041" location="images" />
       <mountPoint id="2189" location="converter" />
       <mountPoint id="2032" />
-      <mountPoint id="2028" root="2027" />
       <mountPoint id="2037" root="2036" />
     </mountPoints>
     <entries>
@@ -50,10 +48,6 @@
       <fileEntry mountPoint="2032" file="./WireGuardNT-LICENSE.txt" />
       <fileEntry mountPoint="2032" file="target/CHANGES.md" />
       <fileEntry mountPoint="2032" file="./WIREGUARD-LICENSE.txt" />
-      <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/network-configuration-service.exe" />
-      <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/vcruntime140.dll" />
-      <fileEntry mountPoint="2028" file="../client-logonbox-vpn-service/src/main/resources/win32-x86-64/tunnel.dll" shared="true" />
-      <fileEntry mountPoint="2028" file="../client-logonbox-vpn-service/src/main/resources/win32-x86-64/wireguard.dll" shared="true" />
       <fileEntry mountPoint="2037" file="./os/linux/dbus/logonbox-vpn-service.conf" />
     </entries>
     <components>

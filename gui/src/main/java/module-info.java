@@ -2,7 +2,6 @@
 open module com.logonbox.vpn.client.gui.jfx {
     exports com.logonbox.vpn.client.gui.jfx;
     
-    requires transitive com.logonbox.vpn.common.client;
     requires java.desktop;
     requires transitive com.sshtools.twoslices;
     requires transitive java.prefs;
@@ -17,5 +16,6 @@ open module com.logonbox.vpn.client.gui.jfx {
     requires com.sshtools.liftlib;
     requires jakarta.json;
     requires static uk.co.bithatch.nativeimage.annotations;
+    requires transitive com.logonbox.vpn.client.common;
     
 }

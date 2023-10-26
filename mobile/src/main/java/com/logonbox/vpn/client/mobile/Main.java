@@ -1,19 +1,16 @@
 package com.logonbox.vpn.client.mobile;
 
-import com.logonbox.vpn.client.AbstractService;
 import com.logonbox.vpn.client.attach.wireguard.MobilePlatformService;
 import com.logonbox.vpn.client.common.AbstractClient;
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ClientPromptingCertManager;
-import com.logonbox.vpn.client.common.ConfigurationItem;
-import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.PromptingCertManager;
-import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
-import com.logonbox.vpn.client.common.api.IVPN;
+import com.logonbox.vpn.client.embedded.EmbeddedService;
+import com.logonbox.vpn.client.embedded.EmbeddedVPN;
+import com.logonbox.vpn.client.embedded.EmbeddedVPNConnection;
 import com.logonbox.vpn.client.gui.jfx.AppContext;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
 import com.logonbox.vpn.client.logging.SimpleLoggerConfiguration;
-import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.ServiceLoader;
-import java.util.ServiceLoader.Provider;
 import java.util.concurrent.Callable;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import javafx.application.Platform;
 import javafx.scene.control.Alert.AlertType;
@@ -122,7 +115,6 @@ public class Main extends AbstractClient<EmbeddedVPNConnection> implements Calla
     private String uri;
 
     private Level defaultLogLevel = Level.INFO;
-    private  EmbeddedService srv;
 
     protected static Optional<UIContext<EmbeddedVPNConnection>> uiContext = Optional.empty();
 
@@ -309,10 +301,8 @@ public class Main extends AbstractClient<EmbeddedVPNConnection> implements Calla
 
     @Override
     protected void onInit() throws Exception {
-        var vpn = new EmbeddedVPN(srv, this);
-        setVPN(vpn);
         try {
-            srv = new EmbeddedService(BUNDLE, this::getVPNOrFail);
+            setVPN(new EmbeddedVPN(new EmbeddedService(this, BUNDLE, this::getVPNOrFail, pf -> pf instanceof MobilePlatformService.MobilePlatformServiceFactory), this));
         } catch (Exception e) {
             throw new IllegalStateException("Failed to start embedded VPN service.", e);
         }
@@ -322,176 +312,4 @@ public class Main extends AbstractClient<EmbeddedVPNConnection> implements Calla
     protected void onLazyInit() throws Exception {
         init();
     }
-    
-    final class EmbeddedService extends AbstractService<EmbeddedVPNConnection> {
-
-		private Level logLevel = Level.INFO;
-		private final Level defaultLogLevel = logLevel;
-        private final Supplier<IVPN<EmbeddedVPNConnection>> vpn;
-
-		protected EmbeddedService(ResourceBundle bundle, Supplier<IVPN<EmbeddedVPNConnection>> vpn) throws Exception {
-			super(bundle);
-			this.vpn = vpn;
-			
-			log.info("Starting in-process VPN service.");
-
-			if (!buildServices()) {
-				throw new Exception("Failed to build DBus services.");
-			}
-
-			if (!startServices()) {
-				throw new Exception("Failed to start DBus services.");
-			}
-
-			Runtime.getRuntime().addShutdownHook(new Thread() {
-				@Override
-                public void run() {
-					close();
-				}
-			});
-
-			startSavedConnections();
-		}
-	    
-	    @Override
-	    protected Logger getLogger() {
-	        return log;
-	    }
-
-		@Override
-	    protected PlatformServiceFactory createPlatformServiceFactory() {
-		    /* Find first supported MobilePlatformService. This will delegate to the actual
-		     * service, or one of the native mobile implementations.
-		     */
-            var layer = getClass().getModule().getLayer();
-            Stream<Provider<PlatformServiceFactory>> impls;
-            if(layer == null)
-                impls = ServiceLoader.load(PlatformServiceFactory.class).stream();
-            else
-                impls = ServiceLoader.load(layer, PlatformServiceFactory.class).stream();
-            return impls.filter(
-                    p -> p.get() instanceof MobilePlatformService.MobilePlatformServiceFactory && p.get().isSupported())
-                    .findFirst().map(p -> p.get())
-                    .orElseThrow(() -> new UnsupportedOperationException(String.format(
-                            "The Mobile platform %s not currently supported. There are no mobile platform extensions installed, you may be missing libraries.",
-                            System.getProperty("os.name"))));
-	    }
-
-		@Override
-		public Level getDefaultLevel() {
-			return defaultLogLevel;
-		}
-
-		@Override
-		public void setLevel(Level level) {
-			// TODO reconfigure logging?
-			this.logLevel = level;
-		}
-		
-		EmbeddedVPNConnection wrapConnection(Connection connection) {
-		    return new EmbeddedVPNConnection(srv, connection);
-		}
-
-        @Override
-        public void fireAuthorize(Connection connection, String authorizeUri) {
-            var wrapped = wrapConnection(connection);
-            onAuthorize.forEach(a -> a.authorize(wrapped, authorizeUri, connection.getMode()));
-        }
-
-        @Override
-        public void fireConnectionUpdated(Connection connection) {
-            var wrapped = wrapConnection(connection);
-            onConnectionUpdated.forEach(c -> c.accept(wrapped));
-        }
-
-        @Override
-        public void fireConnectionUpdating(Connection connection) {
-            var wrapped = wrapConnection(connection);
-            onConnectionUpdating.forEach(c -> c.accept(wrapped));
-        }
-
-        @Override
-        public void fireTemporarilyOffline(Connection connection, Exception reason) {
-            var wrapped = wrapConnection(connection);
-            onTemporarilyOffline.forEach(c -> c.accept(wrapped, reason.getMessage() == null ? "" : reason.getMessage()));
-        }
-
-        @Override
-        public void fireConnected(Connection connection) {
-            var wrapped = wrapConnection(connection);
-            onConnected.forEach(c -> c.accept(wrapped));
-        }
-
-        @Override
-        public void fireConnectionAdding() {
-            onConnectionAdding.forEach(c -> c.run());
-        }
-
-        @Override
-        public void connectionAdded(Connection connection) {
-            var wrapped = wrapConnection(connection);
-            onConnectionAdded.forEach(c -> c.accept(wrapped));
-        }
-
-        @Override
-        public void fireConnectionRemoving(Connection connection) {
-            var wrapped = wrapConnection(connection);
-            onConnectionRemoving.forEach(c -> c.accept(wrapped));
-        }
-
-        @Override
-        public void connectionRemoved(Connection connection) {
-            onConnectionRemoved.forEach(c -> c.accept(connection.getId()));
-        }
-
-        @Override
-        public void fireDisconnecting(Connection connection, String reason) {
-            var wrapped = wrapConnection(connection);
-            onDisconnecting.forEach(c -> c.accept(wrapped, reason));
-        }
-
-        @Override
-        public void fireDisconnected(Connection connection, String reason) {
-            var wrapped = wrapConnection(connection);
-            onDisconnected.forEach(c -> c.accept(wrapped, reason));            
-        }
-
-        @Override
-        public void fireConnecting(Connection connection) {
-            var wrapped = wrapConnection(connection);
-            onConnecting.forEach(c -> c.accept(wrapped));
-        }
-
-        @Override
-        public void fireFailed(Connection connection, String message, String cause, String trace) {
-            var wrapped = wrapConnection(connection);
-            onFailure.forEach(c -> c.failure(wrapped, message, cause, trace));
-        }
-
-        @Override
-        public void promptForCertificate(PromptType alertType, String title, String content, String key,
-                String hostname, String message) {
-           getCertManager().promptForCertificate(alertType, title, content, key, hostname, message);
-        }
-
-        @Override
-        public void fireExit() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        protected void onConfigurationChange(ConfigurationItem<?> item, Object oldValue, Object newValue) {
-            onGlobalConfigChanged.forEach(c -> c.accept(item, newValue == null ? "" : newValue.toString()));
-        }
-
-        @Override
-        protected Optional<IVPN<EmbeddedVPNConnection>> buildVpn() {
-            return Optional.of(vpn.get());
-        }
-
-	}
-	
-	static String getOwner() {
-	    return System.getProperty("user.name");
-	}
 }

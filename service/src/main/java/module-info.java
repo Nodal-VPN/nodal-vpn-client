@@ -5,7 +5,7 @@ module com.logonbox.vpn.client.service {
     exports com.logonbox.vpn.client.ini;
     exports com.logonbox.vpn.client.service;
     
-    requires transitive com.logonbox.vpn.common.client;
+    requires transitive com.logonbox.vpn.client.common;
     requires org.slf4j;
     requires java.prefs;
     requires java.net.http;

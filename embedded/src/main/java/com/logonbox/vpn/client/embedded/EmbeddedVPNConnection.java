@@ -1,4 +1,4 @@
-package com.logonbox.vpn.client.mobile;
+package com.logonbox.vpn.client.embedded;
 
 import static com.logonbox.vpn.client.common.Utils.defaultIfBlank;
 

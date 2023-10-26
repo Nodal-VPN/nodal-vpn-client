@@ -1,4 +1,4 @@
-package com.logonbox.vpn.client.mobile;
+package com.logonbox.vpn.client.embedded;
 
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.common.AppVersion;
@@ -9,20 +9,23 @@ import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.api.IVPN;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.UUID;
 
-class EmbeddedVPN implements IVPN<EmbeddedVPNConnection> {
-    /**
-     * 
-     */
+public class EmbeddedVPN implements IVPN<EmbeddedVPNConnection> {
+
+    static Logger log = LoggerFactory.getLogger(EmbeddedVPN.class);
+    
     private final VpnManager<EmbeddedVPNConnection> vpnManager;
     private final LocalContext<EmbeddedVPNConnection> ctx;
 
     /**
      * @param main
      */
-    EmbeddedVPN(LocalContext<EmbeddedVPNConnection> ctx, VpnManager<EmbeddedVPNConnection> vpnManager) {
+    public EmbeddedVPN(LocalContext<EmbeddedVPNConnection> ctx, VpnManager<EmbeddedVPNConnection> vpnManager) {
         this.ctx = ctx;
         this.vpnManager = vpnManager;
     }
@@ -36,7 +39,7 @@ class EmbeddedVPN implements IVPN<EmbeddedVPNConnection> {
 
     @Override
     public String getUUID() {
-        UUID uuid = ctx.getClientService().getUUID(Main.getOwner());
+        UUID uuid = ctx.getClientService().getUUID(getOwner());
         return uuid == null ? null : uuid.toString();
     }
 
@@ -47,7 +50,7 @@ class EmbeddedVPN implements IVPN<EmbeddedVPNConnection> {
 
     @Override
     public long importConfiguration(String configuration) {
-        return ctx.getClientService().importConfiguration(Main.getOwner(), configuration).getId();
+        return ctx.getClientService().importConfiguration(getOwner(), configuration).getId();
     }
 
     @Override
@@ -59,7 +62,7 @@ class EmbeddedVPN implements IVPN<EmbeddedVPNConnection> {
     @Override
     public List<EmbeddedVPNConnection> getConnections() {
         try {
-            return ctx.getClientService().getStatus(Main.getOwner()).stream()
+            return ctx.getClientService().getStatus(getOwner()).stream()
                     .map(s -> new EmbeddedVPNConnection(ctx, s.getConnection())).toList();
         } catch (Exception e) { 
             throw new IllegalStateException("Failed to get connections.", e);
@@ -74,7 +77,7 @@ class EmbeddedVPN implements IVPN<EmbeddedVPNConnection> {
     @Override
     public long getConnectionIdForURI(String uri) {
         try {
-            return ctx.getClientService().getStatus(Main.getOwner(), uri).getConnection().getId();
+            return ctx.getClientService().getStatus(getOwner(), uri).getConnection().getId();
         } catch (IllegalArgumentException iae) {
             return -1;
         }
@@ -83,79 +86,79 @@ class EmbeddedVPN implements IVPN<EmbeddedVPNConnection> {
     @Override
     public long createConnection(String uri, boolean connectAtStartup, boolean stayConnected, String mode) {
         try {
-            ctx.getClientService().getStatus(Main.getOwner(), uri);
+            ctx.getClientService().getStatus(getOwner(), uri);
             throw new IllegalArgumentException(String.format("Connection with URI %s already exists.", uri));
         } catch (Exception e) {
             /* Doesn't exist */
-            return ctx.getClientService().create(uri, Main.getOwner(), connectAtStartup, Mode.valueOf(mode), stayConnected).getId();
+            return ctx.getClientService().create(uri, getOwner(), connectAtStartup, Mode.valueOf(mode), stayConnected).getId();
         }
     }
 
     @Override
     public long connect(String uri) {
-        return ctx.getClientService().connect(Main.getOwner(), uri).getId();
+        return ctx.getClientService().connect(getOwner(), uri).getId();
     }
 
     @Override
     public int getNumberOfConnections() {
-        return ctx.getClientService().getStatus(Main.getOwner()).size();
+        return ctx.getClientService().getStatus(getOwner()).size();
     }
 
     @Override
     public String getValue(String name) {
         ConfigurationItem<?> item = ConfigurationItem.get(name);
-        Object val = ctx.getClientService().getValue(Main.getOwner(), item); 
+        Object val = ctx.getClientService().getValue(getOwner(), item); 
         return val.toString();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void setValue(String name, String value) {
-        ctx.getClientService().setValue(Main.getOwner(), (ConfigurationItem<String>)ConfigurationItem.get(name), value);
+        ctx.getClientService().setValue(getOwner(), (ConfigurationItem<String>)ConfigurationItem.get(name), value);
 
     }
 
     @Override
     public int getIntValue(String key) {
-        return (Integer)ctx.getClientService().getValue(Main.getOwner(), ConfigurationItem.get(key));
+        return (Integer)ctx.getClientService().getValue(getOwner(), ConfigurationItem.get(key));
     }
 
     @Override
     public long getLongValue(String key) {
-        return (Long)ctx.getClientService().getValue(Main.getOwner(), ConfigurationItem.get(key));
+        return (Long)ctx.getClientService().getValue(getOwner(), ConfigurationItem.get(key));
     }
 
     @Override
     public boolean getBooleanValue(String key) {
-        return (Boolean)ctx.getClientService().getValue(Main.getOwner(), ConfigurationItem.get(key));
+        return (Boolean)ctx.getClientService().getValue(getOwner(), ConfigurationItem.get(key));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void setIntValue(String key, int value) {
-        ctx.getClientService().setValue(Main.getOwner(), (ConfigurationItem<Integer>)ConfigurationItem.get(key), value);
+        ctx.getClientService().setValue(getOwner(), (ConfigurationItem<Integer>)ConfigurationItem.get(key), value);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void setLongValue(String key, long value) {
-        ctx.getClientService().setValue(Main.getOwner(), (ConfigurationItem<Long>)ConfigurationItem.get(key), value);
+        ctx.getClientService().setValue(getOwner(), (ConfigurationItem<Long>)ConfigurationItem.get(key), value);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void setBooleanValue(String key, boolean value) {
-        ctx.getClientService().setValue(Main.getOwner(), (ConfigurationItem<Boolean>)ConfigurationItem.get(key), value);     
+        ctx.getClientService().setValue(getOwner(), (ConfigurationItem<Boolean>)ConfigurationItem.get(key), value);     
     }
 
     @Override
     public void disconnectAll() {
-        for (ConnectionStatus s : ctx.getClientService().getStatus(Main.getOwner())) {
+        for (ConnectionStatus s : ctx.getClientService().getStatus(getOwner())) {
             if (s.getStatus() != Type.DISCONNECTED && s.getStatus() != Type.DISCONNECTING) {
                 try {
                     ctx.getClientService().disconnect(s.getConnection(), null);
                 } catch (Exception re) {
-                    Main.log.error("Failed to disconnect " + s.getConnection().getId(), re);
+                    log.error("Failed to disconnect " + s.getConnection().getId(), re);
                 }
             }
         }
@@ -164,7 +167,7 @@ class EmbeddedVPN implements IVPN<EmbeddedVPNConnection> {
     @Override
     public int getActiveButNonPersistentConnections() {
         int active = 0;
-        for (ConnectionStatus s : ctx.getClientService().getStatus(Main.getOwner())) {
+        for (ConnectionStatus s : ctx.getClientService().getStatus(getOwner())) {
             if (s.getStatus() == Type.CONNECTED && !s.getConnection().isStayConnected()) {
                 active++;
             }
@@ -209,6 +212,10 @@ class EmbeddedVPN implements IVPN<EmbeddedVPNConnection> {
 
     @Override
     public boolean isMatchesAnyServerURI(String uri) {
-        return ctx.getClientService().isMatchesAnyServerURI(Main.getOwner(), uri);
+        return ctx.getClientService().isMatchesAnyServerURI(getOwner(), uri);
+    }
+    
+    public static String getOwner() {
+        return System.getProperty("user.name");
     }
 }

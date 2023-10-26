@@ -7,6 +7,7 @@ import com.gluonhq.charm.glisten.mvc.View;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.lbapi.Branding;
+import com.logonbox.vpn.client.embedded.EmbeddedVPNConnection;
 import com.logonbox.vpn.client.gui.jfx.AppContext;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.Debugger;
