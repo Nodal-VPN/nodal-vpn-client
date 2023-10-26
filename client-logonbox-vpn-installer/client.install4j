@@ -81,7 +81,6 @@
       <component name="Client App" id="1677">
         <include>
           <entry location="conf/log4j-gui.properties" />
-          <entry location="conf/gui-forker.cfg" />
           <entry location="bootstrap" />
           <entry location="gui" />
           <entry location="images" />
@@ -97,7 +96,6 @@
       <component name="Command Line Interface" id="1678">
         <include>
           <entry location="conf/log4j-cli.properties" />
-          <entry location="conf/cli-forker.cfg" />
           <entry location="bootstrap" />
           <entry location="cli" />
           <entry location="EULA.txt" />
@@ -517,7 +515,7 @@ return path.replace('\\', '/');</property>
               </action>
               <action id="729" beanClass="com.install4j.runtime.beans.actions.text.FixCrLfAction" actionElevationType="elevated">
                 <serializedBean>
-                  <property name="files" type="array" class="java.io.File" length="12">
+                  <property name="files" type="array" class="java.io.File" length="9">
                     <element index="0">
                       <object class="java.io.File">
                         <string>conf/log4j.properties</string>
@@ -563,21 +561,6 @@ return path.replace('\\', '/');</property>
                         <string>conf/log4j-gui-boot.properties</string>
                       </object>
                     </element>
-                    <element index="9">
-                      <object class="java.io.File">
-                        <string>conf/gui-forker.cfg</string>
-                      </object>
-                    </element>
-                    <element index="10">
-                      <object class="java.io.File">
-                        <string>conf/cli-forker.cfg</string>
-                      </object>
-                    </element>
-                    <element index="11">
-                      <object class="java.io.File">
-                        <string>conf/service-forker.cfg</string>
-                      </object>
-                    </element>
                   </property>
                 </serializedBean>
               </action>
@@ -593,30 +576,6 @@ return path.replace('\\', '/');</property>
                   </property>
                   <property name="replaceValue" type="string">${installer:sys.version}</property>
                   <property name="searchValue" type="string">${appVersion}</property>
-                </serializedBean>
-              </action>
-              <action id="957" beanClass="com.install4j.runtime.beans.actions.text.ModifyTextFileAction" actionElevationType="elevated">
-                <serializedBean>
-                  <property name="encoding" type="string" />
-                  <property name="files" type="array" class="java.io.File" length="3">
-                    <element index="0">
-                      <object class="java.io.File">
-                        <string>conf/gui-forker.cfg</string>
-                      </object>
-                    </element>
-                    <element index="1">
-                      <object class="java.io.File">
-                        <string>conf/service-forker.cfg</string>
-                      </object>
-                    </element>
-                    <element index="2">
-                      <object class="java.io.File">
-                        <string>conf/cli-forker.cfg</string>
-                      </object>
-                    </element>
-                  </property>
-                  <property name="replaceValue" type="string">java ${installer:custom.jrePath}/bin/java</property>
-                  <property name="searchValue" type="string">#java java</property>
                 </serializedBean>
               </action>
               <action id="2199" beanClass="com.install4j.runtime.beans.actions.properties.WritePropertiesFileAction" rollbackBarrierExitCode="0">
