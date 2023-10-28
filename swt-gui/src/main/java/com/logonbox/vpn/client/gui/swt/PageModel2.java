@@ -3,7 +3,6 @@ package com.logonbox.vpn.client.gui.swt;
 import static com.logonbox.vpn.client.common.Utils.isBlank;
 import static com.logonbox.vpn.drivers.lib.util.Util.toHumanSize;
 
-import com.equo.chromium.swt.Browser;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.UpdateService;
@@ -14,7 +13,7 @@ import com.logonbox.vpn.client.common.dbus.VPN;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.common.lbapi.Branding;
 
-//import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.Browser;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
@@ -35,11 +34,11 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public class PageModel {
+public class PageModel2 {
 	
 	static boolean EXPAND_HTML_RESOURCES = Boolean.getBoolean("swt.html.expandResources");
 	
-	final static Logger LOG = LoggerFactory.getLogger(PageModel.class);
+	final static Logger LOG = LoggerFactory.getLogger(PageModel2.class);
 	
 	public interface Page {
 		Map<String, Object> beans();
@@ -55,9 +54,9 @@ public class PageModel {
 	private String disconnectionReason;
 	private Browser browser;
 	private VpnConnection connection;
-	private ServerBridge bridge;
+	private ServerBridge2 bridge;
 	private Map<String, Page> pages = new HashMap<>();
-	private BoundObjects jsobj;
+	private BoundObjects2 jsobj;
 	private String htmlPage;
 	private URL url;
 
@@ -66,7 +65,7 @@ public class PageModel {
     private final UpdateService updateService;
     private final ResourceBundle resources;
 
-	public PageModel(Client client, UpdateService updateService, ResourceBundle resources) {
+	public PageModel2(Client client, UpdateService updateService, ResourceBundle resources) {
 		this.client = client;
 		this.vpnManager = client.getApp().getVpnManager();
 		this.updateService = updateService;
@@ -101,11 +100,11 @@ public class PageModel {
 		pages.put(page, impl);
 	}
 
-	public ServerBridge getBridge() {
+	public ServerBridge2 getBridge() {
 		return bridge;
 	}
 
-	public void setBridge(ServerBridge bridge) {
+	public void setBridge(ServerBridge2 bridge) {
 		this.bridge = bridge;
 	}
 
@@ -271,7 +270,7 @@ public class PageModel {
 			LOG.info("Processing bindings");
 		var baseHtmlPage = getBaseHtml();
 
-		jsobj = new BoundObjects(browser);
+		jsobj = new BoundObjects2(browser);
 		jsobj.bind(ServerBridge.class, "bridge", bridge);
 		if(!isRemote()) {
 			try {

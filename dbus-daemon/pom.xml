@@ -91,6 +91,12 @@
     <profiles>
         <profile>
             <id>native-image</id>
+            <activation>
+                <property>
+                    <name>build.natives</name>
+                    <value>true</value>
+                </property>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -117,7 +123,7 @@
                             <metadataRepository>
                                 <enabled>true</enabled>
                             </metadataRepository>
-                            <imageName>lbvpn-dbus-daemon</imageName>
+                            <imageName>logonbox-vpn-dbus-daemon</imageName>
                             <mainClass>com.logonbox.vpn.client.dbus.daemon.DBusD</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>

@@ -4,7 +4,6 @@ import static com.logonbox.vpn.client.common.Utils.defaultIfBlank;
 import static com.logonbox.vpn.client.common.Utils.isBlank;
 import static com.logonbox.vpn.client.common.Utils.isNotBlank;
 
-import com.equo.chromium.swt.Browser;
 import com.logonbox.vpn.client.common.AuthenticationCancelledException;
 import com.logonbox.vpn.client.common.BrandingManager;
 import com.logonbox.vpn.client.common.BrandingManager.ImageHandler;
@@ -26,6 +25,7 @@ import com.logonbox.vpn.client.common.lbapi.LogonResult;
 import com.sshtools.liftlib.OS;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.browser.ProgressEvent;
@@ -88,9 +88,9 @@ import netscape.javascript.JSObject;
 import uk.co.bithatch.nativeimage.annotations.Bundle;
 
 @Bundle
-public class UI {
+public class UI2 {
 
-	static ResourceBundle BUNDLE = ResourceBundle.getBundle(UI.class.getName());
+	static ResourceBundle BUNDLE = ResourceBundle.getBundle(UI2.class.getName());
 
 	public static final class ServiceClientAuthenticator implements ServiceClient.Authenticator {
         private final VpnManager<VpnConnection> vpnManager;
@@ -190,10 +190,10 @@ public class UI {
 	public static final class Register implements Runnable {
 		private final VpnConnection selectedConnection;
 		private final ServiceClient serviceClient;
-		private final UI ui;
+		private final UI2 ui;
 		private final Display display;
 
-		public Register(Display display, VpnConnection selectedConnection, ServiceClient serviceClient, UI ui) {
+		public Register(Display display, VpnConnection selectedConnection, ServiceClient serviceClient, UI2 ui) {
 			this.selectedConnection = selectedConnection;
 			this.serviceClient = serviceClient;
 			this.ui = ui;
@@ -215,7 +215,7 @@ public class UI {
 		}
 	}
 
-	final static ResourceBundle bundle = ResourceBundle.getBundle(UI.class.getName());
+	final static ResourceBundle bundle = ResourceBundle.getBundle(UI2.class.getName());
 
 //	@SuppressWarnings("unchecked")
 //	static <T> T memberOrDefault(JSObject obj, String member, Class<T> clazz, T def) {
@@ -239,14 +239,14 @@ public class UI {
 
 	static int DROP_SHADOW_SIZE = 11;
 
-	final static Logger LOG = LoggerFactory.getLogger(UI.class);
+	final static Logger LOG = LoggerFactory.getLogger(UI2.class);
 
 	private final List<VpnConnection> connecting = new ArrayList<>();
 //	private String lastErrorMessage;
 //	private String lastErrorCause;
 //	private String lastException;
 	private Runnable runOnNextLoad;
-	private ServerBridge bridge;
+	private ServerBridge2 bridge;
 	private Browser browser;
 //	private ToolItem close;
 //	private ToolItem minimize;
@@ -272,12 +272,12 @@ public class UI {
     private final Shell shell;
     private final Display display;
     private final Main main;
-    private final PageModel pageModel;
+    private final PageModel2 pageModel;
     private final Client context;
 
     private final BrandingManager<VpnConnection, Image> brandingManager;
 
-	public UI(Shell shell, Client context, Main main, Display display) {
+	public UI2(Shell shell, Client context, Main main, Display display) {
 		this.shell = shell;
 		this.main = main;
 		this.display = display;
@@ -285,7 +285,7 @@ public class UI {
 
 		vpnManager = main.getVpnManager();
 		updateService = main.getUpdateService();
-		pageModel = new PageModel(context, updateService, BUNDLE);
+		pageModel = new PageModel2(context, updateService, BUNDLE);
 		
 		brandingManager = new BrandingManager<>(vpnManager, new ImageHandler<Image>() {
 
@@ -496,7 +496,7 @@ public class UI {
 		stack.pack();
 		scene.pack();
 
-		bridge = new ServerBridge(this, context);
+		bridge = new ServerBridge2(this, context);
 		pageModel.setBridge(bridge);
 
 		setAvailable();
@@ -1108,7 +1108,7 @@ public class UI {
 					}
 				}.start();
 			} else if (darkMode != null) {
-				UI.this.reapplyColors();
+				UI2.this.reapplyColors();
 				setHtmlPage("options.html", true);
 			}
 
@@ -1141,7 +1141,7 @@ public class UI {
 					} catch (Exception e) {
 						throw new IllegalStateException("Failed to set cookie.", e);
 					}
-					pageModel.setUserStyleSheetLocation(UI.class.getResource("remote.css").toExternalForm());
+					pageModel.setUserStyleSheetLocation(UI2.class.getResource("remote.css").toExternalForm());
 					if (htmlPage.contains("?"))
 						htmlPage += "&_=" + Math.random();
 					else
@@ -1169,7 +1169,7 @@ public class UI {
 
 					setupPage();
 					String loc = htmlPage;
-					URL resource = UI.class.getResource(pageModel.getBaseHtml());
+					URL resource = UI2.class.getResource(pageModel.getBaseHtml());
 					if (resource == null)
 						throw new FileNotFoundException(String.format("No page named %s.", htmlPage));
 					loc = resource.toExternalForm();
@@ -1364,7 +1364,7 @@ public class UI {
 	private void reapplyLogo() {
 
 		// TODO dispose images
-		var defaultLogo = UI.class.getResource("logonbox-titlebar-logo.png");
+		var defaultLogo = UI2.class.getResource("logonbox-titlebar-logo.png");
 		var branding = pageModel.getBranding();
 		if ((branding == null
 				|| isBlank(branding.logo()) && !defaultLogo.equals(titleBarImageViewUrl))) {
@@ -1618,7 +1618,7 @@ public class UI {
 
 	public static FontData loadFont(int sz, String resourceName, String fontName, Display swtDisplay) {
 		FontData fontdata = null;
-		var fontFile = UI.class.getResource(resourceName);
+		var fontFile = UI2.class.getResource(resourceName);
 		File realFontFile = null;
 		if (fontFile != null && (!fontFile.getProtocol().equals("file") || !new File(fontFile.getPath()).exists())) {
 			try {

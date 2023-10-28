@@ -1,20 +1,18 @@
 package com.logonbox.vpn.client.gui.swt;
 
-import com.equo.chromium.swt.Browser;
-
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-//import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.Browser;
 
-public class BoundObjects {
+public class BoundObjects2 {
 
-	private final Map<String, Binding> members = new LinkedHashMap<>();
-	private final Map<Object, Binding> objects = new HashMap<>();
+	private final Map<String, Binding2> members = new LinkedHashMap<>();
+	private final Map<Object, Binding2> objects = new HashMap<>();
 	private final Browser browser;
 
-	public BoundObjects(Browser browser) {
+	public BoundObjects2(Browser browser) {
 		this.browser = browser;
 	}
 
@@ -29,14 +27,14 @@ public class BoundObjects {
 		return objects.containsKey(object);
 	}
 	
-	public Binding bind(Class<?> type, Object object) {
+	public Binding2 bind(Class<?> type, Object object) {
 		return bind(type, Binding.toFqn(type, object), object);
 	}
 	
-	public Binding bind(Class<?> type, String name, Object object) {
+	public Binding2 bind(Class<?> type, String name, Object object) {
 		if (members.containsKey(name))
 			throw new IllegalStateException(String.format("%s is already bound.", name));
-		var b = new Binding(name, browser, type, object, this);
+		var b = new Binding2(name, browser, type, object, this);
 		members.put(name, b);
 		objects.put(object, b);
 		return b;

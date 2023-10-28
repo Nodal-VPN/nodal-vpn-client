@@ -70,48 +70,15 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>public-releases</id>
-            <name>public-releases</name>
-            <url>https://artifactory.jadaptive.com/public-releases</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases />
-        </repository>
-        <repository>
-            <id>public-snapshots</id>
-            <name>public-snapshots</name>
-            <url>https://artifactory.jadaptive.com/public-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots />
-        </repository>
-        <repository>
-            <id>opensource-releases</id>
-            <name>opensource-releases</name>
-            <url>https://artifactory.jadaptive.com/opensource-releases</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases />
-        </repository>
-        <repository>
-            <id>opensource-snapshots</id>
-            <name>opensource-snapshots</name>
-            <url>https://artifactory.jadaptive.com/opensource-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots />
-        </repository>
-    </repositories>
-
     <profiles>
         <profile>
-            <id>native</id>
+            <id>native-image</id>
+            <activation>
+                <property>
+                    <name>build.natives</name>
+                    <value>true</value>
+                </property>
+            </activation>
             <build>
                 <plugins>
                     <plugin>

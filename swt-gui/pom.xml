@@ -255,6 +255,12 @@
         </profile>
         <profile>
             <id>native-image</id>
+            <activation>
+                <property>
+                    <name>build.natives</name>
+                    <value>true</value>
+                </property>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -281,7 +287,7 @@
                             <metadataRepository>
                                 <enabled>true</enabled>
                             </metadataRepository>
-                            <imageName>lbvpn-gui-swt</imageName>
+                            <imageName>logonbox-vpn-gui-swt</imageName>
                             <mainClass>com.logonbox.vpn.client.gui.swt.SWTTest</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>

@@ -179,7 +179,7 @@
                             <metadataRepository>
                                 <enabled>true</enabled>
                             </metadataRepository>
-                            <imageName>lbvpn-service</imageName>
+                            <imageName>logonbox-vpn-service</imageName>
                             <mainClass>com.logonbox.vpn.client.desktop.service.Main</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>

@@ -258,7 +258,7 @@
                             <metadataRepository>
                                 <enabled>true</enabled>
                             </metadataRepository>
-                            <imageName>lbvpn-gui</imageName>
+                            <imageName>logonbox-vpn-gui</imageName>
                             <mainClass>com.logonbox.vpn.client.desktop.Main</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>

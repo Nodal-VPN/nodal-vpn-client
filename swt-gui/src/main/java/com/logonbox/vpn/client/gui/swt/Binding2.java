@@ -1,14 +1,12 @@
 package com.logonbox.vpn.client.gui.swt;
 
-import com.equo.chromium.swt.Browser;
-import com.equo.chromium.swt.BrowserFunction;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.logonbox.vpn.client.common.Utils;
 
-//import org.eclipse.swt.browser.Browser;
-//import org.eclipse.swt.browser.BrowserFunction;
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.BrowserFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,20 +17,20 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-public class Binding {
-	final static Logger LOG = LoggerFactory.getLogger(Binding.class);
+public class Binding2 {
+	final static Logger LOG = LoggerFactory.getLogger(Binding2.class);
 
 	private String js;
 	private Browser browser;
 	private List<BrowserFunction> functions = new ArrayList<>();
-	private BoundObjects bindings;
+	private BoundObjects2 bindings;
 	private String name;
 
-	Binding(Object object) {
+	Binding2(Object object) {
 		this(null, null, object == null ? null : object.getClass(), object, null);
 	}
 
-	Binding(String name, Browser browser, Class<?> type, Object object, BoundObjects bindings) {
+	Binding2(String name, Browser browser, Class<?> type, Object object, BoundObjects2 bindings) {
 		this.browser = browser;
 		this.bindings = bindings;
 		this.name = name;
@@ -177,9 +175,9 @@ public class Binding {
 
 		private final Method method;
 		private final Object object;
-		private final Binding binding;
+		private final Binding2 binding;
 
-		public ProxiedFunction(Browser browser, String name, Object object, Method method, Binding binding) {
+		public ProxiedFunction(Browser browser, String name, Object object, Method method, Binding2 binding) {
 			super(browser, name);
 			this.method = method;
 			this.object = object;
@@ -248,7 +246,7 @@ public class Binding {
 					return binding.bindings.getVar(res);
 				} else {
 					var name = toFqn(res.getClass(), res);
-					var tmpBind = new Binding(res);
+					var tmpBind = new Binding2(res);
 					binding.browser.getDisplay().asyncExec(() -> {
 						binding.bindings.bind(res.getClass(), name, res);
 					});

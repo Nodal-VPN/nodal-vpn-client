@@ -194,7 +194,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <imageName>lbvpn-cli</imageName>
+                            <imageName>logonbox-vpn-cli</imageName>
                             <mainClass>com.logonbox.vpn.client.cli.CLI</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>

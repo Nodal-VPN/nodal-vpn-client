@@ -232,6 +232,12 @@
         </profile>
         <profile>
             <id>native-image</id>
+            <activation>
+                <property>
+                    <name>build.natives</name>
+                    <value>true</value>
+                </property>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -258,7 +264,7 @@
                             <metadataRepository>
                                 <enabled>true</enabled>
                             </metadataRepository>
-                            <imageName>lbvpn-tray</imageName>
+                            <imageName>logonbox-vpn-tray</imageName>
                             <mainClass>com.logonbox.vpn.client.tray.TrayDaemon</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>
