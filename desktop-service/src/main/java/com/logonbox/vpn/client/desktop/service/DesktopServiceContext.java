@@ -1,15 +1,15 @@
 package com.logonbox.vpn.client.desktop.service;
 
 import com.logonbox.vpn.client.LocalContext;
-import com.logonbox.vpn.client.common.dbus.VPNConnection;
 import com.logonbox.vpn.client.common.dbus.VPNFrontEnd;
+import com.logonbox.vpn.client.common.dbus.VpnConnection;
 
 import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.messages.Message;
 
 import java.util.Collection;
 
-public interface DesktopServiceContext extends LocalContext<VPNConnection> {
+public interface DesktopServiceContext extends LocalContext<VpnConnection> {
 
     void deregisterFrontEnd(String source);
 

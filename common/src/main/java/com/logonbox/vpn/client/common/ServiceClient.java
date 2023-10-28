@@ -1,6 +1,6 @@
 package com.logonbox.vpn.client.common;
 
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.client.common.lbapi.InputField;
 import com.logonbox.vpn.client.common.lbapi.LogonResult;
 import com.logonbox.vpn.client.common.lbapi.Session;
@@ -93,7 +93,7 @@ public class ServiceClient {
 		this.certManager = certManager;
 	}
 
-	protected String doGet(IVPNConnection connection, String url, NameValuePair... headers)
+	protected String doGet(IVpnConnection connection, String url, NameValuePair... headers)
 			throws IOException, InterruptedException, URISyntaxException {
 
 		if (!url.startsWith("/")) {
@@ -115,7 +115,7 @@ public class ServiceClient {
 		return response.body();
 	}
 
-	protected HttpClient getHttpClient(IVPNConnection connection) {
+	protected HttpClient getHttpClient(IVpnConnection connection) {
 		if (cookieHandler == null) {
 //			cookieHandler = CookieManager.getDefault();
 			cookieHandler = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ALL);
@@ -147,7 +147,7 @@ public class ServiceClient {
 		}
 	}
 
-	public void register(IVPNConnection connection) throws IOException, URISyntaxException {
+	public void register(IVpnConnection connection) throws IOException, URISyntaxException {
 		Session session;
 		try {
 			session = auth(connection);
@@ -207,7 +207,7 @@ public class ServiceClient {
 		}
 	}
 
-	protected void configure(IVPNConnection config, String configIniFile, String usernameHint) throws IOException {
+	protected void configure(IVpnConnection config, String configIniFile, String usernameHint) throws IOException {
 		log.info(String.format("Configuration for %s", usernameHint));
 		config.setUsernameHint(usernameHint);
 		
@@ -220,7 +220,7 @@ public class ServiceClient {
 		config.authorized();
 	}
 
-	protected Session auth(IVPNConnection connection) throws IOException, URISyntaxException, InterruptedException {
+	protected Session auth(IVpnConnection connection) throws IOException, URISyntaxException, InterruptedException {
 
 		JsonObject i18n;
 		try {
@@ -261,7 +261,7 @@ public class ServiceClient {
 		throw new IOException("Authentication failed.");
 	}
 
-	protected String doPost(IVPNConnection connection, String url, NameValuePair... postVariables)
+	protected String doPost(IVpnConnection connection, String url, NameValuePair... postVariables)
 			throws URISyntaxException, IOException, InterruptedException {
 
 		if (!url.startsWith("/")) {

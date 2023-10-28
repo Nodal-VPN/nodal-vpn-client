@@ -66,15 +66,18 @@
 	<modules>
         <module>logging</module>
         <module>common</module>
+        <module>platform</module>
         <module>dbus</module>
         <module>dbus-daemon</module>
         <module>dbus-client</module>
         <module>app</module>
+        <module>dbus-app</module>
 		<module>service</module>
 		<module>tray</module>
 		<module>embedded</module>
 		<module>gui</module>
 		<module>gui-debugger</module>
+		<module>swt-gui</module>
 		<module>desktop</module>
 		<module>desktop-service</module>
 		<module>cli</module>

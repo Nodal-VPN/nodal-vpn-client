@@ -1,0 +1,48 @@
+[
+{
+  "name":"com.equo.chromium.ChromiumFragment"
+},
+{
+  "name":"com.equo.chromium.internal.Engine"
+},
+{
+  "name":"com.equo.chromium.swt.internal.Chromium",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.callback.CefCommandLine_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.callback.CefSchemeRegistrar_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.browser.CefMessageRouter$CefMessageRouterConfig",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.browser.CefMessageRouter_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.browser.CefFrame_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.misc.Rectangle",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.misc.Cursor",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.network.CefRequest_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.browser.CefPopup",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+}
+]

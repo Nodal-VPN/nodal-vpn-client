@@ -3,7 +3,7 @@ package com.logonbox.vpn.client.tray;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
-import com.logonbox.vpn.client.common.dbus.VPNConnection;
+import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.sshtools.liftlib.OS;
 import com.sshtools.twoslices.ToasterFactory;
 
@@ -45,8 +45,8 @@ public class SWTTray extends AbstractTray {
 		display = Display.getDefault();
 		shell = new Shell(display, SWT.NONE);
 		display.asyncExec(() -> {
-			var connected = context.isBusAvailable();
-			List<VPNConnection> conx = connected ? context.getVPNConnections() : Collections.emptyList();
+			var connected = context.getVpnManager().isBackendAvailable();
+            List<VpnConnection> conx = connected ? context.getVpnManager().getVpn().map(vpn -> vpn.getConnections()).orElse(Collections.emptyList()) : Collections.emptyList();
 			adjustTray(connected, conx);
 		});
 	}
@@ -70,8 +70,8 @@ public class SWTTray extends AbstractTray {
 	public void reload() {
 		display.asyncExec(() -> {
 			try {
-				var connected = context.isBusAvailable();
-				List<VPNConnection> conx = connected ? context.getVPNConnections() : Collections.emptyList();
+				var connected = context.getVpnManager().isBackendAvailable();
+				List<VpnConnection> conx = connected ? context.getVpnManager().getVpn().map(vpn -> vpn.getConnections()).orElse(Collections.emptyList()) : Collections.emptyList();
 				rebuildMenu(connected, conx);
 				setImage(connected, conx);
 			} catch (Exception re) {
@@ -104,7 +104,7 @@ public class SWTTray extends AbstractTray {
 		}
 	}
 
-	Menu addDevice(VPNConnection device, Menu menu, List<VPNConnection> devs) throws IOException {
+	Menu addDevice(VpnConnection device, Menu menu, List<VpnConnection> devs) throws IOException {
 
 		/* Open */
 		Type status = Type.valueOf(device.getStatus());
@@ -115,7 +115,7 @@ public class SWTTray extends AbstractTray {
 			disconnectDev.addSelectionListener(new SelectionListener() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					context.getScheduler().execute(() -> device.disconnect(""));
+					context.getQueue().execute(() -> device.disconnect(""));
 				}
 
 				@Override
@@ -130,7 +130,7 @@ public class SWTTray extends AbstractTray {
 			openDev.addSelectionListener(new SelectionListener() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					context.getScheduler().execute(() -> device.connect());
+					context.getQueue().execute(() -> device.connect());
 				}
 
 				@Override
@@ -143,9 +143,9 @@ public class SWTTray extends AbstractTray {
 		return menu;
 	}
 
-	void adjustTray(boolean connected, List<VPNConnection> devs) {
-		TrayMode icon = context.isBusAvailable()
-				? TrayMode.valueOf(context.getVPNOrFail().getValue(ConfigurationItem.TRAY_MODE.getKey()))
+	void adjustTray(boolean connected, List<VpnConnection> devs) {
+		TrayMode icon = context.getVpnManager().isBackendAvailable()
+				? TrayMode.valueOf(context.getVpnManager().getVpnOrFail().getValue(ConfigurationItem.TRAY_MODE.getKey()))
 				: TrayMode.AUTO;
 		if (systemTray == null && !Objects.equals(icon, TrayMode.OFF)) {
 			disposeIcon();
@@ -204,7 +204,7 @@ public class SWTTray extends AbstractTray {
 		menus.clear();
 	}
 
-	private void rebuildMenu(boolean connected, List<VPNConnection> devs) {
+	private void rebuildMenu(boolean connected, List<VpnConnection> devs) {
 		clearMenus();
 		if (systemTray != null) {
 
@@ -283,12 +283,12 @@ public class SWTTray extends AbstractTray {
 		}
 	}
 
-	private void setImage(boolean connected, List<VPNConnection> devs) {
+	private void setImage(boolean connected, List<VpnConnection> devs) {
 		disposeImage();
 		try {
 			Image image;
-			if (context.isBusAvailable()) {
-				TrayMode icon = TrayMode.valueOf(context.getVPNOrFail().getValue(ConfigurationItem.TRAY_MODE.getKey()));
+			if (context.getVpnManager().isBackendAvailable()) {
+				TrayMode icon = TrayMode.valueOf(context.getVpnManager().getVpnOrFail().getValue(ConfigurationItem.TRAY_MODE.getKey()));
 				if (TrayMode.LIGHT.equals(icon)) {
 					disposableImage = image = overlay(SWTTray.class.getResource("light-logonbox-icon64x64.png"), 48,
 							devs);
@@ -315,7 +315,7 @@ public class SWTTray extends AbstractTray {
 		}
 	}
 
-	protected Image overlay(URL resource, int sz, List<VPNConnection> devs) {
+	protected Image overlay(URL resource, int sz, List<VpnConnection> devs) {
 		Image image;
 		try (var in = resource.openStream()) {
 			image = new Image(display, in);

@@ -4,7 +4,7 @@ import com.logonbox.vpn.client.cli.StateHelper;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
-import com.logonbox.vpn.client.common.dbus.VPNConnection;
+import com.logonbox.vpn.client.common.dbus.VpnConnection;
 
 import java.util.concurrent.Callable;
 
@@ -48,7 +48,7 @@ public class Create extends AbstractConnectionCommand implements Callable<Intege
 
 		var cli = getCLI();
 		var vpnManager = cli.getVpnManager();
-        var connectionId = vpnManager.getVPNOrFail().getConnectionIdForURI(uriObj.toASCIIString());
+        var connectionId = vpnManager.getVpnOrFail().getConnectionIdForURI(uriObj.toASCIIString());
 		var console = cli.getConsole();
 		var err = console.err();
 		var out = console.out();
@@ -60,13 +60,14 @@ public class Create extends AbstractConnectionCommand implements Callable<Intege
 			return 1;
 		}
 
-		connectionId = vpnManager.getVPNOrFail().createConnection(uriObj.toASCIIString(), connectAtStartup, stayConnected, mode.name());
+		connectionId = vpnManager.getVpnOrFail().createConnection(uriObj.toASCIIString(), connectAtStartup, stayConnected, mode.name());
 		if (!dontConnectNow) {
-			var connection = vpnManager.getVPNConnection(connectionId);
+		    var vpn = vpnManager.getVpnOrFail();
+			var connection = vpn.getConnection(connectionId);
 			if (background) {
 				connection.connect();
 			} else {
-				try (var stateHelper = new StateHelper((VPNConnection) connection, cli.getBus())) {
+				try (var stateHelper = new StateHelper((VpnConnection) connection, cli.getVpnManager())) {
 					stateHelper.on(Type.AUTHORIZING, (state, mode) -> {
 						if (mode.equals(Mode.SERVICE)) {
 							register(cli, connection, out, err);

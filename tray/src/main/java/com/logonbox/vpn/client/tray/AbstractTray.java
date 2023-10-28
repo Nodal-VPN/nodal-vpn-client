@@ -20,20 +20,21 @@ public abstract class AbstractTray implements AutoCloseable, Tray, PreferenceCha
 		this.context = context;
 		
 		try {
+            var mgr = context.getVpnManager();
             listeners = Arrays.asList(
-                context.onVpnGone(this::reload),
-                context.onVpnAvailable(() -> {
+                mgr.onVpnGone(this::reload),
+                mgr.onVpnAvailable(() -> {
                     if(!constructing)
                         reload();
                 }),
-                context.onConnectionAdded(conx -> reload()),
-                context.onConnectionUpdated(conx -> reload()),
-                context.onConnectionRemoved(id -> reload()),
-                context.onConnecting(conx -> reload()),
-                context.onConnected(conx -> reload()),
-                context.onDisconnecting((conx,reason) -> reload()),
-                context.onDisconnected((conx, reason) -> reload()),
-                context.onTemporarilyOffline((conx, reason) -> reload())
+                mgr.onConnectionAdded(conx -> reload()),
+                mgr.onConnectionUpdated(conx -> reload()),
+                mgr.onConnectionRemoved(id -> reload()),
+                mgr.onConnecting(conx -> reload()),
+                mgr.onConnected(conx -> reload()),
+                mgr.onDisconnecting((conx,reason) -> reload()),
+                mgr.onDisconnected((conx, reason) -> reload()),
+                mgr.onTemporarilyOffline((conx, reason) -> reload())
             );
 
             Configuration.getDefault().node().addPreferenceChangeListener(this);

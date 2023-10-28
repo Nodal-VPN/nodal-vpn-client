@@ -4,31 +4,31 @@ import java.util.ResourceBundle;
 
 public abstract class ClientPromptingCertManager extends PromptingCertManager {
 	
-	private final VpnManager<?> context;
+    private final VpnManager<?> vpnManager;
 
-	public ClientPromptingCertManager(ResourceBundle bundle, VpnManager<?> dbusClient) {
+	public ClientPromptingCertManager(ResourceBundle bundle, AppContext<?> context) {
 		super(bundle);
-		this.context = dbusClient;
+        vpnManager = context.getVpnManager();
 	}
 
 	@Override
 	public boolean isAccepted(String encodedKey) {
-		return context.getVPNOrFail().isCertAccepted(encodedKey);
+        return vpnManager.getVpnOrFail().isCertAccepted(encodedKey);
 	}
 
 	@Override
 	public void accept(String encodedKey) {
-		context.getVPNOrFail().acceptCert(encodedKey);
+	    vpnManager.getVpnOrFail().acceptCert(encodedKey);
 	}
 
 	@Override
 	public void reject(String encodedKey) {
-		context.getVPNOrFail().rejectCert(encodedKey);
+	    vpnManager.getVpnOrFail().rejectCert(encodedKey);
 	}
 
 	@Override
 	public void save(String encodedKey) {
-		context.getVPNOrFail().saveCert(encodedKey);
+	    vpnManager.getVpnOrFail().saveCert(encodedKey);
 	}
 
 }

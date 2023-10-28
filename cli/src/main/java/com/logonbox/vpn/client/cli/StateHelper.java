@@ -2,25 +2,19 @@ package com.logonbox.vpn.client.cli;
 
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
-import com.logonbox.vpn.client.common.dbus.VPNConnection;
-import com.logonbox.vpn.client.common.dbus.VPNConnection.Authorize;
-import com.logonbox.vpn.client.common.dbus.VPNConnection.Connected;
-import com.logonbox.vpn.client.common.dbus.VPNConnection.Connecting;
-import com.logonbox.vpn.client.common.dbus.VPNConnection.Disconnected;
-import com.logonbox.vpn.client.common.dbus.VPNConnection.Disconnecting;
-import com.logonbox.vpn.client.common.dbus.VPNConnection.Failed;
-import com.logonbox.vpn.client.common.dbus.VPNConnection.TemporarilyOffline;
+import com.logonbox.vpn.client.common.VpnManager;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
+import com.logonbox.vpn.client.common.dbus.VpnConnection;
 
-import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
-import org.freedesktop.dbus.interfaces.DBusSigHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -32,82 +26,33 @@ public class StateHelper implements Closeable {
 		void state(Type state, Mode mode) throws Exception;
 	}
 
-	private AbstractConnection bus;
-	private IVPNConnection connection;
-	private Type currentState;
-	private DBusSigHandler<Authorize> authorizeSigHandler;
-	private DBusSigHandler<Connected> startedSigHandler;
-	private DBusSigHandler<Connecting> joiningSigHandler;
-	private DBusSigHandler<Failed> failedSigHandler;
-	private DBusSigHandler<Disconnected> disconnectedSigHandler;
-	private DBusSigHandler<Disconnecting> disconnectingSigHandler;
-	private DBusSigHandler<TemporarilyOffline> temporarilyOfflineSigHandler;
-	private Object lock = new Object();
+	private final IVpnConnection connection;
+    private final List<AutoCloseable> handles;
+    private final Map<Type, StateChange> onState = new HashMap<>();
+	private final Object lock = new Object();
+	
+    private Type currentState;
 	private boolean interrupt;
-	private Map<Type, StateChange> onState = new HashMap<>();
 	private Exception error;
 
-	public StateHelper(VPNConnection connection, AbstractConnection bus) throws DBusException {
-		this.connection = connection;
-		this.bus = bus;
-		currentState = Type.valueOf(connection.getStatus());
-		bus.addSigHandler(VPNConnection.Disconnecting.class, connection,
-				disconnectingSigHandler = new DBusSigHandler<VPNConnection.Disconnecting>() {
-					@Override
-					public void handle(VPNConnection.Disconnecting sig) {
-						stateChange();
-					}
-				});
-		bus.addSigHandler(VPNConnection.Disconnected.class, connection,
-				disconnectedSigHandler = new DBusSigHandler<VPNConnection.Disconnected>() {
-					@Override
-					public void handle(VPNConnection.Disconnected sig) {
-						stateChange();
-					}
-				});
-		bus.addSigHandler(VPNConnection.Failed.class, connection,
-				failedSigHandler = new DBusSigHandler<VPNConnection.Failed>() {
-					@Override
-					public void handle(VPNConnection.Failed sig) {
-						stateChange();
-					}
-				});
-		bus.addSigHandler(VPNConnection.Connecting.class, connection,
-				joiningSigHandler = new DBusSigHandler<VPNConnection.Connecting>() {
-					@Override
-					public void handle(VPNConnection.Connecting sig) {
-						stateChange();
-					}
-				});
-		bus.addSigHandler(VPNConnection.Connected.class, connection,
-				startedSigHandler = new DBusSigHandler<VPNConnection.Connected>() {
-					@Override
-					public void handle(VPNConnection.Connected sig) {
-						stateChange();
-					}
-				});
-		bus.addSigHandler(VPNConnection.Authorize.class, connection,
-				authorizeSigHandler = new DBusSigHandler<VPNConnection.Authorize>() {
-					@Override
-					public void handle(VPNConnection.Authorize sig) {
-						stateChange();
-					}
-				});
-		bus.addSigHandler(VPNConnection.Failed.class, connection,
-				failedSigHandler = new DBusSigHandler<VPNConnection.Failed>() {
-					@Override
-					public void handle(VPNConnection.Failed sig) {
-						stateChange();
-					}
-				});
-		bus.addSigHandler(VPNConnection.TemporarilyOffline.class, connection,
-				temporarilyOfflineSigHandler = new DBusSigHandler<VPNConnection.TemporarilyOffline>() {
-					@Override
-					public void handle(VPNConnection.TemporarilyOffline sig) {
-						stateChange();
-					}
-				});
+	public StateHelper(VpnConnection connection, VpnManager<VpnConnection> manager) throws DBusException {
+        this.connection = connection;
+        currentState = Type.valueOf(connection.getStatus());
+        handles = Arrays.asList(
+                manager.onDisconnecting((conx, reason) -> changed(conx)),
+                manager.onDisconnected((conx, reason) -> changed(conx)),
+                manager.onFailure((conx, message, cause, trace) -> changed(conx)),
+                manager.onConnecting(conx -> changed(conx)), 
+                manager.onConnected(conx -> changed(conx)),
+                manager.onAuthorize((conx, uri, mode) -> changed(conx)),
+                manager.onTemporarilyOffline((conx, reason) -> changed(conx)));
 	}
+
+    protected void changed(VpnConnection changedConnection) {
+        if(changedConnection.equals(connection)) {
+              stateChange();
+          }
+    }
 
 	public Type waitForStateNot(Type... state) throws InterruptedException {
 		return waitForStateNot(-1, state);
@@ -188,18 +133,14 @@ public class StateHelper implements Closeable {
 
 	@Override
 	public void close() throws IOException {
-		try {
-			onState.clear();
-			bus.removeSigHandler(VPNConnection.Authorize.class, authorizeSigHandler);
-			bus.removeSigHandler(VPNConnection.Connected.class, startedSigHandler);
-			bus.removeSigHandler(VPNConnection.Connecting.class, joiningSigHandler);
-			bus.removeSigHandler(VPNConnection.Failed.class, failedSigHandler);
-			bus.removeSigHandler(VPNConnection.Disconnected.class, disconnectedSigHandler);
-			bus.removeSigHandler(VPNConnection.Disconnecting.class, disconnectingSigHandler);
-			bus.removeSigHandler(VPNConnection.TemporarilyOffline.class, temporarilyOfflineSigHandler);
-		} catch (DBusException dbe) {
-			throw new IOException("Failed to remove signal handlers.", dbe);
-		}
+		onState.clear();
+		handles.forEach(h -> {
+            try {
+                h.close();
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to close handle.");
+            }
+        });
 	}
 
 	boolean isState(Type... state) {

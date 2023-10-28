@@ -4,13 +4,12 @@ import com.goxr3plus.fxborderlessscene.borderless.BorderlessScene;
 import com.jthemedetecor.OsThemeDetector;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.Utils;
-import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.dbus.RemoteUI;
-import com.logonbox.vpn.client.common.dbus.VPNConnection;
+import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.common.lbapi.Branding;
-import com.logonbox.vpn.client.gui.jfx.AppContext;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.Debugger;
+import com.logonbox.vpn.client.gui.jfx.JfxAppContext;
 import com.logonbox.vpn.client.gui.jfx.Navigator;
 import com.logonbox.vpn.client.gui.jfx.Styling;
 import com.logonbox.vpn.client.gui.jfx.UI;
@@ -71,7 +70,7 @@ import uk.co.bithatch.nativeimage.annotations.TypeReflect;
 @Resource(siblings = true)
 @Reflectable
 @TypeReflect(constructors = true, classes = true)
-public class Client extends Application implements UIContext<VPNConnection>, RemoteUI {
+public class Client extends Application implements UIContext<VpnConnection>, RemoteUI {
 
 	static final boolean allowBranding = System.getProperty("logonbox.vpn.allowBranding", "true").equals("true");
 
@@ -113,7 +112,7 @@ public class Client extends Application implements UIContext<VPNConnection>, Rem
 	private ExecutorService opQueue = Executors.newSingleThreadExecutor();
 	private Stage primaryStage;
 	private boolean waitingForExitChoice;
-	private UI<VPNConnection> ui;
+	private UI<VpnConnection> ui;
 	private Main app;
 	private Styling styling;
 	private TitleBar titleBar;
@@ -180,7 +179,7 @@ public class Client extends Application implements UIContext<VPNConnection>, Rem
     public void confirmExit() {
 		var active = 0;
 		try {
-			active = getManager().getVPNOrFail().getActiveButNonPersistentConnections();
+			active = app.getVpnManager().getVpnOrFail().getActiveButNonPersistentConnections();
 		} catch (Exception e) {
 			exitApp();
 		}
@@ -203,12 +202,12 @@ public class Client extends Application implements UIContext<VPNConnection>, Rem
                 var result = alert.showAndWait();
                 opQueue.execute(() -> {
                     if (result.get() == disconnect) {
-                        getManager().getVPNOrFail().disconnectAll();
+                        app.getVpnManager().getVpnOrFail().disconnectAll();
                     }
 
                     if (result.get() == disconnect || result.get() == stayConnected) {
                         try {
-                            getManager().confirmExit();
+                            app.getVpnManager().confirmExit();
                             Thread.sleep(1000);
                         } catch (Exception e) {
                         }
@@ -235,18 +234,13 @@ public class Client extends Application implements UIContext<VPNConnection>, Rem
 
 	@Override
 	public void exitApp() {
-		app.exit();
+		app.shutdown(false);
 		opQueue.shutdown();
 		Platform.exit();
 	}
 
 	@Override
-	public AppContext getAppContext() {
-		return app;
-	}
-
-	@Override
-	public VpnManager<VPNConnection> getManager() {
+	public JfxAppContext<VpnConnection> getAppContext() {
 		return app;
 	}
 

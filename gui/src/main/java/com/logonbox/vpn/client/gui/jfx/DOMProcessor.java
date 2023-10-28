@@ -6,8 +6,8 @@ import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.Utils;
-import com.logonbox.vpn.client.common.api.IVPN;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.api.IVpn;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.client.common.lbapi.Branding;
 
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public class DOMProcessor<CONX extends IVPNConnection> {
+public class DOMProcessor<CONX extends IVpnConnection> {
 	final static Logger log = LoggerFactory.getLogger(DOMProcessor.class);
 
 	private Map<String, String> replacements = new HashMap<>();
@@ -39,11 +39,11 @@ public class DOMProcessor<CONX extends IVPNConnection> {
 	private ResourceBundle resources;
 	private Map<String, Collection<String>> collections;
 
-	public DOMProcessor(UIContext<CONX> context, IVPN<CONX> vpn, IVPNConnection connection, Map<String, Collection<String>> collections,
+	public DOMProcessor(UIContext<CONX> context, IVpn<CONX> vpn, IVpnConnection connection, Map<String, Collection<String>> collections,
 			String lastErrorMessage, String lastErrorCause, String lastException, Branding branding,
 			ResourceBundle pageBundle, ResourceBundle resources, Element documentElement, String disconnectionReason) {
 
-		var updateService = context.getManager().getUpdateService();
+		var updateService = context.getAppContext().getUpdateService();
 
 		var errorText = "";
 		var exceptionText = "";

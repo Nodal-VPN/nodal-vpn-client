@@ -1,0 +1,13 @@
+{
+	"resources": {
+		"includes": [
+			{
+				"pattern": "chromium-5845/.*"
+			},
+			{
+				"pattern": "\\Qeclipse_11701.so\\E"
+			}
+		]
+	},
+	"bundles": []
+}

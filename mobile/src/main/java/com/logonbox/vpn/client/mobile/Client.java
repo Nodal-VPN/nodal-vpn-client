@@ -4,18 +4,19 @@ import com.gluonhq.attach.display.DisplayService;
 import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.control.AppBar;
 import com.gluonhq.charm.glisten.mvc.View;
+import com.logonbox.vpn.client.common.AppContext;
+import com.logonbox.vpn.client.common.PlatformUtilities;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.lbapi.Branding;
-import com.logonbox.vpn.client.embedded.EmbeddedVPNConnection;
-import com.logonbox.vpn.client.gui.jfx.AppContext;
+import com.logonbox.vpn.client.embedded.EmbeddedVpnConnection;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.Debugger;
+import com.logonbox.vpn.client.gui.jfx.JfxAppContext;
 import com.logonbox.vpn.client.gui.jfx.Navigator;
 import com.logonbox.vpn.client.gui.jfx.Styling;
 import com.logonbox.vpn.client.gui.jfx.UI;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
-import com.sshtools.liftlib.OS;
 import com.sshtools.twoslices.ToasterFactory;
 import com.sshtools.twoslices.ToasterSettings.SystemTrayIconMode;
 import com.sshtools.twoslices.impl.SysOutToaster;
@@ -57,7 +58,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 
-public class Client extends MobileApplication implements UIContext<EmbeddedVPNConnection>, Navigator {
+public class Client extends MobileApplication implements UIContext<EmbeddedVpnConnection>, Navigator {
 
 	static final boolean allowBranding = System.getProperty("logonbox.vpn.allowBranding", "true").equals("true");
 
@@ -92,12 +93,14 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVPNCo
 		alert.getDialogPane().autosize();
 		return alert;
 	}
-
+    
+    private final VpnManager<EmbeddedVpnConnection> vpnManager;
+    private final AppContext<EmbeddedVpnConnection> app;
+    
 	private Branding branding;
 	private ExecutorService opQueue = Executors.newSingleThreadExecutor();
 	private boolean waitingForExitChoice;
-	private UI ui;
-	private VpnManager<EmbeddedVPNConnection> app;
+	private UI<EmbeddedVpnConnection> ui;
 	private Scene scene;
 	private Styling styling;
 	private Hyperlink back;
@@ -107,7 +110,10 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVPNCo
 	private Image logoImage;
 
 	public Client() {
-		app = Main.getInstance().uiContext(this);
+		var main = Main.getInstance();
+        app = main.uiContext(this);
+        vpnManager = app.getVpnManager();
+        
 		back = new Hyperlink();
 		back.setGraphic(FontIcon.of(FontAwesome.ARROW_CIRCLE_LEFT, 32));
 		back.getStyleClass().add("iconButton");
@@ -122,7 +128,7 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVPNCo
 	public void confirmExit() {
 		int active = 0;
 		try {
-			active = getManager().getVPNOrFail().getActiveButNonPersistentConnections();
+			active = vpnManager.getVpnOrFail().getActiveButNonPersistentConnections();
 		} catch (Exception e) {
 			exitApp();
 		}
@@ -146,7 +152,7 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVPNCo
 
 				if (result.get() == disconnect) {
 					opQueue.execute(() -> {
-						getManager().getVPNOrFail().disconnectAll();
+						vpnManager.getVpnOrFail().disconnectAll();
 						exitApp();
 					});
 				} else if (result.get() == stayConnected) {
@@ -163,11 +169,6 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVPNCo
 	@Override
 	public Styling styling() {
 		return styling;
-	}
-
-	@Override
-	public VpnManager<EmbeddedVPNConnection> getManager() {
-		return app;
 	}
 
 	@Override
@@ -278,19 +279,14 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVPNCo
 
 	@Override
 	public void exitApp() {
-		app.exit();
+		app.shutdown(false);
 		opQueue.shutdown();
 		Platform.exit();
 	}
 
 	protected Color getBase() {
 		if (isDarkMode()) {
-			if (OS.isLinux())
-				return Color.valueOf("#1c1f22");
-			else if (OS.isMacOs())
-				return Color.valueOf("#231f25");
-			else
-				return Color.valueOf("#202020");
+			return Color.valueOf(PlatformUtilities.get().getApproxDarkModeColor());
 		} else
 			return Color.WHITE;
 	}
@@ -391,7 +387,7 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVPNCo
 	}
 
 	@Override
-	public AppContext getAppContext() {
+	public JfxAppContext getAppContext() {
 		return Main.getInstance();
 	}
 

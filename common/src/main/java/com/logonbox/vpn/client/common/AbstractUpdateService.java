@@ -25,10 +25,10 @@ public abstract class AbstractUpdateService implements UpdateService {
 	private ScheduledFuture<?> checkTask;
 	private long deferUntil;
 
-	protected final VpnManager<?> context;
+	protected final AppContext<?> context;
 	protected final ScheduledExecutorService scheduler;
 
-	protected AbstractUpdateService(VpnManager<?> context) {
+	protected AbstractUpdateService(AppContext<?> context) {
 		this.context = context;
 		scheduler = Executors.newScheduledThreadPool(1);
 		checkIfBusAvailable();
@@ -37,8 +37,8 @@ public abstract class AbstractUpdateService implements UpdateService {
 	@Override
 	public void checkIfBusAvailable() {
 		cancelTask();
-		if (context.isBusAvailable()) {
-			deferUntil = context.getVPN().map(vpn -> vpn.getLongValue(ConfigurationItem.DEFER_UPDATE_UNTIL.getKey())).orElse(0l);
+		if (context.getVpnManager().isBackendAvailable()) {
+			deferUntil = context.getVpnManager().getVpn().map(vpn -> vpn.getLongValue(ConfigurationItem.DEFER_UPDATE_UNTIL.getKey())).orElse(0l);
 			rescheduleCheck(TimeUnit.SECONDS.toMillis(12));
 		} else
 			deferUntil = 0;
@@ -101,8 +101,8 @@ public abstract class AbstractUpdateService implements UpdateService {
 	public final void deferUpdate() {
 		setAvailableVersion(null);
 		configDeferUpdate();
-		if (context.isBusAvailable()) {
-			context.getVPN().orElseThrow(() -> new IllegalStateException("VPN not available.")).setLongValue(ConfigurationItem.DEFER_UPDATE_UNTIL.getKey(), deferUntil);
+		if (context.getVpnManager().isBackendAvailable()) {
+			context.getVpnManager().getVpn().orElseThrow(() -> new IllegalStateException("VPN not available.")).setLongValue(ConfigurationItem.DEFER_UPDATE_UNTIL.getKey(), deferUntil);
 		} else {
 			log.warn("Failed to set defer time, not connected to bus.");
 		}

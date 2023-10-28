@@ -1,5 +1,12 @@
 package com.logonbox.vpn.client.gui.jfx;
 
+import com.logonbox.vpn.client.common.PlatformUtilities;
+import com.logonbox.vpn.client.common.lbapi.Branding;
+import com.logonbox.vpn.client.common.lbapi.BrandingInfo;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,13 +19,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.logonbox.vpn.client.common.lbapi.Branding;
-import com.logonbox.vpn.client.common.lbapi.BrandingInfo;
-import com.sshtools.liftlib.OS;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javafx.scene.paint.Color;
 
@@ -58,12 +58,7 @@ public class Styling {
 
 	public Color getBase() {
 		if (context.isDarkMode()) {
-			if (OS.isLinux())
-				return Color.valueOf("#1c1f22");
-			else if (OS.isMacOs())
-				return Color.valueOf("#231f25");
-			else
-				return Color.valueOf("#202020");
+		    return Color.valueOf(PlatformUtilities.get().getApproxDarkModeColor());
 		} else
 			return Color.WHITE;
 	}

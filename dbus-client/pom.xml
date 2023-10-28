@@ -22,11 +22,6 @@
             <artifactId>client-logonbox-vpn-common-dbus</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-app</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>

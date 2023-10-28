@@ -17,11 +17,6 @@
     <dependencies>
         <dependency>
             <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-logging</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.logonbox</groupId>
             <artifactId>client-logonbox-vpn-service</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -39,7 +34,11 @@
                 <dependency>
                     <groupId>com.logonbox</groupId>
                     <artifactId>logonbox-vpn-windows</artifactId>
-                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.logonbox</groupId>
+                    <artifactId>client-logonbox-vpn-windows</artifactId>
+                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -54,7 +53,11 @@
                 <dependency>
                     <groupId>com.logonbox</groupId>
                     <artifactId>logonbox-vpn-linux</artifactId>
-                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.logonbox</groupId>
+                    <artifactId>client-logonbox-vpn-linux</artifactId>
+                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -70,6 +73,11 @@
                     <groupId>com.logonbox</groupId>
                     <artifactId>logonbox-vpn-macos</artifactId>
                     <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.logonbox</groupId>
+                    <artifactId>client-logonbox-vpn-macos</artifactId>
+                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
         </profile>

@@ -1,19 +1,15 @@
 package com.logonbox.vpn.client.cli;
 
+import com.logonbox.vpn.client.common.AppContext;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.UpdateService;
-import com.logonbox.vpn.client.common.VpnManager;
-import com.logonbox.vpn.client.common.dbus.VPNConnection;
-
-import org.freedesktop.dbus.connections.AbstractConnection;
+import com.logonbox.vpn.client.common.dbus.VpnConnection;
 
 import java.io.IOException;
 import java.net.CookieStore;
 
-public interface CLIContext {
+public interface CLIContext extends AppContext<VpnConnection> {
 
-    VpnManager<VPNConnection> getVpnManager();
-    
 	ConsoleProvider getConsole();
 
 	PromptingCertManager getCertManager();
@@ -23,8 +19,6 @@ public interface CLIContext {
 	void exitWhenDone();
 
 	boolean isQuiet();
-
-	AbstractConnection getBus();
 
 	UpdateService getUpdateService();
 

@@ -1,14 +1,18 @@
 package com.logonbox.vpn.client.mobile;
 
 import com.logonbox.vpn.client.app.AbstractApp;
+import com.logonbox.vpn.client.app.SimpleLoggingConfig;
 import com.logonbox.vpn.client.attach.wireguard.MobilePlatformService;
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ClientPromptingCertManager;
+import com.logonbox.vpn.client.common.LoggingConfig;
+import com.logonbox.vpn.client.common.LoggingConfig.Audience;
 import com.logonbox.vpn.client.common.PromptingCertManager;
-import com.logonbox.vpn.client.embedded.EmbeddedService;
-import com.logonbox.vpn.client.embedded.EmbeddedVPN;
-import com.logonbox.vpn.client.embedded.EmbeddedVPNConnection;
-import com.logonbox.vpn.client.gui.jfx.AppContext;
+import com.logonbox.vpn.client.common.VpnManager;
+import com.logonbox.vpn.client.embedded.EmbeddedVpnConnection;
+import com.logonbox.vpn.client.embedded.EmbeddedVpnManager;
+import com.logonbox.vpn.client.embedded.EmbedderApi;
+import com.logonbox.vpn.client.gui.jfx.JfxAppContext;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
 import com.logonbox.vpn.client.logging.SimpleLoggerConfiguration;
 
@@ -19,7 +23,7 @@ import org.slf4j.event.Level;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
@@ -34,7 +38,7 @@ import picocli.CommandLine.Parameters;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;
 
 @Command(name = "lbvpn-mobile-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.", versionProvider = Main.VersionProvider.class)
-public class Main extends AbstractApp<EmbeddedVPNConnection> implements Callable<Integer>, AppContext  {
+public class Main extends AbstractApp<EmbeddedVpnConnection> implements Callable<Integer>, JfxAppContext<EmbeddedVpnConnection>  {
 
     @Reflectable
     public final static class VersionProvider implements IVersionProvider {
@@ -60,8 +64,6 @@ public class Main extends AbstractApp<EmbeddedVPNConnection> implements Callable
 					new CommandLine(new Main()).execute(args));
 		});
 	}
-
-	public final static String SID_ADMINISTRATORS_GROUP = "S-1-5-32-544";
 
     /**
      * Used to get version from Maven meta-data
@@ -114,9 +116,9 @@ public class Main extends AbstractApp<EmbeddedVPNConnection> implements Callable
     @Parameters(index = "0", arity = "0..1", description = "Connect to a particular server using a URI. Acceptable formats include <server[<port>]> or https://<server[<port>]>[/path]. If a pre-configured connection matching this URI already exists, it will be used.")
     private String uri;
 
-    private Level defaultLogLevel = Level.INFO;
+    private EmbeddedVpnManager mgr;
 
-    protected static Optional<UIContext<EmbeddedVPNConnection>> uiContext = Optional.empty();
+    protected static Optional<UIContext<EmbeddedVpnConnection>> uiContext = Optional.empty();
 
     public Main() {
         super();
@@ -135,27 +137,29 @@ public class Main extends AbstractApp<EmbeddedVPNConnection> implements Callable
             log.info(String.format("CWD: %s", new File(".").getCanonicalPath()));
         } catch (IOException e) {
         }
+        
+        try {
+            var embedder = new EmbedderApi(pf -> pf instanceof MobilePlatformService.MobilePlatformServiceFactory);
+            mgr = (EmbeddedVpnManager) embedder.manager();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to start embedded VPN service.", e);
+        }
     }
 
+    
     @Override
-    public void confirmExit() {
-        throw new UnsupportedOperationException();
+    protected LoggingConfig createLoggingConfig() {
+        return new SimpleLoggingConfig(Level.INFO, Map.of(
+                Audience.USER, "default-log-mobile.properties",
+                Audience.CONSOLE, "default-log-mobile-console.properties",
+                Audience.DEVELOPER, "default-log-mobile-developer.properties"
+        ));
     }
-
+    
     @Override
     public Integer call() throws Exception {
         Client.main(new String[0]);
         return 0;
-    }
-
-    @Override
-    public final boolean isBusAvailable() {
-        return true;
-    }
-
-    @Override
-    public Level getDefaultLogLevel() {
-        return defaultLogLevel;
     }
 
     @Override
@@ -229,17 +233,6 @@ public class Main extends AbstractApp<EmbeddedVPNConnection> implements Callable
     }
 
     @Override
-    public void restart() {
-        exit();
-        System.exit(99);
-    }
-
-    public void shutdown() {
-        exit();
-        System.exit(0);
-    }
-
-    @Override
     public boolean isInteractive() {
         return true;
     }
@@ -278,7 +271,7 @@ public class Main extends AbstractApp<EmbeddedVPNConnection> implements Callable
     }
 
     @SuppressWarnings("unchecked")
-    public <M extends AppContext> M uiContext(UIContext<EmbeddedVPNConnection> uiContext) {
+    public <M extends JfxAppContext<EmbeddedVpnConnection>> M uiContext(UIContext<EmbeddedVpnConnection> uiContext) {
         if(Main.uiContext.isPresent())
             throw new IllegalStateException("Already registered.");
         Main.uiContext = Optional.of(uiContext);
@@ -286,30 +279,13 @@ public class Main extends AbstractApp<EmbeddedVPNConnection> implements Callable
     }
 
     @Override
-    public void setLevel(Level valueOf) {
+    public VpnManager<EmbeddedVpnConnection> getVpnManager() {
+        return mgr;
     }
 
     @Override
-    public List<EmbeddedVPNConnection> getVPNConnections() {
-        return getVPNOrFail().getConnections();
+    protected Logger getLog() {
+        return log;
     }
 
-    @Override
-    public EmbeddedVPNConnection getVPNConnection(long id) {
-        return getVPNOrFail().getConnection(id);
-    }
-
-    @Override
-    protected void onInit() throws Exception {
-        try {
-            setVPN(new EmbeddedVPN(new EmbeddedService(this, BUNDLE, this::getVPNOrFail, pf -> pf instanceof MobilePlatformService.MobilePlatformServiceFactory), this));
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to start embedded VPN service.", e);
-        }
-    }
-
-    @Override
-    protected void onLazyInit() throws Exception {
-        init();
-    }
 }

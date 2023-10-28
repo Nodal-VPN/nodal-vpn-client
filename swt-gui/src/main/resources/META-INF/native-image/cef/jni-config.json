@@ -1,0 +1,156 @@
+[
+{
+  "name":"com.equo.chromium.internal.Engine$3",
+  "methods":[{"name":"onBeforeCommandLineProcessing","parameterTypes":["java.lang.String","org.cef.callback.CefCommandLine"] }, {"name":"onContextInitialized","parameterTypes":[] }, {"name":"onRegisterCustomSchemes","parameterTypes":["org.cef.callback.CefSchemeRegistrar"] }]
+},
+{
+  "name":"com.equo.chromium.swt.internal.Chromium$11"
+},
+{
+  "name":"com.equo.chromium.swt.internal.Chromium$12"
+},
+{
+  "name":"org.cef.CefClient",
+  "methods":[{"name":"doClose","parameterTypes":["org.cef.browser.CefBrowser"] }, {"name":"getAllBrowser","parameterTypes":[] }, {"name":"getBrowser","parameterTypes":["int"] }, {"name":"getDisplayHandler","parameterTypes":[] }, {"name":"getFocusHandler","parameterTypes":[] }, {"name":"getLifeSpanHandler","parameterTypes":[] }, {"name":"getLoadHandler","parameterTypes":[] }, {"name":"getRect","parameterTypes":["org.cef.browser.CefBrowser"] }, {"name":"getRequestHandler","parameterTypes":[] }, {"name":"getResourceRequestHandler","parameterTypes":["org.cef.browser.CefBrowser","org.cef.browser.CefFrame","org.cef.network.CefRequest","boolean","boolean","java.lang.String","org.cef.misc.BoolRef"] }, {"name":"getWindowHandler","parameterTypes":[] }, {"name":"onAddressChange","parameterTypes":["org.cef.browser.CefBrowser","org.cef.browser.CefFrame","java.lang.String"] }, {"name":"onBeforeBrowse","parameterTypes":["org.cef.browser.CefBrowser","org.cef.browser.CefFrame","org.cef.network.CefRequest","boolean","boolean"] }, {"name":"onConsoleMessage","parameterTypes":["org.cef.browser.CefBrowser","org.cef.CefSettings$LogSeverity","java.lang.String","java.lang.String","int"] }, {"name":"onCursorChange","parameterTypes":["org.cef.browser.CefBrowser","int"] }, {"name":"onGotFocus","parameterTypes":["org.cef.browser.CefBrowser"] }, {"name":"onLoadEnd","parameterTypes":["org.cef.browser.CefBrowser","org.cef.browser.CefFrame","int"] }, {"name":"onLoadStart","parameterTypes":["org.cef.browser.CefBrowser","org.cef.browser.CefFrame","org.cef.network.CefRequest$TransitionType"] }, {"name":"onLoadingProgressChange","parameterTypes":["org.cef.browser.CefBrowser","double"] }, {"name":"onLoadingStateChange","parameterTypes":["org.cef.browser.CefBrowser","boolean","boolean","boolean"] }, {"name":"onSetFocus","parameterTypes":["org.cef.browser.CefBrowser","org.cef.handler.CefFocusHandler$FocusSource"] }, {"name":"onStatusMessage","parameterTypes":["org.cef.browser.CefBrowser","java.lang.String"] }, {"name":"onTitleChange","parameterTypes":["org.cef.browser.CefBrowser","java.lang.String"] }]
+},
+{
+  "name":"org.cef.CefClientSwt",
+  "methods":[{"name":"onAfterCreated","parameterTypes":["org.cef.browser.CefBrowser"] }]
+},
+{
+  "name":"org.cef.CefSettings",
+  "fields":[{"name":"background_color"}, {"name":"browser_subprocess_path"}, {"name":"cache_path"}, {"name":"chrome_runtime"}, {"name":"command_line_args_disabled"}, {"name":"cookieable_schemes_exclude_defaults"}, {"name":"cookieable_schemes_list"}, {"name":"external_message_pump"}, {"name":"javascript_flags"}, {"name":"locale"}, {"name":"locales_dir_path"}, {"name":"log_file"}, {"name":"log_severity"}, {"name":"multi_threaded_message_loop"}, {"name":"pack_loading_disabled"}, {"name":"persist_session_cookies"}, {"name":"remote_debugging_port"}, {"name":"resources_dir_path"}, {"name":"uncaught_exception_stack_size"}, {"name":"user_agent"}, {"name":"user_agent_product"}, {"name":"windowless_rendering_enabled"}]
+},
+{
+  "name":"org.cef.CefSettings$LogSeverity",
+  "fields":[{"name":"LOGSEVERITY_DISABLE"}, {"name":"LOGSEVERITY_ERROR"}, {"name":"LOGSEVERITY_INFO"}, {"name":"LOGSEVERITY_VERBOSE"}, {"name":"LOGSEVERITY_WARNING"}]
+},
+{
+  "name":"org.cef.browser.CefBrowserSwt"
+},
+{
+  "name":"org.cef.browser.CefBrowser_N",
+  "methods":[{"name":"notifyBrowserCreated","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.browser.CefFrame_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.browser.CefMessageRouter",
+  "methods":[{"name":"getMessageRouterConfig","parameterTypes":[] }, {"name":"setMessageRouterConfig","parameterTypes":["org.cef.browser.CefMessageRouter$CefMessageRouterConfig"] }]
+},
+{
+  "name":"org.cef.browser.CefMessageRouter$CefMessageRouterConfig",
+  "fields":[{"name":"jsCancelFunction"}, {"name":"jsQueryFunction"}]
+},
+{
+  "name":"org.cef.browser.CefMessageRouter_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"getNativeRef","parameterTypes":["java.lang.String"] }, {"name":"setNativeRef","parameterTypes":["java.lang.String","long"] }]
+},
+{
+  "name":"org.cef.callback.CefCommandLine_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.callback.CefNativeAdapter",
+  "methods":[{"name":"getNativeRef","parameterTypes":["java.lang.String"] }, {"name":"setNativeRef","parameterTypes":["java.lang.String","long"] }]
+},
+{
+  "name":"org.cef.callback.CefSchemeRegistrar_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.handler.CefClientHandler",
+  "methods":[{"name":"getNativeRef","parameterTypes":["java.lang.String"] }, {"name":"setNativeRef","parameterTypes":["java.lang.String","long"] }]
+},
+{
+  "name":"org.cef.handler.CefFocusHandler$FocusSource",
+  "fields":[{"name":"FOCUS_SOURCE_NAVIGATION"}, {"name":"FOCUS_SOURCE_SYSTEM"}]
+},
+{
+  "name":"org.cef.misc.BoolRef",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"get","parameterTypes":[] }, {"name":"set","parameterTypes":["boolean"] }]
+},
+{
+  "name":"org.cef.misc.Cursor",
+  "fields":[{"name":"CROSSHAIR_CURSOR"}, {"name":"DEFAULT_CURSOR"}, {"name":"E_RESIZE_CURSOR"}, {"name":"HAND_CURSOR"}, {"name":"MOVE_CURSOR"}, {"name":"NE_RESIZE_CURSOR"}, {"name":"NW_RESIZE_CURSOR"}, {"name":"N_RESIZE_CURSOR"}, {"name":"SE_RESIZE_CURSOR"}, {"name":"SW_RESIZE_CURSOR"}, {"name":"S_RESIZE_CURSOR"}, {"name":"TEXT_CURSOR"}, {"name":"WAIT_CURSOR"}, {"name":"W_RESIZE_CURSOR"}]
+},
+{
+  "name":"org.cef.misc.Rectangle",
+  "fields":[{"name":"height"}, {"name":"width"}, {"name":"x"}, {"name":"y"}]
+},
+{
+  "name":"org.cef.network.CefRequest$TransitionType",
+  "fields":[{"name":"TT_EXPLICIT"}, {"name":"TT_LINK"}],
+  "methods":[{"name":"addQualifiers","parameterTypes":["int"] }]
+},
+{
+  "name":"org.cef.network.CefRequest_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"getNativeRef","parameterTypes":["java.lang.String"] }, {"name":"setNativeRef","parameterTypes":["java.lang.String","long"] }]
+},
+{
+  "name":"org.eclipse.swt.graphics.Device",
+  "methods":[{"name":"logProc","parameterTypes":["long","long","long","long"] }]
+},
+{
+  "name":"org.eclipse.swt.internal.SessionManagerDBus",
+  "methods":[{"name":"g_signal_handler","parameterTypes":["long","long","long","long","long"] }]
+},
+{
+  "name":"org.eclipse.swt.internal.cairo.cairo_rectangle_int_t",
+  "fields":[{"name":"height"}, {"name":"width"}, {"name":"x"}, {"name":"y"}]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.GTypeInfo",
+  "fields":[{"name":"base_finalize"}, {"name":"base_init"}, {"name":"class_data"}, {"name":"class_finalize"}, {"name":"class_init"}, {"name":"class_size"}, {"name":"instance_init"}, {"name":"instance_size"}, {"name":"n_preallocs"}, {"name":"value_table"}]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.GdkKeymapKey",
+  "fields":[{"name":"group"}, {"name":"keycode"}, {"name":"level"}]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.GdkRGBA",
+  "fields":[{"name":"alpha"}, {"name":"blue"}, {"name":"green"}, {"name":"red"}]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.GdkRectangle",
+  "fields":[{"name":"height"}, {"name":"width"}, {"name":"x"}, {"name":"y"}]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.GtkAllocation",
+  "fields":[{"name":"height"}, {"name":"width"}, {"name":"x"}, {"name":"y"}]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.GtkRequisition",
+  "fields":[{"name":"height"}, {"name":"width"}]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk3.GdkEvent",
+  "fields":[{"name":"type"}]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk3.GdkEventCrossing",
+  "fields":[{"name":"detail"}, {"name":"focus"}, {"name":"mode"}, {"name":"send_event"}, {"name":"state"}, {"name":"subwindow"}, {"name":"time"}, {"name":"window"}, {"name":"x"}, {"name":"x_root"}, {"name":"y"}, {"name":"y_root"}]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk3.GdkEventFocus",
+  "fields":[{"name":"in"}, {"name":"send_event"}, {"name":"window"}]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk3.GdkEventMotion",
+  "fields":[{"name":"axes"}, {"name":"device"}, {"name":"is_hint"}, {"name":"send_event"}, {"name":"state"}, {"name":"time"}, {"name":"window"}, {"name":"x"}, {"name":"x_root"}, {"name":"y"}, {"name":"y_root"}]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk3.GdkEventWindowState",
+  "fields":[{"name":"changed_mask"}, {"name":"new_window_state"}, {"name":"send_event"}, {"name":"window"}]
+},
+{
+  "name":"org.eclipse.swt.widgets.Control",
+  "methods":[{"name":"gestureBeginProc","parameterTypes":["long","long","long"] }, {"name":"gestureEndProc","parameterTypes":["long","long","long"] }, {"name":"magnifyProc","parameterTypes":["long","double","long"] }, {"name":"rotateProc","parameterTypes":["long","double","double","long"] }, {"name":"swipeProc","parameterTypes":["long","double","double","long"] }]
+},
+{
+  "name":"org.eclipse.swt.widgets.Display",
+  "methods":[{"name":"allChildrenProc","parameterTypes":["long","long"] }, {"name":"caretProc","parameterTypes":["long"] }, {"name":"cellDataProc","parameterTypes":["long","long","long","long","long"] }, {"name":"changeValue","parameterTypes":["long","int","double","long"] }, {"name":"checkIfEventProc","parameterTypes":["long","long","long"] }, {"name":"emissionProc","parameterTypes":["long","long","long","long"] }, {"name":"eventProc","parameterTypes":["long","long"] }, {"name":"idleProc","parameterTypes":["long"] }, {"name":"keysChangedProc","parameterTypes":["long","long"] }, {"name":"mouseHoverProc","parameterTypes":["long"] }, {"name":"notifyProc","parameterTypes":["long","long","long"] }, {"name":"rendererClassInitProc","parameterTypes":["long","long"] }, {"name":"rendererGetPreferredWidthProc","parameterTypes":["long","long","long","long"] }, {"name":"rendererRenderProc","parameterTypes":["long","long","long","long","long","long"] }, {"name":"setDirectionProc","parameterTypes":["long","long"] }, {"name":"shellMapProc","parameterTypes":["long","long","long"] }, {"name":"signalProc","parameterTypes":["long","long","long"] }, {"name":"sizeAllocateProc","parameterTypes":["long","long","long"] }, {"name":"sizeRequestProc","parameterTypes":["long","long","long"] }, {"name":"timerProc","parameterTypes":["long"] }, {"name":"windowProc","parameterTypes":["long","long"] }, {"name":"windowProc","parameterTypes":["long","long","long"] }, {"name":"windowProc","parameterTypes":["long","long","long","long"] }, {"name":"windowProc","parameterTypes":["long","long","long","long","long"] }, {"name":"windowTimerProc","parameterTypes":["long"] }]
+}
+]

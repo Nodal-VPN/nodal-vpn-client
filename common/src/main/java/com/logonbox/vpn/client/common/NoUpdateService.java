@@ -4,9 +4,9 @@ import java.io.IOException;
 
 public class NoUpdateService implements UpdateService {
 
-	private final VpnManager<?> context;
+	private final AppContext<?> context;
 
-	public NoUpdateService(VpnManager<?> context) {
+	public NoUpdateService(AppContext<?> context) {
 		this.context = context;
 	}
 

@@ -3,7 +3,7 @@ package com.logonbox.vpn.client.service;
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.ConnectionStatus;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.drivers.lib.NoHandshakeException;
 import com.logonbox.vpn.drivers.lib.StartRequest;
 import com.logonbox.vpn.drivers.lib.VpnAdapter;
@@ -17,7 +17,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 
-public class VPNSession<CONX extends IVPNConnection> implements Closeable {
+public class VPNSession<CONX extends IVpnConnection> implements Closeable {
 
     public static final int MAX_INTERFACES = Integer.parseInt(System.getProperty("wireguard.maxInterfaces", "10"));
 

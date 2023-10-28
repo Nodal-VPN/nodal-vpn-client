@@ -1,17 +1,16 @@
 package com.logonbox.vpn.client.common;
 
 import com.logonbox.vpn.client.common.Connection.Mode;
-import com.logonbox.vpn.client.common.api.IVPN;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.api.IRemoteUI;
+import com.logonbox.vpn.client.common.api.IVpn;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
 
 import java.io.Closeable;
-import java.net.CookieStore;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public interface VpnManager<CONX extends IVPNConnection> {
+public interface VpnManager<CONX extends IVpnConnection> {
 
     public interface Handle extends Closeable {
         @Override
@@ -19,13 +18,13 @@ public interface VpnManager<CONX extends IVPNConnection> {
     }
 
     @FunctionalInterface
-    public interface Authorize<CONX extends IVPNConnection> {
+    public interface Authorize<CONX extends IVpnConnection> {
 
         void authorize(CONX connection, String uri, Mode mode);
     }
 
     @FunctionalInterface
-    public interface Failure<CONX extends IVPNConnection> {
+    public interface Failure<CONX extends IVpnConnection> {
 
         void failure(CONX connection, String reason, String cause, String trace);
     }
@@ -36,29 +35,15 @@ public interface VpnManager<CONX extends IVPNConnection> {
      */
     public static final String DEVICE_IDENTIFIER = "LBVPNDID";
 
-    boolean isBusAvailable();
+    boolean isBackendAvailable();
 
-    Optional<IVPN<CONX>> getVPN();
+    Optional<IVpn<CONX>> getVpn();
     
-    default IVPN<CONX> getVPNOrFail() {
-        return getVPN().orElseThrow(() -> new IllegalStateException("Vpn server not available."));
+    Optional<IRemoteUI> getUserInterface();
+    
+    default IVpn<CONX> getVpnOrFail() {
+        return getVpn().orElseThrow(() -> new IllegalStateException("Vpn server not available."));
     }
-
-    String getVersion();
-
-    boolean isConsole();
-
-    void exit();
-
-    UpdateService getUpdateService();
-
-    List<CONX> getVPNConnections();
-
-    CONX getVPNConnection(long id);
-
-    PromptingCertManager getCertManager();
-
-    CookieStore getCookieStore();
     
     Handle onConnectionAdded(Consumer<CONX> callback);
     
@@ -87,7 +72,7 @@ public interface VpnManager<CONX extends IVPNConnection> {
     Handle onFailure(Failure<CONX> failure);
 
     default void checkVpnManagerAvailable() throws IllegalStateException {
-        if(!isBusAvailable())
+        if(!isBackendAvailable())
             throw new IllegalStateException("Vpn manager not available.");
     }
 

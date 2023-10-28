@@ -2,13 +2,12 @@ package com.logonbox.vpn.client.cli.commands;
 
 import com.logonbox.vpn.client.cli.CLI;
 import com.logonbox.vpn.client.cli.CLIContext;
-import com.logonbox.vpn.client.cli.ConsoleProvider;
 import com.logonbox.vpn.client.cli.StateHelper;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ServiceClient;
 import com.logonbox.vpn.client.common.ServiceClient.NameValuePair;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
-import com.logonbox.vpn.client.common.dbus.VPNConnection;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
+import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.common.lbapi.InputField;
 import com.logonbox.vpn.client.common.lbapi.LogonResult;
 
@@ -53,7 +52,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer>, IV
     }
 
     protected String getPattern(CLIContext cli, String... args) throws IOException {
-		ConsoleProvider console = cli.getConsole();
+		var console = cli.getConsole();
 		String pattern = null;
 		if (args == null || args.length == 0) {
 			pattern = console.readLine("Enter connection ID or hostname: ");
@@ -64,14 +63,14 @@ public abstract class AbstractConnectionCommand implements Callable<Integer>, IV
 	}
 
 	protected boolean isSingleConnection(CLIContext cli) {
-		return cli.getVpnManager().getVPNOrFail().getNumberOfConnections() == 1;
+		return cli.getVpnManager().getVpnOrFail().getNumberOfConnections() == 1;
 	}
 
-	protected List<IVPNConnection> getConnectionsMatching(String pattern, CLIContext cli) {
-		var l = new ArrayList<IVPNConnection>();
+	protected List<IVpnConnection> getConnectionsMatching(String pattern, CLIContext cli) {
+		var l = new ArrayList<IVpnConnection>();
 		try {
 			var id = Long.parseLong(pattern);
-			var connection = cli.getVpnManager().getVPNConnection(id);
+			var connection = cli.getVpnManager().getVpnOrFail().getConnection(id);
 			if (connection == null)
 				throw new IllegalArgumentException(String.format("No connection %d (hint: use 'list' command)", id));
 			try {
@@ -82,7 +81,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer>, IV
 			}
 			l.add(connection);
 		} catch (NumberFormatException nfe) {
-			for (var c : cli.getVpnManager().getVPNConnections()) {
+			for (var c : cli.getVpnManager().getVpnOrFail().getConnections()) {
 				if (pattern == null || pattern.equals("") || c.getUri(true).matches(pattern)
 						|| (c.getName() != null && c.getName().matches(pattern)) || c.getUri(true).matches(pattern)) {
 					l.add(c);
@@ -92,13 +91,13 @@ public abstract class AbstractConnectionCommand implements Callable<Integer>, IV
 		return l;
 	}
 
-	protected void disconnect(IVPNConnection c, CLIContext cli)
+	protected void disconnect(IVpnConnection c, CLIContext cli)
 			throws InterruptedException, IOException, DBusException {
-		ConsoleProvider console = cli.getConsole();
+		var console = cli.getConsole();
 		if (!cli.isQuiet())
 			console.out().println(String.format("Disconnecting from %s", c.getUri(true)));
 		console.flush();
-		try (StateHelper helper = new StateHelper((VPNConnection) c, cli.getBus())) {
+		try (var helper = new StateHelper((VpnConnection) c, cli.getVpnManager())) {
 			c.disconnect("");
 			helper.waitForState(1, TimeUnit.MINUTES, Type.DISCONNECTED);
 			if (!cli.isQuiet())
@@ -107,14 +106,14 @@ public abstract class AbstractConnectionCommand implements Callable<Integer>, IV
 		console.flush();
 	}
 
-	protected void register(CLIContext cli, IVPNConnection connection, PrintWriter out, PrintWriter err)
+	protected void register(CLIContext cli, IVpnConnection connection, PrintWriter out, PrintWriter err)
 			throws IOException, URISyntaxException {
 
-		ServiceClient sc = new ServiceClient(getCLI().getCookieStore(), new ServiceClient.Authenticator() {
+		var sc = new ServiceClient(getCLI().getCookieStore(), new ServiceClient.Authenticator() {
 
 			@Override
 			public String getUUID() {
-				return cli.getVpnManager().getVPNOrFail().getUUID();
+				return cli.getVpnManager().getVpnOrFail().getUUID();
 			}
 
 			@Override

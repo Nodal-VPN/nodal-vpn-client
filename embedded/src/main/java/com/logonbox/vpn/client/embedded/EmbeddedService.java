@@ -1,41 +1,35 @@
 package com.logonbox.vpn.client.embedded;
 
 import com.logonbox.vpn.client.AbstractService;
-import com.logonbox.vpn.client.common.AbstractVpnManager;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
+import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
-import com.logonbox.vpn.client.common.api.IVPN;
+import com.logonbox.vpn.client.common.api.IVpn;
 import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.ServiceLoader;
 import java.util.ServiceLoader.Provider;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-public final class EmbeddedService extends AbstractService<EmbeddedVPNConnection> {
+public final class EmbeddedService extends AbstractService<EmbeddedVpnConnection> {
     static Logger log = LoggerFactory.getLogger(EmbeddedService.class);
 
 	/**
      * 
      */
-    private final AbstractVpnManager<EmbeddedVPNConnection> main;
-    private Level logLevel = Level.INFO;
-	private final Level defaultLogLevel = logLevel;
-    private final Supplier<IVPN<EmbeddedVPNConnection>> vpn;
+    private final EmbeddedVpnManager main;
     private final Predicate<PlatformServiceFactory> filter;
 
-	public EmbeddedService(AbstractVpnManager<EmbeddedVPNConnection> main, ResourceBundle bundle, Supplier<IVPN<EmbeddedVPNConnection>> vpn, Predicate<PlatformServiceFactory> filter) throws Exception {
+	public EmbeddedService(ResourceBundle bundle, Predicate<PlatformServiceFactory> filter) throws Exception {
 		super(bundle);
-        this.main = main;
-		this.vpn = vpn;
+        this.main = new EmbeddedVpnManager(this);
 		this.filter = filter;
 		
 		log.info("Starting in-process VPN service.");
@@ -47,6 +41,9 @@ public final class EmbeddedService extends AbstractService<EmbeddedVPNConnection
 		if (!startServices()) {
 			throw new Exception("Failed to start DBus services.");
 		}
+		
+		if(!createVpn())
+		    throw new Exception("Vpn instance could not be created.");
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -58,6 +55,11 @@ public final class EmbeddedService extends AbstractService<EmbeddedVPNConnection
 		startSavedConnections();
 	}
     
+    @Override
+    protected LoggingConfig createLoggingConfig() {
+        return LoggingConfig.dumb();
+    }
+
     @Override
     protected Logger getLogger() {
         return log;
@@ -81,20 +83,9 @@ public final class EmbeddedService extends AbstractService<EmbeddedVPNConnection
                         "The platform %s not currently supported. There are no platform extensions installed, you may be missing libraries.",
                         System.getProperty("os.name"))));
     }
-
-	@Override
-	public Level getDefaultLevel() {
-		return defaultLogLevel;
-	}
-
-	@Override
-	public void setLevel(Level level) {
-		// TODO reconfigure logging?
-		this.logLevel = level;
-	}
 	
-	EmbeddedVPNConnection wrapConnection(Connection connection) {
-	    return new EmbeddedVPNConnection(this, connection);
+	EmbeddedVpnConnection wrapConnection(Connection connection) {
+	    return new EmbeddedVpnConnection(this, connection);
 	}
 
     @Override
@@ -190,8 +181,12 @@ public final class EmbeddedService extends AbstractService<EmbeddedVPNConnection
     }
 
     @Override
-    protected Optional<IVPN<EmbeddedVPNConnection>> buildVpn() {
-        return Optional.of(vpn.get());
+    protected Optional<IVpn<EmbeddedVpnConnection>> buildVpn() {
+        return Optional.of(new EmbeddedVpn(this));
+    }
+
+    EmbeddedVpnManager getVpnManager() {
+        return main;
     }
 
 }

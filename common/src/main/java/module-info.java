@@ -1,3 +1,5 @@
+import com.logonbox.vpn.client.common.Api;
+import com.logonbox.vpn.client.common.PlatformUtilities;
 import com.logonbox.vpn.drivers.lib.DNSProvider;
 
 open module com.logonbox.vpn.client.common {
@@ -17,4 +19,6 @@ open module com.logonbox.vpn.client.common {
     requires static uk.co.bithatch.nativeimage.annotations;
     
     uses DNSProvider.Factory;
+    uses Api;
+    uses PlatformUtilities;
 }

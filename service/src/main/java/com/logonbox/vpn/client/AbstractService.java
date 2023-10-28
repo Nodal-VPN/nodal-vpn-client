@@ -1,14 +1,17 @@
 package com.logonbox.vpn.client;
 
 import com.logonbox.vpn.client.common.App;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.ConnectionRepository;
 import com.logonbox.vpn.client.common.CustomCookieStore;
+import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.Utils;
-import com.logonbox.vpn.client.common.api.IVPN;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.LoggingConfig.Audience;
+import com.logonbox.vpn.client.common.api.IVpn;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.client.ini.ConnectionRepositoryImpl;
 import com.logonbox.vpn.client.service.ClientService;
 import com.logonbox.vpn.client.service.ClientService.Listener;
@@ -33,25 +36,31 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
-public abstract class AbstractService<CONX extends IVPNConnection> implements LocalContext<CONX>, Listener {
-
-//	static Logger log;
+public abstract class AbstractService<CONX extends IVpnConnection> implements LocalContext<CONX>, Listener {
 
 	private ScheduledExecutorService queue = Executors.newSingleThreadScheduledExecutor();
 	private CookieStore cookieStore;
 	private ConnectionRepository connectionRepository;
 	private ClientServiceImpl<CONX> clientService;
-
 	private PromptingCertManager promptingCertManager;
 	private ConfigurationRepositoryImpl configurationRepository;
-	private final ResourceBundle bundle;
     private PlatformService<?> platformService;
-
-    private IVPN<CONX> vpn;
+    private IVpn<CONX> vpn;
+    
+    private final ResourceBundle bundle;
+    private final LoggingConfig logging;
 
 	protected AbstractService(ResourceBundle bundle) {
 		this.bundle = bundle;
-	}
+        logging = createLoggingConfig();
+    }
+
+    @Override
+    public final LoggingConfig getLogging() {
+        return logging;
+    }
+    
+    protected abstract LoggingConfig createLoggingConfig();
 	
 	protected abstract Logger getLogger();
 
@@ -86,16 +95,16 @@ public abstract class AbstractService<CONX extends IVPNConnection> implements Lo
 			String value = (String)newValue;
 			try {
 				if (Utils.isBlank(value))
-					setLevel(getDefaultLevel());
+					getLogging().setLevel(getLogging().getDefaultLevel());
 				else
-					setLevel(Level.valueOf(value));
+				    getLogging().setLevel(Level.valueOf(value));
 			}
 			catch(Exception e) {
 				if(getLogger().isDebugEnabled())
 				    getLogger().warn("Invalid log level, setting default. ", e);
 				else
 				    getLogger().warn("Invalid log level, setting default. " + e.getMessage());
-				setLevel(getDefaultLevel());
+				getLogging().setLevel(getLogging().getDefaultLevel());
 			}
 		}
 	}
@@ -145,8 +154,8 @@ public abstract class AbstractService<CONX extends IVPNConnection> implements Lo
 	}
 
     @Override
-	public IVPN<CONX> getVPN() {
-	    return vpn;
+	public Optional<IVpn<CONX>> getVpn() {
+	    return Optional.ofNullable(vpn);
 	}
 
 	protected final boolean buildServices() throws Exception {
@@ -163,6 +172,16 @@ public abstract class AbstractService<CONX extends IVPNConnection> implements Lo
 		return true;
 
 	}
+    
+    protected Audience calcLoggingAudience(Optional<Audience> selectedAudience) {
+        return selectedAudience.orElseGet(() -> {
+            if(AppVersion.isDeveloperWorkspace())
+                return Audience.DEVELOPER;
+            else {
+                return Audience.USER;
+            }   
+        });
+    }
 
 	protected final void checkForUninstalling() {
 		File flagFile = new File("uninstalling.txt");
@@ -228,7 +247,7 @@ public abstract class AbstractService<CONX extends IVPNConnection> implements Lo
         return vpn != null;
     }
     
-    protected abstract Optional<IVPN<CONX>> buildVpn();
+    protected abstract Optional<IVpn<CONX>> buildVpn();
 
 	protected final boolean startServices() {
 	    getLogger().info("Starting internal services.");

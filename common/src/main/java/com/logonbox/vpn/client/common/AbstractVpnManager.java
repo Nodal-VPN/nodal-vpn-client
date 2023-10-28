@@ -1,6 +1,6 @@
 package com.logonbox.vpn.client.common;
 
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public abstract class AbstractVpnManager<CONX extends IVPNConnection> implements VpnManager<CONX> {
+public abstract class AbstractVpnManager<CONX extends IVpnConnection> implements VpnManager<CONX> {
 
     public final static File CLIENT_HOME = new File(
             System.getProperty("user.home") + File.separator + ".logonbox-vpn-client");

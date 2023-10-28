@@ -1,0 +1,124 @@
+[
+{
+  "name":"com.equo.chromium.ChromiumFragment"
+},
+{
+  "name":"com.equo.chromium.internal.Engine"
+},
+{
+  "name":"com.equo.chromium.swt.internal.Chromium",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"java.util.concurrent.atomic.AtomicBoolean",
+  "fields":[{"name":"value"}]
+},
+{
+  "name":"javax.security.auth.x500.X500Principal",
+  "methods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
+},
+{
+  "name":"org.eclipse.swt.internal.DPIUtil",
+  "methods":[{"name":"autoScaleUpUsingNativeDPI","parameterTypes":["int"] }]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.GTK",
+  "methods":[{"name":"gtk_get_major_version","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.widgets.Display",
+  "methods":[{"name":"isSystemDarkTheme","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.widgets.Widget",
+  "fields":[{"name":"handle"}]
+},
+{
+  "name":"sun.security.provider.SHA2$SHA256",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.X509Factory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.rsa.RSAKeyFactory$Legacy",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.rsa.RSASignature$SHA256withRSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.x509.AuthorityInfoAccessExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.AuthorityKeyIdentifierExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.BasicConstraintsExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.CRLDistributionPointsExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.CertificatePoliciesExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.ExtendedKeyUsageExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.KeyUsageExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.NetscapeCertTypeExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.SubjectKeyIdentifierExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"org.cef.callback.CefCommandLine_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.callback.CefSchemeRegistrar_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.browser.CefMessageRouter$CefMessageRouterConfig",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.browser.CefMessageRouter_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.browser.CefFrame_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.misc.Rectangle",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.misc.Cursor",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.network.CefRequest_N",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.cef.browser.CefPopup",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+}
+]

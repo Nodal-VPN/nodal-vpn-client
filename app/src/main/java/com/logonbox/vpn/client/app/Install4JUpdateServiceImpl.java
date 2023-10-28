@@ -7,7 +7,7 @@ import com.install4j.api.update.UpdateChecker;
 import com.install4j.api.update.UpdateDescriptor;
 import com.install4j.api.update.UpdateDescriptorEntry;
 import com.logonbox.vpn.client.common.AbstractUpdateService;
-import com.logonbox.vpn.client.common.VpnManager;
+import com.logonbox.vpn.client.common.AppContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +19,12 @@ public class Install4JUpdateServiceImpl extends AbstractUpdateService {
 
 	static Logger log = LoggerFactory.getLogger(Install4JUpdateServiceImpl.class);
 
-	public Install4JUpdateServiceImpl(VpnManager<?> context) {
+	public Install4JUpdateServiceImpl(AppContext<?> context) {
 		super(context);
 	}
 
 	protected String buildUpdateUrl() {
-		String configuredPhase = context.getVPNOrFail().getValue("phase");
+		String configuredPhase = context.getVpnManager().getVpnOrFail().getValue("phase");
 		return "https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client/" + configuredPhase
 				+ "/updates.xml";
 	}
@@ -68,7 +68,7 @@ public class Install4JUpdateServiceImpl extends AbstractUpdateService {
 				ApplicationLauncher.launchApplicationInProcess("2103", args,
 						new ApplicationLauncher.Callback() {
 							public void exited(int exitValue) {
-								context.exit();
+								context.shutdown(false);
 							}
 
 							public void prepareShutdown() {

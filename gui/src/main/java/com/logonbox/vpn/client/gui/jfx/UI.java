@@ -1,19 +1,22 @@
 package com.logonbox.vpn.client.gui.jfx;
 
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.AuthenticationCancelledException;
+import com.logonbox.vpn.client.common.BrandingManager;
+import com.logonbox.vpn.client.common.BrandingManager.ImageHandler;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
-import com.logonbox.vpn.client.common.AppVersion;
+import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.ServiceClient;
 import com.logonbox.vpn.client.common.ServiceClient.NameValuePair;
-import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.UpdateService;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.VpnManager;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.client.common.lbapi.Branding;
 import com.logonbox.vpn.client.common.lbapi.InputField;
 import com.logonbox.vpn.client.common.lbapi.LogonResult;
@@ -28,14 +31,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
@@ -44,8 +43,6 @@ import java.net.CookieManager;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -67,13 +64,11 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.HostnameVerifier;
 
-import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import javafx.animation.KeyFrame;
 import javafx.animation.RotateTransition;
@@ -109,23 +104,20 @@ import uk.co.bithatch.nativeimage.annotations.Resource;
 @Bundle
 @Resource(siblings = true)
 @Reflectable
-public class UI<CONX extends IVPNConnection> extends AnchorPane {
+public class UI<CONX extends IVpnConnection> extends AnchorPane {
 
 
 	static UUID localWebServerCookie = UUID.randomUUID();
 
 	static final String LOCBCOOKIE = "LOCBCKIE";
-	
-
-	private static final int SPLASH_HEIGHT = 360;
-	private static final int SPLASH_WIDTH = 480;
 
 	private static final String DEFAULT_LOCALHOST_ADDR = "http://localhost:59999/";
 
-	public static final class ServiceClientAuthenticator<CONX extends IVPNConnection> implements ServiceClient.Authenticator {
+	public static final class ServiceClientAuthenticator<CONX extends IVpnConnection> implements ServiceClient.Authenticator {
 		private final WebEngine engine;
 		private final Semaphore authorizedLock;
 		private final UIContext<CONX> context;
+		private final VpnManager<CONX> vpnManager;
 		private Map<InputField, NameValuePair> results;
 		private LogonResult result;
 		private boolean error;
@@ -134,6 +126,8 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 			this.engine = engine;
 			this.context = context;
 			this.authorizedLock = authorizedLock;
+			
+			vpnManager = context.getAppContext().getVpnManager();
 		}
 
 		public void cancel() {
@@ -152,12 +146,12 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 
 		@Override
 		public String getUUID() {
-			return context.getManager().getVPNOrFail().getUUID();
+			return vpnManager.getVpnOrFail().getUUID();
 		}
 
 		@Override
 		public HostnameVerifier getHostnameVerifier() {
-			return context.getManager().getCertManager();
+			return context.getAppContext().getCertManager();
 		}
 
 		@Override
@@ -208,12 +202,12 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		}
 	}
 
-	public static final class Register<CONX extends IVPNConnection> implements Runnable {
-		private final IVPNConnection selectedConnection;
+	public static final class Register<CONX extends IVpnConnection> implements Runnable {
+		private final IVpnConnection selectedConnection;
 		private final ServiceClient serviceClient;
 		private final UI<CONX> ui;
 
-		public Register(IVPNConnection selectedConnection, ServiceClient serviceClient, UI<CONX> ui) {
+		public Register(IVpnConnection selectedConnection, ServiceClient serviceClient, UI<CONX> ui) {
 			this.selectedConnection = selectedConnection;
 			this.serviceClient = serviceClient;
 			this.ui = ui;
@@ -256,11 +250,11 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		}
 
 		public void setAsFavourite(long id) {
-			UI.this.setAsFavourite(context.getManager().getVPNConnection(id));
+			UI.this.setAsFavourite(vpnManager.getVpnOrFail().getConnection(id));
 		}
 
 		public void confirmDelete(long id) {
-			UI.this.confirmDelete(context.getManager().getVPNConnection(id));
+			UI.this.confirmDelete(vpnManager.getVpnOrFail().getConnection(id));
 		}
 		
 		public String browse() {
@@ -292,7 +286,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		}
 
 		public void edit(long id) {
-			UI.this.editConnection(context.getManager().getVPNConnection(id));
+			UI.this.editConnection(vpnManager.getVpnOrFail().getConnection(id));
 		}
 
         public void go(String page) {
@@ -300,11 +294,11 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
         }
 
 		public void connectTo(long id) {
-			UI.this.connect(context.getManager().getVPNConnection(id));
+			UI.this.connect(vpnManager.getVpnOrFail().getConnection(id));
 		}
 
 		public void disconnectFrom(long id) {
-			UI.this.disconnect(context.getManager().getVPNConnection(id));
+			UI.this.disconnect(vpnManager.getVpnOrFail().getConnection(id));
 		}
 
 		public void editConnection(JSObject o) {
@@ -315,7 +309,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 			UI.this.editConnection(connectAtStartup, stayConnected, name, server, getForegroundConnection());
 		}
 
-		public IVPNConnection getConnection() {
+		public IVpnConnection getConnection() {
 			return UI.this.getForegroundConnection();
 		}
 
@@ -328,7 +322,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		}
 
 		public String getUserPublicKey() {
-			IVPNConnection connection = getConnection();
+			IVpnConnection connection = getConnection();
 			return connection == null ? null : connection.getUserPublicKey();
 		}
 
@@ -380,43 +374,30 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		}
 
 		public void openURL(String url) {
-			context.openURL(url);
+			uiContext.openURL(url);
 		}
 
 		public String getLastHandshake() {
-			IVPNConnection connection = getConnection();
+			IVpnConnection connection = getConnection();
 			return connection == null ? null
 					: DateFormat.getDateTimeInstance().format(new Date(connection.getLastHandshake()));
 		}
 
 		public String getUsage() {
-			IVPNConnection connection = getConnection();
+			IVpnConnection connection = getConnection();
 			return connection == null ? null
 					: MessageFormat.format(bundle.getString("usageDetail"), Util.toHumanSize(connection.getRx()),
 							Util.toHumanSize(connection.getTx()));
 		}
 
-		public IVPNConnection[] getConnections() {
+		public IVpnConnection[] getConnections() {
 			var l = new ArrayList<>(getAllConnections());
 			var f = getFavouriteConnection(l);
 			if(f != null) {
 				l.remove(f);
 				l.add(0, f);
 			}
-			return l.toArray(new IVPNConnection[0]);
-		}
-	}
-
-	class BrandingCacheItem {
-		Branding branding;
-		long loaded = System.currentTimeMillis();
-
-		BrandingCacheItem(Branding branding) {
-			this.branding = branding;
-		}
-
-		boolean isExpired() {
-			return System.currentTimeMillis() > loaded + TimeUnit.MINUTES.toMillis(10);
+			return l.toArray(new IVpnConnection[0]);
 		}
 	}
 
@@ -450,14 +431,12 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 	private Timeline awaitingBridgeLoss;
 	private Branding branding;
 	private Map<String, Collection<String>> collections = new HashMap<>();
-	private Map<IVPNConnection, BrandingCacheItem> brandingCache = new HashMap<>();
-	private List<IVPNConnection> connecting = new ArrayList<>();
+	private List<IVpnConnection> connecting = new ArrayList<>();
 	private String htmlPage;
 	private String lastErrorMessage;
 	private String lastErrorCause;
 	private String lastException;
 	private ResourceBundle pageBundle;
-	private Path logoFile;
 	private Runnable runOnNextLoad;
 	private ServerBridge bridge;
 	private String disconnectionReason;
@@ -497,14 +476,53 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 	@Reflectable
 	private Button stopDebugger;
 
-	private UpdateService updateService;
+	private final UpdateService updateService;
+    private final JfxAppContext<CONX> appContext;
+    private final VpnManager<CONX> vpnManager;
+    private final BrandingManager<CONX, BufferedImage> brandingManager;
 
 	
-	public UI(UIContext<CONX> context) {
-		this.context = context;
+	public UI(UIContext<CONX> uiContext) {
+		this.uiContext = uiContext;
+		this.appContext = uiContext.getAppContext();
+		this.vpnManager = appContext.getVpnManager();
+        this.updateService = appContext.getUpdateService();
 		
 		location = getClass().getResource("UI.fxml");
-		updateService = context.getManager().getUpdateService();
+		brandingManager = new BrandingManager<>(vpnManager, new ImageHandler<BufferedImage>() {
+
+            @Override
+            public BufferedImage create(int width, int height, String color) {
+                BufferedImage bim = null;
+                bim = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+                var graphics = (java.awt.Graphics2D) bim.getGraphics();
+                graphics.setColor(java.awt.Color.decode(color));
+                graphics.fillRect(0, 0, width, height);
+                return bim;
+            }
+
+            @Override
+            public void draw(BufferedImage bim, Path logoFile) {
+                var graphics = (java.awt.Graphics2D) bim.getGraphics();
+                LOG.info(String.format("Drawing logo on splash"));
+                try {
+                    var logoImage = ImageIO.read(logoFile.toFile());
+                    if (logoImage == null)
+                        throw new IOException(String.format("Failed to load image from %s", logoFile));
+                    graphics.drawImage(logoImage, (bim.getWidth() - logoImage.getWidth()) / 2,
+                            (bim.getHeight() - logoImage.getHeight()) / 2, null);
+                }
+                catch(IOException ioe) {
+                    throw new UncheckedIOException(ioe);
+                }
+            }
+
+            @Override
+            public void write(BufferedImage bim, Path splashFile) throws IOException {
+                ImageIO.write(bim, "png", splashFile.toFile());
+                LOG.info(String.format("Custom splash written to %s", splashFile));
+            }
+        });
 		
 		var loader = new FXMLLoader(location);
 		loader.setController(this);
@@ -521,7 +539,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		bridge = new ServerBridge();
 
 		// create JSBridge Instance
-		context.debugger().ifPresent(d -> d.start(webView));
+		uiContext.debugger().ifPresent(d -> d.start(webView));
 
 		setAvailable();
 
@@ -529,7 +547,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		configureWebEngine();
 
 		/* Watch for update check state changing */
-		context.getManager().getUpdateService().addListener(() -> {
+		updateService.addListener(() -> {
 			maybeRunLater(() -> {
 				if (getAuthorizingConnection() == null)
 					selectPageForState(false, false);
@@ -552,12 +570,10 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		/* Initial page */
 //		setHtmlPage("index.html");
 		
-
-		var mgr = context.getManager();
 		
 		/* Connection Added */
-		mgr.onConnectionAdded(conx -> {
-		    context.getOpQueue().execute(() -> {
+		vpnManager.onConnectionAdded(conx -> {
+		    uiContext.getOpQueue().execute(() -> {
                 reloadState(() -> {
                     maybeRunLater(() -> {
                         reapplyColors();
@@ -572,10 +588,10 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		});
         
         /* Connection Removed */
-		mgr.onConnectionRemoved(id -> {
+		vpnManager.onConnectionRemoved(id -> {
 		    maybeRunLater(() -> {
                 try {
-                    context.getOpQueue().execute(() -> {
+                    uiContext.getOpQueue().execute(() -> {
                         reloadState(() -> {
                             maybeRunLater(() -> {
                                 reapplyColors();
@@ -591,14 +607,14 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		});
         
         /* Connection Updated */
-        mgr.onConnectionUpdated(conx -> {
+		vpnManager.onConnectionUpdated(conx -> {
             maybeRunLater(() -> {
                 selectPageForState(false, false);
             });
         });
         
         /* Global configuration updated */
-        mgr.onGlobalConfigChanged((cfg, val) -> {
+		vpnManager.onGlobalConfigChanged((cfg, val) -> {
             if (cfg.equals(ConfigurationItem.FAVOURITE)) {
                 reloadState(() -> {
                     maybeRunLater(() -> {
@@ -610,11 +626,11 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
         });
         
         /* Authorize */
-        mgr.onAuthorize((conx, uri, authMode) -> {
+		vpnManager.onAuthorize((conx, uri, authMode) -> {
             disconnectionReason = null;
             if (authMode.equals(Connection.Mode.CLIENT) || authMode.equals(Connection.Mode.SERVICE)) {
                 maybeRunLater(() -> {
-                    context.open();
+                    uiContext.open();
                     // setHtmlPage(connection.getUri(false) + sig.getUri());
                     selectPageForState(false, false);
                 });
@@ -624,7 +640,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
         });
         
         /* Connecting */
-        mgr.onConnecting(conx -> {
+		vpnManager.onConnecting(conx -> {
             disconnectionReason = null;
             maybeRunLater(() -> {
                 clearNotificationForConnection(conx.getId());
@@ -633,20 +649,20 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
         });
         
         /* Connected */
-        mgr.onConnected(conx -> {
+		vpnManager.onConnected(conx -> {
             maybeRunLater(() -> {
                 UI.this.notify(conx.getId(), MessageFormat.format(bundle.getString("connected"),
                         conx.getDisplayName(), conx.getHostname()), ToastType.INFO);
                 connecting.remove(conx);
-                if (context.getAppContext().isExitOnConnection()) {
-                    context.exitApp();
+                if (uiContext.getAppContext().isExitOnConnection()) {
+                    uiContext.exitApp();
                 } else
                     selectPageForState(false, true);
             });
         });
         
         /* Disconnecting */
-        mgr.onDisconnecting((conx, reason) -> {
+		vpnManager.onDisconnecting((conx, reason) -> {
             maybeRunLater(() -> {
                 clearNotificationForConnection(conx.getId());
                 LOG.info("Disconnecting {}", conx.getDisplayName());
@@ -655,7 +671,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
         });
 
         /* Disconnected */
-        mgr.onDisconnected((conx, reason) -> {
+		vpnManager.onDisconnected((conx, reason) -> {
             maybeRunLater(() -> {
                 LOG.info("Disconnected " + conx.getId());
                 try {
@@ -672,16 +688,16 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
                                 .title(bundle.getString("appName"))
                                 .content(MessageFormat.format(bundle.getString("disconnectedNoReason"),
                                         conx.getDisplayName(), conx.getHostname()))
-                                .type(ToastType.INFO).defaultAction(() -> context.open()).toast());
+                                .type(ToastType.INFO).defaultAction(() -> uiContext.open()).toast());
                     else
                         putNotificationForConnection(conx.getId(), Toast.builder()
                                 .title(bundle.getString("appName"))
                                 .content(MessageFormat.format(bundle.getString("disconnected"),
                                         conx.getDisplayName(), conx.getHostname(), reason))
-                                .type(ToastType.INFO).defaultAction(() -> context.open())
+                                .type(ToastType.INFO).defaultAction(() -> uiContext.open())
                                 .action(bundle.getString("reconnect"), () -> {
-                                    context.open();
-                                    UI.this.connect(context.getManager().getVPNConnection(conx.getId()));
+                                    uiContext.open();
+                                    UI.this.connect(vpnManager.getVpnOrFail().getConnection(conx.getId()));
                                 }).timeout(0).toast());
                 } catch (Exception e) {
                     LOG.error("Failed to get connection, delete not possible.", e);
@@ -693,7 +709,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
         });
         
         /* Temporarily offline */
-        mgr.onTemporarilyOffline((conx, reason) -> {
+		vpnManager.onTemporarilyOffline((conx, reason) -> {
             maybeRunLater(() -> {
                 clearNotificationForConnection(conx.getId());
                 LOG.info("Temporarily offline {}", conx.getId());
@@ -702,7 +718,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
         });
         
         /* Failure */
-        mgr.onFailure((conx, reason, cause, trace) -> {
+		vpnManager.onFailure((conx, reason, cause, trace) -> {
             maybeRunLater(() -> {
                 LOG.info("Failed to connect. {}", reason);
                 connecting.remove(conx);
@@ -712,19 +728,19 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
             });
         });
         
-        mgr.onVpnGone(this::vpnGone);
-        mgr.onVpnAvailable(this::vpnAvailable);
+		vpnManager.onVpnGone(this::vpnGone);
+		vpnManager.onVpnAvailable(this::vpnAvailable);
         
 		
 		try {
-		    context.getManager().checkVpnManagerAvailable();
+		    vpnManager.checkVpnManagerAvailable();
 			selectPageForState(false, false);
 		} catch (Exception e) {
 			setHtmlPage("index.html");
 		}
 	}
 
-	protected UIContext<CONX> context;
+	protected UIContext<CONX> uiContext;
 	protected URL location;
 	private RotateTransition loadingRotation;
 
@@ -735,11 +751,11 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		return (Stage) getScene().getWindow();
 	}
 
-	public void disconnect(IVPNConnection sel) {
+	public void disconnect(IVpnConnection sel) {
 		disconnect(sel, null);
 	}
 
-	public void disconnect(IVPNConnection sel, String reason) {
+	public void disconnect(IVpnConnection sel, String reason) {
 		if (sel == null)
 			throw new IllegalArgumentException("No connection given.");
 		if (reason == null)
@@ -747,7 +763,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		else
 			LOG.info(String.format("Requesting disconnect, because '{}'", reason));
 
-		context.getOpQueue().execute(() -> {
+		uiContext.getOpQueue().execute(() -> {
 			try {
 				sel.disconnect(Utils.defaultIfBlank(reason, ""));
 			} catch (Exception e) {
@@ -762,16 +778,16 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		else
 			LOG.info("Requesting disconnect, because '{}'", reason);
 
-		context.getOpQueue().execute(() -> {
+		uiContext.getOpQueue().execute(() -> {
 			try {
-				context.getManager().getVPNOrFail().disconnectAll();
+			    vpnManager.getVpnOrFail().disconnectAll();
 			} catch (Exception e) {
 				Platform.runLater(() -> showError("Failed to disconnect.", e));
 			}
 		});
 	}
 
-	public void connect(IVPNConnection n) {
+	public void connect(IVpnConnection n) {
 		try {
 			if (n == null) {
 				addConnection();
@@ -819,8 +835,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 
 	private Map<String, Object> beansForOptions() {
 		var beans = new HashMap<String, Object>();
-		var dbus = context.getManager();
-		var vpn = dbus.isBusAvailable() ? dbus.getVPNOrFail() : null;
+		var vpn = vpnManager.isBackendAvailable() ? vpnManager.getVpnOrFail() : null;
 		if (vpn == null) {
 			beans.put("phases", new String[0]);
 			beans.put("phase", "");
@@ -880,8 +895,8 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 
 	
 
-	protected void joinNetwork(IVPNConnection connection) {
-		context.getOpQueue().execute(() -> {
+	protected void joinNetwork(IVpnConnection connection) {
+		uiContext.getOpQueue().execute(() -> {
 			connection.connect();
 		});
 	}
@@ -889,9 +904,9 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 	protected void addConnection(Boolean stayConnected, Boolean connectAtStartup, String unprocessedUri, Mode mode)
 			throws URISyntaxException {
 		URI uriObj = ConnectionUtil.getUri(unprocessedUri);
-		context.getOpQueue().execute(() -> {
+		uiContext.getOpQueue().execute(() -> {
 			try {
-				context.getManager().getVPNOrFail().createConnection(uriObj.toASCIIString(), connectAtStartup, stayConnected,
+			    vpnManager.getVpnOrFail().createConnection(uriObj.toASCIIString(), connectAtStartup, stayConnected,
 						mode.name());
 			} catch (Exception e) {
 				showError("Failed to add connection.", e);
@@ -903,9 +918,9 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 			throws IOException {
 		try(var r = Files.newBufferedReader(file)) {
 			String content = Utils.toString(r);
-			context.getOpQueue().execute(() -> {
+			uiContext.getOpQueue().execute(() -> {
 				try {
-					context.getManager().getVPNOrFail().importConfiguration(content);
+				    vpnManager.getVpnOrFail().importConfiguration(content);
 				} catch (Exception e) {
 					showError("Failed to add connection.", e);
 				}
@@ -918,8 +933,8 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		setAvailable();
 	}
 
-	protected void authorize(IVPNConnection n) {
-		context.getOpQueue().execute(() -> {
+	protected void authorize(IVpnConnection n) {
+		uiContext.getOpQueue().execute(() -> {
 			try {
 				n.authorize();
 			} catch (Exception e) {
@@ -930,7 +945,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 
 	protected void configureWebEngine() {
 		WebEngine engine = webView.getEngine();
-		webView.setContextMenuEnabled(context.isContextMenuAllowed());
+		webView.setContextMenuEnabled(uiContext.isContextMenuAllowed());
 		String ua = engine.getUserAgent();
 		LOG.info("User Agent: " + ua);
 		engine.setUserAgent(ua + " " + "LogonBoxVPNClient/"
@@ -981,7 +996,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		});
 		engine.getLoadWorker().stateProperty().addListener((ov, oldState, newState) -> {
 			if (newState == State.SUCCEEDED) {
-				context.debugger().ifPresent(d -> d.loadReady());
+				uiContext.debugger().ifPresent(d -> d.loadReady());
 				
 				/* Wait for a little while if pageBundle is null */
 
@@ -1009,14 +1024,14 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 			 * 
 			 * So cancel the authorize and show the error and allow retry.
 			 */
-			IVPNConnection priorityConnection = getPriorityConnection();
+			IVpnConnection priorityConnection = getPriorityConnection();
 			try {
 				if (priorityConnection != null && ConnectionStatus.Type
 						.valueOf(priorityConnection.getStatus()) == ConnectionStatus.Type.AUTHORIZING) {
 					String reason = value != null ? value.getMessage() : null;
 					LOG.info(String.format("Got error while authorizing. Disconnecting now using '%s' as the reason",
 							reason));
-					context.getOpQueue().execute(() -> {
+					uiContext.getOpQueue().execute(() -> {
 						try {
 							priorityConnection.disconnect(reason);
 						} catch (Exception e) {
@@ -1063,7 +1078,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 	}
 
 	protected void editConnection(Boolean connectAtStartup, Boolean stayConnected, String name, String server,
-			IVPNConnection connection) {
+			IVpnConnection connection) {
 		try {
 			URI uriObj = ConnectionUtil.getUri(server);
 
@@ -1086,7 +1101,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 	}
 
 	protected CONX getFavouriteConnection(Collection<CONX> list) {
-		var fav = list.isEmpty() ? 0l : context.getManager().getVPNOrFail().getLongValue(ConfigurationItem.FAVOURITE.getKey());
+		var fav = list.isEmpty() ? 0l : vpnManager.getVpnOrFail().getLongValue(ConfigurationItem.FAVOURITE.getKey());
 		for (var connection : list) {
 			if (list.size() == 1 || connection.getId() == fav)
 				return connection;
@@ -1094,7 +1109,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		return list.isEmpty() ? null : list.iterator().next();
 	}
 
-	protected IVPNConnection getPriorityConnection() {
+	protected IVpnConnection getPriorityConnection() {
 		var alls = getAllConnections();
 		if (alls.isEmpty())
 			return null;
@@ -1129,10 +1144,10 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 
 	public void setAvailable() {
 		boolean isNoBack = "missingSoftware.html".equals(htmlPage) || "connections.html".equals(htmlPage)
-				|| !context.getManager().isBusAvailable()
-				|| ("addLogonBoxVPN.html".equals(htmlPage) && context.getManager().getVPNConnections().isEmpty());
-		context.navigator().setBackVisible(!isNoBack);
-		debugBar.setVisible(context.debugger().isPresent());
+				|| !vpnManager.isBackendAvailable()
+				|| ("addLogonBoxVPN.html".equals(htmlPage) && vpnManager.getVpnOrFail().getConnections().isEmpty());
+		uiContext.navigator().setBackVisible(!isNoBack);
+		debugBar.setVisible(uiContext.debugger().isPresent());
 	}
 
 	protected void saveOptions(String trayMode, String darkMode, String phase, Boolean automaticUpdates,
@@ -1149,20 +1164,21 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 
 			if (logLevel != null) {
 				config.logLevelProperty().set(logLevel);
+                LoggingConfig logging = uiContext.getAppContext().getLogging();
 				if (logLevel.length() == 0)
-					context.getAppContext().setLevel(context.getAppContext().getDefaultLogLevel());
+					logging.setLevel(logging.getDefaultLevel()); 
 				else {
 					try { 
-						context.getAppContext().setLevel(Level.valueOf(logLevel));
+					    logging.setLevel(Level.valueOf(logLevel));
 						}
 					catch(IllegalArgumentException iae) {
-						context.getAppContext().setLevel(context.getAppContext().getDefaultLogLevel());
+                        logging.setLevel(logging.getDefaultLevel());
 					}
 				}
 			}
 
 			/* Update configuration stored globally in service */
-			var vpn = context.getManager().getVPNOrFail();
+			var vpn = vpnManager.getVpnOrFail();
 			var checkUpdates = false;
 			if (phase != null) {
 				var was = vpn.getValue(ConfigurationItem.PHASE.getKey());
@@ -1224,7 +1240,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 				CookieHandler cookieHandler = CookieManager.getDefault();
 				if (htmlPage.startsWith("http://") || htmlPage.startsWith("https://")) {
 					
-					var isServer = context.getManager().getVPNOrFail().isMatchesAnyServerURI(htmlPage);
+					var isServer = vpnManager.getVpnOrFail().isMatchesAnyServerURI(htmlPage);
 					
 					if(isServer) {
 						/* Set the device UUID cookie for all web access */
@@ -1232,7 +1248,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 							URI uri = new URI(htmlPage);
 							Map<String, List<String>> headers = new LinkedHashMap<String, List<String>>();
 							headers.put("Set-Cookie", Arrays.asList(String.format("%s=%s",
-									VpnManager.DEVICE_IDENTIFIER, context.getManager().getVPNOrFail().getUUID())));
+									VpnManager.DEVICE_IDENTIFIER, vpnManager.getVpnOrFail().getUUID())));
 							cookieHandler.put(uri.resolve("/"), headers);
 						} catch (Exception e) {
 							throw new IllegalStateException("Failed to set cookie.", e);
@@ -1258,7 +1274,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 					 * URI does not work (resource also works, but we need a dynamic resource, and I
 					 * couldn't get a custom URL handler to work either).
 					 */
-					File customLocalWebCSSFile = context.styling().getCustomLocalWebCSSFile();
+					File customLocalWebCSSFile = uiContext.styling().getCustomLocalWebCSSFile();
 					if (customLocalWebCSSFile.exists()) {
 						if (LOG.isDebugEnabled())
 							LOG.debug(String.format("Setting user stylesheet at %s", customLocalWebCSSFile));
@@ -1346,14 +1362,14 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
                     // client itself
                     resetAwaingBridgeEstablish();
                     setUpdateProgress(100, bundle.getString("guiRestart"));
-                    new Timeline(new KeyFrame(Duration.seconds(5), ae -> context.getAppContext().restart())).play();
+                    new Timeline(new KeyFrame(Duration.seconds(5), ae -> uiContext.getAppContext().shutdown(true))).play();
                 } else {
-                    String unprocessedUri = context.getAppContext().getUri();
+                    String unprocessedUri = uiContext.getAppContext().getUri();
                     if (Utils.isNotBlank(unprocessedUri)) {
                         connectToUri(unprocessedUri);
                     } else {
                         initUi();
-                        selectPageForState(context.getAppContext().isConnect(), false);
+                        selectPageForState(uiContext.getAppContext().isConnect(), false);
                     }
                 }
             }
@@ -1388,14 +1404,14 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
         });
     }
 
-	private IVPNConnection getForegroundConnection() {
+	private IVpnConnection getForegroundConnection() {
 		if (htmlPage != null && isRemote(htmlPage)) {
 
 		} else {
 			String anchor = getAnchor();
 			if (anchor != null) {
 				try {
-					return context.getManager().getVPNConnection(Long.parseLong(anchor));
+					return vpnManager.getVpnOrFail().getConnection(Long.parseLong(anchor));
 				} catch (Exception nfe) {
 				}
 			}
@@ -1410,9 +1426,9 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		var engine = webView.getEngine();
 		var jsobj = (JSObject) engine.executeScript("window");
 		jsobj.setMember("bridge", bridge);
-		if(context.getManager().isBusAvailable()) {
+		if(vpnManager.isBackendAvailable()) {
 			try {
-				jsobj.setMember("vpn", context.getManager().getVPN());
+				jsobj.setMember("vpn", vpnManager.getVpn());
 			} catch (IllegalStateException ise) {
 				/* No bus */
 			}
@@ -1437,15 +1453,15 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 				throw new IllegalStateException("Already acquired authorize lock.");
 			}
 
-			var authenticator = new ServiceClientAuthenticator<CONX>(context, engine, authorizedLock);
+			var authenticator = new ServiceClientAuthenticator<CONX>(uiContext, engine, authorizedLock);
 			jsobj.setMember("authenticator", authenticator);
-			var serviceClient = new ServiceClient(context.getManager().getCookieStore(), authenticator, context.getManager().getCertManager());
+			var serviceClient = new ServiceClient(appContext.getCookieStore(), authenticator, appContext.getCertManager());
 			jsobj.setMember("serviceClient", serviceClient);
 			jsobj.setMember("register", new Register<CONX>(selectedConnection, serviceClient, this));
 		}
 
 		/* Override log. TODO: Not entirely sure this works entirely */
-		if (context.debugger().isEmpty()) {
+		if (uiContext.debugger().isEmpty()) {
 			engine.executeScript("oldLog = console.log; console.log = function(message) { oldLog.apply(this, arguments); bridge.log(message); };");
 		}
 
@@ -1484,9 +1500,9 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 	}
 
 	private void processDOM() {
-		var busAvailable = context.getManager().isBusAvailable();
+		var busAvailable = vpnManager.isBackendAvailable();
 		var connection = busAvailable ? getForegroundConnection() : null;
-		var processor = new DOMProcessor<CONX>(context, busAvailable ? context.getManager().getVPNOrFail() : null, connection,
+		var processor = new DOMProcessor<CONX>(uiContext, busAvailable ? vpnManager.getVpnOrFail() : null, connection,
 				collections, lastErrorMessage, lastErrorCause, lastException, branding, pageBundle, bundle,
 				webView.getEngine().getDocument().getDocumentElement(),
 				connection == null ? disconnectionReason : connection.getLastError());
@@ -1511,15 +1527,15 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 	}
 
 	private void connectToUri(String unprocessedUri) {
-		context.getOpQueue().execute(() -> {
+		uiContext.getOpQueue().execute(() -> {
 			try {
 				LOG.info(String.format("Connected to URI %s", unprocessedUri));
 				URI uriObj = ConnectionUtil.getUri(unprocessedUri);
-				long connectionId = context.getManager().getVPNOrFail().getConnectionIdForURI(uriObj.toASCIIString());
+				long connectionId = vpnManager.getVpnOrFail().getConnectionIdForURI(uriObj.toASCIIString());
 				if (connectionId == -1) {
-					if (context.getAppContext().isCreateIfDoesntExist()) {
+					if (uiContext.getAppContext().isCreateIfDoesntExist()) {
 						/* No existing configuration */
-						context.getManager().getVPNOrFail().createConnection(uriObj.toASCIIString(), true, true,
+					    vpnManager.getVpnOrFail().createConnection(uriObj.toASCIIString(), true, true,
 								Mode.CLIENT.name());
 					} else {
 						showError(MessageFormat.format(bundle.getString("error.uriProvidedDoesntExist"), uriObj));
@@ -1542,7 +1558,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		setHtmlPage("addLogonBoxVPN.html");
 	}
 
-	private void configure(String usernameHint, String configIniFile, IVPNConnection config) {
+	private void configure(String usernameHint, String configIniFile, IVpnConnection config) {
 		try {
 			LOG.info(String.format("Configuration for %s on %s", usernameHint, config.getDisplayName()));
 			config.setUsernameHint(usernameHint);
@@ -1558,11 +1574,11 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		}
 	}
 
-	private void setAsFavourite(IVPNConnection sel) {
+	private void setAsFavourite(IVpnConnection sel) {
 		sel.setAsFavourite();
 	}
 
-	private boolean confirmDelete(IVPNConnection sel) {
+	private boolean confirmDelete(IVpnConnection sel) {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.initModality(Modality.APPLICATION_MODAL);
 		alert.initOwner(getStage());
@@ -1582,10 +1598,10 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		}
 	}
 
-	private void doDelete(IVPNConnection sel) {
+	private void doDelete(IVpnConnection sel) {
 		setHtmlPage("busy.html");
 		LOG.info(String.format("Deleting connection %s", sel));
-		context.getOpQueue().execute(() -> sel.delete());
+		uiContext.getOpQueue().execute(() -> sel.delete());
 	}
 
 	private void reloadState(Runnable then) {
@@ -1595,189 +1611,38 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		 */
 
 //		mode = context.getDBus().isBusAvailable() && context.getDBus().getVPN().isUpdating() ? UIState.UPDATE : UIState.NORMAL;
-		IVPNConnection favouriteConnection = getFavouriteConnection();
-		if (context.isAllowBranding()) {
-			branding = getBranding(favouriteConnection);
+		var favouriteConnection = getFavouriteConnection();
+		if (uiContext.isAllowBranding()) {
+			branding = brandingManager.getBranding(favouriteConnection);
 		}
-		var splashFile = getCustomSplashFile();
-		if (branding == null) {
-			LOG.info(String.format("Removing branding."));
-			if (logoFile != null) {
-				try {
-					Files.delete(logoFile);
-				}
-				catch(IOException ioe) {
-					LOG.warn("Failed to delete.", ioe);
-				}
-				logoFile = null;
-			}
-			if(Files.exists(splashFile)) {
-				try {
-					Files.delete(splashFile);
-				}
-				catch(IOException ioe) {
-					LOG.warn("Failed to delete.", ioe);
-				}
-			}
-			updateVMOptions(null);
-		} else {
-			if (LOG.isDebugEnabled())
-				LOG.debug("Adding custom branding");
-			String logo = branding.logo();
-
-			/* Create branded splash */
-			BufferedImage bim = null;
-			Graphics2D graphics = null;
-			if (branding.resource() != null && Utils.isNotBlank(branding.resource().background())) {
-				bim = new BufferedImage(SPLASH_WIDTH, SPLASH_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-				graphics = (Graphics2D) bim.getGraphics();
-				graphics.setColor(java.awt.Color.decode(branding.resource().background()));
-				graphics.fillRect(0, 0, SPLASH_WIDTH, SPLASH_HEIGHT);
-			}
-
-			/* Create logo file */
-			if (Utils.isNotBlank(logo)) {
-				var newLogoFile = getCustomLogoFile(favouriteConnection);
-				try {
-					if (!Files.exists(newLogoFile)) {
-						LOG.info(String.format("Attempting to cache logo"));
-						URL logoUrl = URI.create(logo).toURL();
-						URLConnection urlConnection = logoUrl.openConnection();
-						urlConnection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(10));
-						urlConnection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(10));
-						try (InputStream urlIn = urlConnection.getInputStream()) {
-							try (OutputStream out = Files.newOutputStream(newLogoFile)) {
-								urlIn.transferTo(out);
-							}
-						}
-						LOG.info(String.format("Logo cached from %s to %s", logoUrl, newLogoFile.toUri()));
-						newLogoFile.toFile().deleteOnExit();
-					}
-					logoFile = newLogoFile;
-					branding = branding.logo(logoFile.toUri().toString());
-
-					/* Draw the logo on the custom splash */
-					if (graphics != null) {
-						LOG.info(String.format("Drawing logo on splash"));
-						BufferedImage logoImage = ImageIO.read(logoFile.toFile());
-						if (logoImage == null)
-							throw new Exception(String.format("Failed to load image from %s", logoFile));
-						graphics.drawImage(logoImage, (SPLASH_WIDTH - logoImage.getWidth()) / 2,
-								(SPLASH_HEIGHT - logoImage.getHeight()) / 2, null);
-					}
-
-				} catch (Exception e) {
-					LOG.error(String.format("Failed to cache logo"), e);
-					branding = branding.logo(null);
-				}
-			} else if (logoFile != null) {
-				try {
-					Files.delete(logoFile);
-				}
-				catch(IOException ioe) {
-					LOG.warn("Failed to delete.", ioe);
-				}
-				logoFile = null;
-			}
-
-			/* Write the splash */
-			if (graphics != null) {
-				try {
-					ImageIO.write(bim, "png", splashFile.toFile());
-					LOG.info(String.format("Custom splash written to %s", splashFile));
-				} catch (IOException e) {
-					LOG.error(String.format("Failed to write custom splash"), e);
-					try {
-						Files.delete(splashFile);
-					}
-					catch(IOException ioe) {
-						LOG.warn("Failed to delete.", ioe);
-					}
-				}
-			}
-
-			updateVMOptions(splashFile);
-		}
+		brandingManager.apply(favouriteConnection);
 
 		then.run();
 	}
 	
-	private void updateVMOptions(Path splashFile) {
-		var vmOptionsFile = getConfigDir().resolve("gui.vmoptions");
-		List<String> lines;
-		if(Files.exists(vmOptionsFile)) {
-			try(var r = Files.newBufferedReader(vmOptionsFile)) {
-				lines = Utils.readLines(r);
-			}
-			catch(IOException ioe) {
-				throw new IllegalStateException("Failed to read .vmoptions.", ioe);
-			}
-		}
-		else {
-			lines = new ArrayList<>();
-		}
-		for(var lineIt = lines.iterator(); lineIt.hasNext(); ) {
-			var line = lineIt.next();
-			if(line.startsWith("-splash:")) {
-				lineIt.remove();
-			}
-		}
-		if(splashFile != null && Files.exists(splashFile)) {
-			lines.add(0, "-splash:" + splashFile.toAbsolutePath().toString());
-		}
-		if(lines.isEmpty()) {
-			try {
-				Files.delete(vmOptionsFile);
-			} catch (IOException e) {
-			}
-		}
-		else {
-			try(BufferedWriter r = Files.newBufferedWriter(vmOptionsFile)) {
-				Utils.writeLines(lines, System.getProperty("line.separator"), r);
-			}
-			catch(IOException ioe) {
-				throw new IllegalStateException("Failed to read .vmoptions.", ioe);
-			}
-		}
-	}
-
-	private Path getCustomSplashFile() {
-		return getConfigDir().resolve("lbvpnc-splash.png"); 
-	}
-
-	private Path getConfigDir() {
-		var upath = System.getProperty("logonbox.vpn.configuration");
-		return upath == null ? Paths.get(System.getProperty("user.home") + File.separator + ".logonbox-vpn-client") : Paths.get(upath);
-	}
-
-	private Path getCustomLogoFile(IVPNConnection connection) {
-		return getConfigDir().resolve("lpvpnclogo-" + (connection == null ? "default" : connection.getId()));
-	}
-
 	private void reapplyColors() {
-		context.applyColors(branding, null);
+		uiContext.applyColors(branding, null);
 	}
 
 	private void reapplyLogo() {
 		String defaultLogo = UI.class.getResource("logonbox-titlebar-logo.png").toExternalForm();
 		if ((branding == null || Utils.isBlank(branding.logo())
-				&& !defaultLogo.equals(context.navigator().getImage().getUrl()))) {
-			context.navigator().setImage(new Image(defaultLogo, true));
+				&& !defaultLogo.equals(uiContext.navigator().getImage().getUrl()))) {
+			uiContext.navigator().setImage(new Image(defaultLogo, true));
 		} else if (branding != null && !defaultLogo.equals(branding.logo())
 				&& !Utils.isBlank(branding.logo())) {
-			context.navigator().setImage(new Image(branding.logo(), true));
+			uiContext.navigator().setImage(new Image(branding.logo(), true));
 		}
 	}
 
-	private void editConnection(IVPNConnection connection) {
+	private void editConnection(IVpnConnection connection) {
 		setHtmlPage("editConnection.html#" + connection.getId());
 	}
 
 	public void back() {
-		var busClient = context.getManager();
-		var busAvailable = busClient.isBusAvailable();
+		var busAvailable = vpnManager.isBackendAvailable();
 		if (busAvailable) {
-			for (var c : busClient.getVPNConnections()) {
+			for (var c : vpnManager.getVpnOrFail().getConnections()) {
 				if (c.getStatus().equals(ConnectionStatus.Type.AUTHORIZING.name())) {
 					c.disconnect(bundle.getString("cancelled"));
 					selectPageForState(false, false);
@@ -1803,20 +1668,20 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 	@FXML
 	@Reflectable
 	private void evtLaunchDebugger() {
-		context.debugger().ifPresent(d -> d.launch());
+		uiContext.debugger().ifPresent(d -> d.launch());
 	}
 
 	@FXML
 	@Reflectable
 	private void evtStartDebugger() {
-		context.debugger().orElseThrow().startDebugging((ex) -> {
+		uiContext.debugger().orElseThrow().startDebugging((ex) -> {
 			// failed to start
 			LOG.error("Debug server failed to start: " + ex.getMessage());
 			debuggerLink.textProperty().set("");
 			startDebugger.setDisable(false);
 //             updateDebugOff.run();
 		}, () -> {
-			LOG.info("Debug server started, debug URL: " + context.debugger().get().getDebuggerURL());
+			LOG.info("Debug server started, debug URL: " + uiContext.debugger().get().getDebuggerURL());
 			debuggerLink.textProperty().set("Launch Chrome Debugger");
 			startDebugger.setDisable(true);
 			// can copy debug URL to clipboard
@@ -1828,7 +1693,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 	@FXML
 	@Reflectable
 	private void evtStopDebugger() {
-		context.debugger().orElseThrow().stopDebugging((e) -> {
+		uiContext.debugger().orElseThrow().stopDebugging((e) -> {
 			startDebugger.setDisable(false);
 			debuggerLink.textProperty().set("");
 		});
@@ -1853,12 +1718,12 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		} catch (Exception e) {
 			LOG.error("Failed to load connections.", e);
 		}
-		context.applyColors(branding, null);
+		uiContext.applyColors(branding, null);
 		reapplyLogo();
 	}
 
 	private List<CONX> getAllConnections() {
-		return context.getManager().isBusAvailable() ? context.getManager().getVPNConnections() : Collections.emptyList();
+		return vpnManager.isBackendAvailable() ? vpnManager.getVpn().map(vpn -> vpn.getConnections()).orElse(Collections.emptyList()) : Collections.emptyList();
 	}
 
 	private void resetAwaingBridgeEstablish() {
@@ -1875,18 +1740,18 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		}
 	}
 
-	private IVPNConnection getAuthorizingConnection() {
+	private IVpnConnection getAuthorizingConnection() {
 		return getFirstConnectionForState(Type.AUTHORIZING);
 	}
 
-	private IVPNConnection getConnectingConnection() {
+	private IVpnConnection getConnectingConnection() {
 		return getFirstConnectionForState(Type.CONNECTING);
 	}
 
-	private IVPNConnection getFirstConnectionForState(Type... type) {
-		if (context.getManager().isBusAvailable()) {
+	private IVpnConnection getFirstConnectionForState(Type... type) {
+		if (vpnManager.isBackendAvailable()) {
 			List<Type> tl = Arrays.asList(type);
-			for (IVPNConnection connection : context.getManager().getVPNConnections().toArray(new IVPNConnection[0])) {
+			for (var connection : vpnManager.getVpn().map(vpn -> vpn.getConnections()).orElse(Collections.emptyList())) {
 				Type status = Type.valueOf(connection.getStatus());
 				if (tl.contains(status)) {
 					return connection;
@@ -1898,8 +1763,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 
 	private void selectPageForState(boolean connectIfDisconnected, boolean force) {
 		try {
-			var bridge = context.getManager();
-			var busAvailable = bridge.isBusAvailable();
+			var busAvailable = vpnManager.isBackendAvailable();
 			if (!busAvailable) {
 				/* The bridge is not (yet?) connected */
 				setHtmlPage("index.html");
@@ -1928,10 +1792,10 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 					setHtmlPage("updateAvailable.html");
 				} else {
 					/* Otherwise connections page */
-					if (context.getManager().getVPNConnections().isEmpty()) {
-						if (context.getAppContext().isNoAddWhenNoConnections()) {
-							if (context.getAppContext().isConnect()
-									|| Utils.isNotBlank(context.getAppContext().getUri()))
+					if (vpnManager.getVpn().map(vpn -> vpn.getConnections().isEmpty()).orElse(true)) {
+						if (uiContext.getAppContext().isNoAddWhenNoConnections()) {
+							if (uiContext.getAppContext().isConnect()
+									|| Utils.isNotBlank(uiContext.getAppContext().getUri()))
 								setHtmlPage("busy.html");
 							else
 								setHtmlPage("connections.html");
@@ -2067,60 +1931,6 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 			Platform.runLater(r);
 	}
 
-	public Branding getBranding(IVPNConnection connection) {
-		Branding branding = null;
-		if (connection != null) {
-			try {
-				branding = getBrandingForConnection( connection);
-			} catch (IOException ioe) {
-				LOG.info(String.format("Skipping %s:%d because it appears offline.", connection.getHostname(),
-						connection.getPort()));
-			}
-		}
-		else {
-    		if (branding == null) {
-    			for (var conx : context.getManager().getVPNConnections()) {
-    				try {
-    					branding = getBrandingForConnection(conx);
-    				} catch (IOException ioe) {
-    					LOG.info(String.format("Skipping %s:%d because it appears offline.", conx.getHostname(),
-    							conx.getPort()));
-    				}
-                    break;
-    			}
-    		}
-		}
-		return branding;
-	}
-
-	protected Branding getBrandingForConnection(IVPNConnection connection)
-			throws UnknownHostException, IOException {
-		synchronized (brandingCache) {
-			var item = brandingCache.get(connection);
-			if (item != null && item.isExpired()) {
-				item = null;
-			}
-			if (item == null) {
-				item = new BrandingCacheItem(branding);
-				brandingCache.put(connection, item);
-				String uri = connection.getUri(false) + "/api/brand/info";
-				LOG.info(String.format("Retrieving branding from %s", uri));
-				var url = URI.create(uri).toURL();
-				var urlConnection = url.openConnection();
-				urlConnection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(6));
-				urlConnection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(6));
-				try (InputStream in = urlConnection.getInputStream()) {
-				    var rdr = Json.createReader(in);
-					var brandingObj = Branding.of(rdr.readObject());
-					brandingObj = brandingObj.logo("https://" + connection.getHostname() + ":" + connection.getPort()
-							+ connection.getPath() + "/api/brand/logo");
-					item.branding = brandingObj;
-				}
-			}
-			return item.branding;
-		}
-	}
-
 	private void setLoading(boolean loading) {
 		if (this.loading.isVisible() != loading) {
 			if (loading) {
@@ -2139,7 +1949,7 @@ public class UI<CONX extends IVPNConnection> extends AnchorPane {
 		setLoading(true);
 		LOG.info(String.format("Loading page %s", htmlPage));
 		// let it know that we are reloading the page, not chrome dev tools
-		context.debugger().ifPresent(d -> d.pageReloading());
+		uiContext.debugger().ifPresent(d -> d.pageReloading());
 		// load the web page
 		webView.getEngine().load(url);
 		LOG.info("Loaded " + url);

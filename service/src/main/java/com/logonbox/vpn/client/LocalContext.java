@@ -1,43 +1,26 @@
 package com.logonbox.vpn.client;
 
+import com.logonbox.vpn.client.common.ComponentContext;
 import com.logonbox.vpn.client.common.Connection;
-import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
-import com.logonbox.vpn.client.common.api.IVPN;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.client.service.ClientService;
 import com.logonbox.vpn.drivers.lib.PlatformService;
 
-import org.slf4j.event.Level;
-
 import java.io.Closeable;
-import java.net.CookieStore;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
-public interface LocalContext<CONX extends IVPNConnection> extends Closeable {
+public interface LocalContext<CONX extends IVpnConnection> extends Closeable, ComponentContext<CONX> {
 
     PlatformService<?> getPlatformService();
 
     ClientService<CONX> getClientService();
 
-    void shutdown(boolean restart);
-
     SSLContext getSSLContext();
 
-    PromptingCertManager getCertManager();
-
     SSLParameters getSSLParameters();
-
-    CookieStore getCookieStore();
-
-    ScheduledExecutorService getQueue();
-
-    Level getDefaultLevel();
-
-    void setLevel(Level level);
 
     @Override
     void close();
@@ -72,7 +55,5 @@ public interface LocalContext<CONX extends IVPNConnection> extends Closeable {
             String message);
     
     void fireExit();
-
-    IVPN<CONX> getVPN();
 
 }

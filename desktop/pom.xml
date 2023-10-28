@@ -65,10 +65,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jul-to-slf4j</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.logonbox</groupId>
             <artifactId>client-logonbox-vpn-logging</artifactId>
             <version>${project.version}</version>
@@ -187,7 +183,53 @@
             <releases />
         </repository>
     </repositories>
-    <profiles>
+    
+     <profiles>
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.logonbox</groupId>
+                    <artifactId>client-logonbox-vpn-windows</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>linux</id>
+            <activation>
+                <os>
+                    <family>linux</family>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.logonbox</groupId>
+                    <artifactId>client-logonbox-vpn-linux</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>macos</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.logonbox</groupId>
+                    <artifactId>client-logonbox-vpn-macos</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
         <profile>
             <id>XXnative-image</id>
             <build>

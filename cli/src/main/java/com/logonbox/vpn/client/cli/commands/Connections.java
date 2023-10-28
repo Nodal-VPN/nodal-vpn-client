@@ -2,7 +2,7 @@ package com.logonbox.vpn.client.cli.commands;
 
 import com.logonbox.vpn.client.cli.CLIContext;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.drivers.lib.util.OsUtil;
 
 import java.util.concurrent.Callable;
@@ -27,7 +27,7 @@ public class Connections implements Callable<Integer> {
 		if(OsUtil.isAdministrator())  {
 			writer.println(String.format("%5s %-25s %-15s %-5s %-10s %s", "ID", "Name", "Owner", "Flags", "Status", "URL"));
 			writer.println("=======================================================================================================");
-			for (var connection : cli.getVpnManager().getVPNConnections()) {
+			for (var connection : cli.getVpnManager().getVpnOrFail().getConnections()) {
 				writer.println(String.format("%5d %-25s %-15s %-5s %-10s %s", 
 						connection.getId(),
 						trimMax(connection.getDisplayName(), 25),
@@ -40,7 +40,7 @@ public class Connections implements Callable<Integer> {
 		else {
 			writer.println(String.format("%5s %-35s %-5s %-14s %s", "ID", "Name", "Flags", "Status", "URL"));
 			writer.println("=======================================================================================");
-			for (var connection : cli.getVpnManager().getVPNConnections()) {
+			for (var connection : cli.getVpnManager().getVpnOrFail().getConnections()) {
 				writer.println(String.format("%5d %-35s %-5s %-10s %s", 
 						connection.getId(),
 						trimMax(connection.getDisplayName(), 35), 
@@ -54,7 +54,7 @@ public class Connections implements Callable<Integer> {
 		return 0;
 	}
 
-	private String getFlags(IVPNConnection connection) {
+	private String getFlags(IVpnConnection connection) {
 		String flags = "";
 		if(connection.isTransient())
 			flags += "T";

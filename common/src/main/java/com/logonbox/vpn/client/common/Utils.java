@@ -1,24 +1,24 @@
 package com.logonbox.vpn.client.common;
 
-import com.sshtools.liftlib.OS;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 public class Utils {
-    public static String getHostName() {
-        return OS.isWindows() ? System.getenv("COMPUTERNAME") : System.getenv("HOSTNAME");
-    }
     
     public static String defaultIfBlank(String str, String defaultStr) {
         return isBlank(str) ? defaultStr : str;
@@ -62,12 +62,34 @@ public class Utils {
 
     public static byte[] toByteArray(File file) {
         try (var in = new FileInputStream(file)) {
-            try (var out = new ByteArrayOutputStream()) {
-                in.transferTo(out);
-                return out.toByteArray();
-            }
+            return toByteArray(in);
         } catch (IOException ioe) {
             throw new UncheckedIOException(ioe);
+        }
+    }
+    
+    public static byte[] toByteArray(URL url) {
+        try (var in = url.openStream()) {
+            return toByteArray(in);
+        } catch (IOException ioe) {
+            throw new UncheckedIOException(ioe);
+        }
+    }
+    
+    public static byte[] toByteArray(InputStream in) {
+        try (var out = new ByteArrayOutputStream()) {
+            in.transferTo(out);
+            return out.toByteArray();
+        } catch (IOException ioe) {
+            throw new UncheckedIOException(ioe);
+        }
+    }
+
+    public final static String toString(InputStream in, String enc) {
+        try {
+            return toString(new InputStreamReader(in, enc));
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -93,7 +115,24 @@ public class Utils {
     }
 
     public static String escapeEcmaScript(String string) {
-        // TODO Auto-generated method stub
-        return null;
+        return string;
+    }
+    
+    public static Collection<String> runCommandAndCaptureOutput(String... args) throws IOException {
+        var largs = new ArrayList<String>(Arrays.asList(args));
+        var pb = new ProcessBuilder(largs);
+        pb.redirectErrorStream(true);
+        Process p = pb.start();
+        var lines = Utils.readLines(new InputStreamReader(p.getInputStream()));
+        try {
+            int ret = p.waitFor();
+            if (ret != 0) {
+                throw new IOException("Command '" + String.join(" ", largs) + "' returned non-zero status. Returned "
+                        + ret + ". " + String.join("\n", lines));
+            }
+        } catch (InterruptedException e) {
+            throw new IOException(e.getMessage(), e);
+        }
+        return lines;
     }
 }

@@ -32,7 +32,7 @@ public class Save extends AbstractConnectionCommand implements Callable<Integer>
 			var id = connection.save();
 			
 			if (wasTransient) {
-				connection = cli.getVpnManager().getVPNConnection(id);
+				connection = cli.getVpnManager().getVpnOrFail().getConnection(id);
 				if(!cli.isQuiet()) {
 					console.out()
 							.println(String.format("Saved %s, ID is now %d", connection.getUri(true), connection.getId()));

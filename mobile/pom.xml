@@ -195,6 +195,11 @@
                     <groupId>com.logonbox</groupId>
                     <artifactId>logonbox-vpn-windows</artifactId>
                 </dependency>
+                <dependency>
+                    <groupId>com.logonbox</groupId>
+                    <artifactId>client-logonbox-vpn-windows</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
             </dependencies>
         </profile>
         <profile>
@@ -213,6 +218,11 @@
                     <groupId>com.github.hypfvieh</groupId>
                     <artifactId>dbus-java-transport-native-unixsocket</artifactId>
                 </dependency>
+                <dependency>
+                    <groupId>com.logonbox</groupId>
+                    <artifactId>client-logonbox-vpn-linux</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
             </dependencies>
         </profile>
         <profile>
@@ -226,6 +236,11 @@
                 <dependency>
                     <groupId>com.logonbox</groupId>
                     <artifactId>logonbox-vpn-macos</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.logonbox</groupId>
+                    <artifactId>client-logonbox-vpn-macos</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>

@@ -5,8 +5,8 @@ import com.logonbox.vpn.client.cli.StateHelper;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.Utils;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
-import com.logonbox.vpn.client.common.dbus.VPNConnection;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
+import com.logonbox.vpn.client.common.dbus.VpnConnection;
 
 import org.freedesktop.dbus.exceptions.DBusException;
 
@@ -36,7 +36,7 @@ public class Connect extends AbstractConnectionCommand implements Callable<Integ
 		var out = console.out();
 		var err = console.err();
 
-		IVPNConnection connection = null;
+		IVpnConnection connection = null;
 
 		var pattern = getPattern(cli, new String[] { uri });
 		var c = getConnectionsMatching(pattern, cli);
@@ -54,12 +54,13 @@ public class Connect extends AbstractConnectionCommand implements Callable<Integ
 				}
 
 				var vpnManager = cli.getVpnManager();
-                var connectionId = vpnManager.getVPNOrFail().getConnectionIdForURI(uri);
-				connection = connectionId < 0 ? null : vpnManager.getVPNConnection(connectionId);
+                var vpn = vpnManager.getVpnOrFail();
+                var connectionId = vpn.getConnectionIdForURI(uri);
+				connection = connectionId < 0 ? null : vpn.getConnection(connectionId);
 
 				if (connection == null) {
-					connectionId = vpnManager.getVPNOrFail().connect(uri);
-					connection = vpnManager.getVPNConnection(connectionId);
+					connectionId = vpn.connect(uri);
+					connection = vpn.getConnection(connectionId);
 					if (!cli.isQuiet())
 						out.println(String.format("Created new connection for %s", uri));
 				}
@@ -75,11 +76,11 @@ public class Connect extends AbstractConnectionCommand implements Callable<Integ
 
 	}
 
-	Integer doConnect(CLIContext cli, PrintWriter out, PrintWriter err, IVPNConnection connection)
+	Integer doConnect(CLIContext cli, PrintWriter out, PrintWriter err, IVpnConnection connection)
 			throws DBusException, InterruptedException, IOException {
 		var status = Type.valueOf(connection.getStatus());
 		if (status == Type.DISCONNECTED) {
-			try (var stateHelper = new StateHelper((VPNConnection) connection, cli.getBus())) {
+			try (var stateHelper = new StateHelper((VpnConnection) connection, cli.getVpnManager())) {
 				if (!cli.isQuiet()) {
 					out.println(String.format("Connecting to %s", connection.getUri(true)));
 					cli.getConsole().flush();

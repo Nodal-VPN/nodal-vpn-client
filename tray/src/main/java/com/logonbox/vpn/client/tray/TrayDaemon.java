@@ -1,24 +1,23 @@
 package com.logonbox.vpn.client.tray;
 
 
+import com.logonbox.vpn.client.app.SimpleLoggingConfig;
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
+import com.logonbox.vpn.client.common.LoggingConfig;
+import com.logonbox.vpn.client.common.LoggingConfig.Audience;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.Utils;
-import com.logonbox.vpn.client.common.dbus.RemoteUI;
-import com.logonbox.vpn.client.common.dbus.VPNConnection;
+import com.logonbox.vpn.client.common.api.IRemoteUI;
+import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
-import com.logonbox.vpn.client.logging.SimpleLoggerConfiguration;
 import com.sshtools.liftlib.OS;
 import com.sshtools.twoslices.Slice;
 import com.sshtools.twoslices.Toast;
 import com.sshtools.twoslices.ToastType;
 import com.sshtools.twoslices.ToasterFactory;
 
-import org.freedesktop.dbus.errors.ServiceUnknown;
-import org.freedesktop.dbus.exceptions.DBusException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,19 +54,30 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
     }
     
 	private static TrayDaemon instance;
-    private static Logger log;
+
+	public static TrayDaemon getInstance() {
+		return instance;
+	}
+
+	public static void main(String[] args) throws Exception {
+		var cli = new TrayDaemon();
+		System.exit(new CommandLine(cli).execute(args));
+	}
 
 	private Tray tray;
 
 	private Map<Long, Slice> notificationsForConnections = new HashMap<>();
-
-	public TrayDaemon() {
+    
+    public TrayDaemon() {
 		instance = this;
-		setSupportsAuthorization(false);
 	}
+
 
 	@Override
 	public Integer call() throws Exception {
+
+        initApp();
+        
 		log.info(String.format("System Tray Version: %s", AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-tray")));
         log.info(String.format("DBus Version: %s", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")));
 		log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " ("
@@ -78,7 +88,6 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 		}
 
 		tray = new SWTTray(this);
-		lazyInit();
 
 		var settings = ToasterFactory.getSettings();
 		settings.setAppName(Tray.bundle.getString("appName"));
@@ -89,27 +98,28 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 		
 		var handles = new ArrayList<AutoCloseable>();
 		
-		onVpnAvailable(() -> {
+		var mgr = getVpnManager();
+        mgr.onVpnAvailable(() -> {
     		handles.addAll(Arrays.asList(
-    		    onConfirmedExit(() -> shutdown()),
-    	        onGlobalConfigChanged((item, val) -> tray.reload()),
-    	        onAuthorize((connection, uri, mode) -> {
+    		    mgr.onConfirmedExit(() -> shutdown(false)),
+    		    mgr.onGlobalConfigChanged((item, val) -> tray.reload()),
+    		    mgr.onAuthorize((connection, uri, mode) -> {
     	            requestAuthorize(connection);           
     	        }),
-    	        onTemporarilyOffline((conx,reason) -> {
+    		    mgr.onTemporarilyOffline((conx,reason) -> {
     	            clearNotificationForConnection(conx.getId());           
     	        }),
-    	        onConnecting(conx -> {
+    		    mgr.onConnecting(conx -> {
     	            clearNotificationForConnection(conx.getId());
     	        }),
-    	        onConnected(conx -> {
+    		    mgr.onConnected(conx -> {
     	            notifyMessage(conx.getId(), MessageFormat.format(Tray.bundle.getString("connected"),
     	                    conx.getDisplayName(), conx.getHostname()), ToastType.INFO);
     	        }),
-    	        onFailure((conx,reason,cause,trace) -> {
+    		    mgr.onFailure((conx,reason,cause,trace) -> {
     	            notifyMessage(conx.getId(), reason, ToastType.ERROR);
     	        }),
-    	        onDisconnected((conx, thisDisconnectionReason) -> {
+    		    mgr.onDisconnected((conx, thisDisconnectionReason) -> {
     	            log.info("Disconnected " + conx.getId());
     	            try {
     	                /*
@@ -134,21 +144,21 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
     	                                    .type(ToastType.INFO).defaultAction(() -> open())
     	                                    .action(Tray.bundle.getString("reconnect"), () -> {
     	                                        open();
-    	                                        getScheduler().execute(() -> getVPNConnection(conx.getId()).connect());
+    	                                        getQueue().execute(() -> mgr.getVpnOrFail().getConnection(conx.getId()).connect());
     	                                    }).timeout(0).toast());
     	            } catch (Exception e) {
     	                log.error("Failed to get connection, delete not possible.", e);
     	            }
     	        })));
     		
-            for (var c : getVPNConnections()) {
+            for (var c : mgr.getVpnOrFail().getConnections()) {
                 if (c.getStatus().equals(Type.AUTHORIZING.name())) {
                     requestAuthorize(c);
                     break;
                 }
             }
 		});
-		onVpnGone(() -> {
+		getVpnManager().onVpnGone(() -> {
 		    handles.forEach(h->{
                 try {
                     h.close();
@@ -165,43 +175,20 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 		return 0;
 	}
 
-	public static TrayDaemon getInstance() {
-		return instance;
-	}
-
-	@Override
-	protected void beforeExit() {
-		if (tray != null) {
+	public void confirmExit() {
+		try {
+			int active = getVpnManager().getVpnOrFail().getActiveButNonPersistentConnections();
+			log.info("{} non-persistent connections", active);
+			if (active == 0)
+				throw new Exception("No active connections, just exit.");
+			getVpnManager().getUserInterface().ifPresent(IRemoteUI::confirmExit);
+		} catch (Exception e) {
 			try {
-				tray.close();
-			} catch (Exception e) {
+	            getVpnManager().getUserInterface().ifPresent(IRemoteUI::exitApp);
+			} catch (Exception e2) {
 			}
+			shutdown(false);
 		}
-	}
-
-	public void restart() {
-		exit();
-		System.exit(99);
-	}
-
-	public void shutdown() {
-		exit();
-		System.exit(0);
-	}
-
-	@Override
-	protected boolean isInteractive() {
-		return false;
-	}
-
-	public static void main(String[] args) throws Exception {
-
-        System.setProperty(SimpleLoggerConfiguration.CONFIGURATION_FILE_KEY, "default-log-cli.properties");
-        log = LoggerFactory.getLogger(TrayDaemon.class);
-        
-		var cli = new TrayDaemon();
-		System.exit(new CommandLine(cli).execute(args));
-
 	}
 
 	@Override
@@ -215,24 +202,46 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 	}
 
 	@Override
-	protected PromptingCertManager createCertManager() {
-		return null;
-	}
-
-	public void open() {
-		try {
-			getBus().getRemoteObject(RemoteUI.BUS_NAME, RemoteUI.OBJECT_PATH, RemoteUI.class).open();
-		} catch (ServiceUnknown su) {
-			startGui();
-		} catch (DBusException e) {
-			throw new IllegalStateException("Failed to send remote call.");
-		}
+	public boolean isInteractive() {
+		return false;
 	}
 
 	public void notifyMessage(Long id, String msg, ToastType toastType) {
 		clearNotificationForConnection(id);
 		putNotificationForConnection(id, Toast.toast(toastType, Tray.bundle.getString("appName"), msg));
 	}
+
+	public void open() {
+	    getVpnManager().getUserInterface().ifPresentOrElse(IRemoteUI::open, () -> startGui());
+	}
+
+	public void options() {
+        getVpnManager().getUserInterface().ifPresentOrElse(IRemoteUI::options, () -> startGui());
+	}
+
+	@Override
+	protected void beforeExit() {
+		if (tray != null) {
+			try {
+				tray.close();
+			} catch (Exception e) {
+			}
+		}
+	}
+
+	@Override
+	protected PromptingCertManager createCertManager() {
+		return null;
+	}
+
+	@Override
+    protected LoggingConfig createLoggingConfig() {
+        return new SimpleLoggingConfig(Level.INFO, Map.of(
+                Audience.USER, "default-log-tray.properties",
+                Audience.CONSOLE, "default-log-tray-console.properties",
+                Audience.DEVELOPER, "default-log-tray-developer.properties"
+        ));
+    }
 
 	protected void startGui() {
 		new Thread() {
@@ -254,50 +263,6 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 		}.start();
 	}
 
-	public void confirmExit() {
-		try {
-			int active = getVPNOrFail().getActiveButNonPersistentConnections();
-			log.info("{} non-persistent connections", active);
-			if (active == 0)
-				throw new Exception("No active connections, just exit.");
-			getBus().getRemoteObject(RemoteUI.BUS_NAME, RemoteUI.OBJECT_PATH, RemoteUI.class).confirmExit();
-		} catch (Exception e) {
-			try {
-				getBus().getRemoteObject(RemoteUI.BUS_NAME, RemoteUI.OBJECT_PATH, RemoteUI.class).exitApp();
-			} catch (Exception e2) {
-			}
-			shutdown();
-		}
-	}
-
-	public void options() {
-		try {
-			getAltBus().getRemoteObject(RemoteUI.BUS_NAME, RemoteUI.OBJECT_PATH, RemoteUI.class).options();
-
-		} catch (ServiceUnknown su) {
-			startGui();
-		} catch (DBusException e) {
-			throw new IllegalStateException("Failed to send remote call.");
-		}
-	}
-
-	private void putNotificationForConnection(Long id, Slice slice) {
-		if (id != null) {
-			notificationsForConnections.put(id, slice);
-		}
-	}
-
-    private void requestAuthorize(VPNConnection connection) {
-        putNotificationForConnection(connection.getId(),
-                Toast.builder().title(Tray.bundle.getString("appName"))
-                        .content(MessageFormat.format(Tray.bundle.getString("authorize"), connection.getDisplayName(),
-                                connection.getHostname()))
-                        .type(ToastType.INFO).defaultAction(() -> open()).action(Tray.bundle.getString("open"), () -> {
-                            open();
-                            getScheduler().execute(() -> getVPNConnection(connection.getId()).connect());
-                        }).timeout(0).toast());
-    }
-
     private void clearNotificationForConnection(Long id) {
         if (id != null) {
             Slice slice = notificationsForConnections.remove(id);
@@ -308,5 +273,22 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
                 }
             }
         }
+    }
+
+    private void putNotificationForConnection(Long id, Slice slice) {
+		if (id != null) {
+			notificationsForConnections.put(id, slice);
+		}
+	}
+
+    private void requestAuthorize(VpnConnection connection) {
+        putNotificationForConnection(connection.getId(),
+                Toast.builder().title(Tray.bundle.getString("appName"))
+                        .content(MessageFormat.format(Tray.bundle.getString("authorize"), connection.getDisplayName(),
+                                connection.getHostname()))
+                        .type(ToastType.INFO).defaultAction(() -> open()).action(Tray.bundle.getString("open"), () -> {
+                            open();
+                            getQueue().execute(() -> getVpnManager().getVpnOrFail().getConnection(connection.getId()).connect());
+                        }).timeout(0).toast());
     }
 }

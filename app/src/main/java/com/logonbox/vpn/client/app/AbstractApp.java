@@ -1,20 +1,23 @@
 package com.logonbox.vpn.client.app;
 
-import com.logonbox.vpn.client.common.AbstractVpnManager;
+import com.logonbox.vpn.client.common.App;
+import com.logonbox.vpn.client.common.AppContext;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.CustomCookieStore;
 import com.logonbox.vpn.client.common.DummyUpdateService;
+import com.logonbox.vpn.client.common.LoggingConfig;
+import com.logonbox.vpn.client.common.LoggingConfig.Audience;
 import com.logonbox.vpn.client.common.NoUpdateService;
+import com.logonbox.vpn.client.common.PlatformUtilities;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.Utils;
-import com.logonbox.vpn.client.common.api.IVPN;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.drivers.lib.util.OsUtil;
-import com.sshtools.liftlib.OS;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,25 +33,31 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
-public abstract class AbstractApp<CONX extends IVPNConnection> extends AbstractVpnManager<CONX> {
+public abstract class AbstractApp<CONX extends IVpnConnection> implements AppContext<CONX> {
 
 	final static int DEFAULT_TIMEOUT = 10000;
-	static Logger log;
-
-	private Object initLock = new Object();
 
 	private ScheduledExecutorService scheduler;
-	private IVPN<CONX> vpn;
 
 	@Option(names = { "-u",
 			"--as-user" }, description = "Act on behalf of another user, only an adminstrator can do this.")
 	private String asUser;
+
+    @Option(names = { "-L", "--log-level" }, paramLabel = "LEVEL", description = "Logging level for trouble-shooting.")
+    protected Optional<Level> level;
+
+    @Option(names = { "-LA",
+            "--log-audience" }, paramLabel = "AUDIENCE", description = "Who is the audience for logging. USER is normal logging mode, with files in the most appropriate location for the application type. CONSOLE will log all output to console. DEVELOPER will log to a local `logs` directory.")
+    private Optional<Audience> loggingAudience;
+	
 	@Spec
 	private CommandSpec spec;
+	
 	private PromptingCertManager certManager;
 	private UpdateService updateService;
 	private CookieStore cookieStore;
 	private Properties instanceProperties = new Properties();
+	private LoggingConfig logging;
 
 	protected AbstractApp() {
 		certManager = createCertManager();
@@ -66,9 +75,27 @@ public abstract class AbstractApp<CONX extends IVPNConnection> extends AbstractV
 				// Don't care
 			}
 		}
+		logging = createLoggingConfig();
 	}
 
-	protected UpdateService createUpdateService() {
+	@Override
+    public final LoggingConfig getLogging() {
+        return logging;
+    }
+	
+	protected abstract LoggingConfig createLoggingConfig();
+	
+	protected Audience calcLoggingAudience() {
+	    return loggingAudience.orElseGet(() -> {
+	        if(AppVersion.isDeveloperWorkspace())
+	            return Audience.DEVELOPER;
+	        else {
+	            return Audience.USER;
+	        }   
+	    });
+	}
+	
+    protected UpdateService createUpdateService() {
 		try {
 			if("true".equals(System.getProperty("logonbox.vpn.dummyUpdates"))) {
 				return new DummyUpdateService(this);
@@ -89,7 +116,7 @@ public abstract class AbstractApp<CONX extends IVPNConnection> extends AbstractV
 	@Override
     public final  CookieStore getCookieStore() {
 		if (cookieStore == null) {
-			cookieStore = new CustomCookieStore(new File(CLIENT_HOME, "web-cookies.dat"));
+			cookieStore = new CustomCookieStore(new File(App.CLIENT_HOME, "web-cookies.dat"));
 		}
 		return cookieStore;
 	}
@@ -102,22 +129,17 @@ public abstract class AbstractApp<CONX extends IVPNConnection> extends AbstractV
 	}
 
 	@Override
-    public final Optional<IVPN<CONX>> getVPN() {
-		lazyInit();
-		return Optional.ofNullable(vpn);
-	}
-
-	@Override
     public final PromptingCertManager getCertManager() {
 		return certManager;
 	}
 
-	public final ScheduledExecutorService getScheduler() {
+    @Override
+	public final ScheduledExecutorService getQueue() {
 		return scheduler;
 	}
 
 	@Override
-    public final void exit() {
+    public final void shutdown(boolean restart) {
 	    beforeExit();
 	    try {
     		scheduler.shutdown();
@@ -135,59 +157,8 @@ public abstract class AbstractApp<CONX extends IVPNConnection> extends AbstractV
     protected void afterExit() {
     }
 
-	protected final void init() throws Exception {
-
-		if (vpn != null) {
-			getLog().debug("Call to init when already have bus.");
-			return;
-		}
-
-		if (getLog().isDebugEnabled())
-			getLog().debug(String.format("Using update service %s", getUpdateService().getClass().getName()));
-
-		onInit();
-
-		getUpdateService().checkIfBusAvailable();
-
-		/* Create cert manager */
-		getLog().info("Cert manager: {}", getCertManager());
-	}
-	
-    protected abstract void onInit() throws Exception;
-
-	protected abstract boolean isInteractive();
-
-	protected Logger getLog() {
-		if (log == null) {
-			log = LoggerFactory.getLogger(AbstractApp.class);
-		}
-		return log;
-	}
-
-	protected final void lazyInit() {
-		synchronized (initLock) {
-			if (vpn == null) {
-				getLog().info("Trying to obtain Vpn Manager");
-				try {
-	                onLazyInit();   
-				}
-				catch (RuntimeException re) {
-				    getLog().error("Failed to initialise.", re);
-	                throw re;
-	            } catch (Exception e) {
-	                getLog().error("Failed to initialise.", e);
-	                throw new IllegalStateException("Failed to initialize.", e);
-	            }
-			}
-		}
-	}
-	
-    protected abstract void onLazyInit() throws Exception;
+    protected abstract Logger getLog();
     
-    protected final void setVPN(IVPN<CONX> vpn) {
-        this.vpn = vpn;
-    }
-
 	protected final void handleCertPromptRequest(PromptType type, String key, String title, String content, String hostname, String message) {
 		var cm = getCertManager();
 		if(cm.isToolkitThread()) {
@@ -202,18 +173,10 @@ public abstract class AbstractApp<CONX extends IVPNConnection> extends AbstractV
 			cm.runOnToolkitThread(() -> handleCertPromptRequest(type, key, title, content, hostname, message));
 	}
 
-	protected final String getEffectiveUser() {
+	@Override
+	public final String getEffectiveUser() {
 		if (Utils.isBlank(asUser)) {
-			String username = System.getProperty("user.name");
-			if (OS.isWindows()) {
-				String domainOrComputer = System.getenv("USERDOMAIN");
-				if (Utils.isBlank(domainOrComputer))
-					return username;
-				else
-					return domainOrComputer + "\\" + username;
-			} else {
-				return username;
-			}
+		    return PlatformUtilities.get().getCurrentUser();
 		} else {
 			if (OsUtil.isAdministrator())
 				return asUser;

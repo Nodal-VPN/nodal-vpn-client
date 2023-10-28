@@ -1,7 +1,7 @@
 package com.logonbox.vpn.client;
 
 import com.logonbox.vpn.client.common.PromptingCertManager;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.prefs.Preferences;
 
-public class ServicePromptingCertManager<CONX extends IVPNConnection> extends PromptingCertManager {
+public class ServicePromptingCertManager<CONX extends IVpnConnection> extends PromptingCertManager {
 
 	private LocalContext<CONX> context;
 

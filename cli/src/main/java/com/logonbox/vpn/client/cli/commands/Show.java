@@ -1,7 +1,7 @@
 package com.logonbox.vpn.client.cli.commands;
 
 import com.logonbox.vpn.client.common.Utils;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
 
 import java.io.PrintWriter;
 
@@ -29,7 +29,7 @@ public class Show extends AbstractConnectionCommand {
 		return 0;
 	}
 
-	private void printConnection(PrintWriter writer, IVPNConnection connection) {
+	private void printConnection(PrintWriter writer, IVpnConnection connection) {
 		writer.println(String.format("Basic"));
 		writer.println(String.format(" Connection: %d", connection.getId()));
 		writer.println(String.format(" Name: %s", connection.getName()));

@@ -1,0 +1,13 @@
+{
+  "resources":{
+  "includes":[{
+    "pattern":"\\Qchromium-5845/chromium.properties\\E"
+  }, {
+    "pattern":"\\Qorg/eclipse/swt/internal/gtk/swt_functional_gtk_3_20.css\\E"
+  }, {
+    "pattern":"\\Qorg/eclipse/swt/internal/gtk/swt_theming_fixes_gtk_3_20.css\\E"
+  }, {
+    "pattern":"\\Qorg/eclipse/swt/internal/gtk/swt_theming_fixes_gtk_3_24_5.css\\E"
+  }]},
+  "bundles":[]
+}

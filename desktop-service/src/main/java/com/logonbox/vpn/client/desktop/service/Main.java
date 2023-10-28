@@ -1,20 +1,21 @@
 package com.logonbox.vpn.client.desktop.service;
 
 import com.logonbox.vpn.client.AbstractService;
+import com.logonbox.vpn.client.app.SimpleLoggingConfig;
 import com.logonbox.vpn.client.common.App;
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
+import com.logonbox.vpn.client.common.LoggingConfig;
+import com.logonbox.vpn.client.common.LoggingConfig.Audience;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.Utils;
-import com.logonbox.vpn.client.common.api.IVPN;
+import com.logonbox.vpn.client.common.api.IVpn;
 import com.logonbox.vpn.client.common.dbus.VPN;
-import com.logonbox.vpn.client.common.dbus.VPNConnection;
 import com.logonbox.vpn.client.common.dbus.VPNFrontEnd;
-import com.logonbox.vpn.client.desktop.service.dbus.VPNConnectionImpl;
-import com.logonbox.vpn.client.desktop.service.dbus.VPNImpl;
-import com.logonbox.vpn.client.logging.SimpleLogger;
-import com.logonbox.vpn.client.logging.SimpleLoggerConfiguration;
+import com.logonbox.vpn.client.common.dbus.VpnConnection;
+import com.logonbox.vpn.client.desktop.service.dbus.VpnConnectionImpl;
+import com.logonbox.vpn.client.desktop.service.dbus.VpnImpl;
 import com.logonbox.vpn.client.service.ClientService.Listener;
 import com.sshtools.liftlib.Helper;
 import com.sshtools.liftlib.OS;
@@ -32,7 +33,6 @@ import org.freedesktop.dbus.messages.Message;
 import org.freedesktop.dbus.utils.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.slf4j.event.Level;
 
 import java.io.File;
@@ -56,8 +56,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Handler;
-import java.util.logging.LogManager;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -70,7 +68,7 @@ import uk.co.bithatch.nativeimage.annotations.Resource;
 @Command(name = "lbvpn-service", mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.", versionProvider =  Main.VersionProvider.class)
 @Bundle
 @Resource({"default-log-service\\.properties", "default-log4j-service-console\\.properties"})
-public class Main extends AbstractService<VPNConnection> implements Callable<Integer>, DesktopServiceContext, Listener {
+public class Main extends AbstractService<VpnConnection> implements Callable<Integer>, DesktopServiceContext, Listener {
 
 	public final static ResourceBundle BUNDLE = ResourceBundle.getBundle(Main.class.getName());
 	
@@ -111,15 +109,15 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
     @Option(names = { "--elevate" }, hidden = true, paramLabel = "URI", description = "Elevated helper.")
     private Optional<String> elevate = Optional.empty();
 
-    @Option(names = { "-L", "--log-level" }, paramLabel = "LEVEL", description = "Logging level for trouble-shooting.")
-    private Optional<Level> level;
-
 	@Option(names = { "-ba", "--bus-address" }, description = "Address of Bus.")
 	private String address;
 
-    @Option(names = { "-C",
-            "--log-to-console" }, description = "Also direct all log output to console, unless logging configuration is overridden with `logonbox.vpn.logConfiguration` system property.")
-    private boolean logToConsole;
+    @Option(names = { "-L", "--log-level" }, paramLabel = "LEVEL", description = "Logging level for trouble-shooting.")
+    private Optional<Level> level;
+
+    @Option(names = { "-LA",
+            "--log-audience" }, description = "Log audience.")
+    private Optional<Audience> loggingAudience;
 
 	@Option(names = { "-e",
 			"--embedded-bus" }, description = "Force use of embedded DBus service. Usually it is enabled by default for anything other than Linux.")
@@ -151,7 +149,6 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 		super(BUNDLE);
 	}
 
-	@Override
 	public Level getDefaultLevel() {
 		return Level.WARN;
 	}
@@ -201,19 +198,11 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 	        return 0;
 	    }
 
-		File logs = new File("logs");
-		logs.mkdirs();
-
-        if(logToConsole)
-            System.setProperty(SimpleLoggerConfiguration.CONFIGURATION_FILE_KEY, "default-log-service-console.properties");
-        else
-            System.setProperty(SimpleLoggerConfiguration.CONFIGURATION_FILE_KEY, "default-log-service.properties");
-
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-        SLF4JBridgeHandler.install();
-
-        log = LoggerFactory.getLogger(Main.class);
-
+        getLogging().init(calcLoggingAudience(loggingAudience), level);
+        
+        /* Now we can start actually logging */
+        log = LoggerFactory.getLogger(getClass());
+		
 		try {
 
 			if (!buildServices()) {
@@ -221,16 +210,17 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 			}
 
 			/*
-			 * Have database, so enough to get configuration for log level, we can start
-			 * logging now
+			 * Have database, so enough to get configuration for log level
 			 */
 			Level cfgLevel = getConfigurationRepository().getValue(null, ConfigurationItem.LOG_LEVEL);
 			if(level.isPresent()) {
-                setLevel(level.get());
+                getLogging().setLevel(level.get());
 			}
 			else if (cfgLevel != null) {
-				setLevel(cfgLevel);
+			    getLogging().setLevel(cfgLevel);
 			}
+			
+			/* About */
 			log.info(String.format("VPN Desktop Service Version: %s",
 					AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop-service")));
 			log.info(String.format("VPN Library Version: %s",
@@ -273,15 +263,15 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 		return 0;
 	}
 
-	@Override
-	public void setLevel(Level level) {
-        System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, level.toString());
-        java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
-        rootLogger.setLevel(toJulLevel(level));
-        for (Handler h : rootLogger.getHandlers()) {
-            h.setLevel(toJulLevel(level));
-        }
-	}
+    @Override
+    protected LoggingConfig createLoggingConfig() {
+        return new SimpleLoggingConfig(Level.WARN, Map.of(
+                Audience.USER, "default-log-service.properties",
+                Audience.CONSOLE, "default-log-service-console.properties",
+                Audience.DEVELOPER, "default-log-service-developer.properties"
+        ));
+    }
+
 
     @Override
 	protected void onShutdown(boolean restart) {
@@ -314,14 +304,14 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
         return log;
     }
 
-    protected final Optional<IVPN<VPNConnection>> buildVpn() {
+    protected final Optional<IVpn<VpnConnection>> buildVpn() {
 
         try {
             /* DBus */
             if (log.isInfoEnabled()) {
                 log.info(String.format("Exporting VPN services to DBus"));
             }
-            var vpn = new VPNImpl(this);
+            var vpn = new VpnImpl(this);
             conn.exportObject("/com/logonbox/vpn", vpn);
             if (log.isInfoEnabled()) {
                 log.info(String.format("    VPN"));
@@ -330,7 +320,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
                 var connection = connectionStatus.getConnection();
                 log.info(String.format("    Connection %d - %s", connection.getId(), connection.getDisplayName()));
                 conn.exportObject(String.format("/com/logonbox/vpn/%d", connection.getId()),
-                        new VPNConnectionImpl(this, connection));
+                        new VpnConnectionImpl(this, connection));
             }
 
             return Optional.of(vpn);
@@ -351,7 +341,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 
         try {
             sendMessage(
-                    new VPNConnection.Authorize(String.format("/com/logonbox/vpn/%d", connection.getId()),
+                    new VpnConnection.Authorize(String.format("/com/logonbox/vpn/%d", connection.getId()),
                             authorizeUri, connection.getMode().name()));
         } catch (DBusException e) {
             throw new IllegalStateException("Failed to signal authorize.", e);
@@ -396,7 +386,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 
         try {
             sendMessage(
-                    new VPNConnection.Connecting(String.format("/com/logonbox/vpn/%d", connection.getId())));
+                    new VpnConnection.Connecting(String.format("/com/logonbox/vpn/%d", connection.getId())));
         } catch (DBusException e) {
             throw new IllegalStateException("Failed to send disconnected message.", e);
         }
@@ -411,7 +401,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
                 log.info("Sending disconnected event on bus");
             }
 
-            var message = new VPNConnection.Disconnected(
+            var message = new VpnConnection.Disconnected(
                     String.format("/com/logonbox/vpn/%d", connection.getId()), reason == null ? "" : reason, connection.getDisplayName(), connection.getHostname());
             sendMessage(message);
 
@@ -430,7 +420,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
             if (log.isInfoEnabled()) {
                 log.info("Sending disconnecting event");
             }
-            sendMessage(new VPNConnection.Disconnecting(
+            sendMessage(new VpnConnection.Disconnecting(
                     String.format("/com/logonbox/vpn/%d", c.getId()), reason == null ? "" : reason));
         } catch (DBusException e) {
             log.error("Failed to send disconnected event.", e);
@@ -458,7 +448,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 
         try {
             getConnection().exportObject(String.format("/com/logonbox/vpn/%d", connection.getId()),
-                    new VPNConnectionImpl(this, connection));
+                    new VpnConnectionImpl(this, connection));
             sendMessage(new VPN.ConnectionAdded("/com/logonbox/vpn", connection.getId()));
         } catch (DBusException e) {
             throw new IllegalStateException("Failed to send added signal.", e);
@@ -478,7 +468,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
     @Override
     public void fireTemporarilyOffline(Connection connection, Exception reason) {
         try {
-            sendMessage(new VPNConnection.TemporarilyOffline(
+            sendMessage(new VpnConnection.TemporarilyOffline(
                     String.format("/com/logonbox/vpn/%d", connection.getId()),
                     reason.getMessage() == null ? "" : reason.getMessage()));
         } catch (DBusException e) {
@@ -490,7 +480,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
     @Override
     public void fireFailed(Connection connection, String message, String cause, String trace) {
         try {
-            sendMessage(new VPNConnection.Failed(String.format("/com/logonbox/vpn/%d", connection.getId()),
+            sendMessage(new VpnConnection.Failed(String.format("/com/logonbox/vpn/%d", connection.getId()),
                     message, cause, trace));
         } catch (DBusException e) {
             log.error("Failed to send failed message.", e);
@@ -531,7 +521,7 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
     public void fireConnected(Connection connection) {
 
         try {
-            sendMessage(new VPNConnection.Connected(
+            sendMessage(new VpnConnection.Connected(
                     String.format("/com/logonbox/vpn/%d", connection.getId())));
         } catch (DBusException e) {
             throw new IllegalStateException("Failed to send event.", e);
@@ -546,9 +536,9 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
         if (getFrontEnds().isEmpty())
             throw new IllegalStateException(
                     "Cannot prompt to accept invalid certificate. A front-end must be running.");
+        
         try {
-            getConnection().sendMessage(new VPN.CertificatePrompt(((VPN)getVPN()).getObjectPath(),
-                    alertType.name(), title, content, key, hostname, message));
+            sendMessage(new VPN.CertificatePrompt(VPN.OBJECT_PATH, alertType.name(), title, content, key, hostname, message));
         } catch (DBusException e) {
             throw new IllegalStateException(
                     "Cannot prompt to accept invalid certificate. Front-end running, but message could not be sent.",
@@ -909,21 +899,4 @@ public class Main extends AbstractService<VPNConnection> implements Callable<Int
 			}
 		}
 	}
-	
-	static java.util.logging.Level toJulLevel(Level defaultLevel) {
-        switch(defaultLevel) {
-        case TRACE:
-            return java.util.logging.Level.FINEST;
-        case DEBUG:
-            return java.util.logging.Level.FINE;
-        case INFO:
-            return java.util.logging.Level.INFO;
-        case WARN:
-            return java.util.logging.Level.WARNING;
-        case ERROR:
-            return java.util.logging.Level.SEVERE;
-        default:
-            return java.util.logging.Level.OFF;
-        }
-    }
 }

@@ -4,6 +4,7 @@ open module com.logonbox.vpn.client.desktop.service {
     exports com.logonbox.vpn.client.desktop.service;
     
     requires transitive com.logonbox.vpn.client.service;
+    requires transitive com.logonbox.vpn.client.app;
     requires transitive com.logonbox.vpn.client.common.dbus;
     requires static uk.co.bithatch.nativeimage.annotations;
     requires info.picocli;

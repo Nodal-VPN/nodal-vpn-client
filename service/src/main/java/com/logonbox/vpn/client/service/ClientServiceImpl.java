@@ -12,12 +12,13 @@ import com.logonbox.vpn.client.common.ConnectionRepository;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
+import com.logonbox.vpn.client.common.PlatformUtilities;
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.UserCancelledException;
 import com.logonbox.vpn.client.common.VpnManager;
-import com.logonbox.vpn.client.common.api.IVPNConnection;
+import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.drivers.lib.AbstractSystemContext;
 import com.logonbox.vpn.drivers.lib.PlatformService;
 import com.logonbox.vpn.drivers.lib.SystemConfiguration;
@@ -72,7 +73,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ssl.SSLHandshakeException;
 
-public class ClientServiceImpl<CONX extends IVPNConnection> extends AbstractSystemContext implements ClientService<CONX> {
+public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSystemContext implements ClientService<CONX> {
 	private static final String X_VPN_RESPONSE = "X-VPN-Response";
 	private static final String X_VPN_CHALLENGE = "X-VPN-Challenge";
 
@@ -681,7 +682,7 @@ public class ClientServiceImpl<CONX extends IVPNConnection> extends AbstractSyst
 
 	@Override
 	public String getDeviceName() {
-		var hostname = Utils.getHostName();
+		var hostname = PlatformUtilities.get().getHostname();
 		if (Utils.isBlank(hostname)) {
 			try {
 				hostname = InetAddress.getLocalHost().getHostName();
@@ -953,9 +954,12 @@ public class ClientServiceImpl<CONX extends IVPNConnection> extends AbstractSyst
 
 		try {
 			log.info("Starting saved connections");
-			int connected = 0;
-			for (var c : connectionRepository.getConnections(null)) {
+			var connected = 0;
+			var connections = connectionRepository.getConnections(null);
+			var attempts = 0;
+            for (var c : connections) {
 				if (c.isConnectAtStartup() && getStatusType(c) == Type.DISCONNECTED) {
+				    attempts++;
 					try {
 						connect(c);
 						connected++;
@@ -967,7 +971,7 @@ public class ClientServiceImpl<CONX extends IVPNConnection> extends AbstractSyst
 
 			context.getQueue().scheduleWithFixedDelay(() -> checkConnectionsAlive(), POLL_RATE, POLL_RATE, TimeUnit.SECONDS);
 
-			return connected > 0;
+			return connected > 0 || attempts == 0;
 		} catch (Exception e) {
 			log.error("Failed to start service", e);
 			return false;

@@ -11,4 +11,5 @@ open module com.logonbox.vpn.client.dbus.app {
     requires transitive com.logonbox.vpn.client.common.dbus;
     requires com.logonbox.vpn.client.app;
     requires info.picocli;
+    requires com.logonbox.vpn.client.dbus.client;
 }

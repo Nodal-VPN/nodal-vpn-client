@@ -1,6 +1,6 @@
 package com.logonbox.vpn.client.common.dbus;
 
-import com.logonbox.vpn.client.common.api.IVPN;
+import com.logonbox.vpn.client.common.api.IVpn;
 
 import org.freedesktop.dbus.annotations.DBusBoundProperty;
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
@@ -19,7 +19,9 @@ import uk.co.bithatch.nativeimage.annotations.TypeReflect;
 @Reflectable
 @TypeReflect(methods = true, classes = true)
 @DBusInterfaceName("com.logonbox.vpn.VPN")
-public interface VPN extends IVPN<VPNConnection>, DBusInterface {
+public interface VPN extends IVpn<VpnConnection>, DBusInterface {
+    
+    final static String OBJECT_PATH = "/com/logonbox/vpn";
 
     @DBusMemberName("Ping")
     void ping();
@@ -140,11 +142,11 @@ public interface VPN extends IVPN<VPNConnection>, DBusInterface {
     
     @Override
     @DBusMemberName("GetConnections")
-    List<VPNConnection> getConnections();
+    List<VpnConnection> getConnections();
     
     @Override
     @DBusMemberName("GetConnection")
-    VPNConnection getConnection(long id);
+    VpnConnection getConnection(long id);
 
 //
     @Reflectable
