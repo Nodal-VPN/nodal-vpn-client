@@ -10,7 +10,7 @@ module com.logonbox.vpn.client.service {
     requires java.prefs;
     requires java.net.http;
     
-    requires commons.ip.math;
+    requires com.github.jgonian.ipmath;
     requires com.sshtools.jini;
     requires com.sshtools.liftlib;
     

@@ -231,7 +231,7 @@
             </dependencies>
         </profile>
         <profile>
-            <id>XXnative-image</id>
+            <id>experimental-native-image</id>
             <build>
                 <plugins>
                     <plugin>
