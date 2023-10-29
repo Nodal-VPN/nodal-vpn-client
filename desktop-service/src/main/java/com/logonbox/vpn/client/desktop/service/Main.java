@@ -141,6 +141,10 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 
 	@Option(names = { "-u", "--auth" }, description = "Mask of SASL authentication method to use.")
 	private SaslAuthMode authMode = SaslAuthMode.AUTH_ANONYMOUS;
+	
+	/* TODO report this to Install4J. */
+	@Option(names = {"start-launchd"}, hidden = true, description = "Work-around for apparent bug in Install4j for SystemD native launchers for *Linux*. This argument for Mac OS is added!")
+	private boolean startLaunchD;
 
 	private BusAddress embeddedBusAddress;
     private Map<String, VPNFrontEnd> frontEnds = Collections.synchronizedMap(new HashMap<>());
@@ -844,7 +848,7 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 		if (path != null) {
 			file = new File(path);
 		} else if (Boolean.getBoolean("logonbox.development")) {
-			file = new File(App.CLIENT_CONFIG_HOME, type + ".properties");
+			file = App.CLIENT_CONFIG_HOME.resolve(type + ".properties").toFile();
 		} else {
 			file = new File("conf" + File.separator + type + ".properties");
 		}

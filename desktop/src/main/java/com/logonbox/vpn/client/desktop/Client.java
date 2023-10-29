@@ -6,7 +6,7 @@ import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.dbus.RemoteUI;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
-import com.logonbox.vpn.client.common.lbapi.Branding;
+import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.Debugger;
 import com.logonbox.vpn.client.gui.jfx.JfxAppContext;
@@ -22,7 +22,7 @@ import com.sshtools.twoslices.impl.JavaFXToaster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import java.awt.SplashScreen;
+import java.awt.SplashScreen;
 import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -43,7 +43,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -107,7 +106,6 @@ public class Client extends Application implements UIContext<VpnConnection>, Rem
 
 	private CookieHandler originalCookieHander;
 	private Optional<Debugger> debugger = Optional.empty();
-	private Branding branding;
 	private OsThemeDetector detector;
 	private ExecutorService opQueue = Executors.newSingleThreadExecutor();
 	private Stage primaryStage;
@@ -117,31 +115,24 @@ public class Client extends Application implements UIContext<VpnConnection>, Rem
 	private Styling styling;
 	private TitleBar titleBar;
 
+    private Scene primaryScene;
+
 	public Client() {
 		app = Main.getInstance().uiContext(this);
 	}
 
 	@Override
-    public void applyColors(Branding branding, Parent node) {
-		if (node == null && ui != null)
-			node = ui.getScene().getRoot();
-
-		if(node == null) {
-			return;
-		}
-
-		this.branding = branding;
+    public void reapplyBranding() {
+	    var node = primaryScene.getRoot();
+		var branding = ui.getBrandingManager().branding().orElse(null);
 
 		var ss = node.getStylesheets();
 
 		/* No branding, remove the custom styles if there are any */
 		ss.clear();
 
-		/* Create new custom local web styles */
-		styling.writeLocalWebCSS(branding);
-
-		/* Create new JavaFX custom styles */
-		styling.writeJavaFXCSS(branding);
+		/* Create new custom styles */
+		styling.apply(branding == null ? null : branding.branding());
 		var tmpFile = styling.getCustomJavaFXCSSFile();
 		if (log.isDebugEnabled())
 			log.debug(String.format("Using custom JavaFX stylesheet %s", tmpFile));
@@ -163,8 +154,15 @@ public class Client extends Application implements UIContext<VpnConnection>, Rem
 		properties.put(JavaFXToaster.THRESHOLD, 6);
 		ss.add(css);
 
-	}
-
+        String defaultLogo = UI.class.getResource("logonbox-titlebar-logo.png").toExternalForm();
+        if ((branding == null || branding.logo().isEmpty())
+                && !defaultLogo.equals(navigator().getImage().getUrl())) {
+            navigator().setImage(new Image(defaultLogo, true));
+        } else if (branding != null && branding.logo().isPresent() && !defaultLogo.equals(branding.logo().get().toUri().toString())) {
+            navigator().setImage(new Image(branding.logo().get().toUri().toString(), true));
+        }
+    }
+    
 	@Override
 	public void back() {
 		ui.back();
@@ -266,6 +264,8 @@ public class Client extends Application implements UIContext<VpnConnection>, Rem
 				cleanUp();
 			}
 		});
+        ((DBusVpnManager)app.getVpnManager()).getAltBus().requestBusName(RemoteUI.BUS_NAME);
+		((DBusVpnManager)app.getVpnManager()).getAltBus().exportObject(RemoteUI.OBJECT_PATH, this);
 
 		Platform.setImplicitExit(false);
 	}
@@ -326,6 +326,11 @@ public class Client extends Application implements UIContext<VpnConnection>, Rem
 	}
 
 	@Override
+    public boolean isRemote() {
+        return true;
+    }
+
+    @Override
     public void open() {
 		log.info("Open request");
 		UI.maybeRunLater(() -> {
@@ -392,7 +397,8 @@ public class Client extends Application implements UIContext<VpnConnection>, Rem
 		primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("logonbox-icon48x48.png")));
 		primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("logonbox-icon32x32.png")));
 
-		Scene primaryScene = createWindows(primaryStage);
+		primaryScene = createWindows(primaryStage);
+        reapplyBranding();
 
 		// Finalise and show
 		var cfg = Configuration.getDefault();
@@ -443,12 +449,12 @@ public class Client extends Application implements UIContext<VpnConnection>, Rem
 
 		/* Dark mode handling */
 		cfg.darkModeProperty().addListener((c, o, n) -> {
-			reapplyColors();
+			reapplyBranding();
 		});
 		detector.registerListener(isDark -> {
 			Platform.runLater(() -> {
 				log.info("Dark mode is now " + isDark);
-				reapplyColors();
+	            reapplyBranding();
 				ui.reload();
 			});
 		});
@@ -461,10 +467,10 @@ public class Client extends Application implements UIContext<VpnConnection>, Rem
 
 		ui.setAvailable();
 
-//		final SplashScreen splash = SplashScreen.getSplashScreen();
-//		if (splash != null) {
-//			splash.close();
-//		}
+		var splash = SplashScreen.getSplashScreen();
+		if (splash != null) {
+			splash.close();
+		}
 
 		keepInBounds(primaryStage);
 		Screen.getScreens().addListener(new ListChangeListener<Screen>() {
@@ -495,6 +501,9 @@ public class Client extends Application implements UIContext<VpnConnection>, Rem
 	protected Scene createWindows(Stage primaryStage) throws IOException {
 
 		ui = new UI<>(this);
+		ui.getBrandingManager().addBrandingChangeListener((bd) -> {
+		    reapplyBranding();
+		});
 
 		// Open the actual scene
 		var border = new BorderPane();
@@ -506,8 +515,6 @@ public class Client extends Application implements UIContext<VpnConnection>, Rem
 
 		// For line store border
 //		node.styleProperty().set("-fx-border-color: -fx-lbvpn-background;");
-
-		applyColors(branding, node);
 
 		if (isUndecoratedWindow()) {
 
@@ -573,10 +580,6 @@ public class Client extends Application implements UIContext<VpnConnection>, Rem
 				CookieHandler.setDefault(originalCookieHander);
 			}
 		}
-	}
-
-	void reapplyColors() {
-		applyColors(branding, null);
 	}
 
 	private boolean isHidpi() {

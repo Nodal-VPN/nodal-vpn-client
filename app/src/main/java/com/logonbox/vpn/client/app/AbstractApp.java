@@ -19,7 +19,6 @@ import com.logonbox.vpn.drivers.lib.util.OsUtil;
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.CookieStore;
 import java.nio.file.Files;
@@ -116,7 +115,7 @@ public abstract class AbstractApp<CONX extends IVpnConnection> implements AppCon
 	@Override
     public final  CookieStore getCookieStore() {
 		if (cookieStore == null) {
-			cookieStore = new CustomCookieStore(new File(App.CLIENT_HOME, "web-cookies.dat"));
+			cookieStore = new CustomCookieStore(App.CLIENT_HOME.resolve("web-cookies.dat").toFile());
 		}
 		return cookieStore;
 	}

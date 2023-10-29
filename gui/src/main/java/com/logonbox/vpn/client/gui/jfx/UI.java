@@ -17,7 +17,6 @@ import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
-import com.logonbox.vpn.client.common.lbapi.Branding;
 import com.logonbox.vpn.client.common.lbapi.InputField;
 import com.logonbox.vpn.client.common.lbapi.LogonResult;
 import com.logonbox.vpn.drivers.lib.util.OsUtil;
@@ -85,7 +84,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -104,7 +102,7 @@ import uk.co.bithatch.nativeimage.annotations.Resource;
 @Bundle
 @Resource(siblings = true)
 @Reflectable
-public class UI<CONX extends IVpnConnection> extends AnchorPane {
+public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 
 
 	static UUID localWebServerCookie = UUID.randomUUID();
@@ -429,7 +427,6 @@ public class UI<CONX extends IVpnConnection> extends AnchorPane {
 
 	private Timeline awaitingBridgeEstablish;
 	private Timeline awaitingBridgeLoss;
-	private Branding branding;
 	private Map<String, Collection<String>> collections = new HashMap<>();
 	private List<IVpnConnection> connecting = new ArrayList<>();
 	private String htmlPage;
@@ -523,6 +520,9 @@ public class UI<CONX extends IVpnConnection> extends AnchorPane {
                 LOG.info(String.format("Custom splash written to %s", splashFile));
             }
         });
+		vpnManager.getVpn().ifPresent(vpn -> {
+		    brandingManager.apply(getFavouriteConnection());
+		});
 		
 		var loader = new FXMLLoader(location);
 		loader.setController(this);
@@ -576,8 +576,7 @@ public class UI<CONX extends IVpnConnection> extends AnchorPane {
 		    uiContext.getOpQueue().execute(() -> {
                 reloadState(() -> {
                     maybeRunLater(() -> {
-                        reapplyColors();
-                        reapplyLogo();
+                        uiContext.reapplyBranding();
                         if(conx.isAuthorized())
                             joinNetwork(conx);
                         else
@@ -594,8 +593,7 @@ public class UI<CONX extends IVpnConnection> extends AnchorPane {
                     uiContext.getOpQueue().execute(() -> {
                         reloadState(() -> {
                             maybeRunLater(() -> {
-                                reapplyColors();
-                                reapplyLogo();
+                                uiContext.reapplyBranding();
                                 selectPageForState(false, false);
                             });
                         });
@@ -1217,7 +1215,7 @@ public class UI<CONX extends IVpnConnection> extends AnchorPane {
 					}
 				}.start();
 			} else if (darkMode != null) {
-				UI.this.reapplyColors();
+                uiContext.reapplyBranding();
 				setHtmlPage("options.html", true);
 			}
 
@@ -1274,8 +1272,8 @@ public class UI<CONX extends IVpnConnection> extends AnchorPane {
 					 * URI does not work (resource also works, but we need a dynamic resource, and I
 					 * couldn't get a custom URL handler to work either).
 					 */
-					File customLocalWebCSSFile = uiContext.styling().getCustomLocalWebCSSFile();
-					if (customLocalWebCSSFile.exists()) {
+					var customLocalWebCSSFile = uiContext.styling().getCustomLocalWebCSSFile();
+					if (Files.exists(customLocalWebCSSFile)) {
 						if (LOG.isDebugEnabled())
 							LOG.debug(String.format("Setting user stylesheet at %s", customLocalWebCSSFile));
 						webView.getEngine().setUserStyleSheetLocation("data:text/css;base64," +Base64.getEncoder().encodeToString(Utils.toByteArray(customLocalWebCSSFile)));
@@ -1503,7 +1501,7 @@ public class UI<CONX extends IVpnConnection> extends AnchorPane {
 		var busAvailable = vpnManager.isBackendAvailable();
 		var connection = busAvailable ? getForegroundConnection() : null;
 		var processor = new DOMProcessor<CONX>(uiContext, busAvailable ? vpnManager.getVpnOrFail() : null, connection,
-				collections, lastErrorMessage, lastErrorCause, lastException, branding, pageBundle, bundle,
+				collections, lastErrorMessage, lastErrorCause, lastException, brandingManager.branding().map(d -> d.branding()).orElse(null), pageBundle, bundle,
 				webView.getEngine().getDocument().getDocumentElement(),
 				connection == null ? disconnectionReason : connection.getLastError());
 		processor.process();
@@ -1613,30 +1611,18 @@ public class UI<CONX extends IVpnConnection> extends AnchorPane {
 //		mode = context.getDBus().isBusAvailable() && context.getDBus().getVPN().isUpdating() ? UIState.UPDATE : UIState.NORMAL;
 		var favouriteConnection = getFavouriteConnection();
 		if (uiContext.isAllowBranding()) {
-			branding = brandingManager.getBranding(favouriteConnection);
+	        brandingManager.apply(favouriteConnection);
 		}
-		brandingManager.apply(favouriteConnection);
 
 		then.run();
-	}
-	
-	private void reapplyColors() {
-		uiContext.applyColors(branding, null);
-	}
-
-	private void reapplyLogo() {
-		String defaultLogo = UI.class.getResource("logonbox-titlebar-logo.png").toExternalForm();
-		if ((branding == null || Utils.isBlank(branding.logo())
-				&& !defaultLogo.equals(uiContext.navigator().getImage().getUrl()))) {
-			uiContext.navigator().setImage(new Image(defaultLogo, true));
-		} else if (branding != null && !defaultLogo.equals(branding.logo())
-				&& !Utils.isBlank(branding.logo())) {
-			uiContext.navigator().setImage(new Image(branding.logo(), true));
-		}
 	}
 
 	private void editConnection(IVpnConnection connection) {
 		setHtmlPage("editConnection.html#" + connection.getId());
+	}
+	
+	public BrandingManager<CONX, BufferedImage> getBrandingManager() {
+	    return brandingManager;
 	}
 
 	public void back() {
@@ -1718,8 +1704,6 @@ public class UI<CONX extends IVpnConnection> extends AnchorPane {
 		} catch (Exception e) {
 			LOG.error("Failed to load connections.", e);
 		}
-		uiContext.applyColors(branding, null);
-		reapplyLogo();
 	}
 
 	private List<CONX> getAllConnections() {

@@ -12,10 +12,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.function.Consumer;
 
 import javafx.scene.web.WebView;
@@ -27,16 +25,16 @@ public class DefaultDebugger implements Debugger, JfxScriptStateProvider {
 	private final static Logger LOG = LoggerFactory.getLogger(DefaultDebugger.class);
 
 	private DevToolsDebuggerJsBridge jsBridge;
-	private UIContext context;
+	private UIContext<?> context;
 	private WebView webView;
 	
     @Override
-    public void setup(UIContext context) {
+    public void setup(UIContext<?> context) {
         this.context = context;
         try {
-            var stateFile = new File(context.getAppContext().getTempDir(),"debug.json");
-            if (stateFile.exists()) {
-                try(var stateReader = new FileReader(stateFile)) {
+            var stateFile = context.getAppContext().getTempDir().resolve("debug.json");
+            if (Files.exists(stateFile)) {
+                try(var stateReader = Files.newBufferedReader(stateFile)) {
                     jsstate = BoxedJson.boxedFrom(stateReader);
                 }
             }
@@ -205,19 +203,19 @@ public class DefaultDebugger implements Debugger, JfxScriptStateProvider {
 
     @Override
     public void close() {
-        var stateFile = new File(context.getAppContext().getTempDir(), "debug.json");
-        if (jsstate.isEmpty()) {
-            stateFile.delete();
-        } else {
-            // save state for next run
-            try {
-                var stateWriter = new FileWriter(stateFile);
-                stateWriter.write(jsstate.toString());
-                stateWriter.flush();
-                stateWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+        var stateFile = context.getAppContext().getTempDir().resolve("debug.json");
+        try {
+            if (jsstate.isEmpty()) {
+                Files.delete(stateFile);
+            } else {
+                // save state for next run
+                try(var stateWriter = Files.newBufferedWriter(stateFile)) {
+                    stateWriter.write(jsstate.toString());
+                    stateWriter.flush();
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         
     }

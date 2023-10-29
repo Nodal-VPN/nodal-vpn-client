@@ -1350,7 +1350,8 @@ public class UI2 {
 //		mode = context.getDBus().isBusAvailable() && context.getDBus().getVPN().isUpdating() ? UIState.UPDATE : UIState.NORMAL;
 		VpnConnection favouriteConnection = getFavouriteConnection();
 		if (Client.allowBranding) {
-			pageModel.setBranding(brandingManager.getBranding(favouriteConnection));
+            brandingManager.apply(favouriteConnection);
+            pageModel.setBranding(brandingManager.branding().map(b -> b.branding()).orElse(null));
 		}
 		brandingManager.apply(favouriteConnection);
 

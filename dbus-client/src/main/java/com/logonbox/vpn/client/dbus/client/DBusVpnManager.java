@@ -144,15 +144,11 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
     public DBusConnection getAltBus() {
         synchronized (initLock) {
             lazyInit();
-            if (conn != null && conn.isConnected() && altConn == null) {
-                if (conn.getAddress().getBusType().equals(DBusConnection.DBusBusType.SYSTEM.name())) {
-                    try {
-                        altConn = conn = DBusConnectionBuilder.forSessionBus().withShared(false).build();
-                    } catch (DBusException e) {
-                        throw new IllegalStateException("Could not get alternate bus.");
-                    }
-                } else {
-                    altConn = conn;
+            if (altConn == null) {
+                try {
+                    altConn = DBusConnectionBuilder.forSessionBus().withShared(false).build();
+                } catch (DBusException e) {
+                    throw new IllegalStateException("Could not get alternate bus.");
                 }
             }
             return altConn;

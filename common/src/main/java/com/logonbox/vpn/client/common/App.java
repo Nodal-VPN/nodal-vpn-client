@@ -1,10 +1,10 @@
 package com.logonbox.vpn.client.common;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class App {
 
-    public final static File CLIENT_HOME = new File(
-            System.getProperty("user.home") + File.separator + ".logonbox-vpn-client");
-    public final static File CLIENT_CONFIG_HOME = new File(CLIENT_HOME, "conf");
+    public final static Path CLIENT_HOME = Paths.get(System.getProperty("user.home"), ".logonbox-vpn-client");
+    public final static Path CLIENT_CONFIG_HOME = CLIENT_HOME.resolve("conf");
 }

@@ -13,6 +13,8 @@ import java.io.UncheckedIOException;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -62,6 +64,14 @@ public class Utils {
 
     public static byte[] toByteArray(File file) {
         try (var in = new FileInputStream(file)) {
+            return toByteArray(in);
+        } catch (IOException ioe) {
+            throw new UncheckedIOException(ioe);
+        }
+    }
+    
+    public static byte[] toByteArray(Path file) {
+        try (var in = Files.newInputStream(file)) {
             return toByteArray(in);
         } catch (IOException ioe) {
             throw new UncheckedIOException(ioe);

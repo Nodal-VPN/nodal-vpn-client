@@ -2,12 +2,10 @@ package com.logonbox.vpn.client.gui.jfx;
 
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
-import com.logonbox.vpn.client.common.lbapi.Branding;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
-import javafx.scene.Parent;
 import javafx.scene.control.Alert.AlertType;
 
 public interface UIContext<CONX extends IVpnConnection> {
@@ -32,7 +30,7 @@ public interface UIContext<CONX extends IVpnConnection> {
 
 	void minimize();
 
-	void applyColors(Branding branding, Parent root);
+	void reapplyBranding();
 
 	void open();
 

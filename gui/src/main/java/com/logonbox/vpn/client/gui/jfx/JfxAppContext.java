@@ -1,9 +1,11 @@
 package com.logonbox.vpn.client.gui.jfx;
 
 import com.logonbox.vpn.client.common.AppContext;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public interface JfxAppContext<CONX extends IVpnConnection> extends AppContext<CONX> {
 
@@ -27,10 +29,12 @@ public interface JfxAppContext<CONX extends IVpnConnection> extends AppContext<C
 
 	boolean isCreateIfDoesntExist();
 
-	default File getTempDir() {
-		if (System.getProperty("hypersocket.bootstrap.distDir") == null)
-			return new File(System.getProperty("java.io.tmpdir"));
-		else
-			return new File(System.getProperty("hypersocket.bootstrap.distDir")).getParentFile();
+	default Path getTempDir() {
+	    if(AppVersion.isDeveloperWorkspace()) {
+	        return Paths.get("tmp");
+	    }
+	    else {
+			return Paths.get(System.getProperty("java.io.tmpdir"));
+	    }
 	}
 }

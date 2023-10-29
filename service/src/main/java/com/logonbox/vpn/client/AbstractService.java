@@ -122,7 +122,7 @@ public abstract class AbstractService<CONX extends IVpnConnection> implements Lo
 	@Override
 	public final  CookieStore getCookieStore() {
 		if (cookieStore == null) {
-			cookieStore = new CustomCookieStore(new File(App.CLIENT_HOME, "service-cookies.dat"));
+			cookieStore = new CustomCookieStore(App.CLIENT_HOME.resolve("service-cookies.dat").toFile());
 		}
 		return cookieStore;
 	}

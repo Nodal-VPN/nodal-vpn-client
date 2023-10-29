@@ -91,10 +91,7 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 
 		var settings = ToasterFactory.getSettings();
 		settings.setAppName(Tray.bundle.getString("appName"));
-		// TODO force usage of SWT for now to test it
-//		if (SystemUtils.IS_OS_MAC_OSX) {
 		settings.setPreferredToasterClassName("com.sshtools.twoslices.impl.SWTToaster");
-//		}
 		
 		var handles = new ArrayList<AutoCloseable>();
 		
@@ -190,6 +187,11 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 			shutdown(false);
 		}
 	}
+
+    @Override
+    protected void afterExit() {
+        System.exit(0);
+    }
 
 	@Override
 	public String getVersion() {

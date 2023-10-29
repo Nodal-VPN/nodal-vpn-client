@@ -144,7 +144,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.logonbox</groupId>
-			<artifactId>client-logonbox-vpn-gui-jfx</artifactId>
+			<artifactId>client-logonbox-vpn-desktop</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -228,7 +228,7 @@
                                     <output>${project.build.directory}/gui</output>
                                     <includeVersion>false</includeVersion>
                                     <artifacts>
-                                        <artifact>com.logonbox:client-logonbox-vpn-gui-jfx:${project.version}</artifact>
+                                        <artifact>com.logonbox:client-logonbox-vpn-desktop:${project.version}</artifact>
                                     </artifacts>
 
                                     <!-- Copy these to separate directories -->
@@ -565,7 +565,7 @@
                                     <projectFile>${project.basedir}/mostly-native.install4j</projectFile>
                                     <attach>true</attach>
                                     <release>${product.version}-${build.number}</release>
-                                    <mediaTypes>${build.mediaTypes}</mediaTypes>
+                                    <mediaTypes>${build.native.mediaTypes}</mediaTypes>
                                     <variables>
                                         <build.phase>${build.phase}</build.phase>
                                     </variables>

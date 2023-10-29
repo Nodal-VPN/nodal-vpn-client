@@ -1,5 +1,7 @@
 package com.logonbox.vpn.client.gui.jfx;
 
+import com.logonbox.vpn.client.common.App;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.PlatformUtilities;
 import com.logonbox.vpn.client.common.lbapi.Branding;
 import com.logonbox.vpn.client.common.lbapi.BrandingInfo;
@@ -8,14 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,30 +31,18 @@ public class Styling {
 		this.context = context;
 	}
 
-	public void writeJavaFXCSS(Branding branding) {
-		try {
-			File tmpFile = getCustomJavaFXCSSFile();
-			String url = toUri(tmpFile).toExternalForm();
-			if (log.isDebugEnabled())
-				log.debug(String.format("Writing JavafX style sheet to %s", url));
-			PrintWriter pw = new PrintWriter(new FileOutputStream(tmpFile));
-			try {
-				pw.println(getCustomJavaFXCSSResource(branding));
-			} finally {
-				pw.close();
-			}
-		} catch (IOException e) {
-			throw new RuntimeException("Could not create custom CSS resource.");
-		}
+	public void apply(Branding branding) {
+	    writeJavaFXCSS(branding);
+	    writeLocalWebCSS(branding);
 	}
 
-	public File getCustomLocalWebCSSFile() {
-		File tmpFile;
-		if (System.getProperty("hypersocket.bootstrap.distDir") == null)
-			tmpFile = new File(context.getAppContext().getTempDir(), System.getProperty("user.name") + "-lbvpn-web.css");
-		else
-			tmpFile = new File(context.getAppContext().getTempDir(), "lbvpn-web.css");
-		return tmpFile;
+	public Path getCustomLocalWebCSSFile() {
+        if(AppVersion.isDeveloperWorkspace()) {
+            return context.getAppContext().getTempDir().resolve(System.getProperty("user.name") + "-lbvpn-web.css");
+        }
+        else {
+            return App.CLIENT_HOME.resolve("lbvpn-web.css");
+        }
 	}
 
 	public Color getBase() {
@@ -63,14 +52,32 @@ public class Styling {
 			return Color.WHITE;
 	}
 
-	public File getCustomJavaFXCSSFile() {
-		if (System.getProperty("hypersocket.bootstrap.distDir") == null)
-			return new File(context.getAppContext().getTempDir(),
-					System.getProperty("user.name") + "-lbvpn-jfx.css");
-		else
-			return new File(context.getAppContext().getTempDir(),
-					"lbvpn-jfx.css");
+	public Path getCustomJavaFXCSSFile() {
+	    if(AppVersion.isDeveloperWorkspace()) {
+	        return context.getAppContext().getTempDir().resolve(System.getProperty("user.name") + "-lbvpn-jfx.css");
+	    }
+	    else {
+            return App.CLIENT_HOME.resolve("lbvpn-jfx.css");
+	    }
 	}
+	
+	private void writeJavaFXCSS(Branding branding) {
+        try {
+            var tmpFile = getCustomJavaFXCSSFile();
+            var url = toUri(tmpFile).toExternalForm();
+            if (log.isDebugEnabled())
+                log.debug(String.format("Writing JavafX style sheet to %s", url));
+            var pw = new PrintWriter(Files.newOutputStream(tmpFile));
+            try {
+                pw.println(getCustomJavaFXCSSResource(branding));
+            } finally {
+                pw.close();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Could not create custom CSS resource.", e);
+        }
+    }
+
 
 	String getCustomJavaFXCSSResource(Branding branding) {
 		StringBuilder bui = new StringBuilder();
@@ -135,7 +142,7 @@ public class Styling {
 			// A colour, so choose the next adjacent colour in the HSB colour
 			// wheel (45 degrees)
 			bui.append("-fx-lbvpn-accent: " + toHex(backgroundColour.deriveColor(45f, 1f, 1f, 1f)) + ";\n");
-			bui.append("-fx-lbvpn-accent: " + toHex(backgroundColour.deriveColor(-45f, 1f, 1f, 1f)) + ";\n");
+			bui.append("-fx-lbvpn-accent2: " + toHex(backgroundColour.deriveColor(-45f, 1f, 1f, 1f)) + ";\n");
 		}
 
 		// End
@@ -152,17 +159,24 @@ public class Styling {
 			return Color.BLACK;
 	}
 
-	public void writeLocalWebCSS(Branding branding) {
-		File tmpFile = getCustomLocalWebCSSFile();
-		tmpFile.getParentFile().mkdirs();
-		String url = toUri(tmpFile).toExternalForm();
+	private void writeLocalWebCSS(Branding branding) {
+		var tmpFile = getCustomLocalWebCSSFile();
+		try {
+		    Files.createDirectories(tmpFile.getParent());
+		}
+		catch(IOException ioe) {}
+        
+		var url = toUri(tmpFile).toExternalForm();
+		
 		if (log.isDebugEnabled())
 			log.debug(String.format("Writing local web style sheet to %s", url));
-		String bgStr = branding == null ? BrandingInfo.DEFAULT_BACKGROUND : branding.resource().background();
-		String fgStr = branding == null ? BrandingInfo.DEFAULT_FOREGROUND : branding.resource().foreground();
-		Color fgColor = Color.valueOf(fgStr);
-		Color bgColor = Color.valueOf(bgStr);
-		Color baseColor = getBase();
+		
+		var bgStr = branding == null ? BrandingInfo.DEFAULT_BACKGROUND : branding.resource().background();
+		var fgStr = branding == null ? BrandingInfo.DEFAULT_FOREGROUND : branding.resource().foreground();
+		var fgColor = Color.valueOf(fgStr);
+		var bgColor = Color.valueOf(bgStr);
+		var baseColor = getBase();
+		
 		Color linkColor;
 
 		if(contrast(baseColor, bgColor) < 3) {
@@ -178,14 +192,14 @@ public class Styling {
 			linkColor = bgColor;
 		}
 
-		String accent1Str = toHex(bgColor.deriveColor(0, 1, 0.85, 1));
-		String accent2Str = toHex(bgColor.deriveColor(0, 1, 1.15, 1));
-		String baseStr = toHex(baseColor);
-		String baseInverseStr = toHex(getBaseInverse());
-		String linkStr = toHex(linkColor);
-		String baseInverseRgbStr = toRgba(getBaseInverse(), 0.05f);
-		try (PrintWriter output = new PrintWriter(new FileWriter(tmpFile))) {
-			try (BufferedReader input = new BufferedReader(new InputStreamReader(UI.class.getResource("local.css").openStream()))) {
+		var accent1Str = toHex(bgColor.deriveColor(0, 1, 0.85, 1));
+		var accent2Str = toHex(bgColor.deriveColor(0, 1, 1.15, 1));
+		var baseStr = toHex(baseColor);
+		var baseInverseStr = toHex(getBaseInverse());
+		var linkStr = toHex(linkColor);
+		var baseInverseRgbStr = toRgba(getBaseInverse(), 0.05f);
+		try (var output = new PrintWriter(Files.newOutputStream(tmpFile))) {
+			try (var input = new BufferedReader(new InputStreamReader(UI.class.getResource("local.css").openStream()))) {
 				String line;
 				while(( line = input.readLine()) != null) {
 					line = line.replace("${lbvpnBackground}", bgStr);
@@ -221,9 +235,9 @@ public class Styling {
 					color.getBlue());
 	}
 
-	public static URL toUri(File tmpFile) {
+	public static URL toUri(Path tmpFile) {
 		try {
-			return tmpFile.toURI().toURL();
+			return tmpFile.toUri().toURL();
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
