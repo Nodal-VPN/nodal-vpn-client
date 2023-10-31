@@ -151,7 +151,7 @@
       </iconImageFiles>
     </launcher>
     <launcher name="logonbox-vpn-tray" id="2221" external="true" externalFile="logonbox-vpn-tray${compiler:build.exe.suffix}">
-      <desktopFile>X-GNOME-Autostart-enabled</desktopFile>
+      <desktopFile>X-GNOME-Autostart-enabled=true</desktopFile>
     </launcher>
   </launchers>
   <installerGui autoUpdateDescriptorUrl="https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client/${compiler:build.phase}/updates.xml" useAutoUpdateBaseUrl="true" autoUpdateBaseUrl="https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client/${compiler:sys.version}/">

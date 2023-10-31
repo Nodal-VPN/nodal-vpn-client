@@ -29,20 +29,41 @@ import java.util.function.Consumer;
 
 import jakarta.json.Json;
 
-public class BrandingManager<CONX extends IVpnConnection, IMG> {
+public class BrandingManager<CONX extends IVpnConnection> {
     public interface BrandDetails {
         Branding branding();
         
         Optional<Path> logo();
         
     }
+    
+    public interface BrandImage {
+    }
 
-    public interface ImageHandler<IMG> {
-        IMG create(int width, int height, String color);
+    public interface ImageHandler {
+        BrandImage create(int width, int height, String color);
         
-        void draw(IMG bim, Path logoFile);
+        void draw(BrandImage bim, Path logoFile);
 
-        void write(IMG bim, Path splashFile) throws IOException;
+        void write(BrandImage bim, Path splashFile) throws IOException;
+
+        static ImageHandler dumb() {
+            return new ImageHandler() {
+                
+                @Override
+                public void write(BrandImage bim, Path splashFile) throws IOException {
+                }
+                
+                @Override
+                public void draw(BrandImage bim, Path logoFile) {
+                }
+                
+                @Override
+                public BrandImage create(int width, int height, String color) {
+                    return null;
+                }
+            };
+        }
     }
     
     private final class BrandingCacheItem implements BrandDetails {
@@ -81,12 +102,12 @@ public class BrandingManager<CONX extends IVpnConnection, IMG> {
 
     private final Map<CONX, BrandingCacheItem> brandingCache = new HashMap<>();
     private final VpnManager<CONX> vpnManager;
-    private final ImageHandler<IMG> images;
+    private final ImageHandler images;
     private final List<Consumer<Optional<BrandDetails>>> onBrandingChange = new ArrayList<>();
     
     private CONX connection;
 
-    public BrandingManager(VpnManager<CONX> vpnManager, ImageHandler<IMG> images) {
+    public BrandingManager(VpnManager<CONX> vpnManager, ImageHandler images) {
         this.vpnManager = vpnManager;
         this.images = images;
     }

@@ -1,14 +1,18 @@
 package com.logonbox.vpn.client.mobile;
 
 import com.gluonhq.attach.display.DisplayService;
-import com.gluonhq.charm.glisten.application.MobileApplication;
+import com.gluonhq.charm.glisten.application.AppManager;
 import com.gluonhq.charm.glisten.control.AppBar;
 import com.gluonhq.charm.glisten.mvc.View;
-import com.logonbox.vpn.client.common.AppContext;
+import com.logonbox.vpn.client.common.BrandingManager.ImageHandler;
+import com.logonbox.vpn.client.common.LoggingConfig;
+import com.logonbox.vpn.client.common.NoUpdateService;
 import com.logonbox.vpn.client.common.PlatformUtilities;
 import com.logonbox.vpn.client.common.PromptingCertManager;
+import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.embedded.EmbeddedVpnConnection;
+import com.logonbox.vpn.client.embedded.EmbedderApi;
 import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.Debugger;
 import com.logonbox.vpn.client.gui.jfx.JfxAppContext;
@@ -16,26 +20,23 @@ import com.logonbox.vpn.client.gui.jfx.Navigator;
 import com.logonbox.vpn.client.gui.jfx.Styling;
 import com.logonbox.vpn.client.gui.jfx.UI;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
-import com.sshtools.twoslices.ToasterFactory;
-import com.sshtools.twoslices.ToasterSettings.SystemTrayIconMode;
-import com.sshtools.twoslices.impl.SysOutToaster;
 
 import org.kordamp.ikonli.fontawesome.FontAwesome;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
+import java.net.CookieStore;
 import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Dimension2D;
@@ -54,15 +55,17 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
+import javafx.stage.Stage;
 
-public class Client extends MobileApplication implements UIContext<EmbeddedVpnConnection>, Navigator {
+public class Client extends Application implements UIContext<EmbeddedVpnConnection>, Navigator, JfxAppContext<EmbeddedVpnConnection> {
+
+    private final AppManager appManager = AppManager.initialize(this::postInit);
 
 	static final boolean allowBranding = System.getProperty("logonbox.vpn.allowBranding", "true").equals("true");
 
 	public static ResourceBundle BUNDLE = ResourceBundle.getBundle(Client.class.getName());
 	static Logger log = LoggerFactory.getLogger(Client.class);
 
-	private CookieHandler originalCookieHander;
 	private Optional<Debugger> debugger = Optional.empty();
 
 	public static Alert createAlertWithOptOut(AlertType type, String title, String headerText, String message,
@@ -92,7 +95,7 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVpnCo
 	}
     
     private final VpnManager<EmbeddedVpnConnection> vpnManager;
-    private final AppContext<EmbeddedVpnConnection> app;
+//    private final AppContext<EmbeddedVpnConnection> app;
     
 	private ExecutorService opQueue = Executors.newSingleThreadExecutor();
 	private boolean waitingForExitChoice;
@@ -104,16 +107,28 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVpnCo
 	protected AppBar appBar;
 
 	private Image logoImage;
+    private final ScheduledExecutorService queue;
+    private final NoUpdateService updateService;
 
 	public Client() {
-		var main = Main.getInstance();
-        app = main.uiContext(this);
-        vpnManager = app.getVpnManager();
+		//var main = Main.getInstance();
+        //app = main.uiContext(this);
+//        vpnManager = app.getVpnManager();
+	    
+	    try {
+    	    var embedder = new EmbedderApi();
+    	    vpnManager = embedder.manager();
+	    }
+	    catch(Exception e) {
+	        throw new IllegalStateException("Failed to initialise VPN embedder.", e);
+	    }
         
 		back = new Hyperlink();
 		back.setGraphic(FontIcon.of(FontAwesome.ARROW_CIRCLE_LEFT, 32));
 		back.getStyleClass().add("iconButton");
 		back.setOnAction(e -> ui.back());
+		queue = Executors.newSingleThreadScheduledExecutor();
+		updateService = new NoUpdateService(this);
 	}
 
 	public void clearLoadQueue() {
@@ -162,6 +177,11 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVpnCo
 		}
 	}
 
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        appManager.start(primaryStage);
+    }
+
 	@Override
 	public Styling styling() {
 		return styling;
@@ -180,26 +200,6 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVpnCo
 	@Override
 	public boolean isTrayConfigurable() {
 		return false;
-	}
-
-	protected void updateCookieHandlerState() {
-		CookieHandler default1 = CookieHandler.getDefault();
-		boolean isPersistJar = default1 instanceof CookieManager;
-		boolean wantsPeristJar = Boolean.valueOf(System.getProperty("logonbox.vpn.saveCookies", "false"));
-		if (isPersistJar != wantsPeristJar) {
-			if (wantsPeristJar) {
-				log.info("Using in custom cookie manager");
-				CookieManager mgr = createCookieManager();
-				CookieHandler.setDefault(mgr);
-			} else {
-				log.info("Using Webkit cookie manager");
-				CookieHandler.setDefault(originalCookieHander);
-			}
-		}
-	}
-
-	protected CookieManager createCookieManager() {
-		return new CookieManager(app.getCookieStore(), CookiePolicy.ACCEPT_ORIGINAL_SERVER);
 	}
 
 	public boolean isWaitingForExitChoice() {
@@ -228,19 +228,14 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVpnCo
 
 	@Override
 	public void init() {
-		styling = new Styling(this);
 
-		Platform.setImplicitExit(false);
+		appManager.addViewFactory(AppManager.HOME_VIEW, () -> {
 
-		addViewFactory(HOME_VIEW, () -> {
-
-			ui = new UI(this);
-			ui.setPrefHeight(600);
-            ui.setPrefWidth(400);
-			ui.setAvailable();
-
-			this.originalCookieHander = CookieHandler.getDefault();
-			updateCookieHandlerState();
+	        styling = new Styling(this);
+	        ui = new UI<>(this);
+	        ui.setPrefHeight(600);
+	        ui.setPrefWidth(400);
+	        ui.setAvailable();
 
 			return new View(ui) {
 
@@ -250,16 +245,13 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVpnCo
 					appBar.getStyleClass().add("inverse");
 					reloadAppbarImage();
 					appBar.getActionItems().add(back);
-					reapplyBranding();
+					Platform.runLater(Client.this::reapplyBranding);
 				}
 			};
 		});
-
-        reapplyBranding();
 	}
 
-	@Override
-	public void postInit(Scene scene) {
+	private void postInit(Scene scene) {
 		scene.getWindow().setOnCloseRequest(e -> {
 			maybeExit();
 			e.consume();
@@ -271,11 +263,15 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVpnCo
 			scene.getWindow().setWidth(dimension2D.getWidth());
 			scene.getWindow().setHeight(dimension2D.getHeight());
 		}
+
+//        Platform.setImplicitExit(false);
+
+        reapplyBranding();
 	}
 
 	@Override
 	public void exitApp() {
-		app.shutdown(false);
+//		app.shutdown(false);
 		opQueue.shutdown();
 		Platform.exit();
 	}
@@ -337,11 +333,6 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVpnCo
 		var uri = Styling.toUri(tmpFile).toExternalForm();
 		ss.add(0, uri);
 
-		var settings = ToasterFactory.getSettings();
-		settings.setPreferredToasterClassName(SysOutToaster.class.getName());
-		settings.setAppName(BUNDLE.getString("appName"));
-		settings.setSystemTrayIconMode(SystemTrayIconMode.HIDDEN);
-
 		var css = Client.class.getResource(Client.class.getSimpleName() + ".css").toExternalForm();
 		ss.add(css);
 	}
@@ -377,8 +368,8 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVpnCo
 	}
 
 	@Override
-	public JfxAppContext getAppContext() {
-		return Main.getInstance();
+	public JfxAppContext<EmbeddedVpnConnection> getAppContext() {
+		return this;
 	}
 
 	@Override
@@ -430,4 +421,113 @@ public class Client extends MobileApplication implements UIContext<EmbeddedVpnCo
 	@Override
 	public void back() {
 	}
+
+    @Override
+    public VpnManager<EmbeddedVpnConnection> getVpnManager() {
+        return vpnManager;
+    }
+
+    @Override
+    public String getVersion() {
+        return null;
+    }
+
+    @Override
+    public boolean isConsole() {
+        return false;
+    }
+
+    @Override
+    public UpdateService getUpdateService() {
+        return updateService;
+    }
+
+    @Override
+    public boolean isInteractive() {
+        return true;
+    }
+
+    @Override
+    public String getEffectiveUser() {
+        return System.getProperty("user.name");
+    }
+
+    @Override
+    public PromptingCertManager getCertManager() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public CookieStore getCookieStore() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ScheduledExecutorService getQueue() {
+        return queue;
+    }
+
+    @Override
+    public void shutdown(boolean restart) {
+    }
+
+    @Override
+    public LoggingConfig getLogging() {
+        return LoggingConfig.dumb();
+    }
+
+    @Override
+    public String getUri() {
+        return null;
+    }
+
+    @Override
+    public boolean isConnect() {
+        return true;
+    }
+
+    @Override
+    public boolean isExitOnConnection() {
+        return false;
+    }
+
+    @Override
+    public boolean isNoMinimize() {
+        return true;
+    }
+
+    @Override
+    public boolean isNoClose() {
+        return false;
+    }
+
+    @Override
+    public boolean isNoAddWhenNoConnections() {
+        return false;
+    }
+
+    @Override
+    public boolean isNoResize() {
+        return true;
+    }
+
+    @Override
+    public boolean isNoMove() {
+        return true;
+    }
+
+    @Override
+    public boolean isNoSystemTray() {
+        return true;
+    }
+
+    @Override
+    public boolean isCreateIfDoesntExist() {
+        return false;
+    }
+
+    @Override
+    public ImageHandler getImageHandler() {
+        return ImageHandler.dumb();
+    }
 }

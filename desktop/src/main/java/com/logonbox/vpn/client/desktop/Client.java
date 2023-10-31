@@ -2,6 +2,8 @@ package com.logonbox.vpn.client.desktop;
 
 import com.goxr3plus.fxborderlessscene.borderless.BorderlessScene;
 import com.jthemedetecor.OsThemeDetector;
+import com.logonbox.vpn.client.common.BrandingManager.BrandImage;
+import com.logonbox.vpn.client.common.BrandingManager.ImageHandler;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.dbus.RemoteUI;
@@ -14,27 +16,27 @@ import com.logonbox.vpn.client.gui.jfx.Navigator;
 import com.logonbox.vpn.client.gui.jfx.Styling;
 import com.logonbox.vpn.client.gui.jfx.UI;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
-import com.sshtools.liftlib.OS;
-import com.sshtools.twoslices.ToasterFactory;
-import com.sshtools.twoslices.ToasterSettings.SystemTrayIconMode;
-import com.sshtools.twoslices.impl.JavaFXToaster;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.SplashScreen;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.nio.file.Path;
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+
+import javax.imageio.ImageIO;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -138,20 +140,7 @@ public class Client extends Application implements UIContext<VpnConnection>, Rem
 			log.debug(String.format("Using custom JavaFX stylesheet %s", tmpFile));
 		var uri = Styling.toUri(tmpFile).toExternalForm();
 		ss.add(0, uri);
-
-		var settings = ToasterFactory.getSettings();
-		var properties = settings.getProperties();
-//        settings.setParent(getStage());
-		settings.setAppName(BUNDLE.getString("appName"));
-		settings.setSystemTrayIconMode(SystemTrayIconMode.HIDDEN);
 		var css = Client.class.getResource(Client.class.getSimpleName() + ".css").toExternalForm();
-		if(OS.isMacOs()) {
-			settings.setPreferredToasterClassName(JavaFXToaster.class.getName());
-		}
-		properties.put(JavaFXToaster.DARK, isDarkMode());
-		properties.put(JavaFXToaster.STYLESHEETS, Arrays.asList(uri, css));
-		properties.put(JavaFXToaster.COLLAPSE_MESSAGE, BUNDLE.getString("collapse"));
-		properties.put(JavaFXToaster.THRESHOLD, 6);
 		ss.add(css);
 
         String defaultLogo = UI.class.getResource("logonbox-titlebar-logo.png").toExternalForm();
@@ -585,4 +574,51 @@ public class Client extends Application implements UIContext<VpnConnection>, Rem
 	private boolean isHidpi() {
 		return Screen.getPrimary().getDpi() >= 300;
 	}
+
+    @Override
+    public ImageHandler getImageHandler() {
+        return new ImageHandler() {
+
+            @Override
+            public BrandImage create(int width, int height, String color) {
+                BufferedImage bim = null;
+                bim = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+                var graphics = (java.awt.Graphics2D) bim.getGraphics();
+                graphics.setColor(java.awt.Color.decode(color));
+                graphics.fillRect(0, 0, width, height);
+                return new AWTBrandImage(bim);
+            }
+
+            @Override
+            public void draw(BrandImage bim, Path logoFile) {
+                var img = ((AWTBrandImage)bim).img;
+                var graphics = (java.awt.Graphics2D) img.getGraphics();
+                log.info(String.format("Drawing logo on splash"));
+                try {
+                    var logoImage = ImageIO.read(logoFile.toFile());
+                    if (logoImage == null)
+                        throw new IOException(String.format("Failed to load image from %s", logoFile));
+                    graphics.drawImage(logoImage, (img.getWidth() - logoImage.getWidth()) / 2,
+                            (img.getHeight() - logoImage.getHeight()) / 2, null);
+                }
+                catch(IOException ioe) {
+                    throw new UncheckedIOException(ioe);
+                }
+            }
+
+            @Override
+            public void write(BrandImage bim, Path splashFile) throws IOException {
+                ImageIO.write(((AWTBrandImage)bim).img, "png", splashFile.toFile());
+                log.info(String.format("Custom splash written to %s", splashFile));
+            }
+        };
+    }
+    
+    private final static class AWTBrandImage implements BrandImage {
+        private BufferedImage img;
+        
+        AWTBrandImage(BufferedImage img) {
+            this.img = img;
+        }
+    }
 }

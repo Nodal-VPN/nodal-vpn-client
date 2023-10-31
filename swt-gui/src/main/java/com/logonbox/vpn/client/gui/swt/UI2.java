@@ -275,7 +275,7 @@ public class UI2 {
     private final PageModel2 pageModel;
     private final Client context;
 
-    private final BrandingManager<VpnConnection, Image> brandingManager;
+    private final BrandingManager<VpnConnection> brandingManager;
 
 	public UI2(Shell shell, Client context, Main main, Display display) {
 		this.shell = shell;
@@ -287,41 +287,7 @@ public class UI2 {
 		updateService = main.getUpdateService();
 		pageModel = new PageModel2(context, updateService, BUNDLE);
 		
-		brandingManager = new BrandingManager<>(vpnManager, new ImageHandler<Image>() {
-
-            @Override
-            public Image create(int width, int height, String color) {
-//                BufferedImage bim = null;
-//                bim = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-//                var graphics = (java.awt.Graphics2D) bim.getGraphics();
-//                graphics.setColor(java.awt.Color.decode(color));
-//                graphics.fillRect(0, 0, width, height);
-//                return bim;
-                return null;
-            }
-
-            @Override
-            public void draw(Image bim, Path logoFile) {
-//                var graphics = (java.awt.Graphics2D) bim.getGraphics();
-//                LOG.info(String.format("Drawing logo on splash"));
-//                try {
-//                    var logoImage = ImageIO.read(logoFile.toFile());
-//                    if (logoImage == null)
-//                        throw new IOException(String.format("Failed to load image from %s", logoFile));
-//                    graphics.drawImage(logoImage, (bim.getWidth() - logoImage.getWidth()) / 2,
-//                            (bim.getHeight() - logoImage.getHeight()) / 2, null);
-//                }
-//                catch(IOException ioe) {
-//                    throw new UncheckedIOException(ioe);
-//                }
-            }
-
-            @Override
-            public void write(Image bim, Path splashFile) throws IOException {
-//                ImageIO.write(bim, "png", splashFile.toFile());
-//                LOG.info(String.format("Custom splash written to %s", splashFile));
-            }
-        });
+		brandingManager = new BrandingManager<>(vpnManager, ImageHandler.dumb());
 	}
 	
 	public Display getDisplay() {

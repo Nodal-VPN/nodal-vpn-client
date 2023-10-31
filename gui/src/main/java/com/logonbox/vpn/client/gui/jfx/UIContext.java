@@ -1,5 +1,6 @@
 package com.logonbox.vpn.client.gui.jfx;
 
+import com.logonbox.vpn.client.common.BrandingManager.ImageHandler;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
 
@@ -48,4 +49,6 @@ public interface UIContext<CONX extends IVpnConnection> {
 	void back();
 
 	boolean isContextMenuAllowed();
+	
+	ImageHandler getImageHandler();
 }

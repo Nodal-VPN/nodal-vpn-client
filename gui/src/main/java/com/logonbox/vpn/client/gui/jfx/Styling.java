@@ -67,6 +67,7 @@ public class Styling {
             var url = toUri(tmpFile).toExternalForm();
             if (log.isDebugEnabled())
                 log.debug(String.format("Writing JavafX style sheet to %s", url));
+            Files.createDirectories(tmpFile.getParent());
             var pw = new PrintWriter(Files.newOutputStream(tmpFile));
             try {
                 pw.println(getCustomJavaFXCSSResource(branding));

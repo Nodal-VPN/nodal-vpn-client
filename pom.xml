@@ -99,8 +99,7 @@
 		<module>desktop-service</module>
 		<module>cli</module>
 		<module>dbconvert</module>
-       <!-- <module>gluon</module>
-        <module>mobile</module>-->
+       <!-- <module>mobile</module>-->
 		<module>installer</module>
 	</modules>
 

@@ -3,7 +3,6 @@ package com.logonbox.vpn.client.gui.jfx;
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.AuthenticationCancelledException;
 import com.logonbox.vpn.client.common.BrandingManager;
-import com.logonbox.vpn.client.common.BrandingManager.ImageHandler;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.Connection.Mode;
@@ -21,16 +20,12 @@ import com.logonbox.vpn.client.common.lbapi.InputField;
 import com.logonbox.vpn.client.common.lbapi.LogonResult;
 import com.logonbox.vpn.drivers.lib.util.OsUtil;
 import com.logonbox.vpn.drivers.lib.util.Util;
-import com.sshtools.twoslices.Slice;
-import com.sshtools.twoslices.Toast;
-import com.sshtools.twoslices.ToastType;
 
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -65,7 +60,6 @@ import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
-import javax.imageio.ImageIO;
 import javax.net.ssl.HostnameVerifier;
 
 import jakarta.json.JsonObject;
@@ -437,7 +431,6 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	private Runnable runOnNextLoad;
 	private ServerBridge bridge;
 	private String disconnectionReason;
-	private Map<Long, Slice> notificationsForConnections = new HashMap<>();
 
 	@FXML
 	@Reflectable
@@ -476,7 +469,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	private final UpdateService updateService;
     private final JfxAppContext<CONX> appContext;
     private final VpnManager<CONX> vpnManager;
-    private final BrandingManager<CONX, BufferedImage> brandingManager;
+    private final BrandingManager<CONX> brandingManager;
 
 	
 	public UI(UIContext<CONX> uiContext) {
@@ -486,40 +479,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
         this.updateService = appContext.getUpdateService();
 		
 		location = getClass().getResource("UI.fxml");
-		brandingManager = new BrandingManager<>(vpnManager, new ImageHandler<BufferedImage>() {
-
-            @Override
-            public BufferedImage create(int width, int height, String color) {
-                BufferedImage bim = null;
-                bim = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-                var graphics = (java.awt.Graphics2D) bim.getGraphics();
-                graphics.setColor(java.awt.Color.decode(color));
-                graphics.fillRect(0, 0, width, height);
-                return bim;
-            }
-
-            @Override
-            public void draw(BufferedImage bim, Path logoFile) {
-                var graphics = (java.awt.Graphics2D) bim.getGraphics();
-                LOG.info(String.format("Drawing logo on splash"));
-                try {
-                    var logoImage = ImageIO.read(logoFile.toFile());
-                    if (logoImage == null)
-                        throw new IOException(String.format("Failed to load image from %s", logoFile));
-                    graphics.drawImage(logoImage, (bim.getWidth() - logoImage.getWidth()) / 2,
-                            (bim.getHeight() - logoImage.getHeight()) / 2, null);
-                }
-                catch(IOException ioe) {
-                    throw new UncheckedIOException(ioe);
-                }
-            }
-
-            @Override
-            public void write(BufferedImage bim, Path splashFile) throws IOException {
-                ImageIO.write(bim, "png", splashFile.toFile());
-                LOG.info(String.format("Custom splash written to %s", splashFile));
-            }
-        });
+		brandingManager = new BrandingManager<>(vpnManager, uiContext.getImageHandler());
 		vpnManager.getVpn().ifPresent(vpn -> {
 		    brandingManager.apply(getFavouriteConnection());
 		});
@@ -641,7 +601,6 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		vpnManager.onConnecting(conx -> {
             disconnectionReason = null;
             maybeRunLater(() -> {
-                clearNotificationForConnection(conx.getId());
                 selectPageForState(false, false);
             });
         });
@@ -649,8 +608,6 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
         /* Connected */
 		vpnManager.onConnected(conx -> {
             maybeRunLater(() -> {
-                UI.this.notify(conx.getId(), MessageFormat.format(bundle.getString("connected"),
-                        conx.getDisplayName(), conx.getHostname()), ToastType.INFO);
                 connecting.remove(conx);
                 if (uiContext.getAppContext().isExitOnConnection()) {
                     uiContext.exitApp();
@@ -662,7 +619,6 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
         /* Disconnecting */
 		vpnManager.onDisconnecting((conx, reason) -> {
             maybeRunLater(() -> {
-                clearNotificationForConnection(conx.getId());
                 LOG.info("Disconnecting {}", conx.getDisplayName());
                 selectPageForState(false, false);
             });
@@ -672,36 +628,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		vpnManager.onDisconnected((conx, reason) -> {
             maybeRunLater(() -> {
                 LOG.info("Disconnected " + conx.getId());
-                try {
-                    /*
-                     * WARN: Do not try to get a connection object directly here. The disconnection
-                     * event may be the result of a deletion, so the connection won't exist any
-                     * more. Use only what is available in the signal object. If you need more
-                     * detail, add it to that.
-                     */
-                    clearNotificationForConnection(conx.getId());
-                    if (Utils.isBlank(reason)
-                            || bundle.getString("cancelled").equals(reason))
-                        putNotificationForConnection(conx.getId(), Toast.builder()
-                                .title(bundle.getString("appName"))
-                                .content(MessageFormat.format(bundle.getString("disconnectedNoReason"),
-                                        conx.getDisplayName(), conx.getHostname()))
-                                .type(ToastType.INFO).defaultAction(() -> uiContext.open()).toast());
-                    else
-                        putNotificationForConnection(conx.getId(), Toast.builder()
-                                .title(bundle.getString("appName"))
-                                .content(MessageFormat.format(bundle.getString("disconnected"),
-                                        conx.getDisplayName(), conx.getHostname(), reason))
-                                .type(ToastType.INFO).defaultAction(() -> uiContext.open())
-                                .action(bundle.getString("reconnect"), () -> {
-                                    uiContext.open();
-                                    UI.this.connect(vpnManager.getVpnOrFail().getConnection(conx.getId()));
-                                }).timeout(0).toast());
-                } catch (Exception e) {
-                    LOG.error("Failed to get connection, delete not possible.", e);
-                } finally {
                     selectPageForState(false, false);
-                }
 
             });
         });
@@ -709,7 +636,6 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
         /* Temporarily offline */
 		vpnManager.onTemporarilyOffline((conx, reason) -> {
             maybeRunLater(() -> {
-                clearNotificationForConnection(conx.getId());
                 LOG.info("Temporarily offline {}", conx.getId());
                 selectPageForState(false, false);
             });
@@ -721,7 +647,6 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
                 LOG.info("Failed to connect. {}", reason);
                 connecting.remove(conx);
                 showError("Failed to connect.", reason, trace);
-                UI.this.notify(conx.getId(), reason, ToastType.ERROR);
                 uiRefresh();
             });
         });
@@ -792,7 +717,6 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 			} else {
 				LOG.info(String.format("Connect to %s", n.getAddress()));
 				if (n != null) {
-					clearNotificationForConnection(n.getId());
 					Type status = Type.valueOf(n.getStatus());
 					LOG.info(String.format("  current status is %s", status));
 					if (status == Type.CONNECTED || status == Type.CONNECTING || status == Type.DISCONNECTING)
@@ -805,29 +729,6 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 			}
 		} catch (Exception e) {
 			showError("Failed to connect.", e);
-		}
-	}
-
-	public void notify(Long id, String msg, ToastType toastType) {
-		clearNotificationForConnection(id);
-		putNotificationForConnection(id, Toast.toast(toastType, bundle.getString("appName"), msg));
-	}
-
-	private void putNotificationForConnection(Long id, Slice slice) {
-		if (id != null) {
-			notificationsForConnections.put(id, slice);
-		}
-	}
-
-	private void clearNotificationForConnection(Long id) {
-		if (id != null) {
-			Slice slice = notificationsForConnections.remove(id);
-			if (slice != null) {
-				try {
-					slice.close();
-				} catch (Exception e) {
-				}
-			}
 		}
 	}
 
@@ -1621,7 +1522,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		setHtmlPage("editConnection.html#" + connection.getId());
 	}
 	
-	public BrandingManager<CONX, BufferedImage> getBrandingManager() {
+	public BrandingManager<CONX> getBrandingManager() {
 	    return brandingManager;
 	}
 
@@ -1694,7 +1595,6 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	private void giveUpWaitingForBridgeEstablish() {
 		LOG.info("Given up waiting for bridge to start");
 		resetAwaingBridgeEstablish();
-		notify(null, bundle.getString("givenUpWaitingForBridgeEstablish"), ToastType.ERROR);
 		selectPageForState(false, false);
 	}
 

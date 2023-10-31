@@ -2,8 +2,6 @@
 open module com.logonbox.vpn.client.gui.jfx {
     exports com.logonbox.vpn.client.gui.jfx;
     
-    requires transitive java.desktop;
-    requires transitive com.sshtools.twoslices;
     requires transitive java.prefs;
     requires transitive javafx.controls;
     requires transitive javafx.web;

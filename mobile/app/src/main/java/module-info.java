@@ -8,7 +8,6 @@ open module com.logonbox.vpn.client.mobile {
     requires transitive com.logonbox.vpn.client.app;
     requires com.logonbox.vpn.client.attach.lbvpn; 
     
-    requires com.sshtools.twoslices;
     requires transitive org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.fontawesome;
     requires com.gluonhq.charm.glisten;
