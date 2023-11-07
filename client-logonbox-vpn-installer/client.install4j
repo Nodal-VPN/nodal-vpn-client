@@ -111,7 +111,7 @@
   <launchers>
     <launcher name="logonbox-vpn-service" id="583" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientService">
       <executable name="logonbox-vpn-service" stderrFile="logs/service-forker-launcher.err" redirectStdout="true" stdoutFile="logs/service-forker-launcher.out" failOnStderrOutput="false" executableMode="service" dpiAware="false">
-        <versionInfo include="true" fileDescription="Privileged service for the LogonBox VPN" legalCopyright="LogonBox Limited" internalName="logonbox-vpn-service" />
+        <versionInfo include="true" fileDescription="Privileged service for the LogonBox VPN" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
       </executable>
       <java mainClass="com.logonbox.vpn.client.Main" vmParameters="-Xmx64m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Djna.nosys=true -Dhypersocket.logConfiguration=conf/log4j-service.properties -Djdk.internal.httpclient.disableHostnameVerification=true">
         <classPath>
@@ -121,7 +121,7 @@
     </launcher>
     <launcher name="logonbox-vpn-gui" id="783" menuName="LogonBox VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui">
       <executable name="logonbox-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/error.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/output.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true">
-        <versionInfo include="true" fileDescription="Graphical front end for the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="logonbox-vpn-gui" />
+        <versionInfo include="true" fileDescription="Graphical front end for the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
       </executable>
       <splashScreen bitmapFile="./images/splash.png" />
       <java mainClass="com.logonbox.vpn.client.gui.jfx.Main">
@@ -150,7 +150,7 @@
     </launcher>
     <launcher name="logonbox-vpn-cli" id="1488" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientCLI">
       <executable name="logonbox-vpn-cli" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false">
-        <versionInfo include="true" fileDescription="Command Line Interface to the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="logonbox-vpn-cli" />
+        <versionInfo include="true" fileDescription="Command Line Interface to the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
       </executable>
       <java mainClass="com.logonbox.vpn.client.cli.CLI" vmParameters="-Xmx32m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Dhypersocket.logConfiguration=conf/log4j-cli.properties -Djna.nosys=true">
         <classPath>
@@ -166,7 +166,7 @@
     </launcher>
     <launcher name="logonbox-vpn-service-console" id="2029" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientServiceConsole">
       <executable name="logonbox-vpn-service-console" redirectStderr="false" stderrFile="logs/service-forker-launcher.err" stdoutFile="logs/service-forker-launcher.out" failOnStderrOutput="false" executableMode="console" dpiAware="false">
-        <versionInfo include="true" fileDescription="Console variant of the LogonBox VPN service used for troubleshooting" legalCopyright="LogonBox Limited" internalName="logonbox-vpn-service-console" />
+        <versionInfo include="true" fileDescription="Console variant of the LogonBox VPN service used for troubleshooting" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
       </executable>
       <java mainClass="com.logonbox.vpn.client.Main" vmParameters="-Xmx64m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Djna.nosys=true -Dhypersocket.logConfiguration=conf/log4j-service-console.properties">
         <classPath>
@@ -176,7 +176,7 @@
     </launcher>
     <launcher name="logonbox-vpn-gui-remote" id="2035" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGuiRemote">
       <executable name="logonbox-vpn-gui-remote" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/error.log" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/output.log" executableMode="console" dpiAware="false">
-        <versionInfo include="true" fileDescription="Remote control for graphical front end to the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="logonbox-vpn-gui-remote" />
+        <versionInfo include="true" fileDescription="Remote control for graphical front end to the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
       <java mainClass="com.logonbox.vpn.client.gui.jfx.Main" allowVMPassthroughParameters="false">
@@ -203,7 +203,7 @@
     </launcher>
     <launcher name="dbconvert" id="2181" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.DbConvert">
       <executable name="dbconvert" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false">
-        <versionInfo include="true" fileDescription="Database converter, converts derby database to ini files." legalCopyright="LogonBox Limited" internalName="dbconvert" />
+        <versionInfo include="true" fileDescription="Database converter, converts derby database to ini files." legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
       </executable>
       <java mainClass="com.logonbox.vpn.client.dbconvert.DbConvert" vmParameters="-Xmx20m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true">
         <classPath>
