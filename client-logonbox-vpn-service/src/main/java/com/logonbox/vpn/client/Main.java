@@ -65,6 +65,7 @@ import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.dbus.VPN;
 import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
+import com.sshtools.common.logger.Log;
 import com.sshtools.forker.common.OS;
 
 import picocli.CommandLine;
@@ -398,7 +399,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 				}
 	
 				busAddress = BusAddress.of(newAddress);
-				if (!busAddress.getParameters().containsKey("guid")) {
+				if (!busAddress.hasParameter("guid")) {
 					/* Add a GUID if user supplied bus address without one */
 					newAddress += ",guid=" + Util.genGUID();
 					busAddress = BusAddress.of(newAddress);
@@ -631,7 +632,8 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 			try {
 				connect();
 				publishDefaultServices();
-			} catch (DBusException | IOException e) {
+			} catch (Exception e) {
+				log.warn("Failed to initialize bus.", e);
 			}
 		}, 10, TimeUnit.SECONDS);
 	}
