@@ -27,7 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.freedesktop.dbus.DBusPath;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
-import org.freedesktop.dbus.connections.impl.DBusConnection.DBusBusType;
+import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.Properties;
 import org.freedesktop.dbus.types.UInt32;
@@ -532,7 +532,7 @@ public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl
 		 * 
 		 * https://wiki.gnome.org/Projects/NetworkManager/DNS
 		 */
-		try (DBusConnection conn = DBusConnection.getConnection(DBusBusType.SYSTEM)) {
+		try (DBusConnection conn = DBusConnectionBuilder.forSystemBus().build()) {
 			LOG.info("Updating DNS via NetworkManager");
 			NetworkManager mgr = conn.getRemoteObject(NETWORK_MANAGER_BUS_NAME, "/org/freedesktop/NetworkManager",
 					NetworkManager.class);
@@ -603,7 +603,7 @@ public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl
 	}
 
 	private void updateSystemd(String[] dns) throws IOException {
-		try (DBusConnection conn = DBusConnection.getConnection(DBusBusType.SYSTEM)) {
+		try (DBusConnection conn = DBusConnectionBuilder.forSystemBus().build()) {
 			Resolve1Manager mgr = conn.getRemoteObject("org.freedesktop.resolve1", "/org/freedesktop/resolve1",
 					Resolve1Manager.class);
 			int index = getIndexForName(); // TODO

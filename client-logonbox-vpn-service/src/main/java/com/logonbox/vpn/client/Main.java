@@ -65,7 +65,6 @@ import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.dbus.VPN;
 import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
-import com.sshtools.common.logger.Log;
 import com.sshtools.forker.common.OS;
 
 import picocli.CommandLine;
@@ -390,25 +389,28 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 					if (!tcpBus || unixBus) {
 						log.info("Using UNIX domain socket bus");
 						newAddress = TransportBuilder.createDynamicSession("UNIX", true);
-						log.info(String.format("DBus-Java gave us %s", newAddress));
+						log.info("DBus-Java gave us {}", newAddress);
 					} else {
 						log.info("Using TCP bus");
 						newAddress = TransportBuilder.createDynamicSession("TCP", true);
-						log.info(String.format("DBus-Java gave us %s", newAddress));
+						log.info("DBus-Java gave us {}", newAddress);
 					}
 				}
 	
 				busAddress = BusAddress.of(newAddress);
 				if (!busAddress.hasParameter("guid")) {
 					/* Add a GUID if user supplied bus address without one */
-					newAddress += ",guid=" + Util.genGUID();
+					String genGUID = Util.genGUID();
+					newAddress += ",guid=" + genGUID;
 					busAddress = BusAddress.of(newAddress);
+					log.info("Added GUID {} to connection string", genGUID);
 				}
 	
 				if (busAddress.isListeningSocket()) {
 					/* Strip listen=true to get the address to uses as a client */
 					newAddress = newAddress.replace(",listen=true", "");
 					busAddress = BusAddress.of(newAddress);
+					log.info("Removed listen from address for clients, it is now {}", newAddress);
 				}
 				
 				/* Work around for Windows. We need the domain socket file to be created
@@ -419,13 +421,17 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 					File publicDir = new File("C:\\Users\\Public");
 					if (publicDir.exists()) {
 						File vpnAppData = new File(publicDir, "AppData\\LogonBox\\VPN");
+						log.info("Found {}, adjusting path to {}", publicDir, vpnAppData);
 	
-						if (!vpnAppData.exists() && !vpnAppData.mkdirs())
+						if (!vpnAppData.exists() && !vpnAppData.mkdirs()) {
+							log.info("{} doesn't exist, and couldn't be created.", vpnAppData);
 							throw new IOException("Failed to create public directory for domain socket file.");
+						}
 						
 						/* Clean up a bit so we don't get too many dead socket files. This
 						 * will leave the 4 most recent.
 						 */
+						log.info("Cleaning up old DBus socket files in {}", vpnAppData);
 						try {
 							var l = new ArrayList<>(Arrays.asList(vpnAppData.listFiles((f) ->  f.getName().startsWith("dbus-"))));
 							Collections.sort(l, (p1, p2) -> {
@@ -439,6 +445,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 							    }
 							});
 							while(l.size() > 4) {
+								log.info("Removing stale DBus socket {}", l.get(0));
 							    l.get(0).delete();
 							}
 						}
@@ -448,8 +455,11 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 	
 						newAddress = newAddress.replace("path=" + System.getProperty("java.io.tmpdir"),
 								"path=" + vpnAppData.getAbsolutePath().replace('/', '\\') + "\\");
-						log.info(String.format("Adjusting DBus path from %s to %s (%s)", busAddress, newAddress, System.getProperty("java.io.tmpdir")));
+						log.info("Adjusting DBus path from {} to {} ({})", busAddress, newAddress, System.getProperty("java.io.tmpdir"));
 						busAddress = BusAddress.of(newAddress);
+					}
+					else {
+						log.warn("{} does not exist, cannot determine path to use for public DBus socket.", publicDir);
 					}
 				}
 				else if (SystemUtils.IS_OS_MAC_OSX && busAddress.getBusType().equals("UNIX")) {
@@ -460,6 +470,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 					File publicDir = new File("/tmp");
 					if (publicDir.exists()) {
 						File vpnAppData = new File(publicDir, "/logonbox-vpn-client");
+						log.info("Found {}, adjusting path to {}", publicDir, vpnAppData);
 						if (!vpnAppData.exists() && !vpnAppData.mkdirs())
 							throw new IOException("Failed to create public directory for domain socket file.");
 	
@@ -468,6 +479,9 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 						log.info(String.format("Adjusting DBus path from %s to %s (%s)", busAddress, newAddress, System.getProperty("java.io.tmpdir")));
 						busAddress = BusAddress.of(newAddress);
 					}
+				}
+				else {
+					log.info("{} does not require any special handling of DBus paths", System.getProperty("os.name"));
 				}
 	
 				boolean startedBus = false;
@@ -483,50 +497,10 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 							listenBusAddress.toString(), authMode));
 					daemon = new EmbeddedDBusDaemon(listenBusAddress);
 					daemon.setSaslAuthMode(authMode);
-					daemon.startInBackground();
-					
-					try {
+					daemon.startInBackgroundAndWait();
 
-						/* Argh! FIX this upstream. Without it, attempt to
-						 * connect to embedded daemon very soon after it 
-						 * starts up intermittently fails. The symptoms
-						 * will be the JFX client continues to spin, waiting
-						 * for the service to be fully exported
-						 * 
-						 *  See also below, this is wby this operating is in
-						 *  a loop, we work around problems by just trying again. */
-						Thread.sleep(1000);
-					} catch (InterruptedException e1) {
-					} 
-	
-					log.info(String.format("Started embedded bus on address %s", listenBusAddress));				
-	
-					log.info(String.format("Connecting to embedded DBus %s", busAddress));
-					long expire = TimeUnit.SECONDS.toMillis(15) + System.currentTimeMillis();
-					while(System.currentTimeMillis() < expire) {
-						try {
-							conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress)).build();
-							log.info(String.format("Connected to embedded DBus %s", busAddress));
-							break;
-						} catch (DBusException dbe) {
-							try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-							}
-						}
-					}
-					if(conn == null) {
-						/* See above for reason for this loop */
-						try {
-							daemon.close();
-							daemon = null;
-						}
-						catch(Exception e) {
-						}
-						log.warn("Activated work around, no local DBus connection yet. Trying again");
-						continue;
-					}
-	
+					conn = configureBuilder(DBusConnectionBuilder.forAddress(busAddress)).build();
+					log.info(String.format("Connected to embedded DBus %s", busAddress));
 					startedBus = true;
 					
 				}
@@ -621,7 +595,6 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 	
 	private DBusConnectionBuilder configureBuilder(DBusConnectionBuilder builder) {
 		builder.withShared(false);
-		builder.withRegisterSelf(true);
 		return builder;
 	}
 

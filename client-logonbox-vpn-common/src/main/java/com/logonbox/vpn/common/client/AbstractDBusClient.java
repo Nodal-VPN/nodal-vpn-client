@@ -278,7 +278,6 @@ public abstract class AbstractDBusClient implements DBusClient {
 	
 	protected DBusConnectionBuilder configureBuilder(DBusConnectionBuilder builder) {
 		builder.withShared(false);
-		builder.withRegisterSelf(true);
 		return builder;
 	}
 
