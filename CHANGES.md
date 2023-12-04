@@ -1,5 +1,9 @@
 # Changes
 
+## 3.0.2-SNAPSHOT
+
+ * Stability fixes. 
+
 ## 3.0.1-204
 
  * Work-around and diagnostics for memory allocation error on Windows.
