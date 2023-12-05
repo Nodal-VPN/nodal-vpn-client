@@ -4,7 +4,8 @@
 
  * Stability fixes. 
  * Wrong update phase could sometimes be picked for updater.
- * 
+ * On Windows, client would enter infinite loop if there were more than 4 stale DBUS
+   socket files and look like it has not started. 
 
 ## 3.0.1-204
 
