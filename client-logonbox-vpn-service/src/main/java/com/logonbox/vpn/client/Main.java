@@ -447,6 +447,7 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 							while(l.size() > 4) {
 								log.info("Removing stale DBus socket {}", l.get(0));
 							    l.get(0).delete();
+							    l.remove(0);
 							}
 						}
 						catch(Exception e) {

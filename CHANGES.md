@@ -3,6 +3,8 @@
 ## 3.0.2-SNAPSHOT
 
  * Stability fixes. 
+ * Wrong update phase could sometimes be picked for updater.
+ * 
 
 ## 3.0.1-204
 
