@@ -1,6 +1,6 @@
 # Changes
 
-## 3.0.2-SNAPSHOT
+## 3.0.2-223
 
  * Stability fixes. 
  * Wrong update phase could sometimes be picked for updater.
