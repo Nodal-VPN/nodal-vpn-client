@@ -7,7 +7,7 @@
 	<parent>
 		<artifactId>logonbox-desktop-vpn-clients</artifactId>
 		<groupId>com.logonbox</groupId>
-		<version>3.0.2-SNAPSHOT</version>
+		<version>3.0.3-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>client-logonbox-vpn-installer</artifactId>

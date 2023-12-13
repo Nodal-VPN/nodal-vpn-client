@@ -160,9 +160,9 @@ pipeline {
 		 				sourceFile: 'client-logonbox-vpn-installer/target/media/*', 
 		 				storageClass: 'STANDARD', 
 		 				useServerSideEncryption: false]], 
-		 				pluginFailureResultConstraint: 'FAILURE', 
-		 				profileName: 'LogonBox Buckets', 
-		 				userMetadata: []
+		 			pluginFailureResultConstraint: 'FAILURE', 
+		 			profileName: 'LogonBox Buckets', 
+		 			userMetadata: []
 		 		)
 		 		
     			/* Copy the merged updates.xml to the nightly directory so updates can be seen
@@ -178,9 +178,9 @@ pipeline {
 		 				sourceFile: 'client-logonbox-vpn-installer/target/media/updates.xml', 
 		 				storageClass: 'STANDARD', 
 		 				useServerSideEncryption: false]], 
-		 				pluginFailureResultConstraint: 'FAILURE', 
-		 				profileName: 'LogonBox Buckets', 
-		 				userMetadata: []
+		 			pluginFailureResultConstraint: 'FAILURE', 
+		 			profileName: 'LogonBox Buckets', 
+		 			userMetadata: []
 		 		)
 			}					
 		}		
