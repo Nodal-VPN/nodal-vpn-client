@@ -33,8 +33,8 @@
 						<configuration>
 							<quiet>true</quiet>
 							<files>
-								<file>${basedir}/hypersocket.build.properties</file>
-								<file>${user.home}/.hypersocket.build.properties</file>
+								<file>${build.projectProperties}</file>
+								<file>${build.userProperties}</file>
 							</files>
 						</configuration>
 					</execution>
@@ -165,6 +165,27 @@
 	</dependencies>
 
 	<profiles>
+		
+		<profile>
+			<id>merge-installers</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.sshtools</groupId>
+						<artifactId>updatesxmlmerger-maven-plugin</artifactId>
+						<version>0.0.1</version>
+						<configuration>
+							<inputs>
+								<input>${project.build.directory}/media-macos/updates.xml</input>
+								<input>${project.build.directory}/media-windows/updates.xml</input>
+								<input>${project.build.directory}/media-linux/updates.xml</input>
+							</inputs>
+							<output>${project.build.directory}/media/updates.xml</output>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 
 		<profile>
 			<id>build-install4j-logonbox-vpn-client</id>
@@ -435,9 +456,9 @@
 
 					<!-- Create Installers -->
 					<plugin>
-						<groupId>org.sonatype.install4j</groupId>
-						<artifactId>install4j-maven-plugin</artifactId>
-						<version>1.1.2</version>
+						<groupId>com.install4j</groupId>
+						<artifactId>install4j-maven</artifactId>
+						<version>10.0.6</version>
 						<executions>
 							<execution>
 								<id>compile-client-installer</id>
@@ -464,6 +485,13 @@
 			</build>
 		</profile>
 	</profiles>
+	
+	<pluginRepositories>
+		<pluginRepository>
+			<id>ej-technologies</id>
+			<url>https://maven.ej-technologies.com/repository</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<repositories>
 		<repository>

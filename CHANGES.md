@@ -1,7 +1,8 @@
 # Changes
 
-## 3.0.2-223
+## 3.0.2-SNAPSHOT
 
+ * Windows installer now signed with EV certificate (by our sister company JADAPTIVE).
  * Stability fixes. 
  * Wrong update phase could sometimes be picked for updater.
  * On Windows, client would enter infinite loop if there were more than 4 stale DBUS
