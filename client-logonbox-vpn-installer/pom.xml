@@ -23,7 +23,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>properties-maven-plugin</artifactId>
-				<version>1.0.0</version>
+				<version>1.2.1</version>
 				<executions>
 					<execution>
 						<phase>initialize</phase>
@@ -31,7 +31,7 @@
 							<goal>read-project-properties</goal>
 						</goals>
 						<configuration>
-							<quiet>true</quiet>
+							<quiet>false</quiet>
 							<files>
 								<file>${build.projectProperties}</file>
 								<file>${build.userProperties}</file>
