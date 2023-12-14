@@ -62,8 +62,8 @@
         
         <dbus.version>5.0.0-SNAPSHOT</dbus.version>
         
-		<build.projectProperties>${project.basedir}/jadaptive.build.properties</build.projectProperties>
-		<build.userProperties>${user.home}/.jadaptive.build.properties</build.userProperties>
+		<build.projectProperties>${project.basedir}/hypersocket.build.properties</build.projectProperties>
+		<build.userProperties>${user.home}/.hypersocket.build.properties</build.userProperties>
 
 	</properties>
 
