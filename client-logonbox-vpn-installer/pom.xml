@@ -23,7 +23,6 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>properties-maven-plugin</artifactId>
-				<version>1.2.1</version>
 				<executions>
 					<execution>
 						<phase>initialize</phase>
@@ -40,7 +39,7 @@
 					</execution>
 				</executions>
 			</plugin>
-
+ 
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
@@ -156,11 +155,6 @@
 			<groupId>com.logonbox</groupId>
 			<artifactId>client-logonbox-vpn-dbconvert</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.sshtools</groupId>
-			<artifactId>forker-wrapper</artifactId>
-			<version>1.8-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
@@ -486,13 +480,6 @@
 		</profile>
 	</profiles>
 	
-	<pluginRepositories>
-		<pluginRepository>
-			<id>ej-technologies</id>
-			<url>https://maven.ej-technologies.com/repository</url>
-		</pluginRepository>
-	</pluginRepositories>
-
 	<repositories>
 		<repository>
 			<id>opensource-releases</id>

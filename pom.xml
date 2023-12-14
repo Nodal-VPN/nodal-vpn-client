@@ -49,11 +49,12 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
-		<javafx.version>21-ea+24</javafx.version>
+		<javafx.version>21.0.1</javafx.version>
 		
 		<!-- This version is used for Mac OS intel which has a very annoying
 		     crash on newer version -->
-		<javafx.legacy.version>17.0.6</javafx.legacy.version>
+		<!--<javafx.legacy.version>17.0.6</javafx.legacy.version>-->
+		<javafx.legacy.version>21.0.1</javafx.legacy.version>
 		
 		<!-- When you change this, remember to also change hypersocket-framework, hypersocket-enterprise, hypersocket-ui  -->
 		<hypersocket.languages>da,nl,fi,fr,de,it,no,pl,ru,sv,es,ja,he,pt,tr</hypersocket.languages>
@@ -99,22 +100,6 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>properties-maven-plugin</artifactId>
-				<version>1.2.1</version>
-				<executions>
-					<execution>
-						<phase>initialize</phase>
-						<goals>
-							<goal>read-project-properties</goal>
-						</goals>
-						<configuration>
-							<quiet>false</quiet>
-							<files>
-								<file>${build.projectProperties}</file>
-								<file>${build.userProperties}</file>
-							</files>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -129,7 +114,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -160,18 +144,6 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<executions>
 					<execution>
@@ -189,27 +161,60 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>properties-maven-plugin</artifactId>
+					<version>1.2.1</version>
+					<executions>
+						<execution>
+							<phase>initialize</phase>
+							<goals>
+								<goal>read-project-properties</goal>
+							</goals>
+							<configuration>
+								<quiet>false</quiet>
+								<files>
+									<file>${build.projectProperties}</file>
+									<file>${build.userProperties}</file>
+								</files>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.3.0</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>jar-no-fork</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
 				    <groupId>org.apache.maven.plugins</groupId>
 				    <artifactId>maven-javadoc-plugin</artifactId>
-				    <version>3.2.0</version>
+				    <version>3.6.3</version>
 				    <configuration>
 						<encoding>UTF-8</encoding>
 						<excludePackageNames>**.impl.*</excludePackageNames>
 						<!-- https://bugs.openjdk.java.net/browse/JDK-8212233 -->
 						<detectJavaApiLink>false</detectJavaApiLink>
 						<source>8</source>
-						<additionalparam>-Xdoclint:none</additionalparam>
                 	</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.3.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.1</version>
+					<version>3.11.0</version>
 				</plugin>
 				<plugin>
 					<groupId>com.nervepoint</groupId>
@@ -241,72 +246,19 @@
 					</executions>
 				</plugin>
 				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.maven.plugins</groupId>
-										<artifactId>maven-enforcer-plugin</artifactId>
-										<versionRange>[1.0.0,)</versionRange>
-										<goals>
-											<goal>enforce</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											com.nervepoint
-										</groupId>
-										<artifactId>
-											google-translate-v2-java-maven-plugin
-										</artifactId>
-										<versionRange>
-											[0.9.0-SNAPSHOT,)
-										</versionRange>
-										<goals>
-											<goal>translate</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.codehaus.mojo
-										</groupId>
-										<artifactId>
-											properties-maven-plugin
-										</artifactId>
-										<versionRange>
-											[1.0-alpha-2,)
-										</versionRange>
-										<goals>
-											<goal>
-												read-project-properties
-											</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+    				<version>3.1.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>exec-maven-plugin</artifactId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+    				<version>3.5.0</version>
+				</plugin>
+				<plugin>
+					<groupId>com.logonbox</groupId>
+					<artifactId>logonbox-plugin-generator</artifactId>
+					<version>0.9.0-SNAPSHOT</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -342,6 +294,10 @@
 	</repositories>
 
 	<pluginRepositories>
+		<pluginRepository>
+			<id>ej-technologies</id>
+			<url>https://maven.ej-technologies.com/repository</url>
+		</pluginRepository>
 		<pluginRepository>
 			<id>libs-releases</id>
 			<url>https://artifactory.jadaptive.com/libs-releases-local</url>
