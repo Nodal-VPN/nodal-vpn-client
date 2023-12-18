@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.6" transformSequenceNumber="10">
   <directoryPresets config="./os/windows/win32-x86-64/vcruntime140.dll" />
-  <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" pack200Compression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk">
+  <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" pack200Compression="false" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
     </searchSequence>
