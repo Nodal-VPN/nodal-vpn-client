@@ -1,5 +1,9 @@
 # Changes
 
+## 3.0.4-SNAPSHOT
+
+ * Under development.
+
 ## 3.0.3-256
 
  * Windows installer now signed with EV certificate (by our sister company JADAPTIVE).
