@@ -1,8 +1,9 @@
 # Changes
 
-## 3.0.3-SNAPSHOT
+## 3.0.3-256
 
  * Windows installer now signed with EV certificate (by our sister company JADAPTIVE).
+ * Fixed an issue with the updater mechanism. Updates from 3.0.2 to this version need to be done manually but should be ok from this point onwards.
 
 ## 3.0.2-223
 
