@@ -2,7 +2,7 @@
 
 ## 3.0.4-SNAPSHOT
 
- * Under development.
+ * Resizing the Window on Linux can corrupt the window borders.
 
 ## 3.0.3-256
 
