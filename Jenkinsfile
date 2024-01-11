@@ -27,7 +27,7 @@ pipeline {
 					 		withMaven(
 					 			globalMavenSettingsConfig: '4bc608a8-6e52-4765-bd72-4763f45bfbde'
 					 		) {
-					 		  	sh 'mvn -Dbuild.mediaTypes=unixInstaller,unixArchive,linuxRPM,linuxDeb -Dbuild.projectProperties=$BUILD_PROPERTIES -P build-install4j-logonbox-vpn-client -pl client-logonbox-vpn-installer clean package'
+					 		  	sh 'mvn -U -Dbuild.mediaTypes=unixInstaller,unixArchive,linuxRPM,linuxDeb -Dbuild.projectProperties=$BUILD_PROPERTIES -P build-install4j-logonbox-vpn-client -pl client-logonbox-vpn-installer clean package'
 					 		  	
 					 		  	/* Stash installers */
 			        			stash includes: 'client-logonbox-vpn-installer/target/media/*', name: 'linux-vpn-client'
@@ -61,7 +61,7 @@ pipeline {
 					 			globalMavenSettingsConfig: '4bc608a8-6e52-4765-bd72-4763f45bfbde'
 					 		) {
 					 			// -Dinstall4j.disableNotarization=true 
-					 		  	sh 'mvn -Dbuild.mediaTypes=macos,macosFolder,macosFolderArchive -Dbuild.projectProperties=$BUILD_PROPERTIES -P build-install4j-logonbox-vpn-client -pl client-logonbox-vpn-installer clean package'
+					 		  	sh 'mvn -U -Dbuild.mediaTypes=macos,macosFolder,macosFolderArchive -Dbuild.projectProperties=$BUILD_PROPERTIES -P build-install4j-logonbox-vpn-client -pl client-logonbox-vpn-installer clean package'
 					 		  	
 					 		  	/* Stash installers */
 			        			stash includes: 'client-logonbox-vpn-installer/target/media/*', name: 'macos-vpn-client'
@@ -94,7 +94,7 @@ pipeline {
 					 		withMaven(
 					 			globalMavenSettingsConfig: '4bc608a8-6e52-4765-bd72-4763f45bfbde'
 					 		) {
-					 		  	bat 'mvn -Dinstall4j.verbose=true -Dbuild.mediaTypes=windows,windowsArchive "-Dbuild.projectProperties=%BUILD_PROPERTIES%" -P build-install4j-logonbox-vpn-client -pl client-logonbox-vpn-installer clean package'
+					 		  	bat 'mvn -U -Dinstall4j.verbose=true -Dbuild.mediaTypes=windows,windowsArchive "-Dbuild.projectProperties=%BUILD_PROPERTIES%" -P build-install4j-logonbox-vpn-client -pl client-logonbox-vpn-installer clean package'
 					 		  	
 					 		  	/* Stash installers */
 			        			stash includes: 'client-logonbox-vpn-installer/target/media/*', name: 'windows-vpn-client'
