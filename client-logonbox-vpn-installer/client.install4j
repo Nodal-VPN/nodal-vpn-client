@@ -162,7 +162,7 @@
       <executable name="logonbox-vpn-cli" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false">
         <versionInfo include="true" fileDescription="Command Line Interface to the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
       </executable>
-      <java mainClass="com.logonbox.vpn.client.cli.CLI" vmParameters="-Xmx32m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Dhypersocket.logConfiguration=conf/log4j-cli.properties -Djna.nosys=true">
+      <java mainClass="com.logonbox.vpn.client.cli.CLI" vmParameters="-Xmx32m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Dhypersocket.logConfiguration=conf/log4j-cli.properties -Djna.nosys=true  -Djdk.internal.httpclient.disableHostnameVerification=true">
         <classPath>
           <scanDirectory location="cli" failOnError="false" />
         </classPath>
