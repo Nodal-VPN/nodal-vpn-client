@@ -82,9 +82,9 @@ public class VPNSession implements Closeable {
 	}
 
 	public void open() throws IOException {
-		LocalContext cctx = getLocalContext();
-		ConnectionStatus connection = cctx.getClientService().getStatus(this.connection.getId());
-		Connection vpnConnection = connection.getConnection();
+//		LocalContext cctx = getLocalContext();
+//		ConnectionStatus connection = cctx.getClientService().getStatus(this.connection.getId());
+		Connection vpnConnection = connection;
 		if (log.isInfoEnabled()) {
 			log.info(String.format("Connecting to %s (owned by %s)", vpnConnection.getUri(true), vpnConnection.getOwnerOrCurrent()));
 		}

@@ -3,6 +3,7 @@ package com.logonbox.vpn.client;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.CookieStore;
 import java.nio.file.Files;
@@ -38,8 +39,9 @@ import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.connections.transports.TransportBuilder;
 import org.freedesktop.dbus.connections.transports.TransportBuilder.SaslAuthMode;
-import org.freedesktop.dbus.errors.AccessDenied;
+import org.freedesktop.dbus.errors.ServiceUnknown;
 import org.freedesktop.dbus.exceptions.DBusException;
+import org.freedesktop.dbus.exceptions.DBusExecutionException;
 import org.freedesktop.dbus.messages.Message;
 import org.freedesktop.dbus.utils.Util;
 import org.slf4j.Logger;
@@ -237,6 +239,33 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 					HypersocketVersion.getVersion(Main.ARTIFACT_COORDS)));
 			log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch")
 					+ " (" + System.getProperty("os.version") + ")"));
+			
+			/* Check not already running (only do this for embedded broker, a real broker will reject the name request) */
+			if(!SystemUtils.IS_OS_LINUX || embeddedBus) {
+				File dbusPropertiesFile = getDBusPropertiesFile();
+				if(dbusPropertiesFile.exists()) {
+					var props = new Properties();
+					try (var in = new FileReader(dbusPropertiesFile)) {
+						props.load(in);
+					}
+					var addr = props.getProperty("address");
+					if(StringUtils.isNotBlank(addr)) {
+						log.info("Checking if {} is already active", addr);
+						try(var testConn = configureBuilder(DBusConnectionBuilder.forAddress(addr)).build()) {
+							var mgr = testConn.getRemoteObject("com.logonbox.vpn", "/com/logonbox/vpn", VPN.class);
+							try {
+								mgr.ping();
+							}
+							catch(DBusExecutionException dbee) {
+							}
+							throw new IOException("VPN service already running.");
+						}
+						catch(ServiceUnknown | DBusException  e) {
+							log.debug("No existing service.", e);
+						}
+					}
+				}
+			}
 
 			if (!configureDBus()) {
 				System.exit(3);
@@ -336,14 +365,6 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 
 	private boolean connect() throws DBusException, IOException {
 		
-		/*
-		 * NOTE: This whole process takes too long when using EmbeddedDBusDaemon
-		 * embedded DBUS daemon, due to an upstream bug.
-		 * 
-		 * There are work around's consisting of sleeps, polls and timeouts
-		 * that ideally should not be here. 
-		 */
-		
 		while(true) {
 			if (connTask != null) {
 				connTask.cancel(false);
@@ -383,8 +404,6 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 					/*
 					 * If no user supplied bus address, create one for an embedded daemon. All
 					 * supported OS use domain sockets where possible except Windows
-					 *
-					 * TODO: switch to domain sockets all around with dbus-java 4.0.0+ :)
 					 */
 					if (!tcpBus || unixBus) {
 						log.info("Using UNIX domain socket bus");
@@ -533,47 +552,14 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 			}
 			log.info(String.format("Requesting name from Bus %s", newAddress));
 	
-			
 			conn.setDisconnectCallback(new IDisconnectCallback() {
 			    public void disconnectOnError(IOException _ex) {
 					disconnectAndRetry();
 			    }
 			});
-	//		conn.addSigHandler(org.freedesktop.dbus.interfaces.Local.Disconnected.class,
-	//				new DBusSigHandler<org.freedesktop.dbus.interfaces.Local.Disconnected>() {
-	//
-	//					@Override
-	//					public void handle(org.freedesktop.dbus.interfaces.Local.Disconnected sig) {
-	//						try {
-	//							conn.removeSigHandler(org.freedesktop.dbus.interfaces.Local.Disconnected.class, this);
-	//						} catch (DBusException e1) {
-	//						}
-	//						log.info("Disconnected from Bus, retrying");
-	//						conn = null;
-	//						connTask = queue.schedule(() -> {
-	//							try {
-	//								connect();
-	//								publishDefaultServices();
-	//							} catch (DBusException | IOException e) {
-	//							}
-	//						}, 10, TimeUnit.SECONDS);
-	//
-	//					}
-	//				});
 	
 			try {
-				/* NOTE: Work around for Hello message not having been completely sent before trying to request name */
-				while(true) {
-					try {
-						conn.requestBusName("com.logonbox.vpn");
-						break;
-					}
-					catch(DBusException dbe) {
-						if(!(dbe.getCause() instanceof AccessDenied))
-							throw dbe;
-						Thread.sleep(500);
-					}
-				}
+				conn.requestBusName("com.logonbox.vpn");
 				
 				// Now can tell the client
 				storeAddress(busAddress.toString());

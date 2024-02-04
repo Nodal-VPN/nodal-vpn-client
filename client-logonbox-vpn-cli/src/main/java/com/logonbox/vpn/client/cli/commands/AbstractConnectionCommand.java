@@ -30,6 +30,7 @@ import com.logonbox.vpn.client.cli.ConsoleProvider;
 import com.logonbox.vpn.client.cli.StateHelper;
 import com.logonbox.vpn.common.client.ConnectionStatus.Type;
 import com.logonbox.vpn.common.client.ServiceClient;
+import com.logonbox.vpn.common.client.ServiceClient.DeviceCode;
 import com.logonbox.vpn.common.client.ServiceClient.NameValuePair;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
 
@@ -53,7 +54,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 		ConsoleProvider console = cli.getConsole();
 		String pattern = null;
 		if (args == null || args.length == 0) {
-			pattern = console.readLine("Enter connection ID or hostname: ");
+			pattern = console.readLine(CLI.BUNDLE.getString("connection.enterId") + ": ");
 		} else if (args.length > 0) {
 			pattern = args[0];
 		}
@@ -70,12 +71,12 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 			long id = Long.parseLong(pattern);
 			VPNConnection connection = cli.getVPNConnection(id);
 			if (connection == null)
-				throw new IllegalArgumentException(String.format("No connection %d (hint: use 'list' command)", id));
+				throw new IllegalArgumentException(MessageFormat.format(CLI.BUNDLE.getString("connection.noConnection"), id));
 			try {
 				connection.getId();
 			}
 			catch(Exception e) {
-				throw new IllegalArgumentException(String.format("No connection %d (hint: use 'list' command)", id));
+				throw new IllegalArgumentException(MessageFormat.format(CLI.BUNDLE.getString("connection.noConnection"), id));
 			}
 			l.add(connection);
 		} catch (NumberFormatException nfe) {
@@ -93,13 +94,13 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 			throws RemoteException, InterruptedException, IOException, DBusException {
 		ConsoleProvider console = cli.getConsole();
 		if (!cli.isQuiet())
-			console.out().println(String.format("Disconnecting from %s", c.getUri(true)));
+			console.out().println(MessageFormat.format(CLI.BUNDLE.getString("connection.disconnecting"), c.getUri(true)));
 		console.flush();
 		try (StateHelper helper = new StateHelper(c, cli.getBus())) {
 			c.disconnect("");
 			helper.waitForState(1, TimeUnit.MINUTES, Type.DISCONNECTED);
 			if (!cli.isQuiet())
-				console.out().println("Disconnected");
+				console.out().println(CLI.BUNDLE.getString("connection.disconnected"));
 		}
 		console.flush();
 	}
@@ -120,15 +121,22 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 			}
 
 			@Override
-			public void error(JsonNode i18n, AuthenticationResult logonResult) {
-				if (logonResult.isLastErrorIsResourceKey())
-					out.println(String.format("Login error. %s", i18n.get(logonResult.getErrorMsg()).asText()));
-				else
-					out.println(String.format("Login error. %s", logonResult.getErrorMsg()));
-
+			public void prompt(DeviceCode code) {
+				out.println(CLI.BUNDLE.getString("connection.prompt"));
+				out.println(code.verification_uri);
+				out.println(MessageFormat.format(CLI.BUNDLE.getString("connection.userCode"), code.user_code));
 			}
 
 			@Override
+			public void error(JsonNode i18n, AuthenticationResult logonResult) {
+				if (logonResult.isLastErrorIsResourceKey())
+					out.println(MessageFormat.format(CLI.BUNDLE.getString("connection.loginError"), i18n.get(logonResult.getErrorMsg()).asText()));
+				else
+					out.println(MessageFormat.format(CLI.BUNDLE.getString("connection.loginError"), logonResult.getErrorMsg()));
+			}
+
+			@Override
+			@Deprecated
 			public void collect(JsonNode i18n, AuthenticationRequiredResult result,
 					Map<InputField, NameValuePair> results) throws IOException {
 				out.println(MessageFormat.format(CLI.BUNDLE.getString("authenticationRequired"),
@@ -176,7 +184,11 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 							}
 							break;
 						case a:
-							out.println(field.getLabel() + ": " + field.getDefaultValue());
+							if(field.getLabel() == null)
+								out.println(field.getDefaultValue());
+							else
+								out.println(field.getLabel() + ": " + field.getDefaultValue());
+							loop = false;
 							break;
 						case text:
 						case textarea:
@@ -198,6 +210,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 						case div:
 						case pre:
 							out.println(field.getDefaultValue());
+							loop = false;
 							break;
 						case checkbox:
 							if ("true".equals(field.getDefaultValue()))
@@ -232,7 +245,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 
 			@Override
 			public void authorized() throws IOException {
-				out.println("Authorized.");
+				out.println(CLI.BUNDLE.getString("connection.authorized"));
 				cli.getConsole().flush();
 
 			}

@@ -43,6 +43,11 @@
     background-color: #ccc;
 }
 
+.userCode {
+	font-size: 3em;
+}
+
+
 #exceptionContainer pre {
     overflow: auto;
     height: 15em;

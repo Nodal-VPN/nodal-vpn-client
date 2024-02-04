@@ -41,6 +41,7 @@
     <script type="text/javascript">
         
         var timerHandle;
+		var bridgeReference;
     
 	    function startUpdate() {
             try {
@@ -50,7 +51,7 @@
                 }
                 $('#startUpdate').buttonLoader('start');
                 $('#alerts').empty();
-                bridge.update();
+                bridgeReference.update();
             } catch (e) {
                 $('#startUpdate').buttonLoader('stop');
                 $('#alerts').append($('<div class="alert alert-danger">' + e.getMessage() + '</div>'));
@@ -71,8 +72,9 @@
         }
     
         function uiReady() {
+        	bridgeReference = bridge;
             $('#deferUpdate').off('click').on('click', function(event) {
-            	bridge.deferUpdate();
+            	bridgeReference.deferUpdate();
             });
             $('#startUpdate').off('click').on('click', function(event) {
             	startUpdate();

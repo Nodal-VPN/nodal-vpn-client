@@ -45,12 +45,14 @@
 	</div>
 
 	<script type="text/javascript">
+		var bridgeReference;
         function uiReady() {
+        	bridgeReference = bridge;
 			$('#name').attr('placeholder', connection.getDefaultDisplayName());
 			$('#connectAtStartup').prop('checked', connection.isConnectAtStartup());
 			$('#stayConnected').prop('checked', connection.isStayConnected());
 			$("#editConnectionForm").submit(function(event) { 
-				bridge.editConnection({
+				bridgeReference.editConnection({
 					'serverUrl': $('#serverUrl').val(),
 					'connectAtStartup': $('#connectAtStartup').is(':checked'),
 					'stayConnected': $('#stayConnected').is(':checked'),

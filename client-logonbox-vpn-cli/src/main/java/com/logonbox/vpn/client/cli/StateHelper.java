@@ -2,27 +2,21 @@ package com.logonbox.vpn.client.cli;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
-import org.freedesktop.dbus.interfaces.DBusSigHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.logonbox.vpn.common.client.Connection.Mode;
 import com.logonbox.vpn.common.client.ConnectionStatus.Type;
 import com.logonbox.vpn.common.client.dbus.VPNConnection;
-import com.logonbox.vpn.common.client.dbus.VPNConnection.Authorize;
-import com.logonbox.vpn.common.client.dbus.VPNConnection.Connected;
-import com.logonbox.vpn.common.client.dbus.VPNConnection.Connecting;
-import com.logonbox.vpn.common.client.dbus.VPNConnection.Disconnected;
-import com.logonbox.vpn.common.client.dbus.VPNConnection.Disconnecting;
-import com.logonbox.vpn.common.client.dbus.VPNConnection.Failed;
-import com.logonbox.vpn.common.client.dbus.VPNConnection.TemporarilyOffline;
 
 public class StateHelper implements Closeable {
 	static Logger log = LoggerFactory.getLogger(StateHelper.class);
@@ -34,78 +28,25 @@ public class StateHelper implements Closeable {
 	private DBusConnection bus;
 	private VPNConnection connection;
 	private Type currentState;
-	private DBusSigHandler<Authorize> authorizeSigHandler;
-	private DBusSigHandler<Connected> startedSigHandler;
-	private DBusSigHandler<Connecting> joiningSigHandler;
-	private DBusSigHandler<Failed> failedSigHandler;
-	private DBusSigHandler<Disconnected> disconnectedSigHandler;
-	private DBusSigHandler<Disconnecting> disconnectingSigHandler;
-	private DBusSigHandler<TemporarilyOffline> temporarilyOfflineSigHandler;
 	private Object lock = new Object();
 	private boolean interrupt;
 	private Map<Type, StateChange> onState = new HashMap<>();
 	private Exception error;
+	private final List<AutoCloseable> handles;
 
 	public StateHelper(VPNConnection connection, DBusConnection bus) throws DBusException {
 		this.connection = connection;
 		this.bus = bus;
 		currentState = Type.valueOf(connection.getStatus());
-		bus.addSigHandler(VPNConnection.Disconnecting.class, connection,
-				disconnectingSigHandler = new DBusSigHandler<VPNConnection.Disconnecting>() {
-					@Override
-					public void handle(VPNConnection.Disconnecting sig) {
-						stateChange();
-					}
-				});
-		bus.addSigHandler(VPNConnection.Disconnected.class, connection,
-				disconnectedSigHandler = new DBusSigHandler<VPNConnection.Disconnected>() {
-					@Override
-					public void handle(VPNConnection.Disconnected sig) {
-						stateChange();
-					}
-				});
-		bus.addSigHandler(VPNConnection.Failed.class, connection,
-				failedSigHandler = new DBusSigHandler<VPNConnection.Failed>() {
-					@Override
-					public void handle(VPNConnection.Failed sig) {
-						stateChange();
-					}
-				});
-		bus.addSigHandler(VPNConnection.Connecting.class, connection,
-				joiningSigHandler = new DBusSigHandler<VPNConnection.Connecting>() {
-					@Override
-					public void handle(VPNConnection.Connecting sig) {
-						stateChange();
-					}
-				});
-		bus.addSigHandler(VPNConnection.Connected.class, connection,
-				startedSigHandler = new DBusSigHandler<VPNConnection.Connected>() {
-					@Override
-					public void handle(VPNConnection.Connected sig) {
-						stateChange();
-					}
-				});
-		bus.addSigHandler(VPNConnection.Authorize.class, connection,
-				authorizeSigHandler = new DBusSigHandler<VPNConnection.Authorize>() {
-					@Override
-					public void handle(VPNConnection.Authorize sig) {
-						stateChange();
-					}
-				});
-		bus.addSigHandler(VPNConnection.Failed.class, connection,
-				failedSigHandler = new DBusSigHandler<VPNConnection.Failed>() {
-					@Override
-					public void handle(VPNConnection.Failed sig) {
-						stateChange();
-					}
-				});
-		bus.addSigHandler(VPNConnection.TemporarilyOffline.class, connection,
-				temporarilyOfflineSigHandler = new DBusSigHandler<VPNConnection.TemporarilyOffline>() {
-					@Override
-					public void handle(VPNConnection.TemporarilyOffline sig) {
-						stateChange();
-					}
-				});
+		handles = Arrays.asList(
+				bus.addSigHandler(VPNConnection.Disconnecting.class, connection, sig -> stateChange()),
+				bus.addSigHandler(VPNConnection.Disconnected.class, connection, sig -> stateChange()),
+				bus.addSigHandler(VPNConnection.Failed.class, connection, sig -> stateChange()),
+				bus.addSigHandler(VPNConnection.Connecting.class, connection, sig -> stateChange()),
+				bus.addSigHandler(VPNConnection.Connected.class, connection, sig -> stateChange()),
+				bus.addSigHandler(VPNConnection.Authorize.class, connection, sig -> stateChange()),
+				bus.addSigHandler(VPNConnection.TemporarilyOffline.class, connection, sig -> stateChange())
+		);
 	}
 
 	public Type waitForStateNot(Type... state) throws InterruptedException {
@@ -187,17 +128,13 @@ public class StateHelper implements Closeable {
 
 	@Override
 	public void close() throws IOException {
-		try {
-			onState.clear();
-			bus.removeSigHandler(VPNConnection.Authorize.class, authorizeSigHandler);
-			bus.removeSigHandler(VPNConnection.Connected.class, startedSigHandler);
-			bus.removeSigHandler(VPNConnection.Connecting.class, joiningSigHandler);
-			bus.removeSigHandler(VPNConnection.Failed.class, failedSigHandler);
-			bus.removeSigHandler(VPNConnection.Disconnected.class, disconnectedSigHandler);
-			bus.removeSigHandler(VPNConnection.Disconnecting.class, disconnectingSigHandler);
-			bus.removeSigHandler(VPNConnection.TemporarilyOffline.class, temporarilyOfflineSigHandler);
-		} catch (DBusException dbe) {
-			throw new IOException("Failed to remove signal handlers.", dbe);
+		onState.clear();
+		for(var h : handles) {
+			try {
+				h.close();
+			} catch (Exception e) {
+				throw new IOException("Failed to remove signal handler.", e);
+			}
 		}
 	}
 
@@ -212,7 +149,7 @@ public class StateHelper implements Closeable {
 		synchronized (lock) {
 			Type newState = Type.valueOf(connection.getStatus());
 			if(!Objects.equals(currentState, newState)) { 
-				log.info(String.format("State change from %s to %s", currentState, newState));
+				log.info("State change from {} to {} [{}]", currentState, newState, StateHelper.this.hashCode());
 				currentState = newState;
 				try {
 					if(onState.containsKey(currentState))  {

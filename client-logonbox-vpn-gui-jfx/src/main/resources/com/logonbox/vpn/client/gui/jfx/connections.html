@@ -58,13 +58,14 @@
 
 	<script type="text/javascript">
 	   var template = false;
+	   var bridgeReference;
 	
 		function rebuildConnections() {
 			$('.row').off('mouseenter');
 			$('.row').off('mouseleave');
 			$('.row').off('click');
 			try {
-				var connections = bridge.getConnections();
+				var connections = bridgeReference.getConnections();
                 var connectionsEl = $('#connections');
 				if(!template) {
 				    template = $('#connectionTemplate').clone();
@@ -82,7 +83,7 @@
 				for (var i = 0; i < connections.length; i++) {
 					var connection = connections[i];
 					if(!connection) {
-						bridge = null;
+						bridgeReference = null;
 						throw 'Missing connection object, suggests page was interrupted. Forcing refresh.';	
 					}
 					var connectionEl = template.clone();
@@ -145,7 +146,7 @@
 				}
 			} catch (e) {
 				try {
-					bridge.getOS();
+					bridgeReference.getOS();
 				}
 				catch(e2) {
 					// HACK: The Mac looses the bridge object somehow coming out of hibernate. I can only
@@ -160,11 +161,14 @@
 				alert(e);
 			}
             $('#add').off('mousedown').on('mousedown', function() {
+            	bridgeReference.log('MOUSE DOWN');
             	$('#add').data('timer', window.setTimeout(function() {
-            		brige.go('addAdvanced.html');
+            		bridgeReference.log('TIMER!');
+            		bridgeReference.go('addAdvanced.html');
             	}, 1000));
             });
             $('#add').off('mouseup').on('mouseup', function(e) {
+            	bridgeReference.log('MOUSEUP!');
             	var t = $(this).data('timer');
             	if(t) {
             		window.clearTimeout(t);
@@ -178,20 +182,20 @@
 				$(this).removeClass('active');
 			});
             $('.row .connection-name').off('click').on('click', function(evt) {
-                bridge.details(parseInt($(this).parent().parent().parent().parent().attr('data-connection')));
+            	bridgeReference.details(parseInt($(this).parent().parent().parent().parent().attr('data-connection')));
                 evt.preventDefault();
             });
 			$('.row').off('dblclick').on('dblclick', function(evt) {
-				bridge.details(parseInt($(this).attr('data-connection')));
+				bridgeReference.details(parseInt($(this).attr('data-connection')));
 				evt.preventDefault();
 			});
 			$('.toggle-connection').change(function(e) {
                 console.log(this);
                 if (this.checked) {
-                    bridge.connectTo(parseInt($($(this).parents('.connection')).attr('data-connection')));
+                	bridgeReference.connectTo(parseInt($($(this).parents('.connection')).attr('data-connection')));
                     rebuildConnections();
                 } else {
-                    bridge.disconnectFrom(parseInt($($(this).parents('.connection')).attr('data-connection')));
+                	bridgeReference.disconnectFrom(parseInt($($(this).parents('.connection')).attr('data-connection')));
                     rebuildConnections();
                 }
                 e.preventDefault();
@@ -205,6 +209,7 @@
         }
 
         function uiReady() {
+        	bridgeReference = bridge;
             rebuildConnections();
         }
 	</script>

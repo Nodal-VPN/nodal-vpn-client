@@ -3,6 +3,12 @@
 ## 3.0.4-SNAPSHOT
 
  * Resizing the Window on Linux can corrupt the window borders.
+ * Adds support for the next generation LogonBox VPN server. 
+ * Fix for occasional UI corruption (e.g. in Options page) where all component text
+   was lost.
+ * Under some circumstances it may be possible start a 2nd instance of the service, which
+   would result in unexpected behaviour. Additional checks to prevent this have been added.
+ * Excessive key validity checks were being made (during authorization). 
 
 ## 3.0.3-256
 

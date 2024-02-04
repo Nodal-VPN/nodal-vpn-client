@@ -90,6 +90,7 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	@Override
 	public void authorized() {
 		assertRegistered();
+		System.out.println("[REMOVEME] AUTHORIZED - " + connection);
 		ctx.getClientService().authorized(connection);
 	}
 

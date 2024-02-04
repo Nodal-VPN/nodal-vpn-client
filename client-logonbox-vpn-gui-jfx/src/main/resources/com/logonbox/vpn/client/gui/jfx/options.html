@@ -114,7 +114,11 @@
 		</div>
 	</div>
 	<script type="text/javascript">
+		var bridgeReference;
+		
 		function uiReady() {
+			bridgeReference =  bridge;
+			
 			try {
                 $('#logLevel').off('change');
                 $('#dnsIntegrationMethod').off('change');
@@ -226,49 +230,49 @@
 				}
 				
 				$('#logLevel').on('change', function() {
-                       bridge.saveOptions({ logLevel : $('#logLevel').val() });
+                       bridgeReference.saveOptions({ logLevel : $('#logLevel').val() });
 				});
                 $('#dnsIntegrationMethod').on('change', function() {
-                    bridge.saveOptions({ dnsIntegrationMethod : $('#dnsIntegrationMethod').val() });
+                    bridgeReference.saveOptions({ dnsIntegrationMethod : $('#dnsIntegrationMethod').val() });
                 });
                 if ($('#trayMode').length) {
                     $('#trayMode').on('change', function() {
-                        bridge.saveOptions({ trayMode : $('#trayMode').val() });
+                        bridgeReference.saveOptions({ trayMode : $('#trayMode').val() });
                     });
                 }
                 if ($('#darkMode').length) {
                     $('#darkMode').on('change', function() {
-                        bridge.saveOptions({ darkMode : $('#darkMode').val() });
+                        bridgeReference.saveOptions({ darkMode : $('#darkMode').val() });
                     });
                 }
                 if ($('#phase').length) {
                     $('#phase').on('change', function() {
-                        bridge.saveOptions({ phase : $('#phase').val() });
+                        bridgeReference.saveOptions({ phase : $('#phase').val() });
                     });
                 }
                 if ($('#automaticUpdates').length) {
                     $('#automaticUpdates').on('change', function() {
-                        bridge.saveOptions({ automaticUpdates : $('#automaticUpdates').is(':checked') });
+                        bridgeReference.saveOptions({ automaticUpdates : $('#automaticUpdates').is(':checked') });
                     });
                 }
                 if ($('#popupNotifications').length) {
                     $('#popupNotifications').on('change', function() {
-                        bridge.saveOptions({ popupNotifications : $('#popupNotifications').is(':checked') });
+                        bridgeReference.saveOptions({ popupNotifications : $('#popupNotifications').is(':checked') });
                     });
                 }
                 if ($('#ignoreLocalRoutes').length) {
                     $('#ignoreLocalRoutes').on('change', function() {
-                        bridge.saveOptions({ ignoreLocalRoutes : $('#ignoreLocalRoutes').is(':checked') });
+                        bridgeReference.saveOptions({ ignoreLocalRoutes : $('#ignoreLocalRoutes').is(':checked') });
                     });
                 }
                 if ($('#singleActiveConnection').length) {
                     $('#singleActiveConnection').on('change', function() {
-                        bridge.saveOptions({ singleActiveConnection : $('#singleActiveConnection').is(':checked') });
+                        bridgeReference.saveOptions({ singleActiveConnection : $('#singleActiveConnection').is(':checked') });
                     });
                 }
                 if ($('#mtu').length) {
                     $('#mtu').on('input', function() {
-                        bridge.saveOptions({ mtu : parseInt($('#mtu').val()) });
+                        bridgeReference.saveOptions({ mtu : parseInt($('#mtu').val()) });
                     });
                     $('#mtu').on('keyup keypress', function(e) {
                    		var keyCode = e.keyCode || e.which;

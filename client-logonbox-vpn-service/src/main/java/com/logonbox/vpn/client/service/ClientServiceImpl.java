@@ -137,16 +137,20 @@ public class ClientServiceImpl implements ClientService {
 
 	@Override
 	public void authorized(Connection connection) {
+		log.info("Authorizing {} [{}]", connection.getDisplayName(), connection.getUserPublicKey());
 		synchronized (activeSessions) {
 			if (!authorizingClients.containsKey(connection)) {
 				throw new IllegalStateException("No authorization request.");
 			}
-			log.info(String.format("Authorized %s", connection.getDisplayName()));
 			authorizingClients.remove(connection).cancel(false);
 			temporarilyOffline.remove(connection);
 		}
 		save(connection);
-		connect(connection);
+		log.info("Authorized {} [{}], connecting", connection.getDisplayName(), connection.getUserPublicKey());
+
+		VPNSession task = createJob(connection);
+		temporarilyOffline.remove(connection);
+		task.setTask(context.getQueue().schedule(() -> doConnect(task, false), 1, TimeUnit.MILLISECONDS));
 	}
 
 	@Override
@@ -167,7 +171,7 @@ public class ClientServiceImpl implements ClientService {
 			
 			VPNSession task = createJob(c);
 			temporarilyOffline.remove(c);
-			task.setTask(context.getQueue().schedule(() -> doConnect(task), 1, TimeUnit.MILLISECONDS));
+			task.setTask(context.getQueue().schedule(() -> doConnect(task, true), 1, TimeUnit.MILLISECONDS));
 		}
 	}
 
@@ -641,9 +645,9 @@ public class ClientServiceImpl implements ClientService {
 			
 		/*
 		 * The Http service appears to be there, and a VALID peer with this public key
-		 * does not exist, so is likely an invalidated session.
+		 * does not exist, so is likely an invalidated or new session.
 		 */
-		log.info("Error is not retryable, invalidate configuration. ");
+		log.info("Error is not retryable, invalidated or new configuration. ");
 		return new ReauthorizeException(
 				"Your configuration has been invalidated, and you will need to sign-on again.");
 	}
@@ -1013,7 +1017,7 @@ public class ClientServiceImpl implements ClientService {
 		synchronized (activeSessions) {
 			checkValidConnect(c);
 			if (log.isInfoEnabled()) {
-				log.info("Scheduling connect for connection id " + c.getId() + "/" + c.getHostname());
+				log.info("Scheduling connect for connection id {} / {} [{}]", c.getId(), c.getHostname(), c.getUserPublicKey());
 			}
 			Integer reconnectSeconds = configurationRepository.getValue(null, ConfigurationItem.RECONNECT_DELAY);
 			Connection connection = connectionRepository.getConnection(c.getId());
@@ -1022,7 +1026,7 @@ public class ClientServiceImpl implements ClientService {
 			} else {
 				VPNSession job = createJob(c);
 				job.setReconnect(reconnect);
-				job.setTask(context.getQueue().schedule(() -> doConnect(job), reconnectSeconds, TimeUnit.SECONDS));
+				job.setTask(context.getQueue().schedule(() -> doConnect(job, true), reconnectSeconds, TimeUnit.SECONDS));
 			}
 		}
 
@@ -1315,7 +1319,7 @@ public class ClientServiceImpl implements ClientService {
 		}
 	}
 
-	private void doConnect(VPNSession job) {
+	private void doConnect(VPNSession job, boolean checkWithServer) {
 		try {
 
 			Connection connection = job.getConnection();
@@ -1326,7 +1330,7 @@ public class ClientServiceImpl implements ClientService {
 			}
 			
 			/* Check status up front */
-			if(connection.isAuthorized()) {
+			if(checkWithServer && connection.isAuthorized()) {
 				try {
 					connection = getConnectionStatus(connection);
 				}

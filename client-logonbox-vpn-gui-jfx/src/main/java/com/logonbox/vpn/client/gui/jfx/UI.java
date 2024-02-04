@@ -85,6 +85,7 @@ import com.logonbox.vpn.common.client.ConnectionStatus.Type;
 import com.logonbox.vpn.common.client.DNSIntegrationMethod;
 import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.ServiceClient;
+import com.logonbox.vpn.common.client.ServiceClient.DeviceCode;
 import com.logonbox.vpn.common.client.ServiceClient.NameValuePair;
 import com.logonbox.vpn.common.client.UpdateService;
 import com.logonbox.vpn.common.client.Util;
@@ -187,8 +188,19 @@ public class UI implements BusLifecycleListener {
 		}
 
 		@Override
+		public void prompt(DeviceCode code) throws AuthenticationCancelledException {
+			/* V3 VPN Server OAuth based authentication */
+			maybeRunLater(() -> {
+				JSObject jsobj = (JSObject) engine.executeScript("window");
+				jsobj.setMember("code", code);
+				engine.executeScript("promptForCode();");
+			});
+		}
+
+		@Override
 		public void collect(JsonNode i18n, AuthenticationRequiredResult result, Map<InputField, NameValuePair> results)
 				throws IOException {
+			/* Legacy Hypersocket framework VPN authentication */
 			this.results = results;
 			this.result = result;
 
@@ -203,7 +215,7 @@ public class UI implements BusLifecycleListener {
 				LOG.info("Waiting for authorize semaphore to be released.");
 				authorizedLock.acquire();
 			} catch (InterruptedException e) {
-				// TODO:
+				error = true;
 			}
 
 			LOG.info("Left authorization.");
@@ -338,6 +350,10 @@ public class UI implements BusLifecycleListener {
 
 		public String getDeviceName() {
 			return Util.getDeviceName();
+		}
+		
+		public void openExternalBrowserURL(String url) {
+			UI.this.context.getHostServices().showDocument(url);
 		}
 
 		public String getUserPublicKey() {

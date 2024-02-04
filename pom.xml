@@ -61,7 +61,7 @@
 		
         <native.maven.plugin.version>0.9.23</native.maven.plugin.version>
         
-        <dbus.version>5.0.0-SNAPSHOT</dbus.version>
+        <dbus.version>5.0.0</dbus.version>
         
 		<build.projectProperties>${project.basedir}/hypersocket.build.properties</build.projectProperties>
 		<build.userProperties>${user.home}/.hypersocket.build.properties</build.userProperties>
