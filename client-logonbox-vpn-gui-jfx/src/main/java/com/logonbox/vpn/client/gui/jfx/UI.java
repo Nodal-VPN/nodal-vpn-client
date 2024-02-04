@@ -352,10 +352,6 @@ public class UI implements BusLifecycleListener {
 			return Util.getDeviceName();
 		}
 		
-		public void openExternalBrowserURL(String url) {
-			UI.this.context.getHostServices().showDocument(url);
-		}
-
 		public String getUserPublicKey() {
 			VPNConnection connection = getConnection();
 			return connection == null ? null : connection.getUserPublicKey();
@@ -410,7 +406,14 @@ public class UI implements BusLifecycleListener {
 		}
 
 		public void openURL(String url) {
-			Client.get().getHostServices().showDocument(url);
+			Platform.runLater(() -> {
+				try {
+					Client.get().getHostServices().showDocument(url);
+				}
+				catch(Exception e) {
+					LOG.error("Failed to open browser.", e);
+				}
+			});
 		}
 
 		public String getLastHandshake() {

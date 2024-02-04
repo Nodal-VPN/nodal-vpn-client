@@ -46,10 +46,10 @@
 		function promptForCode() {
 			$('#verificationUri').off('click').on('click', function() {
 				if(code.verification_uri_complete) {
-					bridgeReference.openExternalBrowserURL(code.verification_uri_complete);
+					bridgeReference.openURL(code.verification_uri_complete);
 				}
 				else {
-					bridgeReference.openExternalBrowserURL(code.verification_uri);
+					bridgeReference.openURL(code.verification_uri);
 				}
 			});
 			$('#deviceCodePromptForm').show();
