@@ -125,6 +125,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 				out.println(CLI.BUNDLE.getString("connection.prompt"));
 				out.println(code.verification_uri);
 				out.println(MessageFormat.format(CLI.BUNDLE.getString("connection.userCode"), code.user_code));
+				out.flush();
 			}
 
 			@Override
@@ -133,6 +134,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 					out.println(MessageFormat.format(CLI.BUNDLE.getString("connection.loginError"), i18n.get(logonResult.getErrorMsg()).asText()));
 				else
 					out.println(MessageFormat.format(CLI.BUNDLE.getString("connection.loginError"), logonResult.getErrorMsg()));
+				out.flush();
 			}
 
 			@Override
@@ -239,6 +241,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 						}
 					}
 					fieldNo++;
+					out.flush();
 				}
 
 			}
