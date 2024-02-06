@@ -74,6 +74,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hypersocket.json.AuthenticationRequiredResult;
 import com.hypersocket.json.AuthenticationResult;
 import com.hypersocket.json.input.InputField;
+import com.install4j.api.launcher.StartupNotification;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.AbstractDBusClient.BusLifecycleListener;
 import com.logonbox.vpn.common.client.AuthenticationCancelledException;
@@ -567,6 +568,8 @@ public class UI implements BusLifecycleListener {
 		this.scene = scene;
 		this.context = context;
 		onConfigure();
+		
+		StartupNotification.registerStartupListener(this::connectToUri);
 	}
 
 	public Stage getStage() {
