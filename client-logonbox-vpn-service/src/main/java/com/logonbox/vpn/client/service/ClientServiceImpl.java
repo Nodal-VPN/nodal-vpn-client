@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.HttpCookie;
@@ -18,6 +19,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,11 +46,14 @@ import org.ini4j.InvalidFileFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hypersocket.json.utils.HypersocketUtils;
 import com.hypersocket.json.version.HypersocketVersion;
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.dbus.VPNConnectionImpl;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
+import com.logonbox.vpn.common.client.AuthMethod;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.ConfigurationRepository;
 import com.logonbox.vpn.common.client.Connection;
@@ -165,7 +170,7 @@ public class ClientServiceImpl implements ClientService {
 					disconnect(activeSessions.values().iterator().next().getConnection(), "Switching to another server.");	
 				}
 			}
-
+			probeAuthMethods(c);
 			c.setError(null);
 			save(c);
 			
@@ -237,6 +242,7 @@ public class ClientServiceImpl implements ClientService {
 		}
 
 		generateKeys(connection);
+		probeAuthMethods(connection);
 		Connection newConnection = doSave(connection);
 		try {
 			context.getConnection().exportObject(String.format("/com/logonbox/vpn/%d", connection.getId()),
@@ -246,6 +252,78 @@ public class ClientServiceImpl implements ClientService {
 			throw new IllegalStateException("Failed to create.", e);
 		}
 		return newConnection;
+	}
+	
+	private boolean probeAuthMethods(Connection connection) {
+		var client = createClient();
+		var uri = connection.getUri(false);
+		
+		/* Special case. Lots connections will have a /app URI. This 
+		 * is still the default for new connections.
+		 *
+		 * So if we see this exact path, change it to /vpn, which will
+		 * be the new default as from version 4.0 of the client (which
+		 * will not be compatible with legacy VPN server).
+		 */
+		if(uri.endsWith("/app")) {
+			uri = uri.substring(0, uri.length() - 4) + "/vpn";
+		}
+		
+		log.info("Check auth methods supported by {}.", uri);
+		var builder = HttpRequest.newBuilder();
+		var request = builder
+				.version(Version.HTTP_1_1)
+		        .uri(URI.create(uri))
+		        .build();
+		var changed = false;
+
+		try {
+			var response = client.send(request, BodyHandlers.ofString());
+			var ctype = response.headers().firstValue("Content-Type").map(s -> s.split(";")[0]).orElse("text/plain");
+			
+			if(response.statusCode() != 200 || !ctype.equals("application/json")) {
+				log.info("Server is < 3.0, assuming legacy authentication");
+				var newModes = new AuthMethod[0];
+				if(!Arrays.equals(newModes, connection.getAuthMethods())) {
+					connection.setAuthMethods(newModes);
+					changed = true;
+				}
+				if(connection.getMode().equals(Mode.MODERN)) {
+					/* Slight possiblity of down-grade */
+					connection.setMode(Mode.CLIENT);
+					changed = true;
+				}
+			}
+			else {
+				var mapper = new ObjectMapper();
+				mapper.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
+				var methods =new ArrayList<AuthMethod>();
+				for(var methodName : mapper.readValue(response.body(), String[].class)) {
+					try {
+						methods.add(AuthMethod.valueOf(methodName));
+					}
+					catch(IllegalArgumentException iae) {
+						log.warn("Unsupported auth method {}, ignoring.", methodName);
+					}
+				}
+				var newModes = methods.toArray(new AuthMethod[0]);
+				if(!Arrays.equals(newModes, connection.getAuthMethods())) {
+					connection.setAuthMethods(newModes);
+					changed = true;
+				}
+				if(!connection.getMode().equals(Mode.MODERN)) {
+					connection.setMode(Mode.MODERN);
+					changed = true;
+				}
+			}
+		}
+		catch(IOException ioe) {
+			throw new UncheckedIOException(ioe);
+		}
+		catch(InterruptedException ie) {
+			throw new IllegalStateException("Interrupted.", ie);
+		}
+		return changed;
 	}
 
 	@Override
@@ -423,16 +501,7 @@ public class ClientServiceImpl implements ClientService {
 		if(!connection.isAuthorized() || StringUtils.isBlank(connection.getUserPrivateKey()))
 			return connection;
 		
-		var prms = context.getSSLParameters();
-		var ctx = context.getSSLContext();
-		var client = HttpClient.newBuilder()
-                .cookieHandler(new CookieManager(context.getCookieStore(), CookiePolicy.ACCEPT_ORIGINAL_SERVER))
-				.sslParameters(prms)
-				.sslContext(ctx)
-		        .version(Version.HTTP_1_1)
-		        .followRedirects(Redirect.NORMAL)
-		        .connectTimeout(Duration.ofSeconds(20))
-		        .build();
+		var client = createClient();
 
 		try {
 			var rootUri = connection.getUri(false);
@@ -476,6 +545,20 @@ public class ClientServiceImpl implements ClientService {
 		connection.deauthorize();
         generateKeys(connection);
 		return save(connection);
+	}
+
+	private HttpClient createClient() {
+		var prms = context.getSSLParameters();
+		var ctx = context.getSSLContext();
+		var client = HttpClient.newBuilder()
+                .cookieHandler(new CookieManager(context.getCookieStore(), CookiePolicy.ACCEPT_ORIGINAL_SERVER))
+				.sslParameters(prms)
+				.sslContext(ctx)
+		        .version(Version.HTTP_1_1)
+		        .followRedirects(Redirect.NORMAL)
+		        .connectTimeout(Duration.ofSeconds(20))
+		        .build();
+		return client;
 	}
 
 	private Connection getConnectionStatusFromHost(String rootUri, Connection connection, HttpClient client)
@@ -975,11 +1058,21 @@ public class ClientServiceImpl implements ClientService {
 				disconnect(connection, "Authorization timeout.");
 			}, AUTHORIZE_TIMEOUT, TimeUnit.SECONDS));
 
+			
+			/* Legacy authentication */
 			try {
-				log.info(String.format("Asking client to authorize %s", connection.getDisplayName()));
-				context.sendMessage(
-						new VPNConnection.Authorize(String.format("/com/logonbox/vpn/%d", connection.getId()),
-								AUTHORIZE_URI, connection.getMode().name()));
+				if(connection.getMode() == Mode.MODERN) {
+					log.info("Asking client to authorize {} (modern)", connection.getDisplayName());
+					context.sendMessage(
+							new VPNConnection.Authorize(String.format("/com/logonbox/vpn/%d", connection.getId()),
+									connection.getUri(false), String.join(",", Arrays.asList(connection.getAuthMethods()).stream().map(AuthMethod::toString).toList()), false));
+				}
+				else {
+					log.info("Asking client to authorize {} (legacy)", connection.getDisplayName());
+					context.sendMessage(
+							new VPNConnection.Authorize(String.format("/com/logonbox/vpn/%d", connection.getId()),
+									AUTHORIZE_URI, connection.getMode().name(), true));
+				}
 			} catch (DBusException e) {
 				throw new IllegalStateException("Failed to send message.", e);
 			}
@@ -1359,7 +1452,7 @@ public class ClientServiceImpl implements ClientService {
 				synchronized (activeSessions) {
 					connectingSessions.remove(connection);
 					activeSessions.put(connection, job);
-
+					
 					/* Fire Events */
 					try {
 						context.sendMessage(

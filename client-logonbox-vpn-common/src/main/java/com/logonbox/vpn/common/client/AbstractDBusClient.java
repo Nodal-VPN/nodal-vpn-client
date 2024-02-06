@@ -19,6 +19,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.freedesktop.dbus.connections.IDisconnectCallback;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
+import org.freedesktop.dbus.errors.NoReply;
 import org.freedesktop.dbus.errors.ServiceUnknown;
 import org.freedesktop.dbus.errors.UnknownObject;
 import org.freedesktop.dbus.exceptions.DBusException;
@@ -383,7 +384,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 	private void busGone() {
 		synchronized (initLock) {
 			cancelPingTask();
-
+			var wasAvailable = busAvailable;
 			if (busAvailable) {
 				
 				busAvailable = false;
@@ -395,16 +396,20 @@ public abstract class AbstractDBusClient implements DBusClient {
 						} catch (DBusException e) {
 						}
 					}
-					try {
-						conn.disconnect();
-					}
-					catch(Exception e) {
-					}
-					finally {
-						conn = null;
-					}
 				}
+			}
+
+			try {
+				conn.disconnect();
+			}
+			catch(Exception e) {
+			}
+			finally {
 				vpn = null;
+				conn = null;
+			}
+			
+			if(wasAvailable) {
 				getUpdateService().checkIfBusAvailable();
 				for (BusLifecycleListener b : busLifecycleListeners) {
 					b.busGone();
@@ -419,7 +424,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 				synchronized (initLock) {
 					try {
 						init();
-					} catch (DBusException | ServiceUnknown | UnknownObject dbe) {
+					} catch (NoReply | DBusException | ServiceUnknown | UnknownObject dbe) {
 						if (getLog().isDebugEnabled())
 							getLog().debug("Init() failed, retrying");
 						busGone();

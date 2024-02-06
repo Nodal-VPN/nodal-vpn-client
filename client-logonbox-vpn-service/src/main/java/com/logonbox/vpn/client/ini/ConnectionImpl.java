@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
+import com.logonbox.vpn.common.client.AuthMethod;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.Keys;
 import com.logonbox.vpn.common.client.Util;
@@ -50,6 +51,17 @@ public class ConnectionImpl implements Connection, Serializable {
 	private String postDown;
 	private String error;
 	private String lastKnownServerIpAddress;
+	private AuthMethod[] authMethods = new AuthMethod[0];
+
+	@Override
+	public AuthMethod[] getAuthMethods() {
+		return authMethods;
+	}
+
+	@Override
+	public void setAuthMethods(AuthMethod[] authMethods) {
+		this.authMethods = authMethods;
+	}
 
 	@Override
 	public void setLastKnownServerIpAddress(String lastKnownServerIpAddress) {
@@ -258,6 +270,10 @@ public class ConnectionImpl implements Connection, Serializable {
 			setConnectAtStartup("true".equals(logonBoxSection.get("ConnectAtStartup")));
 			setStayConnected("true".equals(logonBoxSection.get("StayConnected")));
 			setMode(Mode.valueOf(logonBoxSection.get("Mode")));
+			List<String> authMethodNames = logonBoxSection.getAll("AuthMethods");
+			if(authMethodNames != null) {
+				setAuthMethods(authMethodNames.stream().map(AuthMethod::valueOf).toList().toArray(new AuthMethod[0]));
+			}
 			setOwner(logonBoxSection.get("Owner"));
 			setUsernameHint(logonBoxSection.get("UsernameHint"));
 			setHostname(logonBoxSection.get("Hostname"));
@@ -442,6 +458,11 @@ public class ConnectionImpl implements Connection, Serializable {
 		logonBoxSection.put("ConnectAtStartup", connection.isConnectAtStartup());
 		logonBoxSection.put("StayConnected", connection.isStayConnected());
 		logonBoxSection.put("Mode", connection.getMode().name());
+		if(connection.getAuthMethods().length > 0) {
+			logonBoxSection.putAll("AuthMethods", 
+					Arrays.asList(connection.getAuthMethods()).stream().
+					map(AuthMethod::toString).toList().toArray(new String[0]));
+		}
 		if (StringUtils.isNotBlank(connection.getOwner()))
 			logonBoxSection.put("Owner", connection.getOwner());
 		if (StringUtils.isNotBlank(connection.getUsernameHint()))

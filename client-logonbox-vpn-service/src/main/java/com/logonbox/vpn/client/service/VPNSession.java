@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.wireguard.VirtualInetAddress;
 import com.logonbox.vpn.common.client.Connection;
-import com.logonbox.vpn.common.client.ConnectionStatus;
 
 public class VPNSession implements Closeable {
 
@@ -27,6 +26,8 @@ public class VPNSession implements Closeable {
 	private Connection connection;
 	private ScheduledFuture<?> task;
 	private boolean reconnect;
+
+	private Agent agent;
 
 	public boolean isReconnect() {
 		return reconnect;
@@ -56,6 +57,14 @@ public class VPNSession implements Closeable {
 
 	@Override
 	public void close() throws IOException {
+		if(agent != null) {
+			try {
+				agent.close();
+			}
+			catch(IOException ioe) {
+				log.warn("Failed to close agent.", ioe);
+			}
+		}
 		if (task != null) {
 			task.cancel(false);
 		}
@@ -109,6 +118,14 @@ public class VPNSession implements Closeable {
 		if (log.isInfoEnabled()) {
 			log.info("Ready to use {}", vpnConnection.getDisplayName());
 		}
+
+		
+//		try {
+//			agent = new Agent(connection);
+//		}
+//		catch(Exception e) {
+//			log.error("Failed to setup agent, server will not be able to communicate configuration updates to this peer.", e);
+//		}
 
 	}
 

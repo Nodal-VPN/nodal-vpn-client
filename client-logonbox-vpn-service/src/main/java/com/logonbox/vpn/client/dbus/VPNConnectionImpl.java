@@ -10,6 +10,7 @@ import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
 import com.logonbox.vpn.client.LocalContext;
+import com.logonbox.vpn.common.client.AuthMethod;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
 import com.logonbox.vpn.common.client.ConnectionStatus;
@@ -79,6 +80,12 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 			return ioe.getMessage();
 		}
 		
+	}
+
+	@Override
+	public String[] getAuthMethods() {
+		assertRegistered();
+		return Arrays.asList(connection.getAuthMethods()).stream().map(AuthMethod::toString).toList().toArray(new String[0]);
 	}
 
 	@Override
@@ -235,6 +242,23 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	public String getUri(boolean withUsername) {
 		assertRegistered();
 		return connection.getUri(withUsername);
+	}
+
+	@Override
+	public String getClient() {
+		var path = getPath();
+		while(path.startsWith("/"))
+			path = path.substring(1);
+		if(path.startsWith("vpn/")) {
+			return path.substring(4);
+		}
+		return "";
+	}
+
+	@Override
+	public String getApiUri() {
+		assertRegistered();
+		return connection.getApiUri();
 	}
 
 	@Override

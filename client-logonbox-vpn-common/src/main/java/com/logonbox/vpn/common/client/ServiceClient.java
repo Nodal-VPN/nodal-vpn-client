@@ -114,7 +114,7 @@ public class ServiceClient {
 		}
 
 		var client = getHttpClient(connection);
-		var builder = HttpRequest.newBuilder(new URI(connection.getUri(false) + url));
+		var builder = HttpRequest.newBuilder(new URI(connection.getApiUri() + url));
 		for (NameValuePair nvp : headers)
 			builder.header(nvp.getName(), nvp.getValue());
 		var request = builder.build();
@@ -138,7 +138,7 @@ public class ServiceClient {
 			cookie.setDomain(connection.getHostname());
 //			cookie.setAttribute(CustomCookieStore.DOMAIN_ATTR, "true");
 			try {
-				cookieStore.add(new URI(connection.getUri(false)), cookie);
+				cookieStore.add(new URI(connection.getApiUri()), cookie);
 			} catch (URISyntaxException e) {
 				throw new IllegalStateException("Failed to add device identifier cookie.");
 			}
@@ -170,7 +170,11 @@ public class ServiceClient {
 		}
 		
 		try {
-			var device = mapper.readValue(doPost(connection, "/oauth2/device", new NameValuePair("scope", "acquireVpn")), DeviceCode.class);
+			var device = mapper.readValue(
+					doPost(connection, "/vpn-device/" + connection.getClient(), 
+							new NameValuePair("scope", "acquireVpn"),
+							new NameValuePair("state", connection.getClient())
+					), DeviceCode.class);
 			var interval = device.interval == 0 ? 5 : device.interval;
 			authenticator.prompt(device);
 			
@@ -191,7 +195,6 @@ public class ServiceClient {
 						new NameValuePair[] {
 							new NameValuePair("Authentication", response.token_type + " " + response.access_token)
 						}, 
-						new NameValuePair("mode", connection.getMode()),
 						new NameValuePair("os", Util.getOS().toUpperCase()),
 						new NameValuePair("pubkey", connection.getUserPublicKey()),
 						new NameValuePair("deviceId",  authenticator.getUUID()),
@@ -369,7 +372,11 @@ public class ServiceClient {
 		}
 
 		var client = getHttpClient(connection);
-		var bldr = HttpRequest.newBuilder(new URI(connection.getUri(false) + url));
+//		
+//		XXXX TODO this needs to be the base API URI, which may now change because
+//		XXXX the path contains the client type
+		
+		var bldr = HttpRequest.newBuilder(new URI(connection.getApiUri() + url));
 		for(var hdr : headers) {
 			bldr.header(hdr.getName(), hdr.getValue());
 		}

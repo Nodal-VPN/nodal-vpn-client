@@ -20,6 +20,7 @@ import javax.persistence.Table;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.logonbox.vpn.common.client.AuthMethod;
 import com.logonbox.vpn.common.client.Connection;
 
 @Entity
@@ -114,6 +115,15 @@ public class ConnectionImpl implements Connection, Serializable {
 
     @Column(columnDefinition="varchar(255)")
 	private String lastKnownServerIpAddress;
+
+	@Override
+	public AuthMethod[] getAuthMethods() {
+		return new AuthMethod[0];
+	}
+
+	@Override
+	public void setAuthMethods(AuthMethod[] methods) {
+	}
 
 	@Override
 	public void setLastKnownServerIpAddress(String lastKnownServerIpAddress) {

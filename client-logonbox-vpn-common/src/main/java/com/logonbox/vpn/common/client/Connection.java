@@ -9,14 +9,19 @@ import java.net.URLEncoder;
 import java.util.List;
 
 public interface Connection {
-	
+
+	@Deprecated
 	public enum Mode {
-		CLIENT, SERVICE, NODE, PROVIDER, PEER
+		CLIENT, SERVICE, NODE, PROVIDER, PEER, MODERN
 	}
 	
 	Mode getMode();
 	
 	void setMode(Mode mode);
+	
+	AuthMethod[] getAuthMethods();
+	
+	void setAuthMethods(AuthMethod[] methods);
 	
 	void setLastKnownServerIpAddress(String lastKnownServerIpAddress);
 	
@@ -77,6 +82,25 @@ public interface Connection {
 	}
 
 	void setName(String name);
+
+	default String getApiUri() {
+		if(getHostname() == null) {
+			throw new IllegalStateException("No API url for this type.");
+		}
+		else {
+			if(getMode().equals(Mode.MODERN)) {
+				String uri = "https://";
+				uri += getHostname();
+				if (getPort() != 443) {
+					uri += ":" + getPort();
+				}
+				return uri;	
+			}
+			else {
+				return getUri(false);
+			}
+		}
+	}
 
 	default String getUri(boolean withUsername) {
 		if(getHostname() == null) {

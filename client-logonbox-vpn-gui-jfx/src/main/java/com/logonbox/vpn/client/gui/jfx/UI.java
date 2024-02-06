@@ -895,16 +895,24 @@ public class UI implements BusLifecycleListener {
 						if (sig.getId() != id)
 							return;
 						disconnectionReason = null;
-						Mode authMode = Connection.Mode.valueOf(sig.getMode());
-						if (authMode.equals(Connection.Mode.CLIENT) || authMode.equals(Connection.Mode.SERVICE)) {
+						if(sig.isLegacy()) {
+							Mode authMode = Connection.Mode.valueOf(sig.getMode());
+							if (authMode.equals(Connection.Mode.MODERN) || authMode.equals(Connection.Mode.CLIENT) || authMode.equals(Connection.Mode.SERVICE)) {
+								maybeRunLater(() -> {
+								    context.open();
+									// setHtmlPage(connection.getUri(false) + sig.getUri());
+									selectPageForState(false, false);
+								});
+							} else {
+								LOG.info(String.format("This client doest not handle the authorization mode '%s'",
+										sig.getMode()));
+							}
+						}
+						else {
 							maybeRunLater(() -> {
 							    context.open();
-								// setHtmlPage(connection.getUri(false) + sig.getUri());
 								selectPageForState(false, false);
 							});
-						} else {
-							LOG.info(String.format("This client doest not handle the authorization mode '%s'",
-									sig.getMode()));
 						}
 					}
 				}));
@@ -1857,16 +1865,38 @@ public class UI implements BusLifecycleListener {
 				try {
 					if (!Files.exists(newLogoFile)) {
 						LOG.info(String.format("Attempting to cache logo"));
-						URL logoUrl = new URL(logo);
-						URLConnection urlConnection = logoUrl.openConnection();
-						urlConnection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(10));
-						urlConnection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(10));
-						try (InputStream urlIn = urlConnection.getInputStream()) {
-							try (OutputStream out = Files.newOutputStream(newLogoFile)) {
-								urlIn.transferTo(out);
+						if(logo.startsWith("data:")) {
+							var idx = logo.indexOf(',');
+							var sl = logo.substring(5, idx);
+							var pl = logo.substring(idx + 1);
+							var args = sl.split(";");
+							if(args.length > 1) {
+								if(args[args.length - 1].equals("base64")) {
+									var data = pl.substring(1);
+									try (OutputStream out = Files.newOutputStream(newLogoFile)) {
+										out.write(Base64.getDecoder().decode(data));
+									}
+									LOG.info(String.format("Logo cached from base64 data URI to %s", newLogoFile.toUri()));
+								}
+								else
+									throw new IOException("Unsupported image encoding.");
+							}
+							else {
+								throw new IOException("Invalid URI.");
 							}
 						}
-						LOG.info(String.format("Logo cached from %s to %s", logoUrl, newLogoFile.toUri()));
+						else {
+							URL logoUrl = new URL(logo);
+							URLConnection urlConnection = logoUrl.openConnection();
+							urlConnection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(10));
+							urlConnection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(10));
+							try (InputStream urlIn = urlConnection.getInputStream()) {
+								try (OutputStream out = Files.newOutputStream(newLogoFile)) {
+									urlIn.transferTo(out);
+								}
+							}
+							LOG.info(String.format("Logo cached from %s to %s", logoUrl, newLogoFile.toUri()));
+						}
 						newLogoFile.toFile().deleteOnExit();
 					}
 					logoFile = newLogoFile;
@@ -2157,7 +2187,11 @@ public class UI implements BusLifecycleListener {
 					VPNConnection connection = getAuthorizingConnection();
 					if (connection != null) {
 						Mode mode = Mode.valueOf(connection.getMode());
-						if (mode == Mode.SERVICE) {
+						if (mode == Mode.MODERN) {
+							LOG.info("Authorizing modern");
+							setHtmlPage("authorize.html");
+						}
+						else if (mode == Mode.SERVICE) {
 							LOG.info("Authorizing service");
 							setHtmlPage("authorize.html");
 						} else {
@@ -2360,8 +2394,19 @@ public class UI implements BusLifecycleListener {
 				urlConnection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(6));
 				try (InputStream in = urlConnection.getInputStream()) {
 					Branding brandingObj = mapper.readValue(in, Branding.class);
-					brandingObj.setLogo("https://" + connection.getHostname() + ":" + connection.getPort()
-							+ connection.getPath() + "/api/brand/logo");
+					String logo = brandingObj.getLogo();
+					if(StringUtils.isBlank(logo)) {
+						brandingObj.setLogo("https://" + connection.getHostname() + ":" + connection.getPort()
+								+ connection.getPath() + "/api/brand/logo");
+					}
+					else if(!logo.startsWith("http://") && !logo.startsWith("https://") && !logo.startsWith("data:")) {
+						if(logo.startsWith("/"))
+							brandingObj.setLogo("https://" + connection.getHostname() + ":" + connection.getPort()
+								+ logo);
+						else
+							brandingObj.setLogo("https://" + connection.getHostname() + ":" + connection.getPort()
+							+ connection.getPath() + "/" + logo);
+					}
 					item.branding = brandingObj;
 				}
 			}

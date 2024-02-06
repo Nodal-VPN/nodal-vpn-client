@@ -16,9 +16,13 @@ public interface VPNConnection extends DBusInterface {
 
 	String getMode();
 
+	String[] getAuthMethods();
+
 	int getPort();
 
 	String getUri(boolean withUsername);
+
+	String getApiUri();
 
 	String getConnectionTestUri(boolean withUsername);
 
@@ -87,6 +91,8 @@ public interface VPNConnection extends DBusInterface {
 	void setAsFavourite();
 	
 	String getOwner();
+
+	String getClient();
 	
 	long getLastHandshake();
 	
@@ -276,11 +282,17 @@ public interface VPNConnection extends DBusInterface {
 
 		private final String uri;
 		private final String mode;
+		private final boolean legacy;
 		
-		public Authorize(String path, String uri, String mode) throws DBusException {
-			super(path, uri, mode);
+		public Authorize(String path, String uri, String mode, boolean legacy) throws DBusException {
+			super(path, uri, mode, legacy);
 			this.uri = uri;
 			this.mode = mode;
+			this.legacy = legacy;
+		}
+
+		public boolean isLegacy() {
+			return legacy;
 		}
 
 		public String getMode() {
