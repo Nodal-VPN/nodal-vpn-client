@@ -157,6 +157,9 @@
         <file path="./images/logo48px.png" />
         <file path="./images/logo128px.png" />
       </iconImageFiles>
+      <macStaticAssociations>
+        <urlHandler scheme="lbvpn" />
+      </macStaticAssociations>
     </launcher>
     <launcher name="logonbox-vpn-cli" id="1488" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientCLI">
       <executable name="logonbox-vpn-cli" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false">
@@ -681,6 +684,12 @@ return path.replace('\\', '/');</property>
                   </property>
                 </serializedBean>
                 <condition>Util.isLinux()</condition>
+              </action>
+              <action id="2200" beanClass="com.install4j.runtime.beans.actions.desktop.UrlHandlerAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="launcherId" type="string">783</property>
+                  <property name="scheme" type="string">lbvpn</property>
+                </serializedBean>
               </action>
             </actions>
             <formComponents>

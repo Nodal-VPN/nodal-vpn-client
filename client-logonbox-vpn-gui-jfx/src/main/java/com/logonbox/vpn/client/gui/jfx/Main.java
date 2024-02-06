@@ -85,8 +85,11 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 	@Option(names = { "-c", "--connect" }, description = "Connect to the first available pre-configured connection.")
 	private boolean connect;
 
-	@Option(names = { "-n", "--create" }, description = "Create a new connection if one with the provided URI does not exist (requires URI parameter).")
-	private boolean createIfDoesntExist;
+	@Option(names = { "--connect-uri" }, negatable = true, description = "By default, connections created by a supplied URI will be immediately activated. This prevents that.")
+	private boolean connectUri = true;
+	
+	@Option(names = { "-n", "--create" }, negatable = true, description = "Create a new connection if one with the provided URI does not exist (requires URI parameter).")
+	private boolean createIfDoesntExist = true;
 
 	@Parameters(index = "0", arity = "0..1", description = "Connect to a particular server using a URI. Acceptable formats include <server[<port>]> or https://<server[<port>]>[/path]. If a pre-configured connection matching this URI already exists, it will be used.")
 	private String uri;
@@ -215,6 +218,10 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 
 	public boolean isCreateIfDoesntExist() {
 		return createIfDoesntExist;
+	}
+
+	public boolean isConnectUri() {
+		return connectUri;
 	}
 
 	public static Main getInstance() {

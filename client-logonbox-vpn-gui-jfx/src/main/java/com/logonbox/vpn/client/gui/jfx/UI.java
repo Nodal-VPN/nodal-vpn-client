@@ -1738,20 +1738,35 @@ public class UI implements BusLifecycleListener {
 		context.getOpQueue().execute(() -> {
 			try {
 				LOG.info(String.format("Connected to URI %s", unprocessedUri));
-				URI uriObj = Util.getUri(unprocessedUri);
+				URI uriObj;
+				if(unprocessedUri.startsWith("lbvpn://")) {
+					uriObj = Util.getUri("https://" + unprocessedUri.substring(8));
+				}
+				else {
+					uriObj = Util.getUri(unprocessedUri);
+				}
 				long connectionId = context.getDBus().getVPN().getConnectionIdForURI(uriObj.toASCIIString());
 				if (connectionId == -1) {
 					if (Main.getInstance().isCreateIfDoesntExist()) {
 						/* No existing configuration */
 						context.getDBus().getVPN().createConnection(uriObj.toASCIIString(), true, true,
 								Mode.CLIENT.name());
+
+						if (Main.getInstance().isConnectUri()) {
+							VPNConnection conx = context.getDBus().getVPNConnection(connectionId);
+							connect(conx);
+						}
 					} else {
-						showError(MessageFormat.format(bundle.getString("error.uriProvidedDoesntExist"), uriObj));
+						showError(MessageFormat.format(bundle.getString("error.uriProvidedDoesntExist"), uriObj.toASCIIString()));
 					}
 				} else {
 					reloadState(() -> {
 						maybeRunLater(() -> {
 							initUi();
+							if (Main.getInstance().isConnectUri()) {
+								VPNConnection conx = context.getDBus().getVPNConnection(connectionId);
+								connect(conx);
+							}
 						});
 					});
 				}
@@ -2263,7 +2278,7 @@ public class UI implements BusLifecycleListener {
 	}
 
 	private void showError(String error, String cause, String exception) {
-		if(cause.startsWith("No subject alternative")) {
+		if(cause != null && cause.startsWith("No subject alternative")) {
 			showError(error, cause, exception, "sanError.html");
 		}
 		else
