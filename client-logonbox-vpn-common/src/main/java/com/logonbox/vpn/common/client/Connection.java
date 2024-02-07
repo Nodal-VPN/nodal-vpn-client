@@ -83,18 +83,27 @@ public interface Connection {
 
 	void setName(String name);
 
+	default String getBaseUri() {
+		if(getHostname() == null) {
+			throw new IllegalStateException("No API url for this type.");
+		}
+		else {
+			String uri = "https://";
+			uri += getHostname();
+			if (getPort() != 443) {
+				uri += ":" + getPort();
+			}
+			return uri;	
+		}
+	}
+
 	default String getApiUri() {
 		if(getHostname() == null) {
 			throw new IllegalStateException("No API url for this type.");
 		}
 		else {
 			if(getMode().equals(Mode.MODERN)) {
-				String uri = "https://";
-				uri += getHostname();
-				if (getPort() != 443) {
-					uri += ":" + getPort();
-				}
-				return uri;	
+				return getBaseUri();
 			}
 			else {
 				return getUri(false);
@@ -112,11 +121,7 @@ public interface Connection {
 			return "wg://" + getEndpointAddress() + ":" + getEndpointPort();
 		}
 		else {
-			String uri = "https://";
-			uri += getHostname();
-			if (getPort() != 443) {
-				uri += ":" + getPort();
-			}
+			String uri = getBaseUri();
 			uri += getPath();
 			return uri;
 		}

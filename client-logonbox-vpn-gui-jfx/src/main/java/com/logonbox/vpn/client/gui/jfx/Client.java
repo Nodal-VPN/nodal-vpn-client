@@ -680,10 +680,8 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		StringBuilder bui = new StringBuilder();
 
 		// Get the base colour. All other colours are derived from this
-		Color backgroundColour = Color
-				.valueOf(branding == null ? BrandingInfo.DEFAULT_BACKGROUND : branding.getResource().getBackground());
-		Color foregroundColour = Color
-				.valueOf(branding == null ? BrandingInfo.DEFAULT_FOREGROUND : branding.getResource().getForeground());
+		Color backgroundColour = safeParseColor(branding == null ? null : branding.getResource().getBackground(), BrandingInfo.DEFAULT_BACKGROUND);
+		Color foregroundColour = safeParseColor(branding == null ? null : branding.getResource().getForeground(), BrandingInfo.DEFAULT_FOREGROUND);
 
 		if (backgroundColour.getOpacity() == 0) {
 			// Prevent total opacity, as mouse events won't be received
@@ -795,10 +793,8 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 		String url = toUri(tmpFile).toExternalForm();
 		if (log.isDebugEnabled())
 			log.debug(String.format("Writing local web style sheet to %s", url));
-		String bgStr = branding == null ? BrandingInfo.DEFAULT_BACKGROUND : branding.getResource().getBackground();
-		String fgStr = branding == null ? BrandingInfo.DEFAULT_FOREGROUND : branding.getResource().getForeground();
-		Color fgColor = Color.valueOf(fgStr);
-		Color bgColor = Color.valueOf(bgStr);
+		Color fgColor = safeParseColor(branding == null ? null : branding.getResource().getBackground(), BrandingInfo.DEFAULT_BACKGROUND);
+		Color bgColor = safeParseColor(branding == null ? null : branding.getResource().getForeground(), BrandingInfo.DEFAULT_FOREGROUND);
 		Color baseColor = getBase();
 		Color linkColor;
 
@@ -825,8 +821,8 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 			try (BufferedReader input = new BufferedReader(new InputStreamReader(UI.class.getResource("local.css").openStream()))) {
 				String line;
 				while(( line = input.readLine()) != null) {
-					line = line.replace("${lbvpnBackground}", bgStr);
-					line = line.replace("${lbvpnForeground}", fgStr);
+					line = line.replace("${lbvpnBackground}", toHex(bgColor));
+					line = line.replace("${lbvpnForeground}", toHex(fgColor));
 					line = line.replace("${lbvpnAccent}", accent1Str);
 					line = line.replace("${lbvpnAccent2}", accent2Str);
 					line = line.replace("${lbvpnLink}", linkStr);
@@ -838,6 +834,15 @@ public class Client extends Application implements JfxScriptStateProvider, Liste
 			}
 		} catch (IOException ioe) {
 			throw new IllegalStateException("Failed to load local style sheet template.", ioe);
+		}
+	}
+
+	private static Color safeParseColor(String fgStr, String defaultColor) {
+		try {
+			return Color.valueOf(fgStr);
+		}
+		catch(Exception e) {
+			return Color.valueOf(defaultColor);
 		}
 	}
 

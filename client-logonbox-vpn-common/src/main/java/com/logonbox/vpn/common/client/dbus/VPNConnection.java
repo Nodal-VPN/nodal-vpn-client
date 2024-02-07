@@ -24,6 +24,8 @@ public interface VPNConnection extends DBusInterface {
 
 	String getApiUri();
 
+	String getBaseUri();
+
 	String getConnectionTestUri(boolean withUsername);
 
 	boolean isTransient();

@@ -16,15 +16,18 @@
 			<div id="alerts"></div>
 			<h1 data-i18n="authorize">Login</h1>
 			<form class="mb-5" id="deviceCodePromptForm" style="display: none;">
-				<div class="text-muted" data-i18n="authorizeText"></div>
+				<div id="authorizeText" class="text-muted" data-i18n="browserLaunched"></div>
+				<h5 class="text-muted mt-3" data-i18n="uri"></h5>
+
 				<div class="mt-3" >
-					<i class="fas fa-hand-point-right text-success"></i>
+					<a id="copyUri" href="#" class="float-end text-success"><i class="fa-solid fa-copy"></i></a>
 					<a id="verificationUri" href="#"></a>
 				</div>
-				<div class="text-muted mt-3" data-i18n="userCode"></div>
+				<h5 class="text-muted mt-3" data-i18n="userCode"></h5>
+				<a id="copyUserCode" href="#" class="float-end text-success mt-4"><i class="fa-solid fa-copy"></i></a>
 				<div class="userCode text-center" id="userCode"></div>
 			</form>
-			<div id="authorizeSpinner" class="container">
+			<div id="authorizeSpinner" class="text-muted container mt-5">
 				<i class="fa fa-spinner fa-1x fa-spin" class="align-middle"></i> <span
 					id="authorizeSpinnerText" class="align-middle" data-i18n="authorizeSpinnerText">Please
 					wait</span>
@@ -44,6 +47,25 @@
 		var bridgeReference;
 
 		function promptForCode() {
+			try {
+				bridgeReference.openURL(code.verification_uri_complete);
+			}
+			catch(e) {
+				$('#authorizeText').html(pageBundle.getString('authorizeText'));
+			}
+			$('#verificationUri').attr('href', code.verification_uri);	
+			$('#verificationUri').text(code.verification_uri);		
+			$('#copyUri').off('click').on('click', function() {
+				if(code.verification_uri_complete) {
+					bridge.copyToClipboard(code.verification_uri_complete);
+				}
+				else {
+					bridge.copyToClipboard(code.verification_uri);
+				}
+			});		
+			$('#copyUserCode').off('click').on('click', function() {
+				bridge.copyToClipboard(code.user_code);
+			});
 			$('#verificationUri').off('click').on('click', function() {
 				if(code.verification_uri_complete) {
 					bridgeReference.openURL(code.verification_uri_complete);
@@ -51,10 +73,10 @@
 				else {
 					bridgeReference.openURL(code.verification_uri);
 				}
+				return false;
 			});
 			$('#deviceCodePromptForm').show();
 			$('#userCode').html(code.user_code);
-			$('#verificationUri').html(code.verification_uri);	
 			$('#authorizeSpinnerText').html(pageBundle.getString('waitingForAuthorization'));
 		}
 		

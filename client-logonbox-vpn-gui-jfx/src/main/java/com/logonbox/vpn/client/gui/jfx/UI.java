@@ -117,6 +117,8 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -253,7 +255,7 @@ public class UI implements BusLifecycleListener {
 					} catch (AuthenticationCancelledException ae) {
 						// Ignore, handled elsewhere
 					} catch (IOException | URISyntaxException e) {
-						maybeRunLater(() -> ui.showError("Failed to register.", e));
+						maybeRunLater(() -> ui.showError("Failed to register. " + e.getMessage(), e));
 					}
 				}
 			}.start();
@@ -365,6 +367,15 @@ public class UI implements BusLifecycleListener {
 		public void reload() {
 			UI.this.initUi();
 		}
+		
+		public void copyToClipboard(String text) {
+			maybeRunLater(() -> {
+				var clipboard = Clipboard.getSystemClipboard();
+				var content = new ClipboardContent();
+				content.putString(text);
+				clipboard.setContent(content);
+			});
+		}
 
 		public void saveOptions(JSObject o) {
 			String trayMode = memberOrDefault(o, "trayMode", String.class, null);
@@ -406,15 +417,14 @@ public class UI implements BusLifecycleListener {
 			UI.this.checkForUpdate();
 		}
 
-		public void openURL(String url) {
-			Platform.runLater(() -> {
-				try {
-					Client.get().getHostServices().showDocument(url);
-				}
-				catch(Exception e) {
-					LOG.error("Failed to open browser.", e);
-				}
-			});
+		public void openURL(String url) throws Exception {
+			try {
+				Client.get().getHostServices().showDocument(url);
+			}
+			catch(Exception e) {
+				LOG.error("Failed to open external browser.", e);
+				throw e;
+			}
 		}
 
 		public String getLastHandshake() {
@@ -1656,8 +1666,8 @@ public class UI implements BusLifecycleListener {
 				jsobj.setMember(beanEn.getKey(), beanEn.getValue());
 			}
 		} else if ("authorize.html".equals(baseHtmlPage)) {
-			// TODO release this is page changes
-			Semaphore authorizedLock = new Semaphore(1);
+			// TODO check this is released on page change
+			var authorizedLock = new Semaphore(1);
 			try {
 				authorizedLock.acquire();
 			} catch (InterruptedException e1) {
@@ -1738,9 +1748,9 @@ public class UI implements BusLifecycleListener {
 	}
 
 	private void connectToUri(String unprocessedUri) {
+		LOG.info(String.format("Connected to URI %s", unprocessedUri));
 		context.getOpQueue().execute(() -> {
 			try {
-				LOG.info(String.format("Connected to URI %s", unprocessedUri));
 				URI uriObj;
 				if(unprocessedUri.startsWith("lbvpn://")) {
 					uriObj = Util.getUri("https://" + unprocessedUri.substring(8));
@@ -2404,7 +2414,7 @@ public class UI implements BusLifecycleListener {
 			if (item == null) {
 				item = new BrandingCacheItem(branding);
 				brandingCache.put(connection, item);
-				String uri = connection.getUri(false) + "/api/brand/info";
+				String uri = connection.getBaseUri() + "/app/api/brand/info";
 				LOG.info(String.format("Retrieving branding from %s", uri));
 				URL url = new URL(uri);
 				URLConnection urlConnection = url.openConnection();
@@ -2414,8 +2424,7 @@ public class UI implements BusLifecycleListener {
 					Branding brandingObj = mapper.readValue(in, Branding.class);
 					String logo = brandingObj.getLogo();
 					if(StringUtils.isBlank(logo)) {
-						brandingObj.setLogo("https://" + connection.getHostname() + ":" + connection.getPort()
-								+ connection.getPath() + "/api/brand/logo");
+						brandingObj.setLogo(connection.getBaseUri() + "/app/api/brand/logo");
 					}
 					else if(!logo.startsWith("http://") && !logo.startsWith("https://") && !logo.startsWith("data:")) {
 						if(logo.startsWith("/"))

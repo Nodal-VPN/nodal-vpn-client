@@ -256,6 +256,12 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	}
 
 	@Override
+	public String getBaseUri() {
+		assertRegistered();
+		return connection.getBaseUri();
+	}
+
+	@Override
 	public String getApiUri() {
 		assertRegistered();
 		return connection.getApiUri();
