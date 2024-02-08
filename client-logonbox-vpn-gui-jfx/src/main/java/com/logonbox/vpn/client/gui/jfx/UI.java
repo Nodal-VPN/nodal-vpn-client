@@ -1,5 +1,7 @@
 package com.logonbox.vpn.client.gui.jfx;
 
+import static javafx.application.Platform.runLater;
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -853,7 +855,7 @@ public class UI implements BusLifecycleListener {
 					new Timeline(new KeyFrame(Duration.seconds(5), ae -> Main.getInstance().restart())).play();
 				} else {
 					String unprocessedUri = Main.getInstance().getUri();
-					if (StringUtils.isNotBlank(unprocessedUri)) {
+					if (StringUtils.isNotBlank(unprocessedUri) && !unprocessedUri.equals("lbvp://")) {
 						connectToUri(unprocessedUri);
 					} else {
 						initUi();
@@ -1767,7 +1769,7 @@ public class UI implements BusLifecycleListener {
 
 						if (Main.getInstance().isConnectUri()) {
 							VPNConnection conx = context.getDBus().getVPNConnection(connectionId);
-							connect(conx);
+							runLater(() -> connect(conx));
 						}
 					} else {
 						showError(MessageFormat.format(bundle.getString("error.uriProvidedDoesntExist"), uriObj.toASCIIString()));
