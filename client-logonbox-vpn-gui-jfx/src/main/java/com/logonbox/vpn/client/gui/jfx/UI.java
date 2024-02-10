@@ -13,12 +13,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UncheckedIOException;
+import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -79,6 +82,7 @@ import com.hypersocket.json.input.InputField;
 import com.install4j.api.launcher.StartupNotification;
 import com.logonbox.vpn.common.client.AbstractDBusClient;
 import com.logonbox.vpn.common.client.AbstractDBusClient.BusLifecycleListener;
+import com.logonbox.vpn.common.client.AuthMethod;
 import com.logonbox.vpn.common.client.AuthenticationCancelledException;
 import com.logonbox.vpn.common.client.ConfigurationItem;
 import com.logonbox.vpn.common.client.Connection;
@@ -509,7 +513,6 @@ public class UI implements BusLifecycleListener {
 	private String lastException;
 	private ResourceBundle pageBundle;
 	private Path logoFile;
-	private Runnable runOnNextLoad;
 	private ServerBridge bridge;
 	private String disconnectionReason;
 	private DevToolsDebuggerJsBridge myJSBridge;
@@ -1211,16 +1214,10 @@ public class UI implements BusLifecycleListener {
 				}
 				
 				/* Wait for a little while if pageBundle is null */
-
-				processDOM();
-				processJavascript();
-				setLoading(false);
-				if (runOnNextLoad != null) {
-					try {
-						runOnNextLoad.run();
-					} finally {
-						runOnNextLoad = null;
-					}
+				if(checkPayload()) {
+					processDOM();
+					processJavascript();
+					setLoading(false);
 				}
 			}
 		});
@@ -1266,6 +1263,33 @@ public class UI implements BusLifecycleListener {
 		});
 
 		engine.setJavaScriptEnabled(true);
+	}
+
+	private boolean checkPayload() {
+		var uri = webView.getEngine().getLocation();
+		if(uri != null) {
+			var idx = uri.indexOf("/vpn-payload/");
+			try {
+				if(idx == -1) {
+					idx = uri.indexOf("/vpn-error/");
+					if(idx == -1) {
+						return true;
+					}
+					else {
+						showError(new String(Base64.getDecoder().decode(uri.substring(idx + 11)), "UTF-8"));
+					}
+				}
+				else {
+					var data = uri.substring(idx + 13);
+					idx = data.indexOf('/');
+					configure(data.substring(0, idx), new String(Base64.getDecoder().decode(data.substring(idx + 1)), "UTF-8"), UI.this.getForegroundConnection());
+					return false;
+				}
+			} catch (UnsupportedEncodingException e) {
+				throw new UncheckedIOException(e);
+			}
+		}
+		return true;
 	}
 
 	protected boolean isRemote(String newLoc) {
@@ -1764,11 +1788,18 @@ public class UI implements BusLifecycleListener {
 				if (connectionId == -1) {
 					if (Main.getInstance().isCreateIfDoesntExist()) {
 						/* No existing configuration */
-						context.getDBus().getVPN().createConnection(uriObj.toASCIIString(), true, true,
+						var newConnectionId = context.getDBus().getVPN().createConnection(uriObj.toASCIIString(), true, true,
 								Mode.CLIENT.name());
+						
+						Thread.sleep(1000);
+						VPNConnection conx = context.getDBus().getVPNConnection(newConnectionId);
 
+						if(StringUtils.isNotBlank(uriObj.getUserInfo())) {
+							conx.setUsernameHint(uriObj.getUserInfo());
+							conx.save();
+						}
+						
 						if (Main.getInstance().isConnectUri()) {
-							VPNConnection conx = context.getDBus().getVPNConnection(connectionId);
 							runLater(() -> connect(conx));
 						}
 					} else {
@@ -2219,7 +2250,29 @@ public class UI implements BusLifecycleListener {
 						Mode mode = Mode.valueOf(connection.getMode());
 						if (mode == Mode.MODERN) {
 							LOG.info("Authorizing modern");
-							setHtmlPage("authorize.html");
+							switch(AuthMethod.select(true, connection.getAuthMethods())) {
+							case DEVICE_TOKEN:
+								setHtmlPage("authorize.html");
+								break;
+							case EMBEDDED_BROWSER:
+								String authUrl = connection.getUri(false);
+								if(authUrl.endsWith("/app")) {
+									authUrl = authUrl.substring(0, authUrl.length() - 4) + "/vpn";
+								}
+								
+								LOG.info(String.format("Authorizing to %s", authUrl));
+								if(authUrl.contains("?"))
+									authUrl += "&";
+								else
+									authUrl += "?";
+								authUrl += "pubkey=" + URLEncoder.encode(connection.getUserPublicKey(), "UTF-8");
+								authUrl += "&name=" + URLEncoder.encode(Util.getDeviceName(), "UTF-8");
+								authUrl += "&os=" + URLEncoder.encode(Util.getOS().toUpperCase(), "UTF-8");
+								setHtmlPage(authUrl);
+								break;
+							default:
+								throw new UnsupportedOperationException();
+							}
 						}
 						else if (mode == Mode.SERVICE) {
 							LOG.info("Authorizing service");

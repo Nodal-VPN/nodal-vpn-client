@@ -156,6 +156,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 	 *      the new bootstrap arrangement.
 	 */
 	public Integer call() throws Exception {
+		startBus();
 		Application.launch(Client.class, new String[0]);
 		return 0;
 	}

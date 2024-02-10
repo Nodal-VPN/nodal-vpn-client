@@ -97,6 +97,26 @@ public interface Connection {
 		}
 	}
 
+	default String getBaseUri(boolean withUsername) {
+		if(getHostname() == null) {
+			throw new IllegalStateException("No API url for this type.");
+		}
+		else {
+			String uri = "https://";
+			if(withUsername && StringUtils.isNotBlank(getUsernameHint())) {
+				try {
+					uri += URLEncoder.encode(getUsernameHint(), "UTF-8") + "@";
+				} catch (UnsupportedEncodingException e) {
+				}
+			}
+			uri += getHostname();
+			if (getPort() != 443) {
+				uri += ":" + getPort();
+			}
+			return uri;	
+		}
+	}
+
 	default String getApiUri() {
 		if(getHostname() == null) {
 			throw new IllegalStateException("No API url for this type.");
@@ -121,7 +141,7 @@ public interface Connection {
 			return "wg://" + getEndpointAddress() + ":" + getEndpointPort();
 		}
 		else {
-			String uri = getBaseUri();
+			String uri = getBaseUri(withUsername);
 			uri += getPath();
 			return uri;
 		}
@@ -134,7 +154,10 @@ public interface Connection {
 		if (getPort() != 443) {
 			uri += ":" + getPort();
 		}
-		uri += getPath();
+		if(getMode().equals(Mode.MODERN))
+			uri += "/app";
+		else
+			uri += getPath();
 		return uri;
 	}
 

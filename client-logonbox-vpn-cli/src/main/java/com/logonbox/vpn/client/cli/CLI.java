@@ -172,7 +172,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 
 	@Override
 	public ConsoleProvider getConsole() {
-		lazyInit();
+//		lazyInit();
 		return console;
 	}
 
@@ -205,6 +205,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 	@Override
 	public void run() {
 		try {
+			startBus();
 			about();
 			runPrompt();
 			console.out().println();

@@ -15,6 +15,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
@@ -274,6 +275,7 @@ public class ClientServiceImpl implements ClientService {
 		var request = builder
 				.version(Version.HTTP_1_1)
 		        .uri(URI.create(uri))
+		        .POST(BodyPublishers.noBody())
 		        .build();
 		var changed = false;
 
@@ -889,17 +891,39 @@ public class ClientServiceImpl implements ClientService {
 		synchronized (activeSessions) {
 			List<ConnectionStatus> status = getStatus(owner);
 			for (ConnectionStatus s : status) {
-				if (s.getConnection().getUri(true).equals(uri)) {
+				if (isSameUri(s.getConnection().getUri(true), uri)) {
 					return s;
 				}
 			}
 			for (ConnectionStatus s : status) {
-				if (s.getConnection().getUri(false).equals(uri)) {
+				if (isSameUri(s.getConnection().getUri(false), uri)) {
 					return s;
 				}
 			}
 		}
 		throw new IllegalArgumentException(String.format("No connection with URI %s.", uri));
+	}
+	
+	static boolean isSameUri(String uri1, String uri2) {
+		URI u1 = URI.create(uri1);
+		URI u2 = URI.create(uri2);
+		if(Objects.equals(u1.getScheme(), u2.getScheme()) && Objects.equals(u1.getHost(), u2.getHost())) {
+			var p1 = u1.getPort() == -1 ? (u1.getScheme().equals("http") ? 80 : 443) : u1.getPort();
+			var p2 = u2.getPort() == -1 ? (u2.getScheme().equals("http") ? 80 : 443) : u2.getPort();
+			if(p1 == p2) {
+				if(Objects.equals(u1.getUserInfo(), u2.getUserInfo())) {
+					return Objects.equals(translatePath(u1.getPath()), translatePath(u2.getPath()));
+				}
+			}
+		}
+		return false;
+		
+	}
+	
+	static String translatePath(String path) {
+		if("/app".equals(path))
+			path = "/vpn";
+		return path;
 	}
 
 	@Override

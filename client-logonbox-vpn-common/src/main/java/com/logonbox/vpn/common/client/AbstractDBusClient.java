@@ -177,14 +177,14 @@ public abstract class AbstractDBusClient implements DBusClient {
 	}
 
 	public VPN getVPN() {
-		lazyInit();
+//		lazyInit();
 		if (vpn == null)
 			throw new IllegalStateException("Bus not available.");
 		return vpn;
 	}
 
 	public VPNConnection getVPNConnection(long id) {
-		lazyInit();
+//		lazyInit();
 		try {
 			return conn.getRemoteObject(BUS_NAME, String.format("%s/%d", ROOT_OBJECT_PATH, id), VPNConnection.class);
 		} catch (DBusException e) {
@@ -214,10 +214,6 @@ public abstract class AbstractDBusClient implements DBusClient {
 		scheduler.shutdown();
 		if(updateService != null)
 			getUpdateService().shutdown();
-	}
-
-	protected void disconnectFromBus() {
-		conn.disconnect();
 	}
 
 	protected final void init() throws Exception {
@@ -291,21 +287,19 @@ public abstract class AbstractDBusClient implements DBusClient {
 		return log;
 	}
 
-	protected void lazyInit() {
-		synchronized (initLock) {
-			if (vpn == null) {
-				getLog().info("Trying connect to DBus");
-				try {
-					init();
-				} catch (UnknownObject | DBusException | ServiceUnknown dbe) {
-					busGone();
-				} catch (RuntimeException re) {
-					re.printStackTrace();
-					throw re;
-				} catch (Exception e) {
-					e.printStackTrace();
-					throw new IllegalStateException("Failed to initialize.", e);
-				}
+	protected void startBus() {
+		if (vpn == null) {
+			getLog().info("Trying connect to DBus");
+			try {
+				init();
+			} catch (UnknownObject | DBusException | ServiceUnknown dbe) {
+				busGone();
+			} catch (RuntimeException re) {
+				re.printStackTrace();
+				throw re;
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new IllegalStateException("Failed to initialize.", e);
 			}
 		}
 	}
