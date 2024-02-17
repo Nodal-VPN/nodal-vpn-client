@@ -858,7 +858,7 @@ public class UI implements BusLifecycleListener {
 					new Timeline(new KeyFrame(Duration.seconds(5), ae -> Main.getInstance().restart())).play();
 				} else {
 					String unprocessedUri = Main.getInstance().getUri();
-					if (StringUtils.isNotBlank(unprocessedUri) && !unprocessedUri.equals("lbvp://")) {
+					if (StringUtils.isNotBlank(unprocessedUri) && !unprocessedUri.equals("lbvpn://")) {
 						connectToUri(unprocessedUri);
 					} else {
 						initUi();
