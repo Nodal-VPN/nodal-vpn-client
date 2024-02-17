@@ -7,9 +7,9 @@ import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.ConnectionRepository;
 import com.logonbox.vpn.client.common.CustomCookieStore;
 import com.logonbox.vpn.client.common.LoggingConfig;
+import com.logonbox.vpn.client.common.LoggingConfig.Audience;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.Utils;
-import com.logonbox.vpn.client.common.LoggingConfig.Audience;
 import com.logonbox.vpn.client.common.api.IVpn;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.client.ini.ConnectionRepositoryImpl;
@@ -25,7 +25,9 @@ import org.slf4j.event.Level;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.CookieManager;
 import java.net.CookieStore;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -122,7 +124,23 @@ public abstract class AbstractService<CONX extends IVpnConnection> implements Lo
 	@Override
 	public final  CookieStore getCookieStore() {
 		if (cookieStore == null) {
-			cookieStore = new CustomCookieStore(App.CLIENT_HOME.resolve("service-cookies.dat").toFile());
+		    var cookieDat = App.CLIENT_HOME.resolve("service-cookies.dat");
+            try {
+		        cookieStore = new CustomCookieStore(cookieDat.toFile());
+		    }
+		    catch(RuntimeException e) {
+		        if(Files.exists(cookieDat)) {
+		            try {
+                        Files.delete(cookieDat);
+                        cookieStore = new CustomCookieStore(cookieDat.toFile());
+                    } catch (IOException e1) {
+                        var tempMgr = new CookieManager();
+                        cookieStore = tempMgr.getCookieStore();
+                    }
+		        }
+		        else
+		            throw e;
+		    }
 		}
 		return cookieStore;
 	}

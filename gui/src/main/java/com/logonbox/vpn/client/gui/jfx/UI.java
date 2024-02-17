@@ -756,10 +756,10 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 			if (n == null) {
 				addConnection();
 			} else {
-				LOG.info(String.format("Connect to %s", n.getAddress()));
+				LOG.info("Connect to {}", n.getAddress());
 				if (n != null) {
 					Type status = Type.valueOf(n.getStatus());
-					LOG.info(String.format("  current status is %s", status));
+					LOG.info("  current status is {}", status);
 					if (status == Type.CONNECTED || status == Type.CONNECTING || status == Type.DISCONNECTING)
 						selectPageForState(false, false);
 					else if (n.isAuthorized())
@@ -940,9 +940,11 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 				
 				/* Wait for a little while if pageBundle is null */
 
-				processDOM();
-				processJavascript();
-				setLoading(false);
+                if(checkPayload()) {
+    				processDOM();
+    				processJavascript();
+    				setLoading(false);
+                }
 			}
 		});
 		engine.getLoadWorker().exceptionProperty().addListener((o, old, value) -> {

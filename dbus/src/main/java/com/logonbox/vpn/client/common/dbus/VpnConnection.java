@@ -323,6 +323,10 @@ public interface VpnConnection extends DBusInterface, IVpnConnection {
     @DBusBoundProperty
     String getAuthorizeUri();
 
+    @Override
+    @DBusBoundProperty
+    String getBaseUri();
+
 
     @Reflectable
     @TypeReflect(methods = true, constructors = true)
@@ -466,7 +470,7 @@ public interface VpnConnection extends DBusInterface, IVpnConnection {
         private final boolean legacy;
 		
 		public Authorize(String path, String uri, String mode, boolean legacy) throws DBusException {
-			super(path, uri, mode);
+			super(path, uri, mode, legacy);
 			this.uri = uri;
 			this.mode = mode;
             this.legacy = legacy;

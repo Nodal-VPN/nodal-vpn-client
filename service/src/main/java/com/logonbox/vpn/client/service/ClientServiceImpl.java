@@ -264,9 +264,10 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
             }
             else {
                 var methods =new ArrayList<AuthMethod>();
-                try(var rdr = Json.createReader(new StringReader(response.body()))) {
-                    var obj = rdr.readObject();
-                    for(var el : obj.asJsonArray()) {
+                var bdy = response.body();
+                try(var rdr = Json.createReader(new StringReader(bdy))) {
+                    var obj = rdr.readArray();
+                    for(var el : obj) {
                         var mname = ((JsonString)el).getString();
                         try {
                             methods.add(AuthMethod.valueOf(mname));

@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -92,7 +91,10 @@ public class BrandingManager<CONX extends IVpnConnection> {
         }
 
         boolean isExpired() {
-            return System.currentTimeMillis() > loaded + TimeUnit.MINUTES.toMillis(10);
+            if(branding == null && logo == null)
+                return System.currentTimeMillis() > loaded + TimeUnit.MINUTES.toMillis(2);
+            else
+                return System.currentTimeMillis() > loaded + TimeUnit.MINUTES.toMillis(10);
         }
     }
     
@@ -269,10 +271,14 @@ public class BrandingManager<CONX extends IVpnConnection> {
                 }
             }
         }
+        if(branding != null && branding.branding() == null && branding.logo().isEmpty()) {
+            // Cached missing
+            return null;
+        }
         return branding;
     }
 
-    private BrandDetails getBrandingForConnection(CONX connection) throws UnknownHostException, IOException {
+    private BrandDetails getBrandingForConnection(CONX connection) throws IOException {
         synchronized (brandingCache) {
             var item = brandingCache.get(connection);
             if (item != null && item.isExpired()) {
@@ -283,28 +289,34 @@ public class BrandingManager<CONX extends IVpnConnection> {
 
                 LOG.info(String.format("Retrieving branding from %s", uri));
                 var url = URI.create(uri).toURL();
-                var urlConnection = url.openConnection();
-                urlConnection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(6));
-                urlConnection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(6));
-                try (var in = urlConnection.getInputStream()) {
-                    var rdr = Json.createReader(in);
-                    var brandingObj = Branding.of(rdr.readObject());
-
-                    
-                    if(brandingObj.logo() == null || brandingObj.logo().equals("")) {
-                        brandingObj = brandingObj.logo(connection.getBaseUri() + "/app/api/brand/logo");
+                try {
+                    var urlConnection = url.openConnection();
+                    urlConnection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(6));
+                    urlConnection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(6));
+                    try (var in = urlConnection.getInputStream()) {
+                        var rdr = Json.createReader(in);
+                        var brandingObj = Branding.of(rdr.readObject());
+    
+                        
+                        if(brandingObj.logo() == null || brandingObj.logo().equals("")) {
+                            brandingObj = brandingObj.logo(connection.getBaseUri() + "/app/api/brand/logo");
+                        }
+                        else if(!brandingObj.logo().startsWith("http://") && !brandingObj.logo().startsWith("https://") && !brandingObj.logo().startsWith("data:")) {
+                            if(brandingObj.logo().startsWith("/"))
+                                brandingObj = brandingObj.logo("https://" + connection.getHostname() + ":" + connection.getPort()
+                                    + brandingObj.logo());
+                            else
+                                brandingObj = brandingObj.logo("https://" + connection.getHostname() + ":" + connection.getPort()
+                                + connection.getPath() + "/" + brandingObj.logo());
+                        }
+    
+                        item = new BrandingCacheItem(brandingObj, getCustomLogoFile(connection));
+                        brandingCache.put(connection, item);
                     }
-                    else if(!brandingObj.logo().startsWith("http://") && !brandingObj.logo().startsWith("https://") && !brandingObj.logo().startsWith("data:")) {
-                        if(brandingObj.logo().startsWith("/"))
-                            brandingObj = brandingObj.logo("https://" + connection.getHostname() + ":" + connection.getPort()
-                                + brandingObj.logo());
-                        else
-                            brandingObj = brandingObj.logo("https://" + connection.getHostname() + ":" + connection.getPort()
-                            + connection.getPath() + "/" + brandingObj.logo());
-                    }
-
-                    item = new BrandingCacheItem(brandingObj, getCustomLogoFile(connection));
-                    brandingCache.put(connection, item);
+                }
+                catch(IOException ioe) {
+                    brandingCache.put(connection, new BrandingCacheItem(null, null));
+                    throw ioe;
                 }
             }
             return item;

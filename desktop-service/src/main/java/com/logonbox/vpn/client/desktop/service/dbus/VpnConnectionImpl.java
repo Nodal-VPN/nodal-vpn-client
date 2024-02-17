@@ -47,13 +47,13 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
 			setAddress(interfaceSection.get("Address"));
 			setDns(interfaceSection.getAllOr("DNS", new String[0]));
 	
-			String privateKey = interfaceSection.get("PrivateKey");
-			if (privateKey != null && hasPrivateKey() && !privateKey.equals(PRIVATE_KEY_NOT_AVAILABLE)) {
+			var privateKey = interfaceSection.getOr("PrivateKey");
+			if (privateKey.isPresent() && hasPrivateKey() && !privateKey.get().equals(PRIVATE_KEY_NOT_AVAILABLE)) {
 				/*
 				 * TODO private key should be removed from server at this point
 				 */
-				setUserPrivateKey(privateKey);
-				setUserPublicKey(Keys.pubkey(privateKey).getBase64PublicKey());
+				setUserPrivateKey(privateKey.get());
+				setUserPublicKey(Keys.pubkey(privateKey.get()).getBase64PublicKey());
 			} else if (!hasPrivateKey()) {
 				throw new IllegalStateException(
 						"Did not receive private key from server, and we didn't generate one on the client. Connection impossible.");
