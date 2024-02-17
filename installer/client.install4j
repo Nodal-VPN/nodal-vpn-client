@@ -9,7 +9,7 @@
       <variable name="build.phase" value="nightly" />
       <variable name="jfx.archdir" value="gui/win" description="The location of the architecture specific jars for JavaFX" />
     </variables>
-    <codeSigning macPkcs12File="${compiler:install4j.macPkcs12File}" windowsKeySource="windows" macNotarize="true" appleId="${compiler:install4j.appleId}">
+    <codeSigning macEnabled="true" windowsEnabled="true" macPkcs12File="${compiler:install4j.macPkcs12File}" windowsKeySource="windows" macNotarize="true" appleId="${compiler:install4j.appleId}">
       <windowsKeystoreIdentifier issuer="${compiler:install4j.windowsKeystoreIssuer}" serial="${compiler:install4j.windowsKeystoreSerial}" subject="${compiler:install4j.windowsKeystoreSubject}" />
       <macSearchedJars>
         <entry>*.zip</entry>

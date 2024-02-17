@@ -27,7 +27,8 @@ pipeline {
                             withMaven(
                                 globalMavenSettingsConfig: '4bc608a8-6e52-4765-bd72-4763f45bfbde'
                             ) {
-                                sh 'mvn -U -Dbuild.mediaTypes=unixInstaller,unixArchive,linuxRPM,linuxDeb ' + 
+                                sh 'mvn -U -Dbuild.mediaTypes=unixInstaller,unixArchive,linuxRPM,linuxDeb ' +
+                                   '-Dinstall4j.disableSigning=true ' + 
                                    '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
                                    '-P installers,cross-platform ' +
                                    'clean package'
