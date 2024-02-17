@@ -27,7 +27,6 @@ public class EmbeddedVpn implements IVpn<EmbeddedVpnConnection> {
         this.ctx = ctx;
     }
 
-
     @Override
     public String[] getKeys() {
         return ctx.getClientService().getKeys();

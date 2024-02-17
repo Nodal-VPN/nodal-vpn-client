@@ -154,7 +154,7 @@ pipeline {
                     dontSetBuildResultOnFailure: false, 
                     dontWaitForConcurrentBuildCompletion: false, 
                     entries: [[
-                        bucket: 'logonbox-packages/logonbox-vpn-client-V4/' + env.FULL_VERSION, 
+                        bucket: 'logonbox-packages/logonbox-vpn-client/' + env.FULL_VERSION, 
                         noUploadOnFailure: true, 
                         selectedRegion: 'eu-west-1', 
                         sourceFile: 'installer/target/media/*', 
@@ -165,14 +165,14 @@ pipeline {
                         userMetadata: []
                 )
                 
-                /* Copy the merged updates.xml to the nightly directory so updates can be seen
+                /* Copy the merged updates.xml to the continuous directory so updates can be seen
                 by anyone on this channel */
                 s3Upload(
                     consoleLogLevel: 'INFO', 
                     dontSetBuildResultOnFailure: false, 
                     dontWaitForConcurrentBuildCompletion: false, 
                     entries: [[
-                        bucket: 'logonbox-packages/logonbox-vpn-client-V4/continuous', 
+                        bucket: 'logonbox-packages/logonbox-vpn-client/continuous', 
                         noUploadOnFailure: true, 
                         selectedRegion: 'eu-west-1', 
                         sourceFile: 'installer/target/media/updates.xml', 

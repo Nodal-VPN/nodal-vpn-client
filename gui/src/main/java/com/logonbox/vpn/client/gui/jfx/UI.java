@@ -5,7 +5,6 @@ import static javafx.application.Platform.runLater;
 
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.AuthMethod;
-import com.logonbox.vpn.client.common.AuthenticationCancelledException;
 import com.logonbox.vpn.client.common.BrandingManager;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
@@ -15,14 +14,10 @@ import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.ServiceClient;
-import com.logonbox.vpn.client.common.ServiceClient.DeviceCode;
-import com.logonbox.vpn.client.common.ServiceClient.NameValuePair;
 import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
-import com.logonbox.vpn.client.common.lbapi.InputField;
-import com.logonbox.vpn.client.common.lbapi.LogonResult;
 import com.logonbox.vpn.drivers.lib.util.OsUtil;
 import com.logonbox.vpn.drivers.lib.util.Util;
 
@@ -67,9 +62,6 @@ import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
-import javax.net.ssl.HostnameVerifier;
-
-import jakarta.json.JsonObject;
 import javafx.animation.KeyFrame;
 import javafx.animation.RotateTransition;
 import javafx.animation.Timeline;
@@ -113,132 +105,6 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	static final String LOCBCOOKIE = "LOCBCKIE";
 
 	private static final String DEFAULT_LOCALHOST_ADDR = "http://localhost:59999/";
-
-	public static final class ServiceClientAuthenticator<CONX extends IVpnConnection> implements ServiceClient.Authenticator {
-		private final WebEngine engine;
-		private final Semaphore authorizedLock;
-		private final UIContext<CONX> context;
-		private final VpnManager<CONX> vpnManager;
-		private Map<InputField, NameValuePair> results;
-		private LogonResult result;
-		private boolean error;
-
-		public ServiceClientAuthenticator(UIContext<CONX> context, WebEngine engine, Semaphore authorizedLock) {
-			this.engine = engine;
-			this.context = context;
-			this.authorizedLock = authorizedLock;
-			
-			vpnManager = context.getAppContext().getVpnManager();
-		}
-
-		public void cancel() {
-			LOG.info("Cancelling authorization.");
-			error = true;
-			authorizedLock.release();
-		}
-
-		public void submit(JSObject obj) {
-			for (var field : result.formTemplate().inputFields()) {
-				results.put(field, new NameValuePair(field.resourceKey(),
-						memberOrDefault(obj, field.resourceKey(), String.class, "")));
-			}
-			authorizedLock.release();
-		}
-
-		@Override
-		public String getUUID() {
-			return vpnManager.getVpnOrFail().getUUID();
-		}
-
-		@Override
-		public HostnameVerifier getHostnameVerifier() {
-			return context.getAppContext().getCertManager();
-		}
-
-		@Override
-		public void error(JsonObject i18n, LogonResult logonResult) {
-			maybeRunLater(() -> {
-				if (logonResult.lastErrorIsResourceKey())
-					engine.executeScript("authorizationError('"
-							+ Utils.escapeEcmaScript(i18n.getString(logonResult.errorMsg())) + "');");
-				else
-					engine.executeScript("authorizationError('"
-							+ Utils.escapeEcmaScript(logonResult.errorMsg()) + "');");
-
-			});
-		}
-		
-        @Override
-        public void prompt(DeviceCode code) throws AuthenticationCancelledException {
-            /* V3 VPN Server OAuth based authentication */
-            maybeRunLater(() -> {
-                JSObject jsobj = (JSObject) engine.executeScript("window");
-                jsobj.setMember("code", code);
-                engine.executeScript("promptForCode();");
-            });
-        }
-
-		@Override
-		public void collect(JsonObject i18n, LogonResult result, Map<InputField, NameValuePair> results)
-				throws IOException {
-			this.results = results;
-			this.result = result;
-
-			maybeRunLater(() -> {
-				JSObject jsobj = (JSObject) engine.executeScript("window");
-				jsobj.setMember("remoteBundle", i18n);
-				jsobj.setMember("result", result);
-				jsobj.setMember("results", results);
-				engine.executeScript("collect();");
-			});
-			try {
-				LOG.info("Waiting for authorize semaphore to be released.");
-				authorizedLock.acquire();
-			} catch (InterruptedException e) {
-				// TODO:
-                error = true;
-			}
-
-			LOG.info("Left authorization.");
-			if (error)
-				throw new AuthenticationCancelledException();
-		}
-
-		@Override
-		public void authorized() throws IOException {
-			LOG.info("Authorized.");
-			maybeRunLater(() -> {
-				engine.executeScript("authorized();");
-				authorizedLock.release();
-			});
-		}
-	}
-
-	public static final class Register<CONX extends IVpnConnection> implements Runnable {
-		private final IVpnConnection selectedConnection;
-		private final ServiceClient serviceClient;
-		private final UI<CONX> ui;
-
-		public Register(IVpnConnection selectedConnection, ServiceClient serviceClient, UI<CONX> ui) {
-			this.selectedConnection = selectedConnection;
-			this.serviceClient = serviceClient;
-			this.ui = ui;
-		}
-
-		public void run() {
-			new Thread() {
-				public void run() {
-					try {
-						serviceClient.register(selectedConnection);
-					} catch (AuthenticationCancelledException ae) {
-						// Ignore, handled elsewhere
-					} catch (IOException | URISyntaxException e) {
-						maybeRunLater(() -> ui.showError("Failed to register. " + e.getMessage(), e));
-					}
-				}
-			}.start();
-		}
-	}
 
 	/**
 	 * This object is exposed to the local HTML/Javascript that runs in the browser.
@@ -451,7 +317,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 
 	static int DROP_SHADOW_SIZE = 11;
 
-	private final static Logger LOG = LoggerFactory.getLogger(UI.class);
+	final static Logger LOG = LoggerFactory.getLogger(UI.class);
 
 	private Timeline awaitingBridgeEstablish;
 	private Timeline awaitingBridgeLoss;
@@ -566,7 +432,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		
 		/* Connection Added */
 		vpnManager.onConnectionAdded(conx -> {
-		    uiContext.getOpQueue().execute(() -> {
+		    uiContext.getAppContext().getQueue().execute(() -> {
                 reloadState(() -> {
                     maybeRunLater(() -> {
                         uiContext.reapplyBranding();
@@ -583,7 +449,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		vpnManager.onConnectionRemoved(id -> {
 		    maybeRunLater(() -> {
                 try {
-                    uiContext.getOpQueue().execute(() -> {
+                    uiContext.getAppContext().getQueue().execute(() -> {
                         reloadState(() -> {
                             maybeRunLater(() -> {
                                 uiContext.reapplyBranding();
@@ -727,7 +593,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		else
 			LOG.info(String.format("Requesting disconnect, because '{}'", reason));
 
-		uiContext.getOpQueue().execute(() -> {
+		uiContext.getAppContext().getQueue().execute(() -> {
 			try {
 				sel.disconnect(Utils.defaultIfBlank(reason, ""));
 			} catch (Exception e) {
@@ -742,7 +608,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		else
 			LOG.info("Requesting disconnect, because '{}'", reason);
 
-		uiContext.getOpQueue().execute(() -> {
+		uiContext.getAppContext().getQueue().execute(() -> {
 			try {
 			    vpnManager.getVpnOrFail().disconnectAll();
 			} catch (Exception e) {
@@ -836,7 +702,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	
 
 	protected void joinNetwork(IVpnConnection connection) {
-		uiContext.getOpQueue().execute(() -> {
+	    uiContext.getAppContext().getQueue().execute(() -> {
 			connection.connect();
 		});
 	}
@@ -844,7 +710,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	protected void addConnection(Boolean stayConnected, Boolean connectAtStartup, String unprocessedUri, Mode mode)
 			throws URISyntaxException {
 		URI uriObj = ConnectionUtil.getUri(unprocessedUri);
-		uiContext.getOpQueue().execute(() -> {
+		uiContext.getAppContext().getQueue().execute(() -> {
 			try {
 			    vpnManager.getVpnOrFail().createConnection(uriObj.toASCIIString(), connectAtStartup, stayConnected,
 						mode.name());
@@ -858,7 +724,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 			throws IOException {
 		try(var r = Files.newBufferedReader(file)) {
 			String content = Utils.toString(r);
-			uiContext.getOpQueue().execute(() -> {
+			uiContext.getAppContext().getQueue().execute(() -> {
 				try {
 				    vpnManager.getVpnOrFail().importConfiguration(content);
 				} catch (Exception e) {
@@ -874,7 +740,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	}
 
 	protected void authorize(IVpnConnection n) {
-		uiContext.getOpQueue().execute(() -> {
+	    uiContext.getAppContext().getQueue().execute(() -> {
 			try {
 				n.authorize();
 			} catch (Exception e) {
@@ -966,7 +832,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 					String reason = value != null ? value.getMessage() : null;
 					LOG.info(String.format("Got error while authorizing. Disconnecting now using '%s' as the reason",
 							reason));
-					uiContext.getOpQueue().execute(() -> {
+					uiContext.getAppContext().getQueue().execute(() -> {
 						try {
 							priorityConnection.disconnect(reason);
 						} catch (Exception e) {
@@ -1108,7 +974,9 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		boolean isNoBack = "missingSoftware.html".equals(htmlPage) || "connections.html".equals(htmlPage)
 				|| !vpnManager.isBackendAvailable()
 				|| ("addLogonBoxVPN.html".equals(htmlPage) && vpnManager.getVpnOrFail().getConnections().isEmpty());
-		uiContext.navigator().setBackVisible(!isNoBack);
+		var nav = uiContext.navigator();
+		if(nav != null)
+		    nav.setBackVisible(!isNoBack);
 		debugBar.setVisible(uiContext.debugger().isPresent());
 	}
 
@@ -1189,7 +1057,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		}
 	}
 
-	protected void setHtmlPage(String htmlPage) {
+	public void setHtmlPage(String htmlPage) {
 		setHtmlPage(htmlPage, false);
 	}
 
@@ -1490,7 +1358,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	
 	public void connectToUri(String unprocessedUri) {
         LOG.info("Connected to URI {}", unprocessedUri);
-	    uiContext.getOpQueue().execute(() -> {
+        uiContext.getAppContext().getQueue().execute(() -> {
             try {
                 LOG.info(String.format("Connected to URI %s", unprocessedUri));
                 URI uriObj;
@@ -1586,7 +1454,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	private void doDelete(IVpnConnection sel) {
 		setHtmlPage("busy.html");
 		LOG.info(String.format("Deleting connection %s", sel));
-		uiContext.getOpQueue().execute(() -> sel.delete());
+		uiContext.getAppContext().getQueue().execute(() -> sel.delete());
 	}
 
 	private void reloadState(Runnable then) {
@@ -1836,7 +1704,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		showError(error, cause, (String) null);
 	}
 
-	private void showError(String error, Throwable exception) {
+	void showError(String error, Throwable exception) {
 		showError(error, null, exception);
 	}
 

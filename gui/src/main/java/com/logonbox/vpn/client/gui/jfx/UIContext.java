@@ -5,7 +5,6 @@ import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
 
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 
 import javafx.scene.control.Alert.AlertType;
 
@@ -20,8 +19,6 @@ public interface UIContext<CONX extends IVpnConnection> {
 	JfxAppContext<CONX> getAppContext();
 
 	boolean isTrayConfigurable();
-
-	ExecutorService getOpQueue();
 
 	void exitApp();
 

@@ -11,7 +11,6 @@ import com.logonbox.vpn.client.common.NoUpdateService;
 import com.logonbox.vpn.client.common.PlatformUtilities;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.UpdateService;
-import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
 import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
@@ -23,10 +22,6 @@ import org.slf4j.event.Level;
 //import java.awt.Taskbar;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -44,9 +39,9 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;
 
-@Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.", versionProvider = Main.VersionProvider.class
+@Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.", versionProvider = DesktopVPN.VersionProvider.class
 ) 
-public class Main extends AbstractDBusApp implements Callable<Integer>, Listener, JfxAppContext<VpnConnection> {
+public class DesktopVPN extends AbstractDBusApp implements Callable<Integer>, Listener, JfxAppContext<VpnConnection> {
 	@Reflectable
     public final static class VersionProvider implements IVersionProvider {
         
@@ -66,11 +61,11 @@ public class Main extends AbstractDBusApp implements Callable<Integer>, Listener
 	 */
 	public static final String ARTIFACT_COORDS = "com.logonbox/client-logonbox-vpn-gui-jfx";
 
-	private static Main instance;
+	private static DesktopVPN instance;
 
 	private static Optional<UIContext<?>> uiContext = Optional.empty();
 
-	public static Main getInstance() {
+	public static DesktopVPN getInstance() {
 		return instance;
 	}
 
@@ -85,28 +80,10 @@ public class Main extends AbstractDBusApp implements Callable<Integer>, Listener
 //					| UnsupportedLookAndFeelException e) {
 //			}
 			System.exit(
-					new CommandLine(new Main()).execute(args));
+					new CommandLine(new DesktopVPN()).execute(args));
 		});
 
 	}
-
-	static Collection<String> runCommandAndCaptureOutput(String... args) throws IOException {
-        var largs = new ArrayList<String>(Arrays.asList(args));
-        var pb = new ProcessBuilder(largs);
-        pb.redirectErrorStream(true);
-        Process p = pb.start();
-        var lines = Utils.readLines(new InputStreamReader(p.getInputStream()));
-        try {
-            int ret = p.waitFor();
-            if (ret != 0) {
-                throw new IOException("Command '" + String.join(" ", largs) + "' returned non-zero status. Returned "
-                        + ret + ". " + String.join("\n", lines));
-            }
-        } catch (InterruptedException e) {
-            throw new IOException(e.getMessage(), e);
-        }
-        return lines;
-    }
 
 	@Option(names = { "-C", "--no-close" }, description = "Do not allow the window to be closed manually.")
 	private boolean noClose;
@@ -155,7 +132,7 @@ public class Main extends AbstractDBusApp implements Callable<Integer>, Listener
 	@Parameters(index = "0", arity = "0..1", description = "Connect to a particular server using a URI. Acceptable formats include <server[<port>]> or https://<server[<port>]>[/path]. If a pre-configured connection matching this URI already exists, it will be used.")
 	private String uri;
 
-	public Main() {
+	public DesktopVPN() {
 		super();
 		instance = this;
 
@@ -190,7 +167,7 @@ public class Main extends AbstractDBusApp implements Callable<Integer>, Listener
         }
         
         getVpnManager().start();
-		Application.launch(Client.class, new String[0]);
+		Application.launch(DesktopVPNApp.class, new String[0]);
 		return 0;
 	}
 
@@ -287,9 +264,9 @@ public class Main extends AbstractDBusApp implements Callable<Integer>, Listener
 
 	@SuppressWarnings("unchecked")
 	public <M extends JfxAppContext<VpnConnection>> M uiContext(UIContext<VpnConnection> uiContext) {
-		if(Main.uiContext.isPresent())
+		if(DesktopVPN.uiContext.isPresent())
 			throw new IllegalStateException("Already registered.");
-		Main.uiContext = Optional.of(uiContext);
+		DesktopVPN.uiContext = Optional.of(uiContext);
 		return (M) this;
 	}
 
@@ -300,7 +277,7 @@ public class Main extends AbstractDBusApp implements Callable<Integer>, Listener
 
 	@Override
 	protected PromptingCertManager createCertManager() {
-		return new ClientPromptingCertManager(Client.BUNDLE, this) {
+		return new ClientPromptingCertManager(DesktopVPNApp.RESOURCES, this) {
 
 			@Override
 			public boolean isToolkitThread() {

@@ -373,8 +373,13 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
                     this::handleCertPromptRequest),
             conn.addSigHandler(VPN.ConnectionRemoving.class, newVpn, 
                     sig ->  { 
-                        var conx = newVpn.getConnection(sig.getId());
-                        onConnectionRemoving.forEach(r -> r.accept(conx)); 
+                        try {
+                            var conx = newVpn.getConnection(sig.getId());
+                            onConnectionRemoving.forEach(r -> r.accept(conx)); 
+                        }
+                        catch(Exception e) {
+                            log.warn("Failed to get connection, probably got removing event after the connection was removed.", e);
+                        }
                     }),
             conn.addSigHandler(VPN.ConnectionRemoved.class, newVpn, 
                     sig -> { 

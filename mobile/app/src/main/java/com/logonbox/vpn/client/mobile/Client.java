@@ -29,7 +29,6 @@ import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
@@ -95,7 +94,6 @@ public class Client extends Application implements UIContext<EmbeddedVpnConnecti
     private final VpnManager<EmbeddedVpnConnection> vpnManager;
 //    private final AppContext<EmbeddedVpnConnection> app;
     
-	private ExecutorService opQueue = Executors.newSingleThreadExecutor();
 	private boolean waitingForExitChoice;
 	private UI<EmbeddedVpnConnection> ui;
 	private Scene scene;
@@ -129,11 +127,6 @@ public class Client extends Application implements UIContext<EmbeddedVpnConnecti
 		updateService = new NoUpdateService(this);
 	}
 
-	public void clearLoadQueue() {
-		opQueue.shutdownNow();
-		opQueue = Executors.newSingleThreadExecutor();
-	}
-
 	public void confirmExit() {
 		int active = 0;
 		try {
@@ -160,7 +153,7 @@ public class Client extends Application implements UIContext<EmbeddedVpnConnecti
 				Optional<ButtonType> result = alert.showAndWait();
 
 				if (result.get() == disconnect) {
-					opQueue.execute(() -> {
+					getAppContext().getQueue().execute(() -> {
 						vpnManager.getVpnOrFail().disconnectAll();
 						exitApp();
 					});
@@ -183,11 +176,6 @@ public class Client extends Application implements UIContext<EmbeddedVpnConnecti
 	@Override
 	public Styling styling() {
 		return styling;
-	}
-
-	@Override
-	public ExecutorService getOpQueue() {
-		return opQueue;
 	}
 
 	@Override
@@ -274,8 +262,7 @@ public class Client extends Application implements UIContext<EmbeddedVpnConnecti
 
 	@Override
 	public void exitApp() {
-//		app.shutdown(false);
-		opQueue.shutdown();
+		getAppContext().shutdown(false);
 		Platform.exit();
 	}
 

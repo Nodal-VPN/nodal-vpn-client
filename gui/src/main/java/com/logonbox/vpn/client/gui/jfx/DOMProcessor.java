@@ -201,10 +201,18 @@ public class DOMProcessor<CONX extends IVpnConnection> {
 					try {
 						attrVal = pageBundle.getString(val);
 					} catch (MissingResourceException mre) {
-						attrVal = resources.getString(val);
+					    try {
+					        attrVal = resources.getString(val);
+					    }
+					    catch(MissingResourceException mre2) {
+					        attrVal = null;
+					    }
 					}
-					if (!args.isEmpty()) {
+					if (attrVal != null && !args.isEmpty()) {
 						attrVal = MessageFormat.format(attrVal, args.toArray(new Object[0]));
+					}
+					if(attrVal == null) {
+					    attrVal = "[missing:" + val + "]";
 					}
 					node.setTextContent(attrVal);
 				} else if (attr.getNodeName().equals("data-collection")) {
