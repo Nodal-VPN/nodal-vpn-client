@@ -142,7 +142,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.logonbox</groupId>
-			<artifactId>client-logonbox-vpn-service</artifactId>
+			<artifactId>client-logonbox-vpn-desktop-service</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -495,7 +495,7 @@
                                     <includeVersion>false</includeVersion>
                                     <output>${project.build.directory}/service</output>
                                     <artifacts>
-                                        <artifact>com.logonbox:client-logonbox-vpn-service:${project.version}</artifact>
+                                        <artifact>com.logonbox:client-logonbox-vpn-desktop-service:${project.version}</artifact>
                                     </artifacts>
                                 </configuration>
                             </execution>

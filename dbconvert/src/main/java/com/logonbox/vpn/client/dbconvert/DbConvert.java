@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.sql.DriverManager;
 import java.util.Properties;
 
+@Deprecated(forRemoval = true, since = "3.1.0")
 public class DbConvert {
 
 	public static void main(String[] args) throws Exception {
