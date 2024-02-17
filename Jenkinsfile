@@ -27,7 +27,10 @@ pipeline {
                             withMaven(
                                 globalMavenSettingsConfig: '4bc608a8-6e52-4765-bd72-4763f45bfbde'
                             ) {
-                                sh 'mvn -U -Dbuild.mediaTypes=unixInstaller,unixArchive,linuxRPM,linuxDeb -Dbuild.projectProperties=$BUILD_PROPERTIES -P installers,cross-platform clean package'
+                                sh 'mvn -U -Dbuild.mediaTypes=unixInstaller,unixArchive,linuxRPM,linuxDeb ' + 
+                                   '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
+                                   '-P installers,cross-platform ' +
+                                   'clean package'
                                 
                                 /* Stash installers */
                                 stash includes: 'installer/target/media/*', name: 'linux-vpn-client'
@@ -61,7 +64,10 @@ pipeline {
                                 globalMavenSettingsConfig: '4bc608a8-6e52-4765-bd72-4763f45bfbde'
                             ) {
                                 // -Dinstall4j.disableNotarization=true
-                                sh 'mvn -U -Dbuild.mediaTypes=macos,macosFolder,macosFolderArchive -Dbuild.projectProperties=$BUILD_PROPERTIES -P installers,cross-platfrom clean package'
+                                sh 'mvn -U -Dbuild.mediaTypes=macos,macosFolder,macosFolderArchive ' +
+                                   '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
+                                   '-P installers,cross-platform ' +
+                                   'clean package'
                                 
                                 /* Stash installers */
                                 stash includes: 'installer/target/media/*', name: 'macos-vpn-client'
@@ -94,7 +100,11 @@ pipeline {
                             withMaven(
                                 globalMavenSettingsConfig: '4bc608a8-6e52-4765-bd72-4763f45bfbde'
                             ) {
-                                bat 'mvn -U -Dinstall4j.verbose=true -Dbuild.mediaTypes=windows,windowsArchive "-Dbuild.projectProperties=%BUILD_PROPERTIES%" -P installer,cross-platfrom clean package'
+                                bat 'mvn -U -Dinstall4j.verbose=true ' +
+                                    '-Dbuild.mediaTypes=windows,windowsArchive ' +
+                                    '"-Dbuild.projectProperties=%BUILD_PROPERTIES%" ' +
+                                    '-P installer,cross-platform ' +
+                                    'clean package'
                                 
                                 /* Stash installers */
                                 stash includes: 'installer/target/media/*', name: 'windows-vpn-client'
