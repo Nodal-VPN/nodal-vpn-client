@@ -4,8 +4,10 @@ import com.logonbox.vpn.client.AbstractService;
 import com.logonbox.vpn.client.app.SimpleLoggingConfig;
 import com.logonbox.vpn.client.common.App;
 import com.logonbox.vpn.client.common.AppVersion;
+import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
+import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.LoggingConfig.Audience;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
@@ -28,7 +30,9 @@ import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.connections.transports.TransportBuilder;
 import org.freedesktop.dbus.connections.transports.TransportBuilder.SaslAuthMode;
+import org.freedesktop.dbus.errors.ServiceUnknown;
 import org.freedesktop.dbus.exceptions.DBusException;
+import org.freedesktop.dbus.exceptions.DBusExecutionException;
 import org.freedesktop.dbus.messages.Message;
 import org.freedesktop.dbus.utils.Util;
 import org.slf4j.Logger;
@@ -38,6 +42,7 @@ import org.slf4j.event.Level;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -233,6 +238,34 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 			log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch")
 					+ " (" + System.getProperty("os.version") + ")"));
 
+            
+            /* Check not already running (only do this for embedded broker, a real broker will reject the name request) */
+            if(!OS.isLinux() || embeddedBus) {
+                File dbusPropertiesFile = getDBusPropertiesFile();
+                if(dbusPropertiesFile.exists()) {
+                    var props = new Properties();
+                    try (var in = new FileReader(dbusPropertiesFile)) {
+                        props.load(in);
+                    }
+                    var addr = props.getProperty("address", "");
+                    if(!addr.equals("")) {
+                        log.info("Checking if {} is already active", addr);
+                        try(var testConn = configureBuilder(DBusConnectionBuilder.forAddress(addr)).build()) {
+                            var mgr = testConn.getRemoteObject("com.logonbox.vpn", "/com/logonbox/vpn", VPN.class);
+                            try {
+                                mgr.ping();
+                            }
+                            catch(DBusExecutionException dbee) {
+                            }
+                            throw new IOException("VPN service already running.");
+                        }
+                        catch(ServiceUnknown | DBusException  e) {
+                            log.debug("No existing service.", e);
+                        }
+                    }
+                }
+            }
+
 			if (!configureDBus()) {
 				System.exit(3);
 			}
@@ -344,9 +377,20 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
     public void fireAuthorize(Connection connection, String authorizeUri) {
 
         try {
-            sendMessage(
-                    new VpnConnection.Authorize(String.format("/com/logonbox/vpn/%d", connection.getId()),
-                            authorizeUri, connection.getMode().name()));
+            
+            if(connection.getMode() == Mode.MODERN) {
+                log.info("Asking client to authorize {} (modern)", connection.getDisplayName());
+                sendMessage(
+                        new VpnConnection.Authorize(String.format("/com/logonbox/vpn/%d", connection.getId()),
+                                connection.getUri(false), String.join(",", Arrays.asList(connection.getAuthMethods()).stream().map(AuthMethod::toString).toList()), false));
+            }
+            else {
+                log.info("Asking client to authorize {} (legacy)", connection.getDisplayName());
+                sendMessage(
+                        new VpnConnection.Authorize(String.format("/com/logonbox/vpn/%d", connection.getId()),
+                                authorizeUri, connection.getMode().name(), true));
+            
+            }
         } catch (DBusException e) {
             throw new IllegalStateException("Failed to signal authorize.", e);
         }
@@ -640,27 +684,30 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 						newAddress = TransportBuilder.createDynamicSession("UNIX", true);
 						if(newAddress == null)
 						    throw new IllegalStateException("Did not get UNIX domain socket address for bus. Are the appropriate transport modules installed?");
-						log.info(String.format("DBus-Java gave us %s", newAddress));
+						log.info("DBus-Java gave us {}", newAddress);
 					} else {
 						log.info("Using TCP bus");
 						newAddress = TransportBuilder.createDynamicSession("TCP", true);
                         if(newAddress == null)
                             throw new IllegalStateException("Did not get TCP socket address for bus. Are the appropriate transport modules installed?");
-						log.info(String.format("DBus-Java gave us %s", newAddress));
+						log.info("DBus-Java gave us {}", newAddress);
 					}
 				}
 	
 				embeddedBusAddress = BusAddress.of(newAddress);
 				if (!embeddedBusAddress.hasParameter("guid")) {
 					/* Add a GUID if user supplied bus address without one */
-					newAddress += ",guid=" + Util.genGUID();
-					embeddedBusAddress = BusAddress.of(newAddress);
+				    String genGUID = Util.genGUID();
+                    newAddress += ",guid=" + genGUID;
+                    embeddedBusAddress = BusAddress.of(newAddress);
+                    log.info("Added GUID {} to connection string", genGUID);
 				}
 	
 				if (embeddedBusAddress.isListeningSocket()) {
 					/* Strip listen=true to get the address to uses as a client */
 					newAddress = newAddress.replace(",listen=true", "");
 					embeddedBusAddress = BusAddress.of(newAddress);
+                    log.info("Removed listen from address for clients, it is now {}", newAddress);
 				}
 				
 				/* Work around for Windows. We need the domain socket file to be created
@@ -671,13 +718,17 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 					File publicDir = new File("C:\\Users\\Public");
 					if (publicDir.exists()) {
 						File vpnAppData = new File(publicDir, "AppData\\LogonBox\\VPN");
+                        log.info("Found {}, adjusting path to {}", publicDir, vpnAppData);
 	
-						if (!vpnAppData.exists() && !vpnAppData.mkdirs())
+						if (!vpnAppData.exists() && !vpnAppData.mkdirs()) {
+                            log.info("{} doesn't exist, and couldn't be created.", vpnAppData);
 							throw new IOException("Failed to create public directory for domain socket file.");
+						}
 						
 						/* Clean up a bit so we don't get too many dead socket files. This
 						 * will leave the 4 most recent.
 						 */
+                        log.info("Cleaning up old DBus socket files in {}", vpnAppData);
 						try {
 							var l = new ArrayList<>(Arrays.asList(vpnAppData.listFiles((f) ->  f.getName().startsWith("dbus-"))));
 							Collections.sort(l, (p1, p2) -> {
@@ -691,7 +742,9 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 							    }
 							});
 							while(l.size() > 4) {
+                                log.info("Removing stale DBus socket {}", l.get(0));
 							    l.get(0).delete();
+							    l.remove(0);
 							}
 						}
 						catch(Exception e) {
@@ -703,6 +756,9 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 						log.info(String.format("Adjusting DBus path from %s to %s (%s)", embeddedBusAddress, newAddress, System.getProperty("java.io.tmpdir")));
 						embeddedBusAddress = BusAddress.of(newAddress);
 					}
+                    else {
+                        log.warn("{} does not exist, cannot determine path to use for public DBus socket.", publicDir);
+                    }
 				}
 				else if (OS.isMacOs() && embeddedBusAddress.getBusType().equals("UNIX")) {
 					/* Work around for Mac OS X. We need the domain socket file to be created
@@ -712,6 +768,7 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 					File publicDir = new File("/tmp");
 					if (publicDir.exists()) {
 						File vpnAppData = new File(publicDir, "/logonbox-vpn-client");
+                        log.info("Found {}, adjusting path to {}", publicDir, vpnAppData);
 						if (!vpnAppData.exists() && !vpnAppData.mkdirs())
 							throw new IOException("Failed to create public directory for domain socket file.");
 	
@@ -721,6 +778,9 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 						embeddedBusAddress = BusAddress.of(newAddress);
 					}
 				}
+                else {
+                    log.info("{} does not require any special handling of DBus paths", System.getProperty("os.name"));
+                }
 	
 				boolean startedBus = false;
 				if (daemon == null) {
@@ -773,7 +833,6 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 				}
 			}
 			log.info(String.format("Requesting name from Bus %s", newAddress));
-	
 			
 			conn.setDisconnectCallback(new IDisconnectCallback() {
 			    public void disconnectOnError(IOException _ex) {
@@ -782,28 +841,15 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 			});
 
 			try {
-				/* NOTE: Work around for Hello message not having been completely sent before trying to request name */
-				while(true) {
-					try {
-						((DBusConnection)conn).requestBusName("com.logonbox.vpn");
-						break;
-					}
-					catch(Exception dbe) {
-//						if(!(dbe.getCause() instanceof AccessDenied))
-//							throw dbe;
-						Thread.sleep(500);
-					}
-				}
-				
-				// Now can tell the client
-				if(embeddedBusAddress != null)
-				    storeAddress(embeddedBusAddress.toString());
-				
-				return true;
-			} catch (Exception e) {
-				log.error("Failed to connect to DBus. No remote state monitoring or management.", e);
-				return false;
-			}
+			    ((DBusConnection)conn).requestBusName("com.logonbox.vpn");
+                
+                // Now can tell the client
+                storeAddress(newAddress.toString());
+                return true;
+            } catch (Exception e) {
+                log.error("Failed to connect to DBus. No remote state monitoring or management.", e);
+                return false;
+            }
 		}
 	}
 
@@ -818,7 +864,6 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 	
 	private DBusConnectionBuilder configureBuilder(DBusConnectionBuilder builder) {
 		builder.withShared(false);
-		builder.transportConfig().withRegisterSelf(true);
 		return builder;
 	}
 
@@ -829,7 +874,8 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 			try {
 				connect();
 				createVpn();
-			} catch (DBusException | IOException e) {
+			} catch (Exception e) {
+                log.warn("Failed to initialize bus.", e);
 			}
 		}, 10, TimeUnit.SECONDS);
 	}

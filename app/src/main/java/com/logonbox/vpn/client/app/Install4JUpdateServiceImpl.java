@@ -61,10 +61,10 @@ public class Install4JUpdateServiceImpl extends AbstractUpdateService {
 				if (!isNeedsUpdating())
 					throw new IOException("Update not needed.");
 				String[] args;
-				if(context.isConsole())
-					args =new String[] { "-c" };
-				else
-					args = new String[0];
+                if(context.isConsole())
+                    args =new String[] { "-c", "-VupdatesUrl=" + uurl };
+                else
+                    args =new String[] { "-VupdatesUrl=" + uurl };
 				ApplicationLauncher.launchApplicationInProcess("2103", args,
 						new ApplicationLauncher.Callback() {
 							public void exited(int exitValue) {

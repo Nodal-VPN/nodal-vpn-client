@@ -37,4 +37,6 @@ public interface JfxAppContext<CONX extends IVpnConnection> extends AppContext<C
 			return Paths.get(System.getProperty("java.io.tmpdir"));
 	    }
 	}
+
+    boolean isConnectUri();
 }

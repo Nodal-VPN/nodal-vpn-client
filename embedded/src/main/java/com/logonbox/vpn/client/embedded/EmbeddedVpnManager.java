@@ -33,4 +33,8 @@ public class EmbeddedVpnManager extends AbstractVpnManager<EmbeddedVpnConnection
         return Optional.empty();
     }
 
+    @Override
+    public void start() {        
+    }
+
 }

@@ -16,6 +16,7 @@ import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
 import com.logonbox.vpn.client.common.ServiceClient;
+import com.logonbox.vpn.client.common.ServiceClient.DeviceCode;
 import com.logonbox.vpn.client.common.ServiceClient.NameValuePair;
 import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.Utils;
@@ -125,6 +126,12 @@ public class UI {
                         memberOrDefault(obj, field.resourceKey(), String.class, "")));
             }
             authorizedLock.release();
+        }
+
+        @Override
+        public void prompt(DeviceCode code) throws AuthenticationCancelledException {
+
+            throw new UnsupportedOperationException("TODO");
         }
 
         @Override
@@ -547,7 +554,7 @@ public class UI {
 		            }
 		        }));
 		    });
-		    vpnManager.onAuthorize((conx,uri,mode) -> {
+		    vpnManager.onAuthorize((conx,uri,mode,legacy) -> {
 		        pageModel.setDisconnectionReason(null);
                 if (mode.equals(Connection.Mode.CLIENT) || mode.equals(Connection.Mode.SERVICE)) {
                     maybeRunLater(display, () -> {

@@ -3,9 +3,10 @@ package com.logonbox.vpn.client.common;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.client.common.lbapi.InputField;
 import com.logonbox.vpn.client.common.lbapi.LogonResult;
-import com.logonbox.vpn.client.common.lbapi.Session;
 import com.logonbox.vpn.client.common.lbapi.PeerResponse;
+import com.logonbox.vpn.client.common.lbapi.Session;
 import com.logonbox.vpn.drivers.lib.util.OsUtil;
+import com.logonbox.vpn.drivers.lib.util.Util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import javax.net.ssl.HostnameVerifier;
@@ -35,6 +37,10 @@ import jakarta.json.Json;
 import jakarta.json.JsonObject;
 
 public class ServiceClient {
+
+    public static String genToken() {
+        return UUID.randomUUID().toString().replace("-", "");
+    }
 
 	public static class NameValuePair {
 
@@ -73,8 +79,11 @@ public class ServiceClient {
 
 		void authorized() throws IOException;
 
-		void collect(JsonObject i18n, LogonResult result, Map<InputField, NameValuePair> results)
-				throws IOException;
+        @Deprecated
+        void collect(JsonObject i18n, LogonResult result, Map<InputField, NameValuePair> results)
+                throws IOException;
+        
+        void prompt(DeviceCode code) throws AuthenticationCancelledException;
 
 		void error(JsonObject i18n, LogonResult logonResult);
 
@@ -101,7 +110,7 @@ public class ServiceClient {
 		}
 
 		var client = getHttpClient(connection);
-		var builder = HttpRequest.newBuilder(new URI(connection.getUri(false) + url));
+		var builder = HttpRequest.newBuilder(new URI(connection.getApiUri() + url));
 		
 		Stream.of(headers).forEach(hdr -> builder.header(hdr.getName(), hdr.getValue()));
 		
@@ -125,7 +134,7 @@ public class ServiceClient {
 			cookie.setDomain(connection.getHostname());
 //			cookie.setAttribute(CustomCookieStore.DOMAIN_ATTR, "true");
 			try {
-				cookieStore.add(new URI(connection.getUri(false)), cookie);
+				cookieStore.add(new URI(connection.getApiUri()), cookie);
 			} catch (URISyntaxException e) {
 				throw new IllegalStateException("Failed to add device identifier cookie.");
 			}
@@ -147,7 +156,77 @@ public class ServiceClient {
 		}
 	}
 
-	public void register(IVpnConnection connection) throws IOException, URISyntaxException {
+    public void register(IVpnConnection connection) throws IOException, URISyntaxException {
+        try {
+            /* JAD (VPN v3) server */
+            doGet(connection, "/vpn-stat");
+        }
+        catch(IOException | InterruptedException | URISyntaxException ioe) {
+            legacyRegister(connection);
+            return;
+        }
+        
+        try {
+            var device = new DeviceCode(parseJSON(doPost(connection, "/vpn-device/" + connection.getClient(),
+                    new NameValuePair[0],
+                    new NameValuePair("scope", "acquireVpn"),
+                    new NameValuePair("state", connection.getClient())
+            )));
+            var interval = device.interval == 0 ? 5 : device.interval;
+            authenticator.prompt(device);
+            
+            var expire = System.currentTimeMillis() + ( device.expires_in * 1000 );
+            log.info("Awaiting authorization for device {} [{}]", device.device_code, connection.getUserPublicKey());
+            while(System.currentTimeMillis() < expire) {
+
+                var response = new BearerToken(parseJSON(doPost(connection, "/oauth2/token?",
+                        new NameValuePair[0],
+                        new NameValuePair("grant_type", "urn:ietf:params:oauth:grant-type:device_code"),
+                        new NameValuePair("device_code", device.device_code))
+                ));
+                
+                if(response.error == null) {
+                    /* Have a token that is allowed the required scope, now we
+                     * can actually get the VPN configuration
+                     */
+                    var configPayload = new ConfigurationPayload(parseJSON(doPost(connection, "acquire-vpn", 
+                        new NameValuePair[] {
+                            new NameValuePair("Authentication", response.token_type + " " + response.access_token)
+                        }, 
+                        new NameValuePair("os", OsUtil.getOS().toUpperCase()),
+                        new NameValuePair("pubkey", connection.getUserPublicKey()),
+                        new NameValuePair("deviceId",  authenticator.getUUID()),
+                        new NameValuePair("name", Util.getDeviceName()))));
+                    
+                    log.info(String.format("Device UUID registered. %s",  authenticator.getUUID()));
+                    if(log.isDebugEnabled()) {
+                        log.debug(configPayload.content);
+                    }
+                    configure(connection, configPayload.content,
+                            configPayload.username);
+                    
+                    return;
+                    
+                }
+                else if(response.error.equals("authorization_denied") || response.error.equals("expired_token")) {
+                    break;
+                }
+                else if(response.error.equals("authorization_pending")) {
+                    Thread.sleep(1000 * interval);
+                }
+                else if(response.error.equals("slow_down")) {
+                    interval += 5;
+                }
+            }
+
+            throw new IOException("Authorization was denied or timed-out.");
+        }
+        catch(InterruptedException nsae) {
+            throw new IllegalStateException(nsae);
+        }
+    }
+
+	protected void legacyRegister(IVpnConnection connection) throws IOException, URISyntaxException {
 		Session session;
 		try {
 			session = auth(connection);
@@ -208,15 +287,23 @@ public class ServiceClient {
 	}
 
 	protected void configure(IVpnConnection config, String configIniFile, String usernameHint) throws IOException {
-		log.info(String.format("Configuration for %s", usernameHint));
+	    log.info("Configuration for {} [{}]", usernameHint, config.getUserPublicKey());
+        
+        if(log.isDebugEnabled())
+            log.debug(configIniFile);
+        
 		config.setUsernameHint(usernameHint);
 		
 		var error = config.parse(configIniFile);
 		if (Utils.isNotBlank(error))
 			throw new IOException(error);
 
+
+        log.info("Saving new configuration for {} []", config.getDisplayName(), config.getUserPublicKey());
 		config.save();
 		authenticator.authorized();
+
+        log.info("Signal authorized {}", config.getDisplayName());
 		config.authorized();
 	}
 
@@ -261,16 +348,20 @@ public class ServiceClient {
 		throw new IOException("Authentication failed.");
 	}
 
-	protected String doPost(IVpnConnection connection, String url, NameValuePair... postVariables)
+	protected String doPost(IVpnConnection connection, String url, NameValuePair[] headers, NameValuePair... postVariables)
 			throws URISyntaxException, IOException, InterruptedException {
 
 		if (!url.startsWith("/")) {
 			url = "/" + url;
 		}
 
-		var client = getHttpClient(connection);
-		var request = HttpRequest.newBuilder(new URI(connection.getUri(false) + url))
-				.header("Content-Type", "application/x-www-form-urlencoded").POST(ofNameValuePairs(postVariables))
+		var client = getHttpClient(connection); 
+		var bldr = HttpRequest.newBuilder(new URI(connection.getApiUri() + url))
+				.header("Content-Type", "application/x-www-form-urlencoded");
+		for(var hdr : headers) {
+		    bldr.header(hdr.name, hdr.value);
+		}
+        var request = bldr.POST(ofNameValuePairs(postVariables))
 				.build();
 
 		log.info("Executing request " + request.toString());
@@ -296,4 +387,58 @@ public class ServiceClient {
 		}
 		return HttpRequest.BodyPublishers.ofString(b.toString());
 	}
+
+    
+    public final static class ErrorResponse {
+        public String error;
+        public String error_description;
+    }
+    
+    public final static class ConfigurationPayload {
+        public String content;
+        public String username;
+        
+        public ConfigurationPayload(JsonObject json) {
+            content = json.getString("content", null);
+            username = json.getString("username", null);
+        }
+    }
+    
+    public final static class BearerToken {
+        public BearerToken(JsonObject json) {
+            error = json.getString("error", null);
+            error_description = json.getString("error_description", null);
+            access_token = json.getString("access_token", null);
+            expires_in = json.getJsonNumber("expires_in") == null ? 0 : json.getJsonNumber("expires_in").longValue();
+            nonce = json.getString("nonce", null);
+            token_type = json.getString("token_type", null);
+            refresh_token = json.getString("refresh_token", null);
+        }
+        
+        public String error;
+        public String error_description;
+        public String access_token;
+        public long expires_in;
+        public String nonce;
+        public String token_type = "Bearer";
+        public String refresh_token;
+    }
+    
+    public final static class DeviceCode {
+        public DeviceCode(JsonObject json) {
+            device_code = json.getString("device_code", null);
+            expires_in = json.getJsonNumber("expires_in") == null ? 0 : json.getJsonNumber("expires_in").longValue();
+            user_code = json.getString("user_code");
+            verification_uri = json.getString("verification_uri");
+            verification_uri_complete = json.getString("verification_uri_complete");
+        }
+        
+        public String device_code;
+        public long expires_in;
+        public String user_code;
+        public String verification_uri;
+        public String verification_uri_complete;
+        public int interval;
+        
+    }
 }

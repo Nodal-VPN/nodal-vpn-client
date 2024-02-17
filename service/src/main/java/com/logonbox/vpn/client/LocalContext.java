@@ -25,7 +25,7 @@ public interface LocalContext<CONX extends IVpnConnection> extends Closeable, Co
     @Override
     void close();
 
-    void fireAuthorize(Connection connection, String authorizeUri);
+    void fireAuthorize(Connection connection, @Deprecated String authorizeUri);
 
     void fireConnectionUpdated(Connection connection);
 

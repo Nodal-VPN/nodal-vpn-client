@@ -3,6 +3,7 @@ package com.logonbox.vpn.client.embedded;
 import static com.logonbox.vpn.client.common.Utils.defaultIfBlank;
 
 import com.logonbox.vpn.client.LocalContext;
+import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.ConnectionStatus;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 public class EmbeddedVpnConnection implements IVpnConnection {
     static Logger log = LoggerFactory.getLogger(EmbeddedVpnConnection.class);
@@ -208,6 +210,26 @@ public class EmbeddedVpnConnection implements IVpnConnection {
     @Override
     public String getUri(boolean withUsername) {
         return connection.getUri(withUsername);
+    }
+
+    @Override
+    public String getBaseUri() {
+        return connection.getBaseUri();
+    }
+
+    @Override
+    public String getApiUri() {
+        return connection.getApiUri();
+    }
+
+    @Override
+    public String getClient() {
+        return connection.getClient();
+    }
+
+    @Override
+    public String[] getAuthMethods() {
+        return Stream.of(connection.getAuthMethods()).map(AuthMethod::toString).toList().toArray(new String[0]);
     }
 
     @Override

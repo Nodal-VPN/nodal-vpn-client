@@ -139,34 +139,39 @@
 		</div>
 	</div>
 	<script type="text/javascript">
+    
+        var bridgeReference;
+    
 		function uiReady() {
+            bridgeReference = bridge;
+            
 			$('#back').off('click').on('click', function(e) {
-				bridge.reset();
+				bridgeReference.reset();
 				e.preventDefault();
 			});
 			$(".system-browser-link").off('click').on('click', function(e) {
-				bridge.openURL($(this).attr('href'));
+				bridgeReference.openURL($(this).attr('href'));
 				e.preventDefault();
 			});
 			if ($('#usageContainer').length) {
 				window.setInterval(function() {
-					$('#usage').html(bridge.getUsage());
-					$('#lastHandshake').html(bridge.getLastHandshake());
+					$('#usage').html(bridgeReference.getUsage());
+					$('#lastHandshake').html(bridgeReference.getLastHandshake());
 				}, 1000);
 			}
 
 			/* Connect switch */
 			var cbEl = $('.connect');
-			var con = bridge.getConnection();
+			var con = bridgeReference.getConnection();
 			var status = con.getStatus();
 			cbEl.attr('checked', status === 'CONNECTED' || status === 'CONNECTING');
 		    $('#connectContainer').attr('title', status === 'CONNECTED' || status === 'CONNECTING' ? pageBundle.getString('connected') : pageBundle.getString('disconnected'));
 			cbEl.off('change').on('change', function(e) {
 				if (this.checked) {
-					bridge.connectTo(con.getId());
+					bridgeReference.connectTo(con.getId());
 		            $('#connectContainer').attr('title', pageBundle.getString('connected'));
 				} else {
-					bridge.disconnectFrom(con.getId());
+					bridgeReference.disconnectFrom(con.getId());
                     $('#connectContainer').attr('title', pageBundle.getString('disconnected'));
 				}
                 e.preventDefault();
@@ -183,18 +188,18 @@
                 $('#favourite').append($('<i class="fa fa-star-o fa-2x">'));
                 $('#favourite').attr('title', pageBundle.getString('makeFavourite'));
                 $('#favourite').off('click').on('click', function(e) {
-                    bridge.setAsFavourite(bridge.getConnection().getId());
+                	bridgeReference.setAsFavourite(bridgeReference.getConnection().getId());
                     e.preventDefault();
                 });	
 			}
 			
             $('#delete').off('click').on('click', function(e) {
-            	bridge.confirmDelete(bridge.getConnection().getId());
+            	bridgeReference.confirmDelete(bridgeReference.getConnection().getId());
                 e.preventDefault();
             });
             
             $('#edit').off('click').on('click', function(e) {
-                bridge.edit(bridge.getConnection().getId());
+            	bridgeReference.edit(bridgeReference.getConnection().getId());
                 e.preventDefault();
             });
 		};

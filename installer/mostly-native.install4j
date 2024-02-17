@@ -101,7 +101,9 @@
   </files>
   <launchers>
     <launcher name="logonbox-vpn-gui" id="783" menuName="LogonBox VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui">
-      <executable name="logonbox-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/error.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/output.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true" />
+      <executable name="logonbox-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/error.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/output.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true">
+        <versionInfo include="true" fileDescription="Graphical front end to the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="logonbox-vpn-gui" />
+      </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
       <java mainClass="com.logonbox.vpn.client.desktop/com.logonbox.vpn.client.desktop.Main" mainMode="module">
         <modulePath>
@@ -127,7 +129,9 @@
       </iconImageFiles>
     </launcher>
     <launcher name="logonbox-vpn-gui-remote" id="2035" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGuiRemote">
-      <executable name="logonbox-vpn-gui-remote" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/error.log" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/output.log" executableMode="console" dpiAware="false" />
+      <executable name="logonbox-vpn-gui-remote" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/error.log" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/output.log" executableMode="console" dpiAware="false">
+        <versionInfo include="true" fileDescription="Remote control of graphical front end for the LogonBox VPN service" legalCopyright="LogonBox Liimited" internalName="logonbox-vpn-gui-remote" />
+      </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
       <java mainClass="com.logonbox.vpn.client.desktop/com.logonbox.vpn.client.desktop.Main" mainMode="module" allowVMPassthroughParameters="false">
         <modulePath>

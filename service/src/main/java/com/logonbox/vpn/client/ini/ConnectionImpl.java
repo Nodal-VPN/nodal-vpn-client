@@ -2,6 +2,7 @@ package com.logonbox.vpn.client.ini;
 
 import static com.logonbox.vpn.drivers.lib.util.Util.isBlank;
 
+import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.drivers.lib.VpnPeer;
@@ -61,9 +62,19 @@ public class ConnectionImpl implements Connection, Serializable {
 	private String lastKnownServerIpAddress;
     private String table;
     private boolean saveConfig;
+    private AuthMethod[] authMethods = new AuthMethod[0];
 
     private final ConnectionImplPeer peer;
-	
+
+    @Override
+    public AuthMethod[] getAuthMethods() {
+        return authMethods;
+    }
+
+    @Override
+    public void setAuthMethods(AuthMethod[] authMethods) {
+        this.authMethods = authMethods;
+    }
 
 	@Override
 	public void setLastKnownServerIpAddress(String lastKnownServerIpAddress) {
@@ -321,6 +332,9 @@ public class ConnectionImpl implements Connection, Serializable {
                 setConnectAtStartup(l.getBooleanOr("ConnectAtStartup", false));
                 setStayConnected(l.getBooleanOr("StayConnected", false));
                 setMode(Mode.valueOf(l.get("Mode")));
+                l.getAllOr("AuthMethods").ifPresent(all -> {
+                    setAuthMethods(Arrays.asList(all).stream().map(AuthMethod::valueOf).toList().toArray(new AuthMethod[0]));
+                });
                 setOwner(l.getOr("Owner", null));
                 setUsernameHint(l.getOr("UsernameHint", null));
                 setHostname(l.getOr("Hostname", null));
@@ -513,6 +527,11 @@ public class ConnectionImpl implements Connection, Serializable {
 		logonBoxSection.put("ConnectAtStartup", connection.isConnectAtStartup());
 		logonBoxSection.put("StayConnected", connection.isStayConnected());
 		logonBoxSection.put("Mode", connection.getMode().name());
+        if(connection.getAuthMethods().length > 0) {
+            logonBoxSection.putAll("AuthMethods", 
+                    Arrays.asList(connection.getAuthMethods()).stream().
+                    map(AuthMethod::toString).toList().toArray(new String[0]));
+        }
 		if (Utils.isNotBlank(connection.getOwner()))
 			logonBoxSection.put("Owner", connection.getOwner());
 		if (Utils.isNotBlank(connection.getUsernameHint()))

@@ -1,5 +1,6 @@
 package com.logonbox.vpn.client.desktop.service.dbus;
 
+import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.ConnectionStatus;
@@ -86,6 +87,12 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
 		
 	}
 
+    @Override
+    public String[] getAuthMethods() {
+        assertRegistered();
+        return Arrays.asList(connection.getAuthMethods()).stream().map(AuthMethod::toString).toList().toArray(new String[0]);
+    }
+
 	@Override
 	public void authorize() {
 		assertRegistered();
@@ -115,7 +122,7 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
 		assertRegistered();
 		ctx.getClientService().delete(connection);
 	}
-
+ 
 	@Override
 	public void disconnect(String reason) {
 		assertRegistered();
@@ -240,6 +247,24 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
 		assertRegistered();
 		return connection.getUri(withUsername);
 	}
+
+    @Override
+    public String getBaseUri() {
+        assertRegistered();
+        return connection.getBaseUri();
+    }
+
+    @Override
+    public String getClient() {
+        assertRegistered();
+        return connection.getClient();
+    }
+
+    @Override
+    public String getApiUri() {
+        assertRegistered();
+        return connection.getApiUri();
+    }
 
 	@Override
 	public String getConnectionTestUri(boolean withUsername) {

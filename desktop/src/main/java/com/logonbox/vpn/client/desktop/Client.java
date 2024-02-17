@@ -1,6 +1,7 @@
 package com.logonbox.vpn.client.desktop;
 
 import com.goxr3plus.fxborderlessscene.borderless.BorderlessScene;
+import com.install4j.api.launcher.StartupNotification;
 import com.jthemedetecor.OsThemeDetector;
 import com.logonbox.vpn.client.common.BrandingManager.BrandImage;
 import com.logonbox.vpn.client.common.BrandingManager.ImageHandler;
@@ -493,6 +494,8 @@ public class Client extends Application implements UIContext<VpnConnection>, Rem
 		ui.getBrandingManager().addBrandingChangeListener((bd) -> {
 		    reapplyBranding();
 		});
+
+        StartupNotification.registerStartupListener(ui::connectToUri);
 
 		// Open the actual scene
 		var border = new BorderPane();

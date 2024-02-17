@@ -45,12 +45,18 @@
 	</div>
 
 	<script type="text/javascript">
+
+	    var bridgeReference;
+    
 		function uiReady() {
+
+            bridgeReference = bridge;
+            
 			$('#checkForUpdates').off('click').on('click', function(event) {
 				try {
 					$('#checkForUpdates').buttonLoader('start');
 					$('#alerts').empty();
-					bridge.checkForUpdate();
+					bridgeReference.checkForUpdate();
 					$('#alerts').append($('<div class="alert alert-info">' + pageBundle.getString('noUpdates') + '</div>'));
                     $('#checkForUpdates').buttonLoader('stop');
 

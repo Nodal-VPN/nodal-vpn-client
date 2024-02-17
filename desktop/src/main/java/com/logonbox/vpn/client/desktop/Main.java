@@ -146,6 +146,9 @@ public class Main extends AbstractDBusApp implements Callable<Integer>, Listener
 	@Option(names = { "-c", "--connect" }, description = "Connect to the first available pre-configured connection.")
 	private boolean connect;
 
+    @Option(names = { "--connect-uri" }, negatable = true, description = "By default, connections created by a supplied URI will be immediately activated. This prevents that.")
+    private boolean connectUri = true;
+
 	@Option(names = { "-n", "--create" }, description = "Create a new connection if one with the provided URI does not exist (requires URI parameter).")
 	private boolean createIfDoesntExist;
 
@@ -186,6 +189,7 @@ public class Main extends AbstractDBusApp implements Callable<Integer>, Listener
         } catch (IOException e) {
         }
         
+        getVpnManager().start();
 		Application.launch(Client.class, new String[0]);
 		return 0;
 	}
@@ -237,6 +241,11 @@ public class Main extends AbstractDBusApp implements Callable<Integer>, Listener
 	public boolean isNoAddWhenNoConnections() {
 		return noAddWhenNoConnections;
 	}
+
+    @Override
+    public boolean isConnectUri() {
+        return connectUri;
+    }
 
 	@Override
 	public boolean isNoClose() {

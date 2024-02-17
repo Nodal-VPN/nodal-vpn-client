@@ -1,0 +1,109 @@
+@font-face {
+	src: url('/com/logonbox/vpn/client/gui/jfx/ARLRDBD.TTF');
+}
+
+.root { 
+    -fx-accent: -fx-lbvpn-background;
+    -fx-focus-color: -fx-lbvpn-background;
+    -fx-base: -fx-lbvpn-base;
+    -fx-control-inner-background: derive(-fx-base, 35%);
+    -fx-control-inner-background-alt: -fx-control-inner-background ;
+}
+
+.appbar {
+  -fx-background-color: -fx-lbvpn-background  !important;
+  -fx-text-fill: white  !important;
+}
+
+.inverse {
+  -fx-background-color: -fx-lbvpn-background  !important;
+  -fx-text-fill: white  !important;
+}
+
+.inverse Label, .inverse Hyperlink {
+  -fx-text-fill: white;
+}
+
+.inverse FontIcon, .inverse FontIcon {
+  -fx-icon-color: white;
+}
+
+.iconButton, .icon, .smallIcon {	
+    -fx-font-family: FontAwesome;
+}
+
+.iconButton, .icon {	
+    -fx-font-size: 32px;
+}
+
+.iconButton, .smallIcon {	
+    -fx-font-size: 16px;
+}
+
+#header .titleBar {
+    -fx-font-family: 'Arial Rounded MT Bold';
+    -fx-font-size: 24px;
+}
+
+#header FontIcon {
+	-fx-icon-color: white;
+}
+
+.navbar-brand {
+  -fx-padding: 7px 10px; 
+} 
+
+.navbar-inverse {
+  -fx-background-color: -fx-lbvpn-background;
+}
+
+#footer Label, #header Label,  #header Hyperlink,  #footer Hyperlink {
+  -fx-text-fill: white;
+}
+
+.large-button-active {
+   -fx-text-fill: -fx-lbvpn-background !important;
+}
+
+.large-button:hover {
+  -fx-text-fill: -fx-lbvpn-background !important;
+}
+
+.progress-bar {
+  -fx-background-color: -fx-lbvpn-background; 
+}
+
+.busySpinner {
+    -fx-icon-color: -fx-lbvpn-link;
+}
+
+a:focus, a:hover {
+    -fx-text-fill: -fx-lbvpn-link;
+}
+
+a {
+    -fx-text-fill: -fx-lbvpn-link;
+}
+
+Hyperlink:focused {
+  -fx-border-color: transparent;
+}
+
+
+.notification-bar > .pane, .notification-bar.dark > .pane {
+    -fx-background-color: -fx-lbvpn-base;
+    -fx-padding: 7 7 7 7;
+}
+
+.notification-bar > .pane .title, .notification-bar.dark > .pane .title {
+    /*-fx-font-size: 1.166667em;
+    -fx-text-fill: #292929;
+    -fx-font-weight: bold;*/
+    -fx-text-fill: -fx-lbvpn-link;
+}
+
+.notification-bar > .pane .label, .notification-bar.dark > .pane .label {
+    /*-fx-font-size: 1.166667em; 
+    -fx-text-fill: #292929;
+    -fx-alignment: top-left;*/
+}

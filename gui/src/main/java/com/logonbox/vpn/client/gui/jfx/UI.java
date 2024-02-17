@@ -1,6 +1,10 @@
 package com.logonbox.vpn.client.gui.jfx;
 
+import static com.logonbox.vpn.client.common.Utils.isNotBlank;
+import static javafx.application.Platform.runLater;
+
 import com.logonbox.vpn.client.common.AppVersion;
+import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.AuthenticationCancelledException;
 import com.logonbox.vpn.client.common.BrandingManager;
 import com.logonbox.vpn.client.common.ConfigurationItem;
@@ -11,6 +15,7 @@ import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.ServiceClient;
+import com.logonbox.vpn.client.common.ServiceClient.DeviceCode;
 import com.logonbox.vpn.client.common.ServiceClient.NameValuePair;
 import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.Utils;
@@ -32,11 +37,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
+import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -78,6 +85,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -158,6 +167,16 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 
 			});
 		}
+		
+        @Override
+        public void prompt(DeviceCode code) throws AuthenticationCancelledException {
+            /* V3 VPN Server OAuth based authentication */
+            maybeRunLater(() -> {
+                JSObject jsobj = (JSObject) engine.executeScript("window");
+                jsobj.setMember("code", code);
+                engine.executeScript("promptForCode();");
+            });
+        }
 
 		@Override
 		public void collect(JsonObject i18n, LogonResult result, Map<InputField, NameValuePair> results)
@@ -177,6 +196,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 				authorizedLock.acquire();
 			} catch (InterruptedException e) {
 				// TODO:
+                error = true;
 			}
 
 			LOG.info("Left authorization.");
@@ -213,7 +233,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 					} catch (AuthenticationCancelledException ae) {
 						// Ignore, handled elsewhere
 					} catch (IOException | URISyntaxException e) {
-						maybeRunLater(() -> ui.showError("Failed to register.", e));
+						maybeRunLater(() -> ui.showError("Failed to register. " + e.getMessage(), e));
 					}
 				}
 			}.start();
@@ -325,6 +345,15 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		public void reload() {
 			UI.this.initUi();
 		}
+        
+        public void copyToClipboard(String text) {
+            maybeRunLater(() -> {
+                var clipboard = Clipboard.getSystemClipboard();
+                var content = new ClipboardContent();
+                content.putString(text);
+                clipboard.setContent(content);
+            });
+        }
 
 		public void saveOptions(JSObject o) {
 			String trayMode = memberOrDefault(o, "trayMode", String.class, null);
@@ -366,9 +395,14 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		}
 
 		public void openURL(String url) {
-			uiContext.openURL(url);
+            try {
+                uiContext.openURL(url);
+            }
+            catch(Exception e) {
+                LOG.error("Failed to open browser.", e);
+            }
 		}
-
+        
 		public String getLastHandshake() {
 			IVpnConnection connection = getConnection();
 			return connection == null ? null
@@ -428,7 +462,6 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	private String lastErrorCause;
 	private String lastException;
 	private ResourceBundle pageBundle;
-	private Runnable runOnNextLoad;
 	private ServerBridge bridge;
 	private String disconnectionReason;
 
@@ -584,16 +617,25 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
         });
         
         /* Authorize */
-		vpnManager.onAuthorize((conx, uri, authMode) -> {
+		vpnManager.onAuthorize((conx, uri, mode, authMethods) -> {
             disconnectionReason = null;
-            if (authMode.equals(Connection.Mode.CLIENT) || authMode.equals(Connection.Mode.SERVICE)) {
+
+            if(mode != Mode.MODERN) { 
+                if (mode.equals(Connection.Mode.CLIENT) || mode.equals(Connection.Mode.SERVICE)) {
+                    maybeRunLater(() -> {
+                        uiContext.open();
+                        // setHtmlPage(connection.getUri(false) + sig.getUri());
+                        selectPageForState(false, false);
+                    });
+                } else {
+                    LOG.info("This client doest not handle the authorization mode {}", mode);
+                }
+            }
+            else {
                 maybeRunLater(() -> {
                     uiContext.open();
-                    // setHtmlPage(connection.getUri(false) + sig.getUri());
                     selectPageForState(false, false);
                 });
-            } else {
-                LOG.info("This client doest not handle the authorization mode {}", authMode);
             }
         });
         
@@ -653,7 +695,6 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
         
 		vpnManager.onVpnGone(this::vpnGone);
 		vpnManager.onVpnAvailable(this::vpnAvailable);
-        
 		
 		try {
 		    vpnManager.checkVpnManagerAvailable();
@@ -902,13 +943,6 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 				processDOM();
 				processJavascript();
 				setLoading(false);
-				if (runOnNextLoad != null) {
-					try {
-						runOnNextLoad.run();
-					} finally {
-						runOnNextLoad = null;
-					}
-				}
 			}
 		});
 		engine.getLoadWorker().exceptionProperty().addListener((o, old, value) -> {
@@ -954,6 +988,33 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 
 		engine.setJavaScriptEnabled(true);
 	}
+
+    private boolean checkPayload() {
+        var uri = webView.getEngine().getLocation();
+        if(uri != null) {
+            var idx = uri.indexOf("/vpn-payload/");
+            try {
+                if(idx == -1) {
+                    idx = uri.indexOf("/vpn-error/");
+                    if(idx == -1) {
+                        return true;
+                    }
+                    else {
+                        showError(new String(Base64.getDecoder().decode(uri.substring(idx + 11)), "UTF-8"));
+                    }
+                }
+                else {
+                    var data = uri.substring(idx + 13);
+                    idx = data.indexOf('/');
+                    configure(data.substring(0, idx), new String(Base64.getDecoder().decode(data.substring(idx + 1)), "UTF-8"), UI.this.getForegroundConnection());
+                    return false;
+                }
+            } catch (UnsupportedEncodingException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+        return true;
+    }
 
 	protected boolean isRemote(String newLoc) {
 		return (newLoc.startsWith("http://") || newLoc.startsWith("https://"))
@@ -1264,7 +1325,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
                     new Timeline(new KeyFrame(Duration.seconds(5), ae -> uiContext.getAppContext().shutdown(true))).play();
                 } else {
                     String unprocessedUri = uiContext.getAppContext().getUri();
-                    if (Utils.isNotBlank(unprocessedUri)) {
+                    if (Utils.isNotBlank(unprocessedUri) && !unprocessedUri.equals("lbvpn://")) {
                         connectToUri(unprocessedUri);
                     } else {
                         initUi();
@@ -1424,34 +1485,57 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 //		} catch (TransformerException e) {
 //		}
 	}
+	
+	public void connectToUri(String unprocessedUri) {
+        LOG.info("Connected to URI {}", unprocessedUri);
+	    uiContext.getOpQueue().execute(() -> {
+            try {
+                LOG.info(String.format("Connected to URI %s", unprocessedUri));
+                URI uriObj;
+                if(unprocessedUri.startsWith("lbvpn://")) {
+                    uriObj = ConnectionUtil.getUri("https://" + unprocessedUri.substring(8));
+                }
+                else {
+                    uriObj = ConnectionUtil.getUri(unprocessedUri);
+                }
+                long connectionId = vpnManager.getVpnOrFail().getConnectionIdForURI(uriObj.toASCIIString());
+                if (connectionId == -1) {
+                    if (uiContext.getAppContext().isCreateIfDoesntExist()) {
+                        /* No existing configuration */
+                        vpnManager.getVpnOrFail().createConnection(uriObj.toASCIIString(), true, true,
+                                Mode.CLIENT.name());
+                        
+                        Thread.sleep(1000);
+                        var conx = vpnManager.getVpnOrFail().getConnection(connectionId);
 
-	private void connectToUri(String unprocessedUri) {
-		uiContext.getOpQueue().execute(() -> {
-			try {
-				LOG.info(String.format("Connected to URI %s", unprocessedUri));
-				URI uriObj = ConnectionUtil.getUri(unprocessedUri);
-				long connectionId = vpnManager.getVpnOrFail().getConnectionIdForURI(uriObj.toASCIIString());
-				if (connectionId == -1) {
-					if (uiContext.getAppContext().isCreateIfDoesntExist()) {
-						/* No existing configuration */
-					    vpnManager.getVpnOrFail().createConnection(uriObj.toASCIIString(), true, true,
-								Mode.CLIENT.name());
-					} else {
-						showError(MessageFormat.format(bundle.getString("error.uriProvidedDoesntExist"), uriObj));
-					}
-				} else {
-					reloadState(() -> {
-						maybeRunLater(() -> {
-							initUi();
-						});
-					});
-				}
+                        if(isNotBlank(uriObj.getUserInfo())) {
+                            conx.setUsernameHint(uriObj.getUserInfo());
+                            conx.save();
+                        }
 
-			} catch (Exception e) {
-				showError("Failed to add connection.", e);
-			}
-		});
-	}
+                        if (uiContext.getAppContext().isConnectUri()) {
+                            runLater(() -> connect(conx));
+                        }
+                    } else {
+                        showError(MessageFormat.format(bundle.getString("error.uriProvidedDoesntExist"), uriObj.toASCIIString()));
+                    }
+                } else {
+                    reloadState(() -> {
+                        maybeRunLater(() -> {
+                            initUi();
+                            if (uiContext.getAppContext().isConnectUri()) {
+                                var conx = vpnManager.getVpnOrFail().getConnection(connectionId);
+                                connect(conx);
+                            }
+                        });
+                    });
+                }
+
+            } catch (Exception e) {
+                showError("Failed to add connection.", e);
+            }
+        });
+    }
 
 	private void addConnection() {
 		setHtmlPage("addLogonBoxVPN.html");
@@ -1656,15 +1740,41 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 				/* Are ANY connections authorizing? */
 				var connection = getAuthorizingConnection();
 				if (connection != null) {
-					var mode = Mode.valueOf(connection.getMode());
-					if (mode == Mode.SERVICE) {
-						LOG.info("Authorizing service");
-						setHtmlPage("authorize.html");
-					} else {
-						String authUrl = connection.getAuthorizeUri();
-						LOG.info(String.format("Authorizing to %s", authUrl));
-						setHtmlPage(authUrl);
-					}
+				    Mode mode = Mode.valueOf(connection.getMode());
+                    if (mode == Mode.MODERN) {
+                        LOG.info("Authorizing modern");
+                        switch(AuthMethod.select(true, connection.getAuthMethods())) {
+                        case DEVICE_TOKEN:
+                            setHtmlPage("authorize.html");
+                            break;
+                        case EMBEDDED_BROWSER:
+                            String authUrl = connection.getUri(false);
+                            if(authUrl.endsWith("/app")) {
+                                authUrl = authUrl.substring(0, authUrl.length() - 4) + "/vpn";
+                            }
+                            
+                            LOG.info(String.format("Authorizing to %s", authUrl));
+                            if(authUrl.contains("?"))
+                                authUrl += "&";
+                            else
+                                authUrl += "?";
+                            authUrl += "pubkey=" + URLEncoder.encode(connection.getUserPublicKey(), "UTF-8");
+                            authUrl += "&name=" + URLEncoder.encode(Util.getDeviceName(), "UTF-8");
+                            authUrl += "&os=" + URLEncoder.encode(OsUtil.getOS().toUpperCase(), "UTF-8");
+                            setHtmlPage(authUrl);
+                            break;
+                        default:
+                            throw new UnsupportedOperationException();
+                        }
+                    }
+                    else if (mode == Mode.SERVICE) {
+                        LOG.info("Authorizing service");
+                        setHtmlPage("authorize.html");
+                    } else {
+                        String authUrl = connection.getAuthorizeUri();
+                        LOG.info(String.format("Authorizing to %s", authUrl));
+                        setHtmlPage(authUrl);
+                    }
 
 					/* Done */
 					return;

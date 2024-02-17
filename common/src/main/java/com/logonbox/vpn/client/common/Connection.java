@@ -11,8 +11,12 @@ import java.util.List;
 public interface Connection extends VpnConfiguration {
 
     public enum Mode {
-        CLIENT, SERVICE, NODE, PROVIDER, PEER
+        CLIENT, SERVICE, NODE, PROVIDER, PEER, MODERN
     }
+    
+    AuthMethod[] getAuthMethods();
+    
+    void setAuthMethods(AuthMethod[] methods);
 
     Mode getMode();
 
@@ -88,21 +92,76 @@ public interface Connection extends VpnConfiguration {
 
     void setName(String name);
 
-    default String getUri(boolean withUsername) {
-        if (getHostname() == null) {
-            try {
-                if (withUsername)
-                    return "wg://" + URLEncoder.encode(publicKey(), "UTF-8") + "@" + getEndpointAddress() + ":"
-                            + getEndpointPort();
-            } catch (UnsupportedEncodingException e) {
-            }
-            return "wg://" + getEndpointAddress() + ":" + getEndpointPort();
-        } else {
+
+    default String getClient() {
+        var path = getPath();
+        while(path.startsWith("/"))
+            path = path.substring(1);
+        if(path.startsWith("vpn/")) {
+            return path.substring(4);
+        }
+        return "";
+    }
+
+    default String getBaseUri() {
+        if(getHostname() == null) {
+            throw new IllegalStateException("No API url for this type.");
+        }
+        else {
             String uri = "https://";
             uri += getHostname();
             if (getPort() != 443) {
                 uri += ":" + getPort();
             }
+            return uri; 
+        }
+    }
+
+    default String getBaseUri(boolean withUsername) {
+        if(getHostname() == null) {
+            throw new IllegalStateException("No API url for this type.");
+        }
+        else {
+            String uri = "https://";
+            if(withUsername && Utils.isNotBlank(getUsernameHint())) {
+                try {
+                    uri += URLEncoder.encode(getUsernameHint(), "UTF-8") + "@";
+                } catch (UnsupportedEncodingException e) {
+                }
+            }
+            uri += getHostname();
+            if (getPort() != 443) {
+                uri += ":" + getPort();
+            }
+            return uri; 
+        }
+    }
+
+    default String getApiUri() {
+        if(getHostname() == null) {
+            throw new IllegalStateException("No API url for this type.");
+        }
+        else {
+            if(getMode().equals(Mode.MODERN)) {
+                return getBaseUri();
+            }
+            else {
+                return getUri(false);
+            }
+        }
+    }
+
+    default String getUri(boolean withUsername) {
+        if(getHostname() == null) {
+            try {
+                if(withUsername)
+                    return "wg://" + URLEncoder.encode(getUserPublicKey(), "UTF-8") + "@" + getEndpointAddress() + ":" + getEndpointPort();
+            } catch (UnsupportedEncodingException e) {
+            }
+            return "wg://" + getEndpointAddress() + ":" + getEndpointPort();
+        }
+        else {
+            String uri = getBaseUri(withUsername);
             uri += getPath();
             return uri;
         }
@@ -116,7 +175,10 @@ public interface Connection extends VpnConfiguration {
         if (getPort() != 443) {
             uri += ":" + getPort();
         }
-        uri += getPath();
+        if(getMode().equals(Mode.MODERN))
+            uri += "/app";
+        else
+            uri += getPath();
         return uri;
     }
 

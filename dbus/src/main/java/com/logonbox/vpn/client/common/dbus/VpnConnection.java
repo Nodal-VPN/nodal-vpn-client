@@ -34,6 +34,10 @@ public interface VpnConnection extends DBusInterface, IVpnConnection {
     @Override
     @DBusBoundProperty
     String getMode();
+    
+    @Override
+    @DBusBoundProperty
+    String[] getAuthMethods();
 
     @Override
     @DBusBoundProperty
@@ -178,6 +182,10 @@ public interface VpnConnection extends DBusInterface, IVpnConnection {
     @Override
     @DBusBoundProperty
     String getOwner();
+
+    @Override
+    @DBusBoundProperty
+    String getClient();
 
     @Override
     @DBusBoundProperty
@@ -455,12 +463,18 @@ public interface VpnConnection extends DBusInterface, IVpnConnection {
 
 		private final String uri;
 		private final String mode;
+        private final boolean legacy;
 		
-		public Authorize(String path, String uri, String mode) throws DBusException {
+		public Authorize(String path, String uri, String mode, boolean legacy) throws DBusException {
 			super(path, uri, mode);
 			this.uri = uri;
 			this.mode = mode;
+            this.legacy = legacy;
 		}
+
+        public boolean isLegacy() {
+            return legacy;
+        }
 
 		public String getMode() {
 			return mode;

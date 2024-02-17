@@ -56,12 +56,16 @@
 	</div>
 
 	<script type="text/javascript">
+
+        var bridgeReference;
+    
 		function uiReady() {
+            bridgeReference = bridge;
 			$("#addConnectionForm").submit(function(event) {
 				try {
 					$('#addConnectionFormSubmit').buttonLoader('start');
 					$('#alerts').empty();
-					bridge.addConnection({
+					bridgeReference.addConnection({
 						'serverUrl' : $('#serverUrl').val(),
 						'connectAtStartup' : $('#connectAtStartup').is(':checked'),
 						'stayConnected' : $('#stayConnected').is(':checked')

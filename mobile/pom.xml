@@ -14,5 +14,6 @@
     <modules>
         <module>gluon</module>
         <module>app</module>
+        <module>cutdown</module>
     </modules>
 </project>

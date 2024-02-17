@@ -3,6 +3,7 @@ package com.logonbox.vpn.client.embedded;
 import com.logonbox.vpn.client.AbstractService;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
+import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.api.IVpn;
@@ -91,7 +92,15 @@ public final class EmbeddedService extends AbstractService<EmbeddedVpnConnection
     @Override
     public void fireAuthorize(Connection connection, String authorizeUri) {
         var wrapped = wrapConnection(connection);
-        this.main.onAuthorize().forEach(a -> a.authorize(wrapped, authorizeUri, connection.getMode()));
+        
+        if(connection.getMode() == Mode.MODERN) {
+            log.info("Asking client to authorize {} (modern)", connection.getDisplayName());
+            this.main.onAuthorize().forEach(a -> a.authorize(wrapped, connection.getUri(false), connection.getMode(), connection.getAuthMethods()));
+        }
+        else {
+            log.info("Asking client to authorize {} (legacy)", connection.getDisplayName());
+            this.main.onAuthorize().forEach(a -> a.authorize(wrapped, authorizeUri, connection.getMode()));
+        }
     }
 
     @Override

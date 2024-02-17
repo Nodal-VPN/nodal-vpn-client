@@ -14,6 +14,7 @@ import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
 import com.logonbox.vpn.client.common.PlatformUtilities;
 import com.logonbox.vpn.client.common.AppVersion;
+import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.UserCancelledException;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.net.CookieManager;
@@ -47,6 +49,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.text.MessageFormat;
@@ -72,6 +75,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ssl.SSLHandshakeException;
+
+import jakarta.json.Json;
+import jakarta.json.JsonString;
 
 public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSystemContext implements ClientService<CONX> {
 	private static final String X_VPN_RESPONSE = "X-VPN-Response";
@@ -125,16 +131,20 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 
 	@Override
 	public void authorized(Connection connection) {
+        log.info("Authorizing {} [{}]", connection.getDisplayName(), connection.getUserPublicKey());
 		synchronized (activeSessions) {
 			if (!authorizingClients.containsKey(connection)) {
 				throw new IllegalStateException("No authorization request.");
 			}
-			log.info(String.format("Authorized %s", connection.getDisplayName()));
 			authorizingClients.remove(connection).cancel(false);
 			temporarilyOffline.remove(connection);
 		}
 		save(connection);
-		connect(connection);
+        log.info(String.format("Authorized %s", connection.getDisplayName()));
+        
+        var task = createJob(connection);
+        temporarilyOffline.remove(connection);
+        task.setTask(context.getQueue().schedule(() -> doConnect(task, false), 1, TimeUnit.MILLISECONDS));
 	}
 
 	@Override
@@ -150,12 +160,13 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 				}
 			}
 
+            probeAuthMethods(c);
 			c.setError(null);
 			save(c);
 
 			var task = createJob(c);
 			temporarilyOffline.remove(c);
-			task.setTask(context.getQueue().schedule(() -> doConnect(task), 1, TimeUnit.MILLISECONDS));
+			task.setTask(context.getQueue().schedule(() -> doConnect(task, true), 1, TimeUnit.MILLISECONDS));
 		}
 	}
 
@@ -204,10 +215,87 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		connection.setStayConnected(stayConnected);
 		context.fireConnectionAdding();
 		generateKeys(connection);
+        probeAuthMethods(connection);
 		Connection newConnection = doSave(connection);
 		context.connectionAdded(newConnection);
 		return newConnection;
 	}
+    
+    private boolean probeAuthMethods(Connection connection) {
+        var client = createClient();
+        var uri = connection.getUri(false);
+        
+        /* Special case. Lots connections will have a /app URI. This 
+         * is still the default for new connections.
+         *
+         * So if we see this exact path, change it to /vpn, which will
+         * be the new default as from version 4.0 of the client (which
+         * will not be compatible with legacy VPN server).
+         */
+        if(uri.endsWith("/app")) {
+            uri = uri.substring(0, uri.length() - 4) + "/vpn";
+        }
+        
+        log.info("Check auth methods supported by {}.", uri);
+        var builder = HttpRequest.newBuilder();
+        var request = builder
+                .version(Version.HTTP_1_1)
+                .uri(URI.create(uri))
+                .POST(BodyPublishers.noBody())
+                .build();
+        var changed = false;
+
+        try {
+            var response = client.send(request, BodyHandlers.ofString());
+            var ctype = response.headers().firstValue("Content-Type").map(s -> s.split(";")[0]).orElse("text/plain");
+            
+            if(response.statusCode() != 200 || !ctype.equals("application/json")) {
+                log.info("Server is < 3.0, assuming legacy authentication");
+                var newModes = new AuthMethod[0];
+                if(!Arrays.equals(newModes, connection.getAuthMethods())) {
+                    connection.setAuthMethods(newModes);
+                    changed = true;
+                }
+                if(connection.getMode().equals(Mode.MODERN)) {
+                    /* Slight possiblity of down-grade */
+                    connection.setMode(Mode.CLIENT);
+                    changed = true;
+                }
+            }
+            else {
+                var methods =new ArrayList<AuthMethod>();
+                try(var rdr = Json.createReader(new StringReader(response.body()))) {
+                    var obj = rdr.readObject();
+                    for(var el : obj.asJsonArray()) {
+                        var mname = ((JsonString)el).getString();
+                        try {
+                            methods.add(AuthMethod.valueOf(mname));
+                        }
+                        catch(IllegalArgumentException iae) {
+                            log.warn("Unsupported auth method {}, ignoring.", mname);
+                        }   
+                    }
+                }
+                
+                var newModes = methods.toArray(new AuthMethod[0]);
+                if(!Arrays.equals(newModes, connection.getAuthMethods())) {
+                    connection.setAuthMethods(newModes);
+                    changed = true;
+                }
+                if(!connection.getMode().equals(Mode.MODERN)) {
+                    connection.setMode(Mode.MODERN);
+                    changed = true;
+                }
+            }
+        }
+        catch(IOException ioe) {
+            throw new UncheckedIOException(ioe);
+        }
+        catch(InterruptedException ie) {
+            throw new IllegalStateException("Interrupted.", ie);
+        }
+        return changed;
+    }
 
 	@Override
 	public void deauthorize(Connection connection) {
@@ -359,16 +447,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		if(!connection.isAuthorized() || Utils.isBlank(connection.getUserPrivateKey()))
 			return connection;
 
-		var prms = context.getSSLParameters();
-		var ctx = context.getSSLContext();
-		var client = HttpClient.newBuilder()
-                .cookieHandler(new CookieManager(context.getCookieStore(), CookiePolicy.ACCEPT_ORIGINAL_SERVER))
-				.sslParameters(prms)
-				.sslContext(ctx)
-		        .version(Version.HTTP_1_1)
-		        .followRedirects(Redirect.NORMAL)
-		        .connectTimeout(Duration.ofSeconds(20))
-		        .build();
+        var client = createClient();
 
 		try {
 			var rootUri = connection.getUri(false);
@@ -413,6 +492,20 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
         generateKeys(connection);
 		return save(connection);
 	}
+
+    private HttpClient createClient() {
+        var prms = context.getSSLParameters();
+        var ctx = context.getSSLContext();
+        var client = HttpClient.newBuilder()
+                .cookieHandler(new CookieManager(context.getCookieStore(), CookiePolicy.ACCEPT_ORIGINAL_SERVER))
+                .sslParameters(prms)
+                .sslContext(ctx)
+                .version(Version.HTTP_1_1)
+                .followRedirects(Redirect.NORMAL)
+                .connectTimeout(Duration.ofSeconds(20))
+                .build();
+        return client;
+    }
 
 	private Connection getConnectionStatusFromHost(String rootUri, Connection connection, HttpClient client)
 			throws IOException, InterruptedException {
@@ -588,12 +681,12 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		}
 
 		/*
-		 * The Http service appears to be there, and a VALID peer with this public key
-		 * does not exist, so is likely an invalidated session.
-		 */
-		log.info("Error is not retryable, invalidate configuration. ");
-		return new ReauthorizeException(
-				"Your configuration has been invalidated, and you will need to sign-on again.");
+         * The Http service appears to be there, and a VALID peer with this public key
+         * does not exist, so is likely an invalidated or new session.
+         */
+        log.info("Error is not retryable, invalidated or new configuration. ");
+        return new ReauthorizeException(
+                "Your configuration has been invalidated, and you will need to sign-on again.");
 	}
 
 	private boolean doGetConnectionError(String rootUri, Connection connection) throws IOException, InterruptedException {
@@ -745,18 +838,40 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		synchronized (activeSessions) {
 			List<ConnectionStatus> status = getStatus(owner);
 			for (ConnectionStatus s : status) {
-				if (s.getConnection().getUri(true).equals(uri)) {
-					return s;
-				}
-			}
-			for (ConnectionStatus s : status) {
-				if (s.getConnection().getUri(false).equals(uri)) {
-					return s;
-				}
-			}
+                if (isSameUri(s.getConnection().getUri(true), uri)) {
+                    return s;
+                }
+            }
+            for (ConnectionStatus s : status) {
+                if (isSameUri(s.getConnection().getUri(false), uri)) {
+                    return s;
+                }
+            }
 		}
 		throw new IllegalArgumentException(String.format("No connection with URI %s.", uri));
 	}
+    
+    static boolean isSameUri(String uri1, String uri2) {
+        URI u1 = URI.create(uri1);
+        URI u2 = URI.create(uri2);
+        if(Objects.equals(u1.getScheme(), u2.getScheme()) && Objects.equals(u1.getHost(), u2.getHost())) {
+            var p1 = u1.getPort() == -1 ? (u1.getScheme().equals("http") ? 80 : 443) : u1.getPort();
+            var p2 = u2.getPort() == -1 ? (u2.getScheme().equals("http") ? 80 : 443) : u2.getPort();
+            if(p1 == p2) {
+                if(Objects.equals(u1.getUserInfo(), u2.getUserInfo())) {
+                    return Objects.equals(translatePath(u1.getPath()), translatePath(u2.getPath()));
+                }
+            }
+        }
+        return false;
+        
+    }
+    
+    static String translatePath(String path) {
+        if("/app".equals(path))
+            path = "/vpn";
+        return path;
+    }
 
 	@Override
 	public ConnectionStatus getStatusForPublicKey(String publicKey) {
@@ -896,7 +1011,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		synchronized (activeSessions) {
 			checkValidConnect(c);
 			if (log.isInfoEnabled()) {
-				log.info("Scheduling connect for connection id " + c.getId() + "/" + c.getHostname());
+                log.info("Scheduling connect for connection id {} / {} [{}]", c.getId(), c.getHostname(), c.getUserPublicKey());
 			}
 			Integer reconnectSeconds = configurationRepository.getValue(null, ConfigurationItem.RECONNECT_DELAY);
 			Connection connection = connectionRepository.getConnection(c.getId());
@@ -905,7 +1020,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 			} else {
 				var job = createJob(c);
 				job.setReconnect(reconnect);
-				job.setTask(context.getQueue().schedule(() -> doConnect(job), reconnectSeconds, TimeUnit.SECONDS));
+				job.setTask(context.getQueue().schedule(() -> doConnect(job, true), reconnectSeconds, TimeUnit.SECONDS));
 			}
 		}
 
@@ -1186,7 +1301,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		}
 	}
 
-	private void doConnect(VPNSession<CONX> job) {
+	private void doConnect(VPNSession<CONX> job, boolean checkWithServer) {
 		try {
 
 			var connection = job.getConnection();
@@ -1197,7 +1312,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 			}
 
 			/* Check status up front */
-			if(connection.isAuthorized()) {
+			if(checkWithServer && connection.isAuthorized()) {
 				try {
 					connection = getConnectionStatus(connection);
 				}

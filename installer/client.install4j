@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.6" transformSequenceNumber="10">
   <directoryPresets config="../cli" />
-  <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" pack200Compression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="20" javaMaxVersion="20" jdkMode="jdk" jdkName="JDK 17.0">
+  <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" pack200Compression="false" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
     </searchSequence>
@@ -9,8 +9,18 @@
       <variable name="build.phase" value="nightly" />
       <variable name="jfx.archdir" value="gui/win" description="The location of the architecture specific jars for JavaFX" />
     </variables>
-    <codeSigning macEnabled="true" macPkcs12File="logonbox-developer-id.p12" windowsEnabled="true" windowsPkcs12File="logonbox.p12" macNotarize="true" appleId="brett@logonbox.com" />
-    <jreBundles jdkProviderId="AdoptOpenJDK-OpenJ9" release="20/jdk-20.0.1+9_openj9-0.39.0" />
+     <codeSigning macPkcs12File="${compiler:install4j.macPkcs12File}" windowsKeySource="windows" macNotarize="true" appleId="${compiler:install4j.appleId}">
+      <windowsKeystoreIdentifier issuer="${compiler:install4j.windowsKeystoreIssuer}" serial="${compiler:install4j.windowsKeystoreSerial}" subject="${compiler:install4j.windowsKeystoreSubject}" />
+      <macSearchedJars>
+        <entry>*.zip</entry>
+        <entry>jna-*</entry>
+        <entry>swt-*</entry>
+        <entry>grpc-netty-*</entry>
+        <entry>pty4j-*</entry>
+        <entry>install4j-*</entry>
+      </macSearchedJars>
+    </codeSigning>
+    <jreBundles jdkProviderId="Adoptium" release="21/jdk-21.0.1+12" />
   </application>
   <files keepModificationTimes="true" globalExcludeSuffixes="*.ser" defaultOverwriteMode="1" defaultUninstallMode="2">
     <roots>
@@ -106,7 +116,9 @@
   </files>
   <launchers>
     <launcher name="logonbox-vpn-service" id="583" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientService">
-      <executable name="logonbox-vpn-service" stderrFile="logs/service-forker-launcher.err" redirectStdout="true" stdoutFile="logs/service-forker-launcher.out" failOnStderrOutput="false" executableMode="service" dpiAware="false" />
+      <executable name="logonbox-vpn-service" stderrFile="logs/service-forker-launcher.err" redirectStdout="true" stdoutFile="logs/service-forker-launcher.out" failOnStderrOutput="false" executableMode="service" dpiAware="false">
+        <versionInfo include="true" fileDescription="Privileged service for the LogonBox VPN" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
+      </executable>
       <java mainClass="com.logonbox.vpn.client.Main" vmParameters="-Xmx64m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Djna.nosys=true -Dlogonbox.vpn.logConfiguration=conf/log4j-service.properties -Djdk.internal.httpclient.disableHostnameVerification=true">
         <classPath>
           <scanDirectory location="service" failOnError="false" />
@@ -114,7 +126,9 @@
       </java>
     </launcher>
     <launcher name="logonbox-vpn-gui" id="783" menuName="LogonBox VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui">
-      <executable name="logonbox-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/error.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/output.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true" />
+      <executable name="logonbox-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/error.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/output.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true">
+        <versionInfo include="true" fileDescription="Graphical front end for the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
+      </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
       <java mainClass="com.logonbox.vpn.client.gui.jfx.Main">
         <classPath>
@@ -141,8 +155,10 @@
       </iconImageFiles>
     </launcher>
     <launcher name="logonbox-vpn-cli" id="1488" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientCLI">
-      <executable name="logonbox-vpn-cli" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false" />
-      <java mainClass="com.logonbox.vpn.client.cli.CLI" vmParameters="-Xmx32m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Dlogonbox.vpn.logConfiguration=conf/log4j-cli.properties -Djna.nosys=true">
+      <executable name="logonbox-vpn-cli" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false">
+        <versionInfo include="true" fileDescription="Command Line Interface to the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
+      </executable>
+      <java mainClass="com.logonbox.vpn.client.cli.CLI" vmParameters="-Xmx32m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Dlogonbox.vpn.logConfiguration=conf/log4j-cli.properties -Djna.nosys=true -Djdk.internal.httpclient.disableHostnameVerification=true">
         <classPath>
           <scanDirectory location="cli" failOnError="false" />
         </classPath>
@@ -153,9 +169,14 @@
         <file path="./images/logo48px.png" />
         <file path="./images/logo128px.png" />
       </iconImageFiles>
+      <macStaticAssociations>
+        <urlHandler scheme="lbvpn" />
+      </macStaticAssociations>
     </launcher>
     <launcher name="logonbox-vpn-service-console" id="2029" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientServiceConsole">
-      <executable name="logonbox-vpn-service-console" redirectStderr="false" stderrFile="logs/service-forker-launcher.err" stdoutFile="logs/service-forker-launcher.out" failOnStderrOutput="false" executableMode="console" dpiAware="false" />
+      <executable name="logonbox-vpn-service-console" redirectStderr="false" stderrFile="logs/service-forker-launcher.err" stdoutFile="logs/service-forker-launcher.out" failOnStderrOutput="false" executableMode="console" dpiAware="false">
+        <versionInfo include="true" fileDescription="Consiole variant of the LogonBox VPN service used for troubleshooting" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
+      </executable>
       <java mainClass="com.logonbox.vpn.client.Main" vmParameters="-Xmx64m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true -Djna.nosys=true -Dhlogonbox.vpn.logConfiguration=conf/log4j-service-console.properties">
         <classPath>
           <scanDirectory location="service" failOnError="false" />
@@ -163,7 +184,9 @@
       </java>
     </launcher>
     <launcher name="logonbox-vpn-gui-remote" id="2035" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGuiRemote">
-      <executable name="logonbox-vpn-gui-remote" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/error.log" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/output.log" executableMode="console" dpiAware="false" />
+      <executable name="logonbox-vpn-gui-remote" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/error.log" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/output.log" executableMode="console" dpiAware="false">
+        <versionInfo include="true" fileDescription="Remote control for the graphical front end to the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
+      </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
       <java mainClass="com.logonbox.vpn.client.gui.jfx.Main" allowVMPassthroughParameters="false">
         <classPath>
@@ -188,7 +211,9 @@
       </iconImageFiles>
     </launcher>
     <launcher name="dbconvert" id="2181" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.DbConvert">
-      <executable name="dbconvert" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false" />
+      <executable name="dbconvert" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false">
+        <versionInfo include="true" fileDescription="Database converter, converts derby database to ini files" legalCopyright="LogonBox LImited" internalName="LogonBox VPN Client" />
+      </executable>
       <java mainClass="com.logonbox.vpn.client.dbconvert.DbConvert" vmParameters="-Xmx20m -Djna_tmpdir=&quot;${launcher:sys.tempDir}&quot; -Djava.net.preferIPv4Stack=true">
         <classPath>
           <scanDirectory location="converter" failOnError="false" />
@@ -484,7 +509,11 @@ for more details. Accepting this license implies you also accept all others.  </
           </screen>
           <screen id="8" beanClass="com.install4j.runtime.beans.screens.InstallationScreen" rollbackBarrier="true">
             <actions>
-              <action id="1273" beanClass="com.install4j.runtime.beans.actions.UninstallPreviousAction" actionElevationType="elevated" />
+              <action id="1273" beanClass="com.install4j.runtime.beans.actions.UninstallPreviousAction" actionElevationType="elevated">
+                <serializedBean>
+                  <property name="uninstallServices" type="boolean" value="false" />
+                </serializedBean>
+              </action>
               <action id="9" beanClass="com.install4j.runtime.beans.actions.InstallFilesAction" actionElevationType="elevated" failureStrategy="quit" errorMessage="${i18n:FileCorrupted}" />
               <action id="10" beanClass="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction" actionElevationType="elevated">
                 <serializedBean>
@@ -690,6 +719,12 @@ return path.replace('\\', '/');</property>
                   </property>
                 </serializedBean>
                 <condition>Util.isLinux()</condition>
+              </action>
+              <action id="2200" beanClass="com.install4j.runtime.beans.actions.desktop.UrlHandlerAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="launcherId" type="string">783</property>
+                  <property name="scheme" type="string">lbvpn</property>
+                </serializedBean>
               </action>
             </actions>
             <formComponents>
@@ -1768,7 +1803,7 @@ return true;</property>
     </styles>
   </installerGui>
   <mediaSets>
-    <macosFolder name="Mac OS X Folder" id="1553">
+    <macosFolder name="Mac OS X Folder" id="1553" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}">
       <exclude>
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux-aarch64" />
@@ -1785,7 +1820,7 @@ return true;</property>
       <variables>
         <variable name="jfx.archdir" value="gui/mac" />
       </variables>
-      <jreBundle jdkProviderId="Adoptium" release="20/jdk-20.0.1+9" usePack200="false" overrideJdkRelease="true" includedJre="macosx-amd64-1.8.0_121" />
+      <jreBundle release="21/jdk-21.0.1+12" usePack200="false" includedJre="macosx-amd64-1.8.0_121" />
     </macosFolder>
     <windows name="Windows x64" id="1554" installDir="LogonBox\VPN Client" architecture="64">
       <exclude>
@@ -1796,7 +1831,6 @@ return true;</property>
         <entry location="gui/linux-arm32-monocle" />
         <entry rootId="2036" />
       </exclude>
-      <jreBundle release="17/jdk-17.0.2+8" usePack200="false" includedJre="windows-amd64-1.8.0_121" />
     </windows>
     <unixInstaller name="Unix Installer" id="1555" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}">
       <exclude>
@@ -1850,7 +1884,7 @@ return true;</property>
         <variable name="jfx.archdir" value="gui/linux" />
       </variables>
     </linuxDeb>
-    <windows name="MSI Windows x64" id="2047" installDir="LogonBox\VPN Client" msi="true" msiScope="selectable" architecture="64">
+    <windows name="MSI Windows x64" id="2047" installDir="LogonBox\VPN Client" msi="true" msiScope="selectable" msiProductIdType="custom" msiCustomProductId="0DC151EE-7A26-4A19-BD41-2581369651B3" architecture="64">
       <exclude>
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux-aarch64" />
@@ -1912,9 +1946,9 @@ return true;</property>
       <variables>
         <variable name="jfx.archdir" value="gui/linux-arm32-monocle" />
       </variables>
-      <jreBundle jdkProviderId="Liberica" release="20/20.0.1+10" usePack200="false" overrideJdkRelease="true" manualJreEntry="true" platform="linux-arm32-vfp-hflt" />
+      <jreBundle jdkProviderId="Liberica" release="21/21.0.1+12" usePack200="false" overrideJdkRelease="true" manualJreEntry="true" platform="linux-arm32-vfp-hflt" />
     </unixInstaller>
-    <macosFolder name="Mac OS X Folder (Arm)" id="2173" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-arm-${compiler:sys.version}" architecture="aarch64">
+    <macosFolder name="Mac OS X Folder (Arm)" id="2173" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}" architecture="aarch64">
       <exclude>
         <entry location="gui/linux-aarch64" />
         <entry location="gui/linux" />
@@ -1931,7 +1965,7 @@ return true;</property>
       <variables>
         <variable name="jfx.archdir" value="gui/mac-aarch64" />
       </variables>
-      <jreBundle jdkProviderId="Adoptium" release="20/jdk-20.0.1+9" usePack200="false" overrideJdkRelease="true" includedJre="macosx-amd64-1.8.0_121" />
+      <jreBundle release="21/jdk-21.0.1+12" usePack200="false" includedJre="macosx-amd64-1.8.0_121" />
     </macosFolder>
   </mediaSets>
   <buildOptions verbose="true" debug="true" />

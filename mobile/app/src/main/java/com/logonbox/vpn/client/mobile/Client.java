@@ -21,8 +21,6 @@ import com.logonbox.vpn.client.gui.jfx.Styling;
 import com.logonbox.vpn.client.gui.jfx.UI;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
 
-import org.kordamp.ikonli.fontawesome.FontAwesome;
-import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,7 +122,7 @@ public class Client extends Application implements UIContext<EmbeddedVpnConnecti
 	    }
         
 		back = new Hyperlink();
-		back.setGraphic(FontIcon.of(FontAwesome.ARROW_CIRCLE_LEFT, 32));
+//		back.setGraphic(FontIcon.of(FontAwesome.ARROW_CIRCLE_LEFT, 32));
 		back.getStyleClass().add("iconButton");
 		back.setOnAction(e -> ui.back());
 		queue = Executors.newSingleThreadScheduledExecutor();
@@ -198,6 +196,11 @@ public class Client extends Application implements UIContext<EmbeddedVpnConnecti
 	}
 
 	@Override
+    public boolean isConnectUri() {
+        return false;
+    }
+
+    @Override
 	public boolean isTrayConfigurable() {
 		return false;
 	}

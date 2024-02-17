@@ -100,7 +100,7 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
     		handles.addAll(Arrays.asList(
     		    mgr.onConfirmedExit(() -> shutdown(false)),
     		    mgr.onGlobalConfigChanged((item, val) -> tray.reload()),
-    		    mgr.onAuthorize((connection, uri, mode) -> {
+    		    mgr.onAuthorize((connection, uri, mode,legacy) -> {
     	            requestAuthorize(connection);           
     	        }),
     		    mgr.onTemporarilyOffline((conx,reason) -> {

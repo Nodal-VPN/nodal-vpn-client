@@ -15,15 +15,22 @@
 		<div id="main" class="container clear-top">
 			<div id="alerts"></div>
 			<h1 data-i18n="authorize">Login</h1>
-			<div id="authorizeSpinner" class="container">
-				<div class="row">
-					<div class="col-md-12 align-left align-middle">
-						<i class="fa fa-spinner fa-1x fa-spin" class="align-middle"></i> <span
-							class="align-middle" data-i18n="authorizeSpinnerText">Please
-							wait</span>
-					</div>
-				</div>
-			</div>
+            <form class="mb-5" id="deviceCodePromptForm" style="display: none;">
+                <div id="authorizeText" class="text-muted" data-i18n="browserLaunched"></div>
+                <h5 class="text-muted mt-3" data-i18n="uri"></h5>
+                <div class="mt-3" >
+                    <a id="copyUri" href="#" class="float-end text-success"><i class="fa-solid fa-copy"></i></a>
+                    <a id="verificationUri" href="#"></a>
+                </div>
+                <h5 class="text-muted mt-3" data-i18n="userCode"></h5>
+                <a id="copyUserCode" href="#" class="float-end text-success mt-4"><i class="fa-solid fa-copy"></i></a>
+                <div class="userCode text-center" id="userCode"></div>
+            </form>
+            <div id="authorizeSpinner" class="text-muted container mt-5">
+                <i class="fa fa-spinner fa-1x fa-spin" class="align-middle"></i> <span
+                    id="authorizeSpinnerText" class="align-middle" data-i18n="authorizeSpinnerText">Please
+                    wait</span>
+            </div>
 			<form id="authorizeForm" style="display: none;">
 				<div id="formElements"></div>
 				<div class="mt-3">
@@ -35,6 +42,43 @@
 	</div>
 
 	<script type="text/javascript">
+    
+	    var bridgeReference;
+	
+	    function promptForCode() {
+            try {
+                bridgeReference.openURL(code.verification_uri_complete);
+            }
+            catch(e) {
+                $('#authorizeText').html(pageBundle.getString('authorizeText'));
+            }
+            $('#verificationUri').attr('href', code.verification_uri);  
+            $('#verificationUri').text(code.verification_uri);      
+            $('#copyUri').off('click').on('click', function() {
+                if(code.verification_uri_complete) {
+                    bridge.copyToClipboard(code.verification_uri_complete);
+                }
+                else {
+                    bridge.copyToClipboard(code.verification_uri);
+                }
+            });     
+            $('#copyUserCode').off('click').on('click', function() {
+                bridge.copyToClipboard(code.user_code);
+            });
+	        $('#verificationUri').off('click').on('click', function() {
+	            if(code.verification_uri_complete) {
+	                bridgeReference.openURL(code.verification_uri_complete);
+	            }
+	            else {
+	                bridgeReference.openURL(code.verification_uri);
+	            }
+                return false;
+	        });
+	        $('#deviceCodePromptForm').show();
+	        $('#userCode').html(code.user_code);
+	        $('#authorizeSpinnerText').html(pageBundle.getString('waitingForAuthorization'));
+	    }
+    
 		function collect() {
 			$('#authorizeForm').show();
 			$('#authorizeSpinner').hide();
@@ -122,6 +166,8 @@
 		}
 
 		function uiReady() {
+            bridgeReference = bridge;
+            
 			$(window).on('unload', function() {
 	            console.log('Before page unload');
 	            if(authenticator) {

@@ -45,23 +45,23 @@
             <version>${javafx.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.gluonhq</groupId>
-            <artifactId>charm-glisten</artifactId>
-            <version>${glisten.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.gluonhq.attach</groupId>
             <artifactId>display</artifactId>
             <version>${attach.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.gluonhq.attach</groupId>
-            <artifactId>lifecycle</artifactId>
-            <version>${attach.version}</version>
+            <groupId>com.gluonhq</groupId>
+            <artifactId>charm-glisten</artifactId>
+            <version>${glisten.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.logonbox</groupId>
+            <artifactId>client-logonbox-vpn-gui-jfx</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.gluonhq.attach</groupId>
-            <artifactId>statusbar</artifactId>
+            <artifactId>util</artifactId>
             <version>${attach.version}</version>
         </dependency>
         <dependency>
@@ -71,13 +71,14 @@
         </dependency>
         <dependency>
             <groupId>com.gluonhq.attach</groupId>
-            <artifactId>util</artifactId>
+            <artifactId>lifecycle</artifactId>
             <version>${attach.version}</version>
         </dependency>
+        <!--
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-gui-jfx</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.gluonhq.attach</groupId>
+            <artifactId>statusbar</artifactId>
+            <version>${attach.version}</version>
         </dependency>
         <dependency>
             <groupId>com.logonbox</groupId>
@@ -88,9 +89,9 @@
             <groupId>com.logonbox</groupId>
             <artifactId>lbvpn</artifactId>
             <version>${project.version}</version>
-            <!--<scope>runtime</scope>-->
+            <scope>runtime</scope>
             <classifier>${attach.extended.classifier}</classifier>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
@@ -132,14 +133,17 @@
                     <!-- TODO Control with profile, only needed on Linux? -->
                     <linkerArgs>
                         <linkerArg>${java.home}/lib/static/linux-amd64/glibc/libjaas.a</linkerArg>
+                        <!--<linkerArg>${java.home}/lib/static/linux-amd64/glibc/libfontmanager.a</linkerArg>-->
                     </linkerArgs>
                     <attachList>
-                        <!--<list>wireguard</list>-->
                         <list>display</list>
+                        <list>storage</list>
                         <list>lifecycle</list>
+                        <!--<list>wireguard</list>-->
+                        <!--
                         <list>browser</list>
                         <list>statusbar</list>
-                        <list>storage</list>
+                        -->
                     </attachList>
                     <bundlesList>
                         <list>com.logonbox.vpn.client.mobile.Client</list>
@@ -175,6 +179,7 @@
                         <list>org.apache.log4j.RollingFileAppender</list>
                         <list>org.apache.log4j.PatternLayout</list>
                         <list>javafx.scene.web.WebView</list>
+                        <list>org.eclipse.parsson.JsonProviderImpl</list>
                     </reflectionList>
                     <mainClass>${mainClassName}</mainClass>
                 </configuration>

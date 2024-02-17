@@ -20,7 +20,7 @@ public interface VpnManager<CONX extends IVpnConnection> {
     @FunctionalInterface
     public interface Authorize<CONX extends IVpnConnection> {
 
-        void authorize(CONX connection, String uri, Mode mode);
+        void authorize(CONX connection, String uri, Mode mode, AuthMethod... authMethods);
     }
 
     @FunctionalInterface
@@ -85,5 +85,7 @@ public interface VpnManager<CONX extends IVpnConnection> {
     void confirmExit();
 
     Handle onConfirmedExit(Runnable callback);
+
+    void start();
 
 }

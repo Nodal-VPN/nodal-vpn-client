@@ -16,6 +16,10 @@
 	<properties>
 		<build.phase>nightly</build.phase>
 		<build.mediaTypes>windows,unixInstaller,macos,macosFolder,windowsArchive,unixArchive,linuxRPM,linuxDeb,macosArchive,macosFolderArchive</build.mediaTypes>
+		
+        <install4j.appleId>xxxxxx@logonbox.com</install4j.appleId>
+        <install4j.macSigning>true</install4j.macSigning>
+        <install4j.windowsSigning>true</install4j.windowsSigning>
 	</properties>
 	<build>
 		<plugins>
@@ -23,7 +27,6 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>properties-maven-plugin</artifactId>
-				<version>1.0.0</version>
 				<executions>
 					<execution>
 						<phase>initialize</phase>
@@ -31,10 +34,10 @@
 							<goal>read-project-properties</goal>
 						</goals>
 						<configuration>
-							<quiet>true</quiet>
+                            <quiet>false</quiet>
 							<files>
-								<file>${basedir}/hypersocket.build.properties</file>
-								<file>${user.home}/.hypersocket.build.properties</file>
+                                <file>${build.projectProperties}</file>
+                                <file>${build.userProperties}</file>
 							</files>
 						</configuration>
 					</execution>
@@ -157,14 +160,31 @@
 			<artifactId>client-logonbox-vpn-dbconvert</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.sshtools</groupId>
-			<artifactId>forker-wrapper</artifactId>
-			<version>1.8-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 
 	<profiles>
+        
+        <profile>
+            <id>merge-installers</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.sshtools</groupId>
+                        <artifactId>updatesxmlmerger-maven-plugin</artifactId>
+                        <version>0.0.1</version>
+                        <configuration>
+                            <inputs>
+                                <input>${project.build.directory}/media-macos/updates.xml</input>
+                                <input>${project.build.directory}/media-windows/updates.xml</input>
+                                <input>${project.build.directory}/media-linux/updates.xml</input>
+                            </inputs>
+                            <output>${project.build.directory}/media/updates.xml</output>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
         <profile>
             <id>windows</id>
             <activation>
@@ -484,8 +504,9 @@
 
                     <!-- Create Installers -->
                     <plugin>
-                        <groupId>org.sonatype.install4j</groupId>
-                        <artifactId>install4j-maven-plugin</artifactId>
+                        <groupId>com.install4j</groupId>
+                        <artifactId>install4j-maven</artifactId>
+                        <version>10.0.6</version>
                         <executions>
                             <execution>
                                 <id>compile-client-installer</id>
@@ -500,6 +521,13 @@
                                     <mediaTypes>${build.mediaTypes}</mediaTypes>
                                     <variables>
                                         <build.phase>${build.phase}</build.phase>
+                                        
+                                        <install4j.appleId>${install4j.appleId}</install4j.appleId>
+                                        <install4j.macSigning>${install4j.macSigning}</install4j.macSigning>
+                                        <install4j.windowsSigning>${install4j.windowsSigning}</install4j.windowsSigning>>
+                                        <install4j.windowsKeystoreIssuer>${install4j.windowsKeystoreIssuer}</install4j.windowsKeystoreIssuer>>
+                                        <install4j.windowsKeystoreSerial>${install4j.windowsKeystoreSerial}</install4j.windowsKeystoreSerial>>
+                                        <install4j.windowsKeystoreSubject>${install4j.windowsKeystoreSubject}</install4j.windowsKeystoreSubject>
                                     </variables>
                                     <jvmArguments>
                                         <jvmArgument>-Xmx2048m</jvmArgument>

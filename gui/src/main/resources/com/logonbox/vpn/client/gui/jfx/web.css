@@ -39,6 +39,10 @@
 	color: white;
 }
 
+.userCode {
+    font-size: 3em;
+}
+
 #exceptionContainer {
     background-color: #ccc;
 }

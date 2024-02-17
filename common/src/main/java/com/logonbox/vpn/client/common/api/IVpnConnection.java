@@ -13,6 +13,10 @@ public interface IVpnConnection {
 
     int getPort();
 
+    String getBaseUri();
+
+    String getApiUri();
+
     String getUri(boolean withUsername);
 
     String getConnectionTestUri(boolean withUsername);
@@ -150,5 +154,9 @@ public interface IVpnConnection {
     String getLastError();
 
     String getAuthorizeUri();
+
+    String[] getAuthMethods();
+
+    String getClient();
 
 }

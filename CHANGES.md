@@ -1,6 +1,42 @@
 # Changes
 
-## 3.0.0-32
+## 4.0.0-SNAPSHOT
+
+A major new release with many architectural changes.
+
+ * Now uses `logonbox-vpn-drivers` for low level VPN support.
+ * Experimental Android and iOS builds.
+ * New standandalone version that does not require a system service.
+ * Now natively compiled for much faster startup and better resource usage.
+
+## 3.0.4-SNAPSHOT
+
+ * Resizing the Window on Linux can corrupt the window borders.
+ * Adds support for the next generation LogonBox VPN server. 
+ * Fix for occasional UI corruption (e.g. in Options page) where all component text
+   was lost.
+ * Under some circumstances it may be possible start a 2nd instance of the service, which
+   would result in unexpected behaviour. Additional checks to prevent this have been added.
+ * Excessive key validity checks were being made (during authorization). 
+
+## 3.0.3-256
+
+ * Windows installer now signed with EV certificate (by our sister company JADAPTIVE).
+ * Fixed an issue with the updater mechanism. Updates from 3.0.2 to this version need to be done manually but should be ok from this point onwards.
+
+## 3.0.2-223
+
+ * Stability fixes. 
+ * Wrong update phase could sometimes be picked for updater.
+ * On Windows, client would enter infinite loop if there were more than 4 stale DBUS
+   socket files and look like it has not started. 
+
+## 3.0.1-204
+
+ * Work-around and diagnostics for memory allocation error on Windows.
+ * Hook scripts on Windows broken
+
+## 3.0.0-120
 
  * New major release.
  * Connections validity is now preemptively checked, resulting in faster
@@ -16,7 +52,7 @@
  * Update countdown doesn't stop if automatic updates are enabled.
  * Notification popups could show a an empty window on the desktop on Windows
    and Mac OS.
-* Updated to JavaFX 20.0.1, JDK 20.
+ * Updated to JavaFX 20.0.1, JDK 20.
  * Activated alternative connection storage mechanism (.ini type files). All
    existing configurations should now be converted.
  * LastKnownServerIpAddress not being reset when hostname changes.

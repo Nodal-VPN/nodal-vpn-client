@@ -2,6 +2,7 @@ package com.logonbox.vpn.client.dbus.client;
 
 import com.logonbox.vpn.client.common.AbstractVpnManager;
 import com.logonbox.vpn.client.common.AppContext;
+import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
@@ -16,6 +17,7 @@ import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import org.freedesktop.dbus.connections.IDisconnectCallback;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
+import org.freedesktop.dbus.errors.NoReply;
 import org.freedesktop.dbus.errors.ServiceUnknown;
 import org.freedesktop.dbus.errors.UnknownObject;
 import org.freedesktop.dbus.exceptions.DBusException;
@@ -27,6 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -143,7 +146,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 
     public DBusConnection getAltBus() {
         synchronized (initLock) {
-            lazyInit();
+//            lazyInit();
             if (altConn == null) {
                 try {
                     altConn = DBusConnectionBuilder.forSessionBus().withShared(false).build();
@@ -158,7 +161,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 	@Override
     public void confirmExit() {
 	    try {
-	        lazyInit();
+//	        lazyInit();
             getBus().sendMessage(new ConfirmedExit(RemoteUI.OBJECT_PATH));
         } catch (DBusException e) {
             throw new IllegalStateException("Failed to confirm exit.");
@@ -171,14 +174,14 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
     }
 
 	public final DBusConnection getBus() {
-        lazyInit();
+//        lazyInit();
         return conn;
 	}
 
 	@Override
     public final void checkVpnManagerAvailable() throws IllegalStateException {
 	    try {
-	        lazyInit();
+//	        lazyInit();
 	        ((VPN)getVpnOrFail()).ping();
 	    }
 	    catch(Exception e) {
@@ -204,7 +207,21 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
         try {
             eventsMap.put(id, Arrays.asList(
                 conn.addSigHandler(VpnConnection.Authorize.class, (VpnConnection)connection, (sig) -> {
-                    onAuthorize.forEach(a -> a.authorize(connection, sig.getUri(), Mode.valueOf(sig.getMode())));
+                    if(sig.isLegacy()) {
+                        onAuthorize.forEach(a -> a.authorize(connection, sig.getUri(), Mode.valueOf(sig.getMode())));   
+                    }
+                    else {
+                        var l = new ArrayList<AuthMethod>();
+                        for(var m : sig.getMode().split(",")) {
+                            try {
+                                l.add(AuthMethod.valueOf(m));
+                            }
+                            catch(Exception e) {
+                                log.warn("Failed to parse mode {}", m);
+                            }
+                        }
+                        onAuthorize.forEach(a -> a.authorize(connection, sig.getUri(), Mode.MODERN, l.toArray(new AuthMethod[0])));
+                    }
                 }),
                 conn.addSigHandler(VpnConnection.Connecting.class, (VpnConnection)connection, (sig) -> {
                     onConnecting.forEach(a -> a.accept(connection));
@@ -230,10 +247,6 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
             throw new IllegalStateException("Failed to configure signals.", dbe);
         }
     }
-
-    protected final void disconnectFromBus() {
-		conn.disconnect();
-	}
 
 	protected final void onInit() throws Exception {
 
@@ -319,20 +332,19 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
         log.info("Cert manager: {}", app.getCertManager());
     }
     
-    protected final void lazyInit() {
-        synchronized (initLock) {
-            if (vpn == null) {
-                log.info("Trying to obtain Vpn Manager");
-                try {
-                    onLazyInit();   
-                }
-                catch (RuntimeException re) {
-                    log.error("Failed to initialise.", re);
-                    throw re;
-                } catch (Exception e) {
-                    log.error("Failed to initialise.", e);
-                    throw new IllegalStateException("Failed to initialize.", e);
-                }
+    @Override
+    public final void start() {
+        if (vpn == null) {
+            log.info("Trying to obtain Vpn Manager");
+            try {
+                onLazyInit();   
+            }
+            catch (RuntimeException re) {
+                log.error("Failed to initialise.", re);
+                throw re;
+            } catch (Exception e) {
+                log.error("Failed to initialise.", e);
+                throw new IllegalStateException("Failed to initialize.", e);
             }
         }
     }
@@ -446,6 +458,8 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 		synchronized (initLock) {
 			cancelPingTask();
 
+            var wasAvailable = brokerAvailable;
+            
 			if (brokerAvailable) {
 
 				brokerAvailable = false;
@@ -475,18 +489,22 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 	                    } catch (Exception e) {
 	                    }
 	                });
-					try {
-						conn.disconnect();
-					}
-					catch(Exception e) {
-					}
-					finally {
-						conn = null;
-					}
 				}
 				setVPN(null);
 				app.getUpdateService().checkIfBusAvailable();
 			}
+
+            if (conn != null) {
+                try {
+                    conn.disconnect();
+                }
+                catch(Exception e) {
+                }
+                finally {
+                    vpn = null;
+                    conn = null;
+                }
+            }
 
 			/*
 			 * Only really likely to happen with the embedded bus. As the service itself
@@ -496,7 +514,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 				synchronized (initLock) {
 					try {
 						init();
-					} catch (DBusException | ServiceUnknown | UnknownObject dbe) {
+					} catch (NoReply | DBusException | ServiceUnknown | UnknownObject dbe) {
 						if (log.isDebugEnabled())
 							log.debug("Init() failed, retrying");
 						busGone();
@@ -547,14 +565,14 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 
     @Override
     public Optional<IVpn<VpnConnection>> getVpn() {
-        lazyInit();
+//        lazyInit();
         return Optional.ofNullable(vpn);
     }
 
     @Override
     public Optional<IRemoteUI> getUserInterface() {
         try {
-            lazyInit();
+//            lazyInit();
             return Optional.of(getAltBus().getRemoteObject(RemoteUI.BUS_NAME, RemoteUI.OBJECT_PATH, RemoteUI.class));
         } catch (ServiceUnknown su) {
             return Optional.empty();

@@ -41,11 +41,13 @@
         </div>
     </div>
     <script type="text/javascript">
+     var bridgeReference;
         function uiReady() {
+            bridgeReference = bridge;
             $('#disconnect').off('click').on('click', function(event) {
                 $('#disconnect').buttonLoader('start');
                 event.preventDefault();
-                bridge.unjoinAll();
+                bridgeReference.unjoinAll();
             });
         };
     </script>

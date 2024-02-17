@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -151,16 +152,38 @@ public class BrandingManager<CONX extends IVpnConnection> {
                     try {
                         if (!Files.exists(newLogoFile)) {
                             LOG.info(String.format("Attempting to cache logo"));
-                            URL logoUrl = URI.create(logo).toURL();
-                            URLConnection urlConnection = logoUrl.openConnection();
-                            urlConnection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(10));
-                            urlConnection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(10));
-                            try (InputStream urlIn = urlConnection.getInputStream()) {
-                                try (OutputStream out = Files.newOutputStream(newLogoFile)) {
-                                    urlIn.transferTo(out);
+                            if(logo.startsWith("data:")) {
+                                var idx = logo.indexOf(',');
+                                var sl = logo.substring(5, idx);
+                                var pl = logo.substring(idx + 1);
+                                var args = sl.split(";");
+                                if(args.length > 1) {
+                                    if(args[args.length - 1].equals("base64")) {
+                                        var data = pl.substring(1);
+                                        try (OutputStream out = Files.newOutputStream(newLogoFile)) {
+                                            out.write(Base64.getDecoder().decode(data));
+                                        }
+                                        LOG.info(String.format("Logo cached from base64 data URI to %s", newLogoFile.toUri()));
+                                    }
+                                    else
+                                        throw new IOException("Unsupported image encoding.");
+                                }
+                                else {
+                                    throw new IOException("Invalid URI.");
                                 }
                             }
-                            LOG.info(String.format("Logo cached from %s to %s", logoUrl, newLogoFile.toUri()));
+                            else {
+                                URL logoUrl = URI.create(logo).toURL();
+                                URLConnection urlConnection = logoUrl.openConnection();
+                                urlConnection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(10));
+                                urlConnection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(10));
+                                try (InputStream urlIn = urlConnection.getInputStream()) {
+                                    try (OutputStream out = Files.newOutputStream(newLogoFile)) {
+                                        urlIn.transferTo(out);
+                                    }
+                                }
+                                LOG.info(String.format("Logo cached from %s to %s", logoUrl, newLogoFile.toUri()));
+                            }
                             newLogoFile.toFile().deleteOnExit();
                         }
                         logoFile = newLogoFile;
@@ -256,7 +279,7 @@ public class BrandingManager<CONX extends IVpnConnection> {
                 item = null;
             }
             if (item == null) {
-                String uri = connection.getUri(false) + "/api/brand/info";
+                String uri = connection.getBaseUri() + "/app/api/brand/info";
 
                 LOG.info(String.format("Retrieving branding from %s", uri));
                 var url = URI.create(uri).toURL();
@@ -267,8 +290,18 @@ public class BrandingManager<CONX extends IVpnConnection> {
                     var rdr = Json.createReader(in);
                     var brandingObj = Branding.of(rdr.readObject());
 
-                    brandingObj = brandingObj.logo("https://" + connection.getHostname() + ":" + connection.getPort()
-                            + connection.getPath() + "/api/brand/logo");
+                    
+                    if(brandingObj.logo() == null || brandingObj.logo().equals("")) {
+                        brandingObj = brandingObj.logo(connection.getBaseUri() + "/app/api/brand/logo");
+                    }
+                    else if(!brandingObj.logo().startsWith("http://") && !brandingObj.logo().startsWith("https://") && !brandingObj.logo().startsWith("data:")) {
+                        if(brandingObj.logo().startsWith("/"))
+                            brandingObj = brandingObj.logo("https://" + connection.getHostname() + ":" + connection.getPort()
+                                + brandingObj.logo());
+                        else
+                            brandingObj = brandingObj.logo("https://" + connection.getHostname() + ":" + connection.getPort()
+                            + connection.getPath() + "/" + brandingObj.logo());
+                    }
 
                     item = new BrandingCacheItem(brandingObj, getCustomLogoFile(connection));
                     brandingCache.put(connection, item);

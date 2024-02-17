@@ -70,21 +70,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.sshtools</groupId>
-            <artifactId>two-slices</artifactId>
-            <version>0.9.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.github.hypfvieh</groupId>
-                    <artifactId>dbus-java-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.github.hypfvieh</groupId>
-                    <artifactId>dbus-java-transport-native-unixsocket</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
             <version>${javafx.version}</version>

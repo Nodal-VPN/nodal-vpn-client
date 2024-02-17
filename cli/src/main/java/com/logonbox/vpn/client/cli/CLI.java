@@ -139,7 +139,6 @@ public class CLI extends AbstractDBusApp implements Runnable, CLIContext {
 		try {
 		    
 		    log = initApp();
-            
 	        getVpnManager().onVpnAvailable(() -> {
 	            log.info("Configuring Bus");
 	            giveUpWaitingForServiceStart();
@@ -163,7 +162,7 @@ public class CLI extends AbstractDBusApp implements Runnable, CLIContext {
 	                awaitingServiceStart.start();
 	            }
 	        });
-	        
+	        getVpnManager().start();
 			about();
 			runPrompt();
 			console.out().println();

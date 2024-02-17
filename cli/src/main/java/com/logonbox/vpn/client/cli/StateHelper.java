@@ -44,7 +44,7 @@ public class StateHelper implements Closeable {
                 manager.onFailure((conx, message, cause, trace) -> changed(conx)),
                 manager.onConnecting(conx -> changed(conx)), 
                 manager.onConnected(conx -> changed(conx)),
-                manager.onAuthorize((conx, uri, mode) -> changed(conx)),
+                manager.onAuthorize((conx, uri, mode, authMethods) -> changed(conx)),
                 manager.onTemporarilyOffline((conx, reason) -> changed(conx)));
 	}
 
@@ -154,7 +154,7 @@ public class StateHelper implements Closeable {
 		synchronized (lock) {
 			Type newState = Type.valueOf(connection.getStatus());
 			if(!Objects.equals(currentState, newState)) { 
-				log.info(String.format("State change from %s to %s", currentState, newState));
+                log.info("State change from {} to {} [{}]", currentState, newState, StateHelper.this.hashCode());
 				currentState = newState;
 				try {
 					if(onState.containsKey(currentState))  {
