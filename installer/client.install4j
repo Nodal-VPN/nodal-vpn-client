@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.6" transformSequenceNumber="10">
   <directoryPresets config="../cli" />
-  <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" pack200Compression="false" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
+  <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
     </searchSequence>
@@ -9,7 +9,7 @@
       <variable name="build.phase" value="nightly" />
       <variable name="jfx.archdir" value="gui/win" description="The location of the architecture specific jars for JavaFX" />
     </variables>
-     <codeSigning macPkcs12File="${compiler:install4j.macPkcs12File}" windowsKeySource="windows" macNotarize="true" appleId="${compiler:install4j.appleId}">
+    <codeSigning macPkcs12File="${compiler:install4j.macPkcs12File}" windowsKeySource="windows" macNotarize="true" appleId="${compiler:install4j.appleId}">
       <windowsKeystoreIdentifier issuer="${compiler:install4j.windowsKeystoreIssuer}" serial="${compiler:install4j.windowsKeystoreSerial}" subject="${compiler:install4j.windowsKeystoreSubject}" />
       <macSearchedJars>
         <entry>*.zip</entry>
@@ -1930,24 +1930,6 @@ return true;</property>
       </variables>
       <jreBundle jreBundleSource="none" />
     </unixArchive>
-    <unixInstaller name="Arm32 Unix Installer" id="2170" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-arm32-${compiler:sys.version}">
-      <exclude>
-        <entry location="gui/mac-aarch64" />
-        <entry location="gui/linux-aarch64" />
-        <entry location="gui/linux" />
-        <entry location="gui/win" />
-        <entry location="gui/mac" />
-        <entry location="cleanup.bat" />
-        <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="network-configuration-service.exe" />
-        <entry location="vcruntime140.dll" />
-        <entry rootId="2027" />
-      </exclude>
-      <variables>
-        <variable name="jfx.archdir" value="gui/linux-arm32-monocle" />
-      </variables>
-      <jreBundle jdkProviderId="Liberica" release="21/21.0.1+12" usePack200="false" overrideJdkRelease="true" manualJreEntry="true" platform="linux-arm32-vfp-hflt" />
-    </unixInstaller>
     <macosFolder name="Mac OS X Folder (Arm)" id="2173" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}" architecture="aarch64">
       <exclude>
         <entry location="gui/linux-aarch64" />
