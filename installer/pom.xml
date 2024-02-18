@@ -502,7 +502,6 @@
                     <plugin>
                         <groupId>com.install4j</groupId>
                         <artifactId>install4j-maven</artifactId>
-                        <version>10.0.6</version>
                         <executions>
                             <execution>
                                 <id>compile-client-installer</id>
@@ -576,8 +575,8 @@
                     
                     <!-- Create Installers -->
                     <plugin>
-                        <groupId>org.sonatype.install4j</groupId>
-                        <artifactId>install4j-maven-plugin</artifactId>
+                        <groupId>com.install4j</groupId>
+                        <artifactId>install4j-maven</artifactId>
                         <executions>
                             <execution>
                                 <id>compile-client-installer</id>
