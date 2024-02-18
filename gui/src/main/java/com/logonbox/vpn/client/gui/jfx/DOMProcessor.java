@@ -2,9 +2,9 @@ package com.logonbox.vpn.client.gui.jfx;
 
 import static com.logonbox.vpn.drivers.lib.util.Util.toHumanSize;
 
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConnectionStatus;
-import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IVpn;
 import com.logonbox.vpn.client.common.api.IVpnConnection;

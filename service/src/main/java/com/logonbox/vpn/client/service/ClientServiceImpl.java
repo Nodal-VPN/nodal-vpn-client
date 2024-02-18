@@ -144,7 +144,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
         
         var task = createJob(connection);
         temporarilyOffline.remove(connection);
-        task.setTask(context.getQueue().schedule(() -> doConnect(task, false), 1, TimeUnit.MILLISECONDS));
+        task.setTask(context.getScheduler().schedule(() -> doConnect(task, false), 1, TimeUnit.MILLISECONDS));
 	}
 
 	@Override
@@ -166,7 +166,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 
 			var task = createJob(c);
 			temporarilyOffline.remove(c);
-			task.setTask(context.getQueue().schedule(() -> doConnect(task, true), 1, TimeUnit.MILLISECONDS));
+			task.setTask(context.getScheduler().schedule(() -> doConnect(task, true), 1, TimeUnit.MILLISECONDS));
 		}
 	}
 
@@ -980,7 +980,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 			 */
 			cancelAuthorize(connection);
 			log.info(String.format("Setting up authorize timeout for %s", connection.getDisplayName()));
-			authorizingClients.put(connection, context.getQueue().schedule(() -> {
+			authorizingClients.put(connection, context.getScheduler().schedule(() -> {
 				disconnect(connection, "Authorization timeout.");
 			}, AUTHORIZE_TIMEOUT, TimeUnit.SECONDS));
 
@@ -1021,7 +1021,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 			} else {
 				var job = createJob(c);
 				job.setReconnect(reconnect);
-				job.setTask(context.getQueue().schedule(() -> doConnect(job, true), reconnectSeconds, TimeUnit.SECONDS));
+				job.setTask(context.getScheduler().schedule(() -> doConnect(job, true), reconnectSeconds, TimeUnit.SECONDS));
 			}
 		}
 
@@ -1051,7 +1051,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		    });
 		}
 
-		context.getQueue().scheduleWithFixedDelay(() -> {
+		context.getScheduler().scheduleWithFixedDelay(() -> {
 			try {
 				resolveRemoteDependencies(context.getCertManager(), Util.checkEndsWithSlash(getExtensionStoreRoot()) + "api/store/repos2",
 						new String[] { "logonbox-vpn-client" }, AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-service"), AppVersion.getSerial(),
@@ -1085,7 +1085,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 				}
 			}
 
-			context.getQueue().scheduleWithFixedDelay(() -> checkConnectionsAlive(), POLL_RATE, POLL_RATE, TimeUnit.SECONDS);
+			context.getScheduler().scheduleWithFixedDelay(() -> checkConnectionsAlive(), POLL_RATE, POLL_RATE, TimeUnit.SECONDS);
 
 			return connected > 0 || attempts == 0;
 		} catch (Exception e) {
@@ -1506,7 +1506,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 
     @Override
     public ScheduledExecutorService queue() {
-        return context.getQueue();
+        return context.getScheduler();
     }
 
     @Override

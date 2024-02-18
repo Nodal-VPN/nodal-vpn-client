@@ -5,6 +5,9 @@ import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
+import com.sshtools.jaul.ArtifactVersion;
+import com.sshtools.jaul.LocalAppDef;
+import com.sshtools.jaul.Phase;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,12 +38,89 @@ public abstract class AbstractDBusApp extends AbstractApp<VpnConnection> {
 	}
 	
     @Override
+    public Phase getPhase() {
+        if (getVpnManager().isBackendAvailable()) {
+            try {
+                return Phase.valueOf(getVpnManager().getVpn().map(vpn -> vpn.getValue(ConfigurationItem.PHASE.getKey())).orElse(Phase.STABLE.name()));
+            }
+            catch(IllegalArgumentException iae) {
+            }
+        }
+        return Phase.STABLE;
+    }
+
+    @Override
+    public long getUpdatesDeferredUntil() {
+        if (getVpnManager().isBackendAvailable()) {
+            return getVpnManager().getVpn().map(vpn -> vpn.getLongValue(ConfigurationItem.DEFER_UPDATE_UNTIL.getKey())).orElse(0l);
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public String getVersion() {
+        return app().map(app -> {
+            try {
+                return new LocalAppDef(app).getVersion();
+            }
+            catch(Exception e) {
+                return getArtificatVersion();
+            }
+        }).orElseGet(() -> getArtificatVersion());
+    }
+
+    @Override
     public final VpnManager<VpnConnection> getVpnManager() {
         return manager;
     }
 
-    private final void initManager() {
-        manager = buildVpnManager(new DBusVpnManager.Builder(this)).build();
+    @Override
+    public boolean isAutomaticUpdates() {
+        if (getVpnManager().isBackendAvailable()) {
+            return getVpnManager().getVpn().map(vpn -> vpn.getBooleanValue(ConfigurationItem.AUTOMATIC_UPDATES.getKey())).orElse(false);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void setAutomaticUpdates(boolean automaticUpdates) {
+        if (getVpnManager().isBackendAvailable()) {
+            getVpnManager().getVpn().orElseThrow(() -> new IllegalStateException("VPN not available.")).setBooleanValue(ConfigurationItem.AUTOMATIC_UPDATES.getKey(), automaticUpdates);
+        } else {
+            log.warn("Failed to set automatic updates, not connected to bus.");
+        }
+    }
+
+    @Override
+    public void setPhase(Phase phase) {
+        if (getVpnManager().isBackendAvailable()) {
+            getVpnManager().getVpn().orElseThrow(() -> new IllegalStateException("VPN not available.")).setValue(ConfigurationItem.PHASE.getKey(), phase.name());
+        } else {
+            log.warn("Failed to set phase, not connected to bus.");
+        }
+    }
+
+    @Override
+    public void setUpdatesDeferredUntil(long timeMs) {
+        if (getVpnManager().isBackendAvailable()) {
+            getVpnManager().getVpn().orElseThrow(() -> new IllegalStateException("VPN not available.")).setLongValue(ConfigurationItem.DEFER_UPDATE_UNTIL.getKey(), timeMs);
+        } else {
+            log.warn("Failed to set defer time, not connected to bus.");
+        }
+    }
+
+    protected DBusVpnManager.Builder buildVpnManager(DBusVpnManager.Builder builder) {
+        builder.withAddressFilePath(addressFile);
+        builder.withBusAddress(busAddress);
+        builder.withSessionBus(sessionBus);
+        return builder;
+    }
+
+    @Override
+    protected final Logger getLog() {
+        return log;
     }
 
     protected Logger initApp() {
@@ -69,15 +149,11 @@ public abstract class AbstractDBusApp extends AbstractApp<VpnConnection> {
         return log;
     }
 
-    @Override
-    protected final Logger getLog() {
-        return log;
+    private String getArtificatVersion() {
+        return ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-dbus-app");
     }
 
-    protected DBusVpnManager.Builder buildVpnManager(DBusVpnManager.Builder builder) {
-        builder.withAddressFilePath(addressFile);
-        builder.withBusAddress(busAddress);
-        builder.withSessionBus(sessionBus);
-        return builder;
+    private final void initManager() {
+        manager = buildVpnManager(new DBusVpnManager.Builder(this)).build();
     }
 }

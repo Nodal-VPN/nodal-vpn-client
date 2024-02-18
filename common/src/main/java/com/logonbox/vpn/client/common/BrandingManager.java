@@ -132,14 +132,15 @@ public class BrandingManager<CONX extends IVpnConnection> {
                     Files.deleteIfExists(logoFile);
                 } catch (IOException e) {
                 }
-                splashFile.ifPresent(f -> {
-                    try {
-                        Files.delete(f);
-                    } catch (IOException e) {
-                    }
-                });
+                
+                try {
+                    Files.deleteIfExists(splashFile);
+                } catch (IOException e) {
+                }
                 
                 updateVMOptions(null);
+                
+                onBrandingChange.forEach(l -> l.accept(branding()));
             } else {
                 if (LOG.isDebugEnabled())
                     LOG.debug("Adding custom branding");
@@ -210,20 +211,18 @@ public class BrandingManager<CONX extends IVpnConnection> {
                 /* Write the splash */
                 if (bim != null) {
                     splashFile = getCustomSplashFile();
-                    splashFile.ifPresent(f -> {
+                    try {
+                        images.write(bim, splashFile);
+                    } catch (IOException e) {
+                        LOG.error(String.format("Failed to write custom splash"), e);
                         try {
-                            images.write(bim, f);
-                        } catch (IOException e) {
-                            LOG.error(String.format("Failed to write custom splash"), e);
-                            try {
-                                Files.delete(f);
-                            }
-                            catch(IOException ioe) {
-                                LOG.warn("Failed to delete.", ioe);
-                            }
+                            Files.delete(splashFile);
                         }
-                        updateVMOptions(f);
-                    });
+                        catch(IOException ioe) {
+                            LOG.warn("Failed to delete.", ioe);
+                        }
+                    }
+                    updateVMOptions(splashFile);
                 }
                 
                 onBrandingChange.forEach(l -> l.accept(branding()));
@@ -240,9 +239,8 @@ public class BrandingManager<CONX extends IVpnConnection> {
         return Optional.ofNullable(connection);
     }
 
-    public Optional<Path> getCustomSplashFile() {
-        var path = getConfigDir().resolve("lbvpnc-splash.png");
-        return Files.exists(path) ? Optional.of(path) : Optional.empty();
+    public Path getCustomSplashFile() {
+        return getConfigDir().resolve("lbvpnc-splash.png");
     }
 
     public void removeBrandingChangeListener(Consumer<Optional<BrandDetails>> listener) {
@@ -325,7 +323,7 @@ public class BrandingManager<CONX extends IVpnConnection> {
 
     private Path getConfigDir() {
         var upath = System.getProperty("logonbox.vpn.configuration");
-        return upath == null ? App.CLIENT_HOME : Paths.get(upath);
+        return upath == null ? AppConstants.CLIENT_HOME : Paths.get(upath);
     }
 
     private Path getCustomLogoFile(CONX connection) {

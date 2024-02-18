@@ -60,10 +60,10 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 		String was = node.get(key.getKey(), null);
 		if (!Objects.equals(was, value)) {
 			if (value == null) {
-				log.info(String.format("Setting '%s' to default value", key));
+				log.info(String.format("Setting '%s' to default value", key.getKey()));
 				node.remove(key.getKey());
 			} else {
-				log.info(String.format("Setting '%s' to '%s'", key, value));
+				log.info(String.format("Setting '%s' to '%s'", key.getKey(), value));
 				node.put(key.getKey(), value.toString());
 			}
 		}

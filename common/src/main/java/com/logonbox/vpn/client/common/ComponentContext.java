@@ -13,7 +13,7 @@ public interface ComponentContext<CONX extends IVpnConnection> {
 
     CookieStore getCookieStore();
 
-    ScheduledExecutorService getQueue();
+    ScheduledExecutorService getScheduler();
 
     void shutdown(boolean restart);
 

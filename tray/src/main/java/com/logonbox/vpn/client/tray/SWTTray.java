@@ -115,7 +115,7 @@ public class SWTTray extends AbstractTray {
 			disconnectDev.addSelectionListener(new SelectionListener() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					context.getQueue().execute(() -> device.disconnect(""));
+					context.getScheduler().execute(() -> device.disconnect(""));
 				}
 
 				@Override
@@ -130,7 +130,7 @@ public class SWTTray extends AbstractTray {
 			openDev.addSelectionListener(new SelectionListener() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					context.getQueue().execute(() -> device.connect());
+					context.getScheduler().execute(() -> device.connect());
 				}
 
 				@Override

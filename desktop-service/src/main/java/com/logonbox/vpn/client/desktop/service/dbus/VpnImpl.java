@@ -9,13 +9,16 @@ import com.logonbox.vpn.client.common.dbus.VPN;
 import com.logonbox.vpn.client.common.dbus.VPNFrontEnd;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.desktop.service.DesktopServiceContext;
+import com.logonbox.vpn.drivers.lib.DNSProvider;
 
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,17 @@ public class VpnImpl extends AbstractVPNComponent implements VPN {
 	public boolean isRemote() {
 		return true;
 	}
+
+    @Override
+    public String[] getAvailableDNSMethods() {
+        var l = new ArrayList<String>();
+        for(var fact : ServiceLoader.load(DNSProvider.Factory.class))  {
+            for(var clazz : fact.available()) {
+                l.add(clazz.getName());
+            }
+        }
+        return l.toArray(new String[0]);
+    }
 
 	@Override
 	public String[] getKeys() {
@@ -56,7 +70,7 @@ public class VpnImpl extends AbstractVPNComponent implements VPN {
 		return AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop-service");
 	}
 
-	@Override
+    @Override
 	public void ping() {
 		assertRegistered();
 		ctx.getFrontEnd(getSourceOrDefault()).ping();

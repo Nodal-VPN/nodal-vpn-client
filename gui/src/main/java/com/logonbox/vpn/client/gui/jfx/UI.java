@@ -14,12 +14,13 @@ import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.ServiceClient;
-import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.drivers.lib.util.OsUtil;
 import com.logonbox.vpn.drivers.lib.util.Util;
+import com.sshtools.jaul.Phase;
+import com.sshtools.jaul.UpdateService;
 
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
@@ -406,12 +407,12 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		configureWebEngine();
 
 		/* Watch for update check state changing */
-		updateService.addListener(() -> {
-			maybeRunLater(() -> {
-				if (getAuthorizingConnection() == null)
-					selectPageForState(false, false);
-			});
-		});
+		updateService.setOnAvailableVersion(ver -> {
+		    maybeRunLater(() -> {
+                if (getAuthorizingConnection() == null)
+                    selectPageForState(false, false);
+            });
+		}); 
 
 		// TEMP
 //		webView.visibleProperty().set(false);
@@ -432,7 +433,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		
 		/* Connection Added */
 		vpnManager.onConnectionAdded(conx -> {
-		    uiContext.getAppContext().getQueue().execute(() -> {
+		    uiContext.getAppContext().getScheduler().execute(() -> {
                 reloadState(() -> {
                     maybeRunLater(() -> {
                         uiContext.reapplyBranding();
@@ -449,7 +450,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		vpnManager.onConnectionRemoved(id -> {
 		    maybeRunLater(() -> {
                 try {
-                    uiContext.getAppContext().getQueue().execute(() -> {
+                    uiContext.getAppContext().getScheduler().execute(() -> {
                         reloadState(() -> {
                             maybeRunLater(() -> {
                                 uiContext.reapplyBranding();
@@ -593,7 +594,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		else
 			LOG.info(String.format("Requesting disconnect, because '{}'", reason));
 
-		uiContext.getAppContext().getQueue().execute(() -> {
+		uiContext.getAppContext().getScheduler().execute(() -> {
 			try {
 				sel.disconnect(Utils.defaultIfBlank(reason, ""));
 			} catch (Exception e) {
@@ -608,7 +609,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		else
 			LOG.info("Requesting disconnect, because '{}'", reason);
 
-		uiContext.getAppContext().getQueue().execute(() -> {
+		uiContext.getAppContext().getScheduler().execute(() -> {
 			try {
 			    vpnManager.getVpnOrFail().disconnectAll();
 			} catch (Exception e) {
@@ -650,9 +651,10 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 			beans.put("dnsIntegrationMethod", "AUTO");
 			beans.put("singleActiveConnection", true);
 			beans.put("mtu", 0);
+	        beans.put("dnsIntegrationMethods", new String[] { "AUTO" });
 		} else {
 			try {
-				beans.put("phases", updateService.getPhases());
+				beans.put("phases", Arrays.asList(updateService.getPhases()).stream().map(Phase::name).toList().toArray(new String[0]));
 			} catch (Exception e) {
 				LOG.warn("Could not get phases.", e);
 			}
@@ -666,6 +668,11 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 			beans.put("mtu", vpn.getIntValue(ConfigurationItem.MTU.getKey()));
 			beans.put("automaticUpdates", vpn.getBooleanValue(ConfigurationItem.AUTOMATIC_UPDATES.getKey()));
 			beans.put("ignoreLocalRoutes", vpn.getBooleanValue(ConfigurationItem.IGNORE_LOCAL_ROUTES.getKey()));
+			
+			var l = new ArrayList<String>();
+			l.add("AUTO");
+			l.addAll(Arrays.asList(vpn.getAvailableDNSMethods()));
+	        beans.put("dnsIntegrationMethods", l.toArray(new String[0]));
 		}
 
 		/* Option collections */
@@ -674,7 +681,6 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		beans.put("darkModes", new String[] { Configuration.DARK_MODE_AUTO, Configuration.DARK_MODE_ALWAYS,
 				Configuration.DARK_MODE_NEVER });
 		beans.put("logLevels", Arrays.asList(Level.values()).stream().map(Level::toString).collect(Collectors.toList()).toArray(new String[0]));
-		beans.put("dnsIntegrationMethods", ConfigurationItem.DNS_INTEGRATION_METHOD.getValues().toArray(new String[0]));
 
 		/* Per-user GUI specific */
 		var config = Configuration.getDefault();
@@ -702,7 +708,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	
 
 	protected void joinNetwork(IVpnConnection connection) {
-	    uiContext.getAppContext().getQueue().execute(() -> {
+	    uiContext.getAppContext().getScheduler().execute(() -> {
 			connection.connect();
 		});
 	}
@@ -710,7 +716,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	protected void addConnection(Boolean stayConnected, Boolean connectAtStartup, String unprocessedUri, Mode mode)
 			throws URISyntaxException {
 		URI uriObj = ConnectionUtil.getUri(unprocessedUri);
-		uiContext.getAppContext().getQueue().execute(() -> {
+		uiContext.getAppContext().getScheduler().execute(() -> {
 			try {
 			    vpnManager.getVpnOrFail().createConnection(uriObj.toASCIIString(), connectAtStartup, stayConnected,
 						mode.name());
@@ -724,7 +730,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 			throws IOException {
 		try(var r = Files.newBufferedReader(file)) {
 			String content = Utils.toString(r);
-			uiContext.getAppContext().getQueue().execute(() -> {
+			uiContext.getAppContext().getScheduler().execute(() -> {
 				try {
 				    vpnManager.getVpnOrFail().importConfiguration(content);
 				} catch (Exception e) {
@@ -740,7 +746,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	}
 
 	protected void authorize(IVpnConnection n) {
-	    uiContext.getAppContext().getQueue().execute(() -> {
+	    uiContext.getAppContext().getScheduler().execute(() -> {
 			try {
 				n.authorize();
 			} catch (Exception e) {
@@ -833,7 +839,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 					String reason = value != null ? value.getMessage() : null;
 					LOG.info(String.format("Got error while authorizing. Disconnecting now using '%s' as the reason",
 							reason));
-					uiContext.getAppContext().getQueue().execute(() -> {
+					uiContext.getAppContext().getScheduler().execute(() -> {
 						try {
 							priorityConnection.disconnect(reason);
 						} catch (Exception e) {
@@ -1359,7 +1365,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	
 	public void connectToUri(String unprocessedUri) {
         LOG.info("Connected to URI {}", unprocessedUri);
-        uiContext.getAppContext().getQueue().execute(() -> {
+        uiContext.getAppContext().getScheduler().execute(() -> {
             try {
                 LOG.info(String.format("Connected to URI %s", unprocessedUri));
                 URI uriObj;
@@ -1455,7 +1461,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	private void doDelete(IVpnConnection sel) {
 		setHtmlPage("busy.html");
 		LOG.info(String.format("Deleting connection %s", sel));
-		uiContext.getAppContext().getQueue().execute(() -> sel.delete());
+		uiContext.getAppContext().getScheduler().execute(() -> sel.delete());
 	}
 
 	private void reloadState(Runnable then) {

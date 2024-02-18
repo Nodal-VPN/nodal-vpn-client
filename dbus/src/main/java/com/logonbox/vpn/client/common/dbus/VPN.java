@@ -34,6 +34,10 @@ public interface VPN extends IVpn<VpnConnection>, DBusInterface {
     
     @Override
     @DBusBoundProperty
+    String[] getAvailableDNSMethods();
+    
+    @Override
+    @DBusBoundProperty
     long getMaxMemory();
 
     @Override

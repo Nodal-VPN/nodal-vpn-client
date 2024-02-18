@@ -1,6 +1,6 @@
 package com.logonbox.vpn.client.gui.jfx;
 
-import com.logonbox.vpn.client.common.App;
+import com.logonbox.vpn.client.common.AppConstants;
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.PlatformUtilities;
 import com.logonbox.vpn.client.common.lbapi.Branding;
@@ -41,7 +41,7 @@ public class Styling {
             return context.getAppContext().getTempDir().resolve(System.getProperty("user.name") + "-lbvpn-web.css");
         }
         else {
-            return App.CLIENT_HOME.resolve("lbvpn-web.css");
+            return AppConstants.CLIENT_HOME.resolve("lbvpn-web.css");
         }
 	}
 
@@ -57,7 +57,7 @@ public class Styling {
 	        return context.getAppContext().getTempDir().resolve(System.getProperty("user.name") + "-lbvpn-jfx.css");
 	    }
 	    else {
-            return App.CLIENT_HOME.resolve("lbvpn-jfx.css");
+            return AppConstants.CLIENT_HOME.resolve("lbvpn-jfx.css");
 	    }
 	}
 	

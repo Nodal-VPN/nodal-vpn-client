@@ -1,3 +1,4 @@
+import com.logonbox.vpn.drivers.lib.DNSProvider;
 import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
 
 open module com.logonbox.vpn.client.desktop.service {
@@ -14,5 +15,6 @@ open module com.logonbox.vpn.client.desktop.service {
     requires java.logging;
     requires com.logonbox.vpn.client.logging;
     
-    uses PlatformServiceFactory; 
+    uses PlatformServiceFactory;
+    uses DNSProvider.Factory;
 }

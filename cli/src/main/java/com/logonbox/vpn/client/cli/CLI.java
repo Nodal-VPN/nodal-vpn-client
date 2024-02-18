@@ -20,13 +20,14 @@ import com.logonbox.vpn.client.common.ClientPromptingCertManager;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.LoggingConfig.Audience;
 import com.logonbox.vpn.client.common.PromptingCertManager;
-import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
 import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
 import com.logonbox.vpn.drivers.lib.util.Util;
+import com.sshtools.jaul.Phase;
+import com.sshtools.jaul.UpdateService;
 
 import org.slf4j.event.Level;
 
@@ -56,7 +57,7 @@ import uk.co.bithatch.nativeimage.annotations.Resource;
 		About.class, Edit.class, Update.class, Debug.class, Config.class, Shutdown.class })
 @Bundle
 @Resource({"default-log4j-cli\\.properties"})
-public class CLI extends AbstractDBusApp implements Runnable, CLIContext {
+public class CLI extends AbstractDBusApp implements CLIContext {
 
     @Reflectable
 	public final static class VersionProvider implements IVersionProvider {
@@ -130,7 +131,7 @@ public class CLI extends AbstractDBusApp implements Runnable, CLIContext {
 	}
 
 	@Override
-	public void run() {
+	protected int onCall() {
 		try {
 		    
 		    log = initApp();
@@ -174,6 +175,8 @@ public class CLI extends AbstractDBusApp implements Runnable, CLIContext {
 		} finally {
 	        shutdown(false);
 		}
+		
+		return 0;
 	}
 	
     @Override
@@ -387,8 +390,8 @@ public class CLI extends AbstractDBusApp implements Runnable, CLIContext {
         }
 
         @Override
-        public ScheduledExecutorService getQueue() {
-            return CLI.this.getQueue();
+        public ScheduledExecutorService getScheduler() {
+            return CLI.this.getScheduler();
         }
 
         @Override
@@ -399,6 +402,36 @@ public class CLI extends AbstractDBusApp implements Runnable, CLIContext {
         @Override
         public LoggingConfig getLogging() {
             return CLI.this.getLogging();
+        }
+
+        @Override
+        public boolean isAutomaticUpdates() {
+            return CLI.this.isAutomaticUpdates();
+        }
+
+        @Override
+        public void setAutomaticUpdates(boolean automaticUpdates) {
+            CLI.this.setAutomaticUpdates(automaticUpdates);
+        }
+
+        @Override
+        public Phase getPhase() {
+            return CLI.this.getPhase();
+        }
+
+        @Override
+        public void setPhase(Phase phase) {
+            CLI.this.setPhase(phase);            
+        }
+
+        @Override
+        public long getUpdatesDeferredUntil() {
+            return CLI.this.getUpdatesDeferredUntil();
+        }
+
+        @Override
+        public void setUpdatesDeferredUntil(long timeMs) {
+            CLI.this.setUpdatesDeferredUntil(timeMs);
         }
 
 	}

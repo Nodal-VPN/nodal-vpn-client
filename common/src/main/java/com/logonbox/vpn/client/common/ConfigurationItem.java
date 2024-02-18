@@ -1,18 +1,14 @@
 package com.logonbox.vpn.client.common;
 
 
-import com.logonbox.vpn.drivers.lib.DNSProvider;
-
 import org.slf4j.event.Level;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.ServiceLoader;
 import java.util.Set;
 
 
@@ -25,20 +21,10 @@ public class ConfigurationItem<T> {
     public enum TrayMode {
         DARK, COLOR, LIGHT, AUTO, OFF
     }
-	
-	public static String[] dnsProviders() {
-	    var l = new ArrayList<String>();
-	    for(var fact : ServiceLoader.load(DNSProvider.Factory.class))  {
-            for(var clazz : fact.available()) {
-                l.add(clazz.getName());
-            }
-        }
-	    return l.toArray(new String[0]);
-	}
 
 	public final static ConfigurationItem<Level> LOG_LEVEL = add("logLevel", Level.class, Level.INFO, Level.TRACE, Level.DEBUG, Level.WARN, Level.INFO, Level.ERROR, Level.ERROR);
 	public final static ConfigurationItem<Boolean> IGNORE_LOCAL_ROUTES = add("ignoreLocalRoutes", Boolean.class, true, true, false);
-	public final static ConfigurationItem<String> DNS_INTEGRATION_METHOD = add("dnsIntegrationMethod", String.class, "AUTO", dnsProviders());
+	public final static ConfigurationItem<String> DNS_INTEGRATION_METHOD = add("dnsIntegrationMethod", String.class, "AUTO");
 	public final static ConfigurationItem<Boolean> AUTOMATIC_UPDATES = add("automaticUpdates", Boolean.class, Scope.USER, true, true, false);
 	public final static ConfigurationItem<Boolean> SINGLE_ACTIVE_CONNECTION = add("singleActiveConnection", Boolean.class, Scope.GLOBAL, true, true, false);
 	public final static ConfigurationItem<String> PHASE = add("phase", String.class, "stable", "stable", "ea", "nightly");

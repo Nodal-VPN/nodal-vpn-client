@@ -1,6 +1,6 @@
 package com.logonbox.vpn.client;
 
-import com.logonbox.vpn.client.common.App;
+import com.logonbox.vpn.client.common.AppConstants;
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
@@ -72,7 +72,7 @@ public abstract class AbstractService<CONX extends IVpnConnection> implements Lo
 		checkForUninstalling();
 		clientService.stopService();
 		try {
-			getQueue().shutdown();
+		    getScheduler().shutdown();
 		}
 		finally {
 			try {
@@ -124,7 +124,7 @@ public abstract class AbstractService<CONX extends IVpnConnection> implements Lo
 	@Override
 	public final  CookieStore getCookieStore() {
 		if (cookieStore == null) {
-		    var cookieDat = App.CLIENT_HOME.resolve("service-cookies.dat");
+		    var cookieDat = AppConstants.CLIENT_HOME.resolve("service-cookies.dat");
             try {
 		        cookieStore = new CustomCookieStore(cookieDat.toFile());
 		    }
@@ -151,7 +151,7 @@ public abstract class AbstractService<CONX extends IVpnConnection> implements Lo
 	}
 
 	@Override
-	public final  ScheduledExecutorService getQueue() {
+	public final  ScheduledExecutorService getScheduler() {
 		return queue;
 	}
 

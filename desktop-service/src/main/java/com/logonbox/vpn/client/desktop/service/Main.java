@@ -2,7 +2,7 @@ package com.logonbox.vpn.client.desktop.service;
 
 import com.logonbox.vpn.client.AbstractService;
 import com.logonbox.vpn.client.app.SimpleLoggingConfig;
-import com.logonbox.vpn.client.common.App;
+import com.logonbox.vpn.client.common.AppConstants;
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.ConfigurationItem;
@@ -538,7 +538,7 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
     @Override
     protected void onStartServices() {
 
-        getQueue().scheduleWithFixedDelay(() -> {
+        getScheduler().scheduleWithFixedDelay(() -> {
             long now = System.currentTimeMillis();
             Set<VPNFrontEnd> toRemove = new LinkedHashSet<>();
             synchronized (getFrontEnds()) {
@@ -822,7 +822,7 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 						var busPath = Paths.get(embeddedBusAddress.getParameterValue("path"));
 						getPlatformService().openToEveryone(busPath);
 						log.info("Monitoring {}", busPath);
-						checkTask = getQueue().scheduleAtFixedRate(() -> {
+						checkTask = getScheduler().scheduleAtFixedRate(() -> {
 							if(!Files.exists(busPath)) {
 								log.warn("DBus socket file {} has gone missing, restarting.", busPath);
 								shutdownEmbeddedDaemon();
@@ -870,7 +870,7 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 	private void disconnectAndRetry() {
 		log.info("Disconnected from Bus, retrying");
 		conn = null;
-		connTask = getQueue().schedule(() -> {
+		connTask = getScheduler().schedule(() -> {
 			try {
 				connect();
 				createVpn();
@@ -894,7 +894,7 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 		if (path != null) {
 			file = new File(path);
 		} else if (Boolean.getBoolean("logonbox.development")) {
-			file = App.CLIENT_CONFIG_HOME.resolve(type + ".properties").toFile();
+			file = AppConstants.CLIENT_CONFIG_HOME.resolve(type + ".properties").toFile();
 		} else {
 			file = new File("conf" + File.separator + type + ".properties");
 		}

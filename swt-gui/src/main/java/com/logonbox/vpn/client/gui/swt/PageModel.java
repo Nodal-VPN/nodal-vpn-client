@@ -6,13 +6,13 @@ import static com.logonbox.vpn.drivers.lib.util.Util.toHumanSize;
 import com.equo.chromium.swt.Browser;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConnectionStatus;
-import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.client.common.dbus.VPN;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.common.lbapi.Branding;
+import com.sshtools.jaul.UpdateService;
 
 //import org.eclipse.swt.browser.Browser;
 import org.jsoup.nodes.Document;

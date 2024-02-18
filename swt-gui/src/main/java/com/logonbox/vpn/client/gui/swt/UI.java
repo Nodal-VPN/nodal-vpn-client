@@ -18,12 +18,12 @@ import com.logonbox.vpn.client.common.ConnectionUtil;
 import com.logonbox.vpn.client.common.ServiceClient;
 import com.logonbox.vpn.client.common.ServiceClient.DeviceCode;
 import com.logonbox.vpn.client.common.ServiceClient.NameValuePair;
-import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.common.lbapi.InputField;
 import com.logonbox.vpn.client.common.lbapi.LogonResult;
+import com.sshtools.jaul.UpdateService;
 import com.sshtools.liftlib.OS;
 
 import org.eclipse.swt.SWT;
@@ -478,11 +478,11 @@ public class UI {
 		configureWebEngine();
 
 		/* Watch for update check state changing */
-		main.getUpdateService().addListener(() -> {
-			maybeRunLater(display, () -> {
-				if (getAuthorizingConnection() == null)
-					selectPageForState(false, false);
-			});
+		main.getUpdateService().setOnAvailableVersion(ver -> {
+            maybeRunLater(display, () -> {
+                if (getAuthorizingConnection() == null)
+                    selectPageForState(false, false);
+            });
 		});
 
 		/* Initial page */

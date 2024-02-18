@@ -326,8 +326,6 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 
         onInit();
 
-        app.getUpdateService().checkIfBusAvailable();
-
         /* Create cert manager */
         log.info("Cert manager: {}", app.getCertManager());
     }
@@ -424,7 +422,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 
         onVpnAvailable.forEach(Runnable::run);
 		
-		pingTask = app.getQueue().scheduleAtFixedRate(() -> {
+		pingTask = app.getScheduler().scheduleAtFixedRate(() -> {
 			synchronized (initLock) {
 				if (isBackendAvailable()) {
 					try {
@@ -496,7 +494,6 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 	                });
 				}
 				setVPN(null);
-				app.getUpdateService().checkIfBusAvailable();
 			}
 
             if (conn != null) {
@@ -515,7 +512,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 			 * Only really likely to happen with the embedded bus. As the service itself
 			 * hosts it.
 			 */
-			app.getQueue().schedule(() -> {
+			app.getScheduler().schedule(() -> {
 				synchronized (initLock) {
 					try {
 						init();

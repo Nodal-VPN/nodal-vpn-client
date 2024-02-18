@@ -72,9 +72,8 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 		instance = this;
 	}
 
-
 	@Override
-	public Integer call() throws Exception {
+	protected int onCall() throws Exception {
 
         initApp();
         
@@ -141,7 +140,7 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
     	                                    .type(ToastType.INFO).defaultAction(() -> open())
     	                                    .action(Tray.bundle.getString("reconnect"), () -> {
     	                                        open();
-    	                                        getQueue().execute(() -> mgr.getVpnOrFail().getConnection(conx.getId()).connect());
+    	                                        getScheduler().execute(() -> mgr.getVpnOrFail().getConnection(conx.getId()).connect());
     	                                    }).timeout(0).toast());
     	            } catch (Exception e) {
     	                log.error("Failed to get connection, delete not possible.", e);
@@ -290,7 +289,7 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
                                 connection.getHostname()))
                         .type(ToastType.INFO).defaultAction(() -> open()).action(Tray.bundle.getString("open"), () -> {
                             open();
-                            getQueue().execute(() -> getVpnManager().getVpnOrFail().getConnection(connection.getId()).connect());
+                            getScheduler().execute(() -> getVpnManager().getVpnOrFail().getConnection(connection.getId()).connect());
                         }).timeout(0).toast());
     }
 }

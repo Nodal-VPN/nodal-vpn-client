@@ -2,8 +2,8 @@ package com.logonbox.vpn.client.cli;
 
 import com.logonbox.vpn.client.common.AppContext;
 import com.logonbox.vpn.client.common.PromptingCertManager;
-import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
+import com.sshtools.jaul.UpdateService;
 
 import java.io.IOException;
 import java.net.CookieStore;

@@ -1,6 +1,7 @@
 package com.logonbox.vpn.client.desktop;
 
 import static com.sshtools.jajafx.FXUtil.maybeQueue;
+import static javafx.application.Platform.runLater;
 
 import com.install4j.api.launcher.StartupNotification;
 import com.logonbox.vpn.client.common.BrandingManager.BrandImage;
@@ -146,7 +147,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
             waitingForExitChoice = true;
             try {
                 var result = alert.showAndWait();
-                getAppContext().getQueue().execute(() -> {
+                getAppContext().getScheduler().execute(() -> {
                     if (result.get() == disconnect) {
                         getAppContext().getVpnManager().getVpnOrFail().disconnectAll();
                     }
@@ -324,6 +325,8 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
 
     @Override
     public void reapplyBranding() {
+        log.info("Re-applying branding.");
+        
         var primaryScene = vpnWindow().scene();
         var node = primaryScene.getRoot();
         var branding = ui.getBrandingManager().branding().orElse(null);
@@ -344,7 +347,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
         ss.add(css);
 
         String defaultLogo = UI.class.getResource("logonbox-titlebar-logo.png").toExternalForm();
-        if ((branding == null || branding.logo().isEmpty()) && !defaultLogo.equals(navigator().getImage().getUrl())) {
+        if ((branding == null || branding.logo().isEmpty()) && !defaultLogo.equals(navigator().getImage() == null ? null : navigator().getImage().getUrl())) {
             navigator().setImage(new Image(defaultLogo, true));
         } else if (branding != null && branding.logo().isPresent()
                 && !defaultLogo.equals(branding.logo().get().toUri().toString())) {
@@ -378,9 +381,8 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
     protected Node createContent(Stage stage) {
         ui = new UI<>(this);
         ui.getBrandingManager().addBrandingChangeListener((bd) -> {
-            reapplyBranding();
+           runLater(() -> reapplyBranding());
         });
-
         return ui;
     }
 
@@ -408,7 +410,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
             cfgBounds =  new Rectangle2D(x, y, w, h);
         }
         
-        wnd.configurePersistentGeometry(new Rectangle2D(256, 256, 1024, 1024), cfgBounds, bnds -> {
+        wnd.configurePersistentGeometry(new Rectangle2D(300, 400, 512, 512), cfgBounds, bnds -> {
             cfg.xProperty().set((int)bnds.getMinX());
             cfg.yProperty().set((int)bnds.getMinY());
             cfg.wProperty().set((int)bnds.getWidth());
@@ -448,6 +450,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
 
         this.originalCookieHander = CookieHandler.getDefault();
         updateCookieHandlerState();
+        reapplyBranding();
     }
 
     protected void updateCookieHandlerState() {

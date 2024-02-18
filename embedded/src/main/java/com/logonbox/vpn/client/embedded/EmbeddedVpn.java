@@ -7,11 +7,14 @@ import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.api.IVpn;
+import com.logonbox.vpn.drivers.lib.DNSProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.UUID;
 
 public class EmbeddedVpn implements IVpn<EmbeddedVpnConnection> {
@@ -30,6 +33,17 @@ public class EmbeddedVpn implements IVpn<EmbeddedVpnConnection> {
     @Override
     public String[] getKeys() {
         return ctx.getClientService().getKeys();
+    }
+
+    @Override
+    public String[] getAvailableDNSMethods() {
+        var l = new ArrayList<String>();
+        for(var fact : ServiceLoader.load(DNSProvider.Factory.class))  {
+            for(var clazz : fact.available()) {
+                l.add(clazz.getName());
+            }
+        }
+        return l.toArray(new String[0]);
     }
 
 

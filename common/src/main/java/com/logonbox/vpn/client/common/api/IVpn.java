@@ -18,6 +18,8 @@ public interface IVpn<CONX extends IVpnConnection> {
 
 	String getDeviceName();
 
+    String[] getAvailableDNSMethods();
+
 	void shutdown(boolean restart);
 	
 	long importConfiguration(String configuration);

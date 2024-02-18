@@ -109,6 +109,7 @@
     
 		function uiReady() {
             bridgeReference =  bridge;
+            var bundleRef = pageBundle;
             
 			try {
                 $('#logLevel').off('change');
@@ -137,10 +138,10 @@
 
 				if ($('#phase').length) {
 					for (var i = 0; i < phases.length; i++) {
-						var key = 'phase.' + phases[i];
+						var key = 'phase.' + phases[i].toLowerCase();
 						var txt = 'i18n:' + key;
 						try {
-							txt = pageBundle.getString(key);
+							txt = bundleRef.getString(key);
 						} catch (e) {}
 						$('#phase').append('<option value="' + phases[i] + '" ' + (phases[i] == phase ? 'selected=""' : '') + '>' + txt + '</option>');
 					}
@@ -151,7 +152,7 @@
                         var key = 'trayMode.' + trayModes[i];
                         var txt = 'i18n:' + key;
                         try {
-                            txt = pageBundle.getString(key);
+                            txt = bundleRef.getString(key);
                         } catch (e) {}
                         
 						try {
@@ -166,7 +167,7 @@
                         var key = 'darkMode.' + darkModes[i];
                         var txt = 'i18n:' + key;
                         try {
-                            txt = pageBundle.getString(key);
+                            txt = bundleRef.getString(key);
                         } catch (e) {}
                         
 						$('#darkMode').append('<option ' + (darkModes[i] == darkMode ? 'selected="selected"' : '') + ' value="' + darkModes[i] + '">' + txt + '</option>');
@@ -177,7 +178,7 @@
                     var key = 'logLevel.' + logLevels[i];
                     var txt = 'i18n:' + key;
                     try {
-                        txt = pageBundle.getString(key); 
+                        txt = bundleRef.getString(key); 
                     } catch (e) {}
                     
 					try {
@@ -188,10 +189,13 @@
 				}
 
 				for (var i = 0; i < dnsIntegrationMethods.length; i++) {
-                    var key = 'dnsIntegrationMethod.' + dnsIntegrationMethods[i];
+                    var key = 'dnsIntegrationMethod.' + (dnsIntegrationMethods[i].split('\\.').slice(-1)[0]).toUpperCase();
+                    if(key.endsWith('DNSPROVIDER')) {
+                    	key = key.substring(0, key.length - 11);
+                    }
                     var txt = 'i18n:' + key;
                     try {
-                        txt = pageBundle.getString(key);
+                        txt = bundleRef.getString(key);
                     } catch (e) {}
                     
 					$('#dnsIntegrationMethod').append('<option ' + (dnsIntegrationMethods[i] == dnsIntegrationMethod ? 'selected="selected"' : '') + ' value="' + dnsIntegrationMethods[i] + '">' + txt + '</option>');

@@ -5,12 +5,12 @@ import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ClientPromptingCertManager;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.LoggingConfig.Audience;
-import com.logonbox.vpn.client.common.NoUpdateService;
 import com.logonbox.vpn.client.common.PlatformUtilities;
 import com.logonbox.vpn.client.common.PromptingCertManager;
-import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
 import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
+import com.sshtools.jaul.NoUpdateService;
+import com.sshtools.jaul.UpdateService;
 
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.event.Level;
@@ -18,7 +18,6 @@ import org.slf4j.event.Level;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -26,7 +25,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "logonbox-vpn-gui-swt", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.")
-public class Main extends AbstractDBusApp implements Callable<Integer> {
+public class Main extends AbstractDBusApp {
 
 	/**
 	 * Used to get version from Maven meta-data
@@ -89,7 +88,7 @@ public class Main extends AbstractDBusApp implements Callable<Integer> {
     }
 
     @Override
-    public Integer call() throws Exception {
+    protected int onCall() throws Exception {
 
         log = initApp();
 

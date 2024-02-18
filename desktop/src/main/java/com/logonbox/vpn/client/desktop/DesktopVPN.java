@@ -7,15 +7,15 @@ import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ClientPromptingCertManager;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.LoggingConfig.Audience;
-import com.logonbox.vpn.client.common.NoUpdateService;
 import com.logonbox.vpn.client.common.PlatformUtilities;
 import com.logonbox.vpn.client.common.PromptingCertManager;
-import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
 import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
 import com.logonbox.vpn.client.gui.jfx.JfxAppContext;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
+import com.sshtools.jaul.NoUpdateService;
+import com.sshtools.jaul.UpdateService;
 
 import org.slf4j.event.Level;
 
@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 
 //import javax.swing.UIManager;
 //import javax.swing.UnsupportedLookAndFeelException;
@@ -41,7 +40,7 @@ import uk.co.bithatch.nativeimage.annotations.Reflectable;
 
 @Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.", versionProvider = DesktopVPN.VersionProvider.class
 ) 
-public class DesktopVPN extends AbstractDBusApp implements Callable<Integer>, Listener, JfxAppContext<VpnConnection> {
+public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppContext<VpnConnection> {
 	@Reflectable
     public final static class VersionProvider implements IVersionProvider {
         
@@ -154,7 +153,7 @@ public class DesktopVPN extends AbstractDBusApp implements Callable<Integer>, Li
 	}
 
     @Override
-	public Integer call() throws Exception {
+	protected int onCall() throws Exception {
 
         log = initApp();
 
