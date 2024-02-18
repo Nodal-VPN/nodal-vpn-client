@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.6" transformSequenceNumber="10">
-  <directoryPresets config="./os/linux/dbus/logonbox-vpn-service.conf" />
+  <directoryPresets config="./target" />
   <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
@@ -40,6 +40,7 @@
       <mountPoint id="1487" location="cli" />
       <mountPoint id="2041" location="images" />
       <mountPoint id="2189" location="converter" />
+      <mountPoint id="2256" location="tray" />
       <mountPoint id="2032" />
       <mountPoint id="2037" root="2036" />
     </mountPoints>
@@ -60,6 +61,7 @@
       <dirEntry mountPoint="1487" file="./target/cli" subDirectory="cli" />
       <fileEntry mountPoint="2041" file="./images/splash.png" />
       <dirEntry mountPoint="2189" file="./target/converter" subDirectory="service" />
+      <dirEntry mountPoint="2256" file="./target/tray" subDirectory="tray" />
       <fileEntry mountPoint="2032" file="./scripts/cleanup.bat" />
       <fileEntry mountPoint="2032" file="./EULA.txt" />
       <fileEntry mountPoint="2032" file="./WireGuardNT-LICENSE.txt" />
@@ -107,6 +109,15 @@
           <entry location="EULA.txt" />
           <entry location="WIREGUARD-LICENSE.txt" />
           <entry location="logonbox-vpn-cli" fileType="launcher" />
+        </include>
+        <dependencies>
+          <component id="1676" />
+        </dependencies>
+      </component>
+      <component name="Tray Icon" id="2259">
+        <include>
+          <entry location="tray" />
+          <entry location="logonbox-vpn-tray-icon" fileType="launcher" />
         </include>
         <dependencies>
           <component id="1676" />
@@ -240,6 +251,34 @@
           <scanDirectory location="converter" failOnError="false" />
         </classPath>
       </java>
+      <iconImageFiles>
+        <file path="./images/logo16px.png" />
+        <file path="./images/logo32px.png" />
+        <file path="./images/logo48px.png" />
+        <file path="./images/logo128px.png" />
+      </iconImageFiles>
+    </launcher>
+    <launcher name="logonbox-vpn-tray-icon" id="2257" menuName="LogonBox VPN Tray Icon" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.TrayIcon" swtApp="true">
+      <executable name="logonbox-vpn-tray-icon" iconSet="true" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/tray-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/tray-app.log" executableMode="gui" singleInstance="true" dpiAware="true">
+        <versionInfo include="true" fileDescription="Tray icon for the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
+      </executable>
+      <splashScreen show="true" bitmapFile="./images/splash.png" />
+      <java mainClass="com.logonbox.vpn.client.tray.TrayDaemon">
+        <classPath>
+          <scanDirectory location="tray" failOnError="false" />
+        </classPath>
+      </java>
+      <vmOptionsFile mode="content" overwriteMode="2">
+        <content>-include-options ${HOME}/.logonbox-vpn-client/tray.vmoptions
+-Xmx32m
+-Djdk.internal.httpclient.disableHostnameVerification=true
+-Dlogonbox.vpn.logConfiguration=conf/tray.log.properties
+-Djna.nosys=true
+-Djna_tmpdir="${launcher:sys.tempDir}"
+-Djava.net.preferIPv4Stack=true</content>
+      </vmOptionsFile>
+      <infoPlist>&lt;key&gt;NSUserNotificationAlertStyle&lt;/key&gt;
+&lt;string&gt;alert&lt;/string&gt;</infoPlist>
       <iconImageFiles>
         <file path="./images/logo16px.png" />
         <file path="./images/logo32px.png" />

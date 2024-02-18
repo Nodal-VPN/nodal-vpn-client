@@ -417,6 +417,9 @@
                                             <directory>target/cli</directory>
                                         </fileset>
                                         <fileset>
+                                            <directory>target/tray</directory>
+                                        </fileset>
+                                        <fileset>
                                             <directory>target/service</directory>
                                         </fileset>
                                         <fileset>
@@ -475,6 +478,20 @@
                                     <output>${project.build.directory}/service</output>
                                     <artifacts>
                                         <artifact>com.logonbox:client-logonbox-vpn-desktop-service:${project.version}</artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copy-tray</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>get-artifacts</goal>
+                                </goals>
+                                <configuration>
+                                    <includeVersion>false</includeVersion>
+                                    <output>${project.build.directory}/tray</output>
+                                    <artifacts>
+                                        <artifact>com.logonbox:client-logonbox-vpn-tray:${project.version}</artifact>
                                     </artifacts>
                                 </configuration>
                             </execution>
