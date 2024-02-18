@@ -262,7 +262,7 @@
       <executable name="logonbox-vpn-tray-icon" iconSet="true" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/tray-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/tray-app.log" executableMode="gui" singleInstance="true" dpiAware="true">
         <versionInfo include="true" fileDescription="Tray icon for the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
       </executable>
-      <splashScreen show="true" bitmapFile="./images/splash.png" />
+      <splashScreen bitmapFile="./images/splash.png" />
       <java mainClass="com.logonbox.vpn.client.tray.TrayDaemon">
         <classPath>
           <scanDirectory location="tray" failOnError="false" />
