@@ -9,6 +9,7 @@ import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 
 import org.freedesktop.dbus.exceptions.DBusException;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -112,7 +113,7 @@ public class Connect extends AbstractConnectionCommand implements Callable<Integ
 				}
 				catch(Exception e) {
 					disconnect(connection, cli);
-					log.info("Connection failed.", e);
+					LoggerFactory.getLogger(AbstractConnectionCommand.class).info("Connection failed.", e);
 					err.println(String.format("Failed to connect. %s", e.getMessage()));
 					if(e.getMessage() == null)
 						e.printStackTrace(err);

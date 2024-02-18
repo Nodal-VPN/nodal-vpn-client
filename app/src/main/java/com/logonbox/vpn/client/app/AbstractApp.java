@@ -59,9 +59,6 @@ public abstract class AbstractApp<CONX extends IVpnConnection> implements AppCon
 	private LoggingConfig logging;
 
 	protected AbstractApp() {
-		certManager = createCertManager();
-		if(certManager != null)
-		    certManager.installCertificateVerifier();
 		
 		scheduler = Executors.newScheduledThreadPool(1);
 
@@ -129,6 +126,9 @@ public abstract class AbstractApp<CONX extends IVpnConnection> implements AppCon
 
 	@Override
     public final PromptingCertManager getCertManager() {
+	    if(certManager == null) {
+	        certManager = createCertManager();
+	    }
 		return certManager;
 	}
 

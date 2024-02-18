@@ -13,8 +13,6 @@ import com.logonbox.vpn.client.common.lbapi.InputField;
 import com.logonbox.vpn.client.common.lbapi.LogonResult;
 
 import org.freedesktop.dbus.exceptions.DBusException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -35,7 +33,6 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
 
 public abstract class AbstractConnectionCommand implements Callable<Integer>, IVersionProvider {
-	static Logger log = LoggerFactory.getLogger(AbstractConnectionCommand.class);
 
 	@Spec
 	protected CommandSpec spec;

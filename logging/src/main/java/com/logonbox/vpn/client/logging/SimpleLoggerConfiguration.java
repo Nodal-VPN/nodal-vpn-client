@@ -5,6 +5,7 @@ import com.logonbox.vpn.client.logging.OutputChoice.OutputChoiceType;
 import org.slf4j.helpers.Util;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -115,14 +116,25 @@ public class SimpleLoggerConfiguration {
 
     private void loadProperties() {
         // Add props from the resource simplelogger.properties
-        InputStream in = AccessController.doPrivileged((PrivilegedAction<InputStream>) () -> {
-            ClassLoader threadCL = Thread.currentThread().getContextClassLoader();
-            if (threadCL != null) {
-                return threadCL.getResourceAsStream(CONFIGURATION_FILE);
-            } else {
-                return ClassLoader.getSystemResourceAsStream(CONFIGURATION_FILE);
+        InputStream in = null;
+        File file = new File(CONFIGURATION_FILE);
+        if(file.exists()) {
+            try {
+                in = new FileInputStream(file);
+            } catch (FileNotFoundException e) {
             }
-        });
+        }
+        
+        if(in == null) {
+            in = AccessController.doPrivileged((PrivilegedAction<InputStream>) () -> {
+                ClassLoader threadCL = Thread.currentThread().getContextClassLoader();
+                if (threadCL != null) {
+                    return threadCL.getResourceAsStream(CONFIGURATION_FILE);
+                } else {
+                    return ClassLoader.getSystemResourceAsStream(CONFIGURATION_FILE);
+                }
+            });
+        }
         if (null != in) {
             try {
                 properties.load(in);

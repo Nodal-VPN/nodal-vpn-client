@@ -97,11 +97,6 @@ public class CLI extends AbstractDBusApp implements Runnable, CLIContext {
 
 	public CLI() {
 		super();
-		try {
-			console = new NativeConsoleDevice();
-		} catch (IllegalArgumentException iae) {
-			console = new BufferedDevice();
-		}
 
 	}
 
@@ -139,6 +134,13 @@ public class CLI extends AbstractDBusApp implements Runnable, CLIContext {
 		try {
 		    
 		    log = initApp();
+
+	        try {
+	            console = new NativeConsoleDevice();
+	        } catch (IllegalArgumentException iae) {
+	            console = new BufferedDevice();
+	        }
+	        
 	        getVpnManager().onVpnAvailable(() -> {
 	            log.info("Configuring Bus");
 	            giveUpWaitingForServiceStart();
