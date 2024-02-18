@@ -524,6 +524,7 @@
                                         <install4j.windowsKeystoreSerial>${install4j.windowsKeystoreSerial}</install4j.windowsKeystoreSerial>>
                                         <install4j.windowsKeystoreSubject>${install4j.windowsKeystoreSubject}</install4j.windowsKeystoreSubject>
                                     </variables>
+                                    <verbose>true</verbose>
                                     <jvmArguments>
                                         <jvmArgument>-Xmx2048m</jvmArgument>
                                     </jvmArguments>
