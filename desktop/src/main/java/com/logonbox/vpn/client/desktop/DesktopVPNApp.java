@@ -9,6 +9,7 @@ import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.dbus.RemoteUI;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
+import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.Debugger;
 import com.logonbox.vpn.client.gui.jfx.JfxAppContext;
 import com.logonbox.vpn.client.gui.jfx.Navigator;
@@ -40,7 +41,7 @@ import java.util.prefs.Preferences;
 import javax.imageio.ImageIO;
 
 import javafx.application.Platform;
-import javafx.collections.ListChangeListener;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
@@ -51,7 +52,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.DialogPane;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<VpnConnection>, RemoteUI {
@@ -366,6 +366,10 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
     protected JajaFXAppWindow createAppWindow(Stage stage) {
         if(vpnWindow == null) {
             vpnWindow = new DesktopVPNAppWindow(stage, createContent(stage), this);
+            stage.setOnCloseRequest(evt -> {
+                evt.consume();
+                maybeExit();
+            });
         }
         return vpnWindow;
     }
@@ -380,26 +384,6 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
         return ui;
     }
 
-    protected void keepInBounds(Stage primaryStage) {
-
-        var screens = Screen.getScreensForRectangle(primaryStage.getX(), primaryStage.getY(), primaryStage.getWidth(),
-                primaryStage.getHeight());
-        var screen = screens.isEmpty() ? Screen.getPrimary() : screens.get(0);
-        var bounds = screen.getVisualBounds();
-
-        log.info(String.format("Moving into bounds %s from %f,%f", bounds, primaryStage.getX(), primaryStage.getY()));
-        if (primaryStage.getX() < bounds.getMinX()) {
-            primaryStage.setX(bounds.getMinX());
-        } else if (primaryStage.getX() + primaryStage.getWidth() > bounds.getMaxX()) {
-            primaryStage.setX(bounds.getMaxX() - primaryStage.getWidth());
-        }
-        if (primaryStage.getY() < bounds.getMinY()) {
-            primaryStage.setY(bounds.getMinY());
-        } else if (primaryStage.getY() + primaryStage.getHeight() > bounds.getMaxY()) {
-            primaryStage.setY(bounds.getMaxY() - primaryStage.getHeight());
-        }
-    }
-
     protected CookieManager createCookieManager() {
         return new CookieManager(getAppContext().getCookieStore(), CookiePolicy.ACCEPT_ORIGINAL_SERVER);
     }
@@ -412,8 +396,24 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
     }
 
     @Override
-    protected void onConfigurePrimaryStage(Stage stage) {
-        super.onConfigurePrimaryStage(stage);
+    protected void onConfigurePrimaryStage(JajaFXAppWindow wnd, Stage stage) {
+        var cfg = Configuration.getDefault();
+        var x = cfg.xProperty().get();
+        var y = cfg.yProperty().get();
+        var h = cfg.hProperty().get();
+        var w = cfg.wProperty().get();
+        
+        Rectangle2D cfgBounds = null;
+        if(h > 0 && w > 0) {
+            cfgBounds =  new Rectangle2D(x, y, w, h);
+        }
+        
+        wnd.configurePersistentGeometry(new Rectangle2D(256, 256, 1024, 1024), cfgBounds, bnds -> {
+            cfg.xProperty().set((int)bnds.getMinX());
+            cfg.yProperty().set((int)bnds.getMinY());
+            cfg.wProperty().set((int)bnds.getWidth());
+            cfg.hProperty().set((int)bnds.getHeight());
+        });
 
         ui.setAvailable();
 
@@ -423,13 +423,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
         }
 
         debugger.ifPresent(d -> d.setup(this));
-        keepInBounds(stage);
-        Screen.getScreens().addListener(new ListChangeListener<Screen>() {
-            @Override
-            public void onChanged(Change<? extends Screen> c) {
-                keepInBounds(stage);
-            }
-        });
+        wnd.setKeepInBounds(true);
     }
 
     @Override

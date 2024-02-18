@@ -166,7 +166,7 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 		    handles.clear();
             tray.reload();
 		});
-		
+		getVpnManager().start();
 		
 		tray.loop();
 		return 0;

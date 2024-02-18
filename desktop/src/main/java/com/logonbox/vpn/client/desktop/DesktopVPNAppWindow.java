@@ -14,10 +14,12 @@ import javafx.stage.Stage;
 
 public class DesktopVPNAppWindow extends JajaFXAppWindow implements Navigator {
 
+    private static final double DEFAULT_HEIGHT = 768;
+    private static final double DEFAULT_WIDTH = 457;
     private FontIcon back;
 
     public DesktopVPNAppWindow(Stage stage, Node content, DesktopVPNApp app) {
-        super(stage, content, app);
+        super(stage, content, app, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     @Override

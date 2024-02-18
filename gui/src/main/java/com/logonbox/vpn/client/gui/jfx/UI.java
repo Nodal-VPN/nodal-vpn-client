@@ -818,6 +818,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 				/* Error cleared */
 				return;
 			}
+			value.printStackTrace();
 
 			/*
 			 * If we are authorizing and get an error from the browser, then it's likely the
