@@ -252,7 +252,7 @@ public class BrandingManager<CONX extends IVpnConnection> {
         if (connection != null) {
             try {
                 branding = getBrandingForConnection(connection);
-            } catch (IOException ioe) {
+            } catch (IllegalStateException | IOException ioe) {
                 LOG.info(String.format("Skipping %s:%d because it appears offline.", connection.getHostname(),
                         connection.getPort()));
             }
@@ -261,7 +261,7 @@ public class BrandingManager<CONX extends IVpnConnection> {
                 for (var conx : vpnManager.getVpn().map(vpn -> vpn.getConnections()).orElse(Collections.emptyList())) {
                     try {
                         branding = getBrandingForConnection(conx);
-                    } catch (IOException ioe) {
+                    } catch (IllegalStateException | IOException ioe) {
                         LOG.info(String.format("Skipping %s:%d because it appears offline.", conx.getHostname(),
                                 conx.getPort()));
                     }

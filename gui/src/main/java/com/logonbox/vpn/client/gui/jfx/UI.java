@@ -486,7 +486,9 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
         /* Authorize */
 		vpnManager.onAuthorize((conx, uri, mode, authMethods) -> {
             disconnectionReason = null;
-
+            if(vpnManager.isBackendAvailable()) {
+                
+            }
             if(mode != Mode.MODERN) { 
                 if (mode.equals(Connection.Mode.CLIENT) || mode.equals(Connection.Mode.SERVICE)) {
                     maybeRunLater(() -> {

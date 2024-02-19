@@ -57,6 +57,7 @@
         <native.maven.plugin.version>0.9.23</native.maven.plugin.version>
         <gluonfx.maven.plugin.version>1.0.22-SNAPSHOT</gluonfx.maven.plugin.version>
         <jna.version>5.13.0</jna.version>
+        <jaul.version>0.9.11-SNAPSHOT</jaul.version>
         
         <dbus.version>5.0.0</dbus.version>
         <logonbox.vpn.drivers.version>0.0.1-SNAPSHOT</logonbox.vpn.drivers.version>
@@ -88,7 +89,6 @@
         <module>common</module>
         <module>platform</module>
         <module>dbus</module>
-        <module>dbus-daemon</module>
         <module>dbus-client</module>
         <module>app</module>
         <module>dbus-app</module>
@@ -101,7 +101,6 @@
 		<module>desktop</module>
 		<module>desktop-service</module>
 		<module>cli</module>
-		<module>dbconvert</module>
        <!-- <module>mobile</module>-->
 		<module>installer</module>
 	</modules>

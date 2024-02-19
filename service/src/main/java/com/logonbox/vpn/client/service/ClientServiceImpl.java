@@ -1046,8 +1046,13 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		}
 		for (var session : started) {
 		    session.configuration().firstPeer().ifPresent(peer -> {
-	            var connection = getStatusForPublicKey(peer.publicKey()).getConnection();
-	            activeSessions.put(connection, new VPNSession<>(connection, context, session)); 
+		        try {
+    	            var connection = getStatusForPublicKey(peer.publicKey()).getConnection();
+    	            activeSessions.put(connection, new VPNSession<>(connection, context, session)); 
+		        }
+		        catch(Exception e) {
+		            log.warn("Skipping {}, {}", peer.publicKey(), e.getMessage());
+		        }
 		    });
 		}
 

@@ -32,7 +32,7 @@
 							<goal>read-project-properties</goal>
 						</goals>
 						<configuration>
-                            <quiet>false</quiet>
+                            <quiet>true</quiet>
 							<files>
                                 <file>${build.projectProperties}</file>
                                 <file>${build.userProperties}</file>
@@ -151,11 +151,6 @@
 		<dependency>
 			<groupId>com.logonbox</groupId>
 			<artifactId>client-logonbox-vpn-cli</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.logonbox</groupId>
-			<artifactId>client-logonbox-vpn-dbconvert</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
@@ -424,9 +419,6 @@
                                         <fileset>
                                             <directory>target/gui</directory>
                                         </fileset>
-                                        <fileset>
-                                            <directory>target/dbconvert</directory>
-                                        </fileset>
                                     </filesets>
                                 </configuration>
                             </execution>
@@ -439,6 +431,20 @@
                         <artifactId>logonbox-plugin-generator</artifactId>
                         <executions>
                             <execution>
+                                <id>copy-jaul</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>get-artifacts</goal>
+                                </goals>
+                                <configuration>
+                                    <includeVersion>false</includeVersion>
+                                    <output>${project.build.directory}/jaul</output>
+                                    <artifacts>
+                                        <artifact>com.sshtools:jaul:${jaul.version}</artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                            <execution>
                                 <id>copy-cli</id>
                                 <phase>package</phase>
                                 <goals>
@@ -449,20 +455,6 @@
                                     <output>${project.build.directory}/cli</output>
                                     <artifacts>
                                         <artifact>com.logonbox:client-logonbox-vpn-cli:${project.version}</artifact>
-                                    </artifacts>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>copy-converter</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>get-artifacts</goal>
-                                </goals>
-                                <configuration>
-                                    <includeVersion>false</includeVersion>
-                                    <output>${project.build.directory}/converter</output>
-                                    <artifacts>
-                                        <artifact>com.logonbox:client-logonbox-vpn-dbconvert:${project.version}</artifact>
                                     </artifacts>
                                 </configuration>
                             </execution>

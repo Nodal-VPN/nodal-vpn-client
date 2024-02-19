@@ -6,10 +6,8 @@ import com.gluonhq.charm.glisten.control.AppBar;
 import com.gluonhq.charm.glisten.mvc.View;
 import com.logonbox.vpn.client.common.BrandingManager.ImageHandler;
 import com.logonbox.vpn.client.common.LoggingConfig;
-import com.logonbox.vpn.client.common.NoUpdateService;
 import com.logonbox.vpn.client.common.PlatformUtilities;
 import com.logonbox.vpn.client.common.PromptingCertManager;
-import com.logonbox.vpn.client.common.UpdateService;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.embedded.EmbeddedVpnConnection;
 import com.logonbox.vpn.client.embedded.EmbedderApi;
@@ -20,6 +18,9 @@ import com.logonbox.vpn.client.gui.jfx.Navigator;
 import com.logonbox.vpn.client.gui.jfx.Styling;
 import com.logonbox.vpn.client.gui.jfx.UI;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
+import com.sshtools.jaul.NoUpdateService;
+import com.sshtools.jaul.Phase;
+import com.sshtools.jaul.UpdateService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +154,7 @@ public class Client extends Application implements UIContext<EmbeddedVpnConnecti
 				Optional<ButtonType> result = alert.showAndWait();
 
 				if (result.get() == disconnect) {
-					getAppContext().getQueue().execute(() -> {
+					getAppContext().getScheduler().execute(() -> {
 						vpnManager.getVpnOrFail().disconnectAll();
 						exitApp();
 					});
@@ -453,7 +454,7 @@ public class Client extends Application implements UIContext<EmbeddedVpnConnecti
     }
 
     @Override
-    public ScheduledExecutorService getQueue() {
+    public ScheduledExecutorService getScheduler() {
         return queue;
     }
 
@@ -519,5 +520,41 @@ public class Client extends Application implements UIContext<EmbeddedVpnConnecti
     @Override
     public ImageHandler getImageHandler() {
         return ImageHandler.dumb();
+    }
+
+    @Override
+    public boolean isAutomaticUpdates() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void setAutomaticUpdates(boolean automaticUpdates) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Phase getPhase() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setPhase(Phase phase) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public long getUpdatesDeferredUntil() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void setUpdatesDeferredUntil(long timeMs) {
+        // TODO Auto-generated method stub
+        
     }
 }

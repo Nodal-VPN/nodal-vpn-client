@@ -24,6 +24,9 @@ public interface RemoteUI extends DBusInterface, IRemoteUI {
 	@DBusMemberName("Open")
     void open();
 
+    @DBusMemberName("Ping")
+    void ping();
+
     @DBusMemberName("Options")
     void options();
 

@@ -21,6 +21,7 @@ import org.slf4j.event.Level;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ProcessBuilder.Redirect;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -249,14 +250,15 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 			@Override
             public void run() {
 				try {
+				    getLog().info("Starting GUI");
+				    ProcessBuilder bldr;
 					if (OS.isWindows())
-						Runtime.getRuntime()
-								.exec(new File(System.getProperty("user.dir") + File.separator + "logonbox-vpn-gui.exe")
-										.getAbsolutePath());
+					    bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "logonbox-vpn-gui.exe");
 					else
-						Runtime.getRuntime()
-								.exec(new File(System.getProperty("user.dir") + File.separator + "logonbox-vpn-gui")
-										.getAbsolutePath());
+                        bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "logonbox-vpn-gui");
+					bldr.redirectError(Redirect.INHERIT);
+                    bldr.redirectOutput(Redirect.INHERIT);
+                    bldr.start();
 				} catch (IOException ioe) {
 					throw new IllegalStateException("Failed to send remote command, and failed to start GUI.", ioe);
 				}

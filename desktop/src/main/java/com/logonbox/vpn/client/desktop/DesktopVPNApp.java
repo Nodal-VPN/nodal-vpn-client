@@ -357,6 +357,10 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
     }
 
     @Override
+    public void ping() {
+    }
+
+    @Override
     public Styling styling() {
         return styling;
     }
@@ -445,6 +449,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
         }
 
         Platform.setImplicitExit(false);
+        ((DesktopVPN)getAppContext()).uiContext(this);
 
         StartupNotification.registerStartupListener(ui::connectToUri);
 

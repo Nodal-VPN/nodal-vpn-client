@@ -186,7 +186,8 @@ public abstract class AbstractApp<CONX extends IVpnConnection> implements AppCon
     public final PromptingCertManager getCertManager() {
 	    if(certManager == null) {
 	        certManager = createCertManager();
-	        certManager.installCertificateVerifier();
+	        if(certManager != null)
+	            certManager.installCertificateVerifier();
 	    }
 		return certManager;
 	}

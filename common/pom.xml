@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.sshtools</groupId>
             <artifactId>jaul</artifactId>
-            <version>0.9.11-SNAPSHOT</version>
+            <version>${jaul.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

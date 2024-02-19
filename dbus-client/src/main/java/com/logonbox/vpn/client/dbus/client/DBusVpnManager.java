@@ -120,6 +120,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
     private List<AutoCloseable> altHandles = Collections.emptyList();
     private DBusConnection altConn;
     private IVpn<VpnConnection> vpn;
+    private boolean registered;
 
 	private DBusVpnManager(Builder bldr) {
 	    super();
@@ -297,6 +298,8 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
     
     protected final void setVPN(IVpn<VpnConnection> vpn) {
         this.vpn = vpn;
+        if(vpn == null)
+            registered = false;
     }
 
 	protected DBusConnectionBuilder configureBuilder(DBusConnectionBuilder builder) {
@@ -353,6 +356,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 		log.info("Got remote object, registering with DBus.");
 		log.info("Registering with VPN service.");
 		newVpn.register(app.getEffectiveUser(), app.isInteractive(), supportsAuthorization);
+		registered = true;
 		log.info("Registered with VPN service.");
 		setVPN(newVpn);
 		
@@ -376,7 +380,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
                             onConnectionRemoving.forEach(r -> r.accept(conx)); 
                         }
                         catch(Exception e) {
-                            log.warn("Failed to get connection, probably got removing event after the connection was removed.", e);
+                            log.warn("Failed to get connection, probably got removing event after the connection was removed. {}", e.getMessage());
                         }
                     }),
             conn.addSigHandler(VPN.ConnectionRemoved.class, newVpn, 
@@ -468,7 +472,10 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 				brokerAvailable = false;
 				
 				onVpnGone.forEach(Runnable::run);
-
+				setVPN(null);
+			}
+			
+			if(wasAvailable) {
                 if (altConn != null && !altConn.equals(conn)) {
                     altHandles.forEach(h -> {
                         try {
@@ -485,15 +492,12 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
                         altConn = null;
                     }
                 }
-				if (conn != null) {
-	                handles.forEach(h -> {
-	                    try {
-	                        h.close();
-	                    } catch (Exception e) {
-	                    }
-	                });
-				}
-				setVPN(null);
+                handles.forEach(h -> {
+                    try {
+                        h.close();
+                    } catch (Exception e) {
+                    }
+                });
 			}
 
             if (conn != null) {
@@ -575,7 +579,9 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
     public Optional<IRemoteUI> getUserInterface() {
         try {
 //            lazyInit();
-            return Optional.of(getAltBus().getRemoteObject(RemoteUI.BUS_NAME, RemoteUI.OBJECT_PATH, RemoteUI.class));
+            var obj = getAltBus().getRemoteObject(RemoteUI.BUS_NAME, RemoteUI.OBJECT_PATH, RemoteUI.class);
+            obj.ping();
+            return Optional.of(obj);
         } catch (ServiceUnknown su) {
             return Optional.empty();
         } catch (DBusException e) {

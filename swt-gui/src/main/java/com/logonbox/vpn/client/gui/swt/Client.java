@@ -242,6 +242,10 @@ public class Client implements RemoteUI {
 		display.asyncExec(() -> ui.options());
 	}
 
+    @Override
+    public void ping() {
+    }
+
 	public void start() throws Exception {
 		this.originalCookieHander = CookieHandler.getDefault();
 		if (this.originalCookieHander == null)

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.6" transformSequenceNumber="10">
-  <directoryPresets config="../tray/target/logonbox-vpn-tray" />
+  <directoryPresets config="./target" />
   <application name="LogonBox VPN Client" applicationId="0033-1388-2645-1798" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="4.0.0" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
@@ -110,6 +110,12 @@
         <dependencies>
           <component id="1676" />
         </dependencies>
+      </component>
+      <component name="DBus Daemons" id="2274">
+        <include>
+          <entry location="dbus-daemon" />
+          <entry location="logonbox-vpn-dbus-daemon" fileType="launcher" />
+        </include>
       </component>
     </components>
   </files>
@@ -1764,6 +1770,9 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
       <jreBundle usePack200="false" includedJre="windows-amd64-1.8.0_121" />
     </windows>
     <unixInstaller name="Arm64 Unix Installer" id="2166" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}" require64BitVm="true">
+      <excludedComponents>
+        <component id="2274" />
+      </excludedComponents>
       <exclude>
         <entry location="conf/logonbox-vpn-service.conf" />
         <entry location="gui/mac-aarch64" />

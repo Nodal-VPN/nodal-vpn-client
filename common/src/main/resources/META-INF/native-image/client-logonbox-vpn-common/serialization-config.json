@@ -58,5 +58,8 @@
   },
   {
     "name":"java.lang.NullPointerException"
+  },
+  {
+    "name":"java.net.URI"
   }
 ]
