@@ -181,6 +181,9 @@
     <launcher name="logonbox-vpn-tray-icon" id="2271" external="true" menuName="LogonBox VPN Tray Icon" externalFile="logonbox-vpn-tray${compiler:build.exe.suffix}" />
   </launchers>
   <installerGui autoUpdateDescriptorUrl="https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client/${compiler:build.phase}/updates.xml" useAutoUpdateBaseUrl="true" autoUpdateBaseUrl="https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client/${compiler:sys.version}/">
+    <customCode>
+      <scanDirectory location="./target/jaul" />
+    </customCode>
     <applications>
       <application id="installer" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" actionElevationType="elevated" styleId="1792" launchInNewProcess="false">
         <serializedBean>
@@ -468,6 +471,13 @@ for more details. Accepting this license implies you also accept all others.  </
                 </serializedBean>
               </action>
               <action id="9" beanClass="com.install4j.runtime.beans.actions.InstallFilesAction" actionElevationType="elevated" failureStrategy="quit" errorMessage="${i18n:FileCorrupted}" />
+              <action id="2280" beanClass="com.sshtools.jaul.InstallJaulAppAction" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="jaulAppId" type="string">com.sshtools.DJFeet</property>
+                  <property name="updatesXmlLocation" type="string">https://sshtools-public.s3.eu-west-1.amazonaws.com/dj-feet/continuous/updates.xml</property>
+                </serializedBean>
+                <condition>!Util.isLinux()</condition>
+              </action>
               <action id="10" beanClass="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction" actionElevationType="elevated">
                 <serializedBean>
                   <property name="addUninstaller" type="boolean" value="true" />
@@ -594,6 +604,35 @@ return path.replace('\\', '/');</property>
                   <property name="sleepTimeMs" type="int" value="5000" />
                 </serializedBean>
               </action>
+              <action name="Tray Icon Autostart (Linux)" id="2276" beanClass="com.install4j.runtime.beans.actions.text.WriteTextFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="file">
+                    <object class="java.io.File">
+                      <string>/etc/xdg/autostart/logonbox-vpn-client-tray-icon.desktop</string>
+                    </object>
+                  </property>
+                  <property name="text" type="string">[Desktop Entry]
+Type=Application
+Name=LogonBox VPN Tray Icon
+Comment=LogonBox VPN Tray Icon
+Exec=${installer:sys.installationDir}/logonbox-vpn-tray-icon
+Icon=${installer:sys.installationDir}/.install4j/logonbox-vpn-tray-icon.png
+X-GNOME-AutoRestart=false
+X-GNOME-Autostart-Notify=false
+X-GNOME-Autostart-enabled=true</property>
+                </serializedBean>
+                <condition>Util.isLinux()</condition>
+              </action>
+              <action name="Tray Icon Autostart (Windows / MacOS)" id="2277" beanClass="com.install4j.runtime.beans.actions.desktop.AddStartupItemAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>logonbox-vpn-tray${compiler:build.exe.suffix}</string>
+                    </object>
+                  </property>
+                  <property name="name" type="string">LogonBox VPN Tray Icon</property>
+                </serializedBean>
+              </action>
               <action id="1219" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" actionElevationType="none">
                 <serializedBean>
                   <property name="launcherId" type="string">783</property>
@@ -714,6 +753,18 @@ return console.askYesNo(message, true);
                 <serializedBean>
                   <property name="sleepTimeMs" type="int" value="5000" />
                 </serializedBean>
+              </action>
+              <action id="2278" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="files" type="array" class="java.io.File" length="1">
+                    <element index="0">
+                      <object class="java.io.File">
+                        <string>/etc/xdg/autostart/logonbox-vpn-tray-icon.desktop</string>
+                      </object>
+                    </element>
+                  </property>
+                </serializedBean>
+                <condition>Util.isLinux()</condition>
               </action>
               <action id="2178" beanClass="com.install4j.runtime.beans.actions.services.StopServiceAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>

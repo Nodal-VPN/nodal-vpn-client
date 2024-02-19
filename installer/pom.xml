@@ -255,6 +255,20 @@
                                 </configuration>
                             </execution>
                             <execution>
+                                <id>copy-jaul</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>get-artifacts</goal>
+                                </goals>
+                                <configuration>
+                                    <includeVersion>false</includeVersion>
+                                    <output>${project.build.directory}/jaul</output>
+                                    <artifacts>
+                                        <artifact>com.sshtools:jaul:${jaul.version}</artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                            <execution>
                                 <id>copy-gui-jfx-win</id>
                                 <phase>package</phase>
                                 <goals>

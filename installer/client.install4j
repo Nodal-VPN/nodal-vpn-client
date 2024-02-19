@@ -836,6 +836,18 @@ return console.askYesNo(message, true);
                   <property name="sleepTimeMs" type="int" value="5000" />
                 </serializedBean>
               </action>
+              <action id="2279" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="files" type="array" class="java.io.File" length="1">
+                    <element index="0">
+                      <object class="java.io.File">
+                        <string>/etc/xdg/autostart/logonbox-vpn-tray-icon.desktop</string>
+                      </object>
+                    </element>
+                  </property>
+                </serializedBean>
+                <condition>Util.isLinux()</condition>
+              </action>
               <action id="2178" beanClass="com.install4j.runtime.beans.actions.services.StopServiceAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="launcherId" type="string">583</property>
