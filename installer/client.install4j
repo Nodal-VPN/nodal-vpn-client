@@ -574,17 +574,6 @@ for more details. Accepting this license implies you also accept all others.  </
                 </serializedBean>
                 <condition>!context.getBooleanVariable("sys.programGroupDisabled")</condition>
               </action>
-              <action id="2273" beanClass="com.install4j.runtime.beans.actions.desktop.CreateStartMenuEntryAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
-                <serializedBean>
-                  <property name="entryName" type="string">LogonBox VPN Tray</property>
-                  <property name="file">
-                    <object class="java.io.File">
-                      <string>logonbox-vpn-tray-icon</string>
-                    </object>
-                  </property>
-                </serializedBean>
-                <condition>!context.getBooleanVariable("sys.programGroupDisabled")</condition>
-              </action>
               <action id="11" beanClass="com.install4j.runtime.beans.actions.desktop.RegisterAddRemoveAction" actionElevationType="elevated">
                 <serializedBean>
                   <property name="itemName" type="string">${compiler:sys.fullName} ${compiler:sys.version}</property>
@@ -689,6 +678,35 @@ return path.replace('\\', '/');</property>
               <action id="2190" beanClass="com.install4j.runtime.beans.actions.control.SleepAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="sleepTimeMs" type="int" value="5000" />
+                </serializedBean>
+              </action>
+              <action name="Tray Icon Autostart (Linux)" id="2277" beanClass="com.install4j.runtime.beans.actions.text.WriteTextFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="file">
+                    <object class="java.io.File">
+                      <string>/etc/xdg/autostart/logonbox-vpn-client-tray-icon.desktop</string>
+                    </object>
+                  </property>
+                  <property name="text" type="string">[Desktop Entry]
+Type=Application
+Name=LogonBox VPN Tray Icon
+Comment=LogonBox VPN Tray Icon
+Exec=${installer:sys.installationDir}/logonbox-vpn-tray-icon
+Icon=${installer:sys.installationDir}/.install4j/logonbox-vpn-tray-icon.png
+X-GNOME-AutoRestart=false
+X-GNOME-Autostart-Notify=false
+X-GNOME-Autostart-enabled=true</property>
+                </serializedBean>
+                <condition>Util.isLinux()</condition>
+              </action>
+              <action name="Tray Icon Autostart (Windows / MacOS)" id="2278" beanClass="com.install4j.runtime.beans.actions.desktop.AddStartupItemAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>logonbox-vpn-tray-icon</string>
+                    </object>
+                  </property>
+                  <property name="name" type="string">LogonBox VPN Tray Icon</property>
                 </serializedBean>
               </action>
               <action id="1219" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" actionElevationType="none">
