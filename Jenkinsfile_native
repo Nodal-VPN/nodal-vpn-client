@@ -6,12 +6,12 @@ pipeline {
     }
 
     stages {
-        stage ('LogonBox VPN Client Installers') {
+        stage ('LogonBox VPN Client Native Installers') {
             parallel {
                 /*
                  * Linux Installers and Packages
                  */
-                stage ('Linux LogonBox VPN Client Installers') {
+                stage ('Linux LogonBox VPN Client Native Installers') {
                     agent {
                         label 'install4j && linux'
                     }
@@ -30,7 +30,7 @@ pipeline {
                                 sh 'mvn -U -Dbuild.mediaTypes=unixInstaller,unixArchive,linuxRPM,linuxDeb ' +
                                    '-Dinstall4j.disableSigning=true ' + 
                                    '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
-                                   '-P installers,cross-platform ' +
+                                   '-P installers,native-image ' +
                                    'clean package'
                                 
                                 /* Stash installers */
@@ -48,7 +48,7 @@ pipeline {
                 /*
                  * MacOS installers
                  */
-                stage ('MacOS LogonBox VPN Client Installers') {
+                stage ('MacOS LogonBox VPN Client Native Installers') {
                     agent {
                         label 'install4j && macos'
                     }
@@ -67,7 +67,7 @@ pipeline {
                                 // -Dinstall4j.disableNotarization=true
                                 sh 'mvn -U -Dbuild.mediaTypes=macos,macosFolder,macosFolderArchive ' +
                                    '"-Dbuild.projectProperties=$BUILD_PROPERTIES" ' +
-                                   '-P installers,cross-platform ' +
+                                   '-P installers,native-image ' +
                                    'clean package'
                                 
                                 /* Stash installers */
@@ -85,7 +85,7 @@ pipeline {
                 /*
                  * Windows installers
                  */
-                stage ('Windows LogonBox VPN Client Installers') {
+                stage ('Windows LogonBox VPN Client Native Installers') {
                     agent {
                         label 'install4j && windows'
                     }
@@ -103,8 +103,9 @@ pipeline {
                             ) {
                                 bat 'mvn -U -Dinstall4j.verbose=true ' +
                                     '-Dbuild.mediaTypes=windows,windowsArchive ' +
+                                    '-Dbuild.exe.suffix=.exe ' +
                                     '"-Dbuild.projectProperties=%BUILD_PROPERTIES%" ' +
-                                    '-P installer,cross-platform ' +
+                                    '-P installers,native-image ' +
                                     'clean package'
                                 
                                 /* Stash installers */
@@ -165,7 +166,7 @@ pipeline {
                     dontSetBuildResultOnFailure: false, 
                     dontWaitForConcurrentBuildCompletion: false, 
                     entries: [[
-                        bucket: 'logonbox-packages/logonbox-vpn-client/' + env.FULL_VERSION, 
+                        bucket: 'logonbox-packages/logonbox-vpn-client-native/' + env.FULL_VERSION, 
                         noUploadOnFailure: true, 
                         selectedRegion: 'eu-west-1', 
                         sourceFile: 'installer/target/media/*', 
@@ -183,7 +184,7 @@ pipeline {
                     dontSetBuildResultOnFailure: false, 
                     dontWaitForConcurrentBuildCompletion: false, 
                     entries: [[
-                        bucket: 'logonbox-packages/logonbox-vpn-client/continuous', 
+                        bucket: 'logonbox-packages/logonbox-vpn-client-native/continuous', 
                         noUploadOnFailure: true, 
                         selectedRegion: 'eu-west-1', 
                         sourceFile: 'installer/target/media/updates.xml', 

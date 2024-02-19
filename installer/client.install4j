@@ -6,7 +6,7 @@
       <directory location=".install4j/jre.bundle" />
     </searchSequence>
     <variables>
-      <variable name="build.phase" value="nightly" />
+      <variable name="build.phase" value="continuous" />
       <variable name="jfx.archdir" value="gui/win" description="The location of the architecture specific jars for JavaFX" />
       <variable name="install4j.appleId" value="unset@logonbox.com" description="The apple ID to use for notarisation" />
       <variable name="install4j.macPkcs12File" value="${user.home}/.logonbox-developer-id.p12" description="Location of Mac developer certificate" />
@@ -596,110 +596,6 @@ return path.replace('\\', '/');</property>
                     </object>
                   </property>
                   <property name="variableName" type="string">custom.jrePath</property>
-                </serializedBean>
-              </action>
-              <action id="729" beanClass="com.install4j.runtime.beans.actions.text.FixCrLfAction" actionElevationType="elevated">
-                <serializedBean>
-                  <property name="files" type="array" class="java.io.File" length="12">
-                    <element index="0">
-                      <object class="java.io.File">
-                        <string>conf/log4j.properties</string>
-                      </object>
-                    </element>
-                    <element index="1">
-                      <object class="java.io.File">
-                        <string>conf/log4j-boot.properties</string>
-                      </object>
-                    </element>
-                    <element index="2">
-                      <object class="java.io.File">
-                        <string>conf/application.properties</string>
-                      </object>
-                    </element>
-                    <element index="3">
-                      <object class="java.io.File">
-                        <string>conf/gui.properties</string>
-                      </object>
-                    </element>
-                    <element index="4">
-                      <object class="java.io.File">
-                        <string>conf/log4j-cli.properties</string>
-                      </object>
-                    </element>
-                    <element index="5">
-                      <object class="java.io.File">
-                        <string>conf/log4j-cli-boot.properties</string>
-                      </object>
-                    </element>
-                    <element index="6">
-                      <object class="java.io.File">
-                        <string>conf/cli.properties</string>
-                      </object>
-                    </element>
-                    <element index="7">
-                      <object class="java.io.File">
-                        <string>conf/log4j-gui.properties</string>
-                      </object>
-                    </element>
-                    <element index="8">
-                      <object class="java.io.File">
-                        <string>conf/log4j-gui-boot.properties</string>
-                      </object>
-                    </element>
-                    <element index="9">
-                      <object class="java.io.File">
-                        <string>conf/gui-forker.cfg</string>
-                      </object>
-                    </element>
-                    <element index="10">
-                      <object class="java.io.File">
-                        <string>conf/cli-forker.cfg</string>
-                      </object>
-                    </element>
-                    <element index="11">
-                      <object class="java.io.File">
-                        <string>conf/service-forker.cfg</string>
-                      </object>
-                    </element>
-                  </property>
-                </serializedBean>
-              </action>
-              <action id="516" beanClass="com.install4j.runtime.beans.actions.text.ModifyTextFileAction" actionElevationType="elevated">
-                <serializedBean>
-                  <property name="failIfNoReplacement" type="boolean" value="true" />
-                  <property name="files" type="array" class="java.io.File" length="1">
-                    <element index="0">
-                      <object class="java.io.File">
-                        <string>conf/application.properties</string>
-                      </object>
-                    </element>
-                  </property>
-                  <property name="replaceValue" type="string">${installer:sys.version}</property>
-                  <property name="searchValue" type="string">${appVersion}</property>
-                </serializedBean>
-              </action>
-              <action id="957" beanClass="com.install4j.runtime.beans.actions.text.ModifyTextFileAction" actionElevationType="elevated">
-                <serializedBean>
-                  <property name="encoding" type="string" />
-                  <property name="files" type="array" class="java.io.File" length="3">
-                    <element index="0">
-                      <object class="java.io.File">
-                        <string>conf/gui-forker.cfg</string>
-                      </object>
-                    </element>
-                    <element index="1">
-                      <object class="java.io.File">
-                        <string>conf/service-forker.cfg</string>
-                      </object>
-                    </element>
-                    <element index="2">
-                      <object class="java.io.File">
-                        <string>conf/cli-forker.cfg</string>
-                      </object>
-                    </element>
-                  </property>
-                  <property name="replaceValue" type="string">java ${installer:custom.jrePath}/bin/java</property>
-                  <property name="searchValue" type="string">#java java</property>
                 </serializedBean>
               </action>
               <action id="2199" beanClass="com.install4j.runtime.beans.actions.properties.WritePropertiesFileAction" rollbackBarrierExitCode="0">
