@@ -18,6 +18,7 @@
 		<build.mediaTypes>windows,unixInstaller,macos,macosFolder,windowsArchive,unixArchive,linuxRPM,linuxDeb,macosArchive,macosFolderArchive</build.mediaTypes>
 		
 		<install4j.appleId>xxxxxx@logonbox.com</install4j.appleId>
+        <install4j.macPkcs12File>${user.home}/.jadaptive-developer-id.p12</install4j.macPkcs12File>
 	</properties>
 	<build>
 		<plugins>
@@ -471,6 +472,7 @@
 										<build.phase>${build.phase}</build.phase>
 										
 										<install4j.appleId>${install4j.appleId}</install4j.appleId>
+                                        <install4j.macPkcs12File>${install4j.macPkcs12File}</install4j.macPkcs12File>
 										<install4j.windowsKeystoreIssuer>${install4j.windowsKeystoreIssuer}</install4j.windowsKeystoreIssuer>>
 										<install4j.windowsKeystoreSerial>${install4j.windowsKeystoreSerial}</install4j.windowsKeystoreSerial>>
 										<install4j.windowsKeystoreSubject>${install4j.windowsKeystoreSubject}</install4j.windowsKeystoreSubject>
