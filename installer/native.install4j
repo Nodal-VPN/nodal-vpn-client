@@ -178,7 +178,7 @@
     </launcher>
     <launcher name="logonbox-vpn-service" id="2266" external="true" excludeFromMenu="true" externalFile="logonbox-vpn-service${compiler:build.exe.suffix}" />
     <launcher name="logonbox-vpn-cli" id="2268" external="true" excludeFromMenu="true" externalFile="logonbox-vpn-cli${compiler:build.exe.suffix}" />
-    <launcher name="logonbox-vpn-tray-icon" id="2271" external="true" menuName="LogonBox VPN Tray Icon" externalFile="logonbox-vpn-tray${compiler:build.exe.suffix}" />
+    <launcher name="logonbox-vpn-tray-icon" id="2271" external="true" menuName="LogonBox VPN Tray Icon" externalFile="logonbox-vpn-tray-icon${compiler:build.exe.suffix}" />
   </launchers>
   <installerGui autoUpdateDescriptorUrl="https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client/${compiler:build.phase}/updates.xml" useAutoUpdateBaseUrl="true" autoUpdateBaseUrl="https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client/${compiler:sys.version}/">
     <customCode>
@@ -639,7 +639,15 @@ X-GNOME-Autostart-enabled=true</property>
                 </serializedBean>
                 <condition>!context.getBooleanVariable("preventExecuteLauncherAction") &amp;&amp;
 ( context.getBooleanVariable("executeLauncherAction") || context.isUpdateInstallation())  &amp;&amp; 
-(Util.isWindows() || ( Util.isMacOS() &amp;&amp;  Float.parseFloat(System.getProperty("os.version").split("\\.")[0] + "." + System.getProperty("os.version").split("\\.")[1]) &gt;= 10.16f))</condition>
+(Util.isLinux() || Util.isWindows() || ( Util.isMacOS() &amp;&amp;  Float.parseFloat(System.getProperty("os.version").split("\\.")[0] + "." + System.getProperty("os.version").split("\\.")[1]) &gt;= 10.16f))</condition>
+              </action>
+              <action id="2282" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" actionElevationType="none" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="launcherId" type="string">2271</property>
+                </serializedBean>
+                <condition>!context.getBooleanVariable("preventExecuteLauncherAction") &amp;&amp;
+( context.getBooleanVariable("executeLauncherAction") || context.isUpdateInstallation())  &amp;&amp; 
+(Util.isLinux() || Util.isWindows() || ( Util.isMacOS() &amp;&amp;  Float.parseFloat(System.getProperty("os.version").split("\\.")[0] + "." + System.getProperty("os.version").split("\\.")[1]) &gt;= 10.16f))</condition>
               </action>
               <action id="2043" beanClass="com.install4j.runtime.beans.actions.finish.RebootAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <condition>Util.isMacOS() &amp;&amp; Float.parseFloat(System.getProperty("os.version").split("\\.")[0] + "." + System.getProperty("os.version").split("\\.")[1]) &lt; 10.16f</condition>
