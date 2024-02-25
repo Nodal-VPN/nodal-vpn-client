@@ -473,8 +473,8 @@ for more details. Accepting this license implies you also accept all others.  </
               <action id="9" beanClass="com.install4j.runtime.beans.actions.InstallFilesAction" actionElevationType="elevated" failureStrategy="quit" errorMessage="${i18n:FileCorrupted}" />
               <action id="2280" beanClass="com.sshtools.jaul.InstallJaulAppAction" rollbackBarrierExitCode="0">
                 <serializedBean>
-                  <property name="jaulAppId" type="string">com.sshtools.DJFeet</property>
-                  <property name="updatesXmlLocation" type="string">https://sshtools-public.s3.eu-west-1.amazonaws.com/dj-feet/continuous/updates.xml</property>
+                  <property name="jaulAppId" type="string">com.sshtools.Jadbus</property>
+                  <property name="updatesXmlLocation" type="string">https://sshtools-public.s3.eu-west-1.amazonaws.com/jadbus/continuous/updates.xml</property>
                 </serializedBean>
                 <condition>!Util.isLinux()</condition>
               </action>
