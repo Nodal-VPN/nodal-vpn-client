@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -272,7 +273,17 @@ public class ConnectionImpl implements Connection, Serializable {
 			setMode(Mode.valueOf(logonBoxSection.get("Mode")));
 			List<String> authMethodNames = logonBoxSection.getAll("AuthMethods");
 			if(authMethodNames != null) {
-				setAuthMethods(authMethodNames.stream().map(AuthMethod::valueOf).toList().toArray(new AuthMethod[0]));
+				var l = new ArrayList<AuthMethod>();
+				for(var name : authMethodNames) {
+					var arr = name.split(",");
+					for(var arrname : arr) {
+						try {
+							l.add(AuthMethod.valueOf(arrname.trim()));
+						}
+						catch(Exception e) {
+						}
+					}
+				}
 			}
 			setOwner(logonBoxSection.get("Owner"));
 			setUsernameHint(logonBoxSection.get("UsernameHint"));
