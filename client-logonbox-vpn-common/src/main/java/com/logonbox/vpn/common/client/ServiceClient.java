@@ -251,6 +251,8 @@ public class ServiceClient {
 					keyParameters.append("publicKey=" + URLEncoder.encode(connection.getUserPublicKey(), "UTF-8"));
 				}
 				keyParameters.append('&');
+				keyParameters.append("deviceUUID=" + deviceId);
+				keyParameters.append('&');
 				keyParameters.append("token=" + URLEncoder.encode(session.getCsrfToken(), "UTF-8"));
 				log.info(String.format("Retrieving peers for %s", deviceId));
 				String json = doGet(connection, "/api/peers/get?" + keyParameters.toString());
