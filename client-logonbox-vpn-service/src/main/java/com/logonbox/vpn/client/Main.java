@@ -67,6 +67,7 @@ import com.logonbox.vpn.common.client.HypersocketVersion;
 import com.logonbox.vpn.common.client.PromptingCertManager;
 import com.logonbox.vpn.common.client.dbus.VPN;
 import com.logonbox.vpn.common.client.dbus.VPNFrontEnd;
+import com.sshtools.forker.client.OSCommand;
 import com.sshtools.forker.common.OS;
 
 import picocli.CommandLine;
@@ -149,6 +150,17 @@ public class Main implements Callable<Integer>, LocalContext, Listener {
 
 	public Main() throws Exception {
 		instance = this;
+		
+		String sudo = System.getProperty("vpn.sudo");
+		if(sudo != null) {
+			/* NOTE: If you end up here wondering why Eclipse has not set
+			 * this, do you have "Use @argfile" turned ON with special charcters
+			 * such as '#' in your password? If so, as of 2024/03 Eclipse has a 
+			 * bug the stops this working.
+			 */
+			OSCommand.sudo(sudo.toCharArray());
+		}
+		
 		if (SystemUtils.IS_OS_LINUX) {
 			platform = new LinuxPlatformServiceImpl();
 		} else if (SystemUtils.IS_OS_WINDOWS) {

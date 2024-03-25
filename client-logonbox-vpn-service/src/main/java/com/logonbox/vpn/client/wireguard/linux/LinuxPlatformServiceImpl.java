@@ -85,6 +85,30 @@ public class LinuxPlatformServiceImpl extends AbstractPlatformServiceImpl<LinuxI
 	}
 
 	@Override
+	protected void addRouteAll(Connection connection) throws IOException {
+		LOG.info("Routing traffic all through VPN");
+		String gw = getDefaultGateway();
+		String proto = "-4";
+		if (gw.matches(".*:.*"))
+			proto = "-6";
+		String[] cmd = new String[] { "ip", proto, "route", "add", connection.getEndpointAddress(), "via", gw };
+		LOG.info("{}", String.join(",", cmd));
+		OSCommand.adminCommand(cmd);
+	}
+
+	@Override
+	protected void removeRouteAll(VPNSession session) throws IOException {
+		LOG.info("Removing routing of all traffic through VPN");
+		String gw = getDefaultGateway();
+		String proto = "-4";
+		if (gw.matches(".*:.*"))
+			proto = "-6";
+		String[] cmd = new String[] { "ip", proto, "route", "del", session.getConnection().getEndpointAddress(), "via", gw };
+		LOG.info("{}", String.join(",", cmd));
+		OSCommand.adminCommand(cmd);
+	}
+
+	@Override
 	protected String getPublicKey(String interfaceName) throws IOException {
 		try {
 			String pk = OSCommand.adminCommandAndCaptureOutput(getWGCommand(), "show", interfaceName, "public-key")
@@ -325,6 +349,7 @@ public class LinuxPlatformServiceImpl extends AbstractPlatformServiceImpl<LinuxI
 			log.info(String.format("Setting routes for %s", ip.getName()));
 			setRoutes(session, ip);
 		} catch (IOException | RuntimeException ioe) {
+			LOG.warn("Disconnecting due to error. Trace to follow.");
 			try {
 				doDisconnect(ip, session);
 			} catch (Exception e) {

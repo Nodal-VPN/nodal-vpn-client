@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.NetworkInterface;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -326,7 +328,7 @@ public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl
 				}	
 			}
 			if(nftcmd.length() > 0) {
-				pipeToCommand(nftcmd.toString(), "nft", "-f");
+				runCommandWithFile(nftcmd.toString(), "nft", "-f");
 			}
 		}
 		if(OsUtil.doesCommandExist("iptables")) {
@@ -341,7 +343,7 @@ public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl
 					restore.append(String.format("%s\n", line.replace("#-A", "-D"))); // TODO is this really #-A?
 				}
 				if(found) {
-					pipeToCommand(restore.toString(), iptables + "-restore", "-n");
+					runCommandWithFile(restore.toString(), iptables + "-restore", "-n");
 				}
 			}
 		}
@@ -383,25 +385,22 @@ public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl
 		}
 	}
 	
-	private void pipeToCommand(String content, String... commands) throws IOException {
-		ForkerBuilder fb = new ForkerBuilder(commands);
-		fb.redirectErrorStream(true);
-		Process p = fb.start();
-		try(OutputStream stdin = p.getOutputStream()) {
-			p.getOutputStream().write(content.getBytes());
-			p.getOutputStream().flush();	
-		}
-		p.getInputStream().transferTo(System.out);
-		try {
-		int ret = p.waitFor();
-		if(ret != 0)
-			throw new IllegalStateException("Unexpected return code. " + ret);
-		}
-		catch(InterruptedException ie) {
-			throw new IOException("Interrupted.", ie);
-		}
-	}
+	private void runCommandWithFile(String content, String... commands) throws IOException {
 
+		Path temp = Files.createTempFile("vpn", ".nft");
+		try {
+			try(var out = Files.newOutputStream(temp)) {
+				out.write(content.getBytes("UTF-8"));
+			}
+			List<String> args = new ArrayList<>(Arrays.asList(commands));
+			args.add(temp.toAbsolutePath().toString());
+			OSCommand.adminCommand(args.toArray(new String[0]));
+		}
+		finally {
+			Files.deleteIfExists(temp);
+		}	
+	}
+	
 	private void addDefault(String route) throws IOException {
 		int table = getFWMark("table");
 		if(table == -1) {
@@ -423,7 +422,7 @@ public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl
 		}
 
 		OSCommand.adminCommand("ip", proto, "route", "add", route, "dev", getName(), "table", String.valueOf(table));
-		OSCommand.adminCommand("ip", proto, "rule", "add", "not", "fwmark", String.valueOf("table"), "table", String.valueOf(table));
+		OSCommand.adminCommand("ip", proto, "rule", "add", "not", "fwmark", String.valueOf(table), "table", String.valueOf(table));
 		OSCommand.adminCommand("ip", proto, "rule", "add", "table", "main", "suppress_prefixlength", "0");
 		
 		String marker = String.format("-m comment --comment \"LogonBoxVPN rule for %s\"", getName());
@@ -444,7 +443,7 @@ public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl
 			}
 			
 			restore += String.format("-I PREROUTING ! -i %s -d %s -m addrtype ! --src-type LOCAL -j DROP %s\n", getName(), m.group(1), marker);
-			nftcmd.append(String.format("add rule %s %s postmangle meta l4proto udp mark %s ct mark set mark \n", pf, nftable, getName(), pf, m.group(1)));
+			nftcmd.append(String.format("add rule %s %s preraw iifname != \"%s\" %s daddr %s fib saddr type != local drop\n", pf, nftable, getName(), pf, m.group(1)));
 		}
 
 		
@@ -458,11 +457,11 @@ public class LinuxIP extends AbstractVirtualInetAddress<LinuxPlatformServiceImpl
 		
 		if(OsUtil.doesCommandExist("nft")) {
 			LOG.info("Updating firewall: " + nftcmd.toString());
-			pipeToCommand(nftcmd.toString(), "nft", "-f");
+			runCommandWithFile(nftcmd.toString(), "nft", "-f");
 		}
 		else {
 			LOG.info("Updating firewall: " + restore);
-			pipeToCommand(restore, iptables + "-restore", "-n");
+			runCommandWithFile(restore, iptables + "-restore", "-n");
 		}
 		haveSetFirewall = true;
 	}
