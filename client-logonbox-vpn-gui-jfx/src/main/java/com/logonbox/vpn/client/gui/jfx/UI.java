@@ -44,11 +44,9 @@ import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -2262,13 +2260,7 @@ public class UI implements BusLifecycleListener {
 									authUrl = authUrl.substring(0, authUrl.length() - 4) + "/vpn";
 								}
 								
-								/**
-								 * A unique id for this device/user. 
-								 */
-								String uuid = Preferences.userNodeForPackage(getClass()).get("deviceUUID", UUID.randomUUID().toString());
-								Preferences.userNodeForPackage(getClass()).put("deviceUUID", uuid);
-								
-								LOG.info(String.format("Authorizing to %s with device uuid %s", authUrl, uuid));
+								LOG.info(String.format("Authorizing to %s", authUrl));
 								if(authUrl.contains("?"))
 									authUrl += "&";
 								else
@@ -2276,7 +2268,6 @@ public class UI implements BusLifecycleListener {
 								authUrl += "pubkey=" + URLEncoder.encode(connection.getUserPublicKey(), "UTF-8");
 								authUrl += "&name=" + URLEncoder.encode(Util.getDeviceName(), "UTF-8");
 								authUrl += "&os=" + URLEncoder.encode(Util.getOS().toUpperCase(), "UTF-8");
-								authUrl += "&deviceUUID=" + uuid;
 								setHtmlPage(authUrl);
 								break;
 							default:
