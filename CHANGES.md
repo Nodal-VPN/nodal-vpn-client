@@ -1,5 +1,9 @@
 # Changes
 
+## 3.0.5-SNAPSHOT
+
+ * In progress
+
 ## 3.0.4-378
 
  * Resizing the Window on Linux can corrupt the window borders.
