@@ -1,6 +1,6 @@
 # Changes
 
-## 3.0.4-SNAPSHOT
+## 3.0.4-378
 
  * Resizing the Window on Linux can corrupt the window borders.
  * Adds support for the next generation LogonBox VPN server. 
@@ -8,7 +8,9 @@
    was lost.
  * Under some circumstances it may be possible start a 2nd instance of the service, which
    would result in unexpected behaviour. Additional checks to prevent this have been added.
- * Excessive key validity checks were being made (during authorization). 
+ * Excessive key validity checks were being made (during authorization).
+ * Linux clients will connect again if Route All is enabled
+ * Removed old uses of route command on Linux client, should be using ip route everywhere now
 
 ## 3.0.3-256
 
