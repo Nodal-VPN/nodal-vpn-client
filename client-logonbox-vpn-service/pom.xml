@@ -62,11 +62,6 @@
             <version>5.4.30.Final</version>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.github.jgonian</groupId>
             <artifactId>commons-ip-math</artifactId>
             <version>1.32</version>
