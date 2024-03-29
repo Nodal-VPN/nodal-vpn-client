@@ -767,7 +767,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 	@Override
 	public boolean isMatchesAnyServerURI(String owner, String uri) {
 		for(Connection c : getConnections(owner)) {
-			if(uri.startsWith(c.getUri(false))) {
+			if(uri.startsWith(c.getApiUri())) {
 				return true;
 			}
 		}
