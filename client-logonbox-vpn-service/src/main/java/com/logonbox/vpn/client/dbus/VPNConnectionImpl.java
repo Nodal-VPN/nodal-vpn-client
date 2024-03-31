@@ -286,6 +286,12 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 	}
 
 	@Override
+	public String getInstance() {
+		assertRegistered();
+		return StringUtils.defaultIfBlank(connection.getInstance(), "");
+	}
+
+	@Override
 	public boolean hasPrivateKey() {
 		assertRegistered();
 		return connection.getUserPrivateKey() != null && connection.getUserPrivateKey().length() > 0;

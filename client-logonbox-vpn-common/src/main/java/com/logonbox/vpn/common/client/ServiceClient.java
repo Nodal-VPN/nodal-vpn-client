@@ -197,6 +197,7 @@ public class ServiceClient {
 						}, 
 						new NameValuePair("os", Util.getOS().toUpperCase()),
 						new NameValuePair("pubkey", connection.getUserPublicKey()),
+						new NameValuePair("instance", connection.getInstance()),
 						new NameValuePair("deviceId",  authenticator.getUUID()),
 						new NameValuePair("name", Util.getDeviceName())), 
 							ConfigurationPayload.class);

@@ -8,8 +8,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,13 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 			Files.createDirectories(dir());
 		} catch (IOException e) {
 			throw new IllegalStateException("Could not create configuration directory.", e);
+		}
+
+		for(var connection : getConnections(null)) {
+			if(StringUtils.isBlank(connection.getInstance())) {
+				connection.setInstance(UUID.randomUUID().toString());
+				save(connection);
+			}
 		}
 	}
 

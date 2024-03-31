@@ -218,6 +218,8 @@ public interface Connection {
 	void setShared(boolean shared);
 	
 	String getOwner();
+	
+	String getInstance();
     
     default String getOwnerOrCurrent() {
         var owner = getOwner();
@@ -225,6 +227,8 @@ public interface Connection {
     }
 
 	void setOwner(String owner);
+
+	void setInstance(String instance);
 	
 	String getPreUp();
 	

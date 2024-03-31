@@ -5,12 +5,14 @@ import java.net.URI;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
@@ -29,6 +31,12 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 
 	public ConnectionRepositoryImpl() {
 		session = HibernateSessionFactory.getFactory().openSession();
+		for(var connection : getConnections(null)) {
+			if(StringUtils.isBlank(connection.getInstance())) {
+				connection.setInstance(UUID.randomUUID().toString());
+				save(connection);
+			}
+		}
 	}
 
 	@Override

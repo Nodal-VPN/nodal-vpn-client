@@ -47,6 +47,9 @@ public class ConnectionImpl implements Connection, Serializable {
 	private String publicKey;
 
 	@Column(nullable = true)
+	private String instance;
+
+	@Column(nullable = true)
 	private String address;
 
 	@Column(nullable = true)
@@ -143,6 +146,16 @@ public class ConnectionImpl implements Connection, Serializable {
 	@Override
 	public void setRouteAll(boolean routeAll) {
 		this.routeAll = routeAll;
+	}
+
+	@Override
+	public String getInstance() {
+		return instance;
+	}
+
+	@Override
+	public void setInstance(String instance) {
+		this.instance = instance;
 	}
 
 	@Override

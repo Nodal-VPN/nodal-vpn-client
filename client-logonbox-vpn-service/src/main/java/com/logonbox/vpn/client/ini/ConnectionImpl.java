@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ini4j.Ini;
@@ -25,6 +26,7 @@ public class ConnectionImpl implements Connection, Serializable {
 	private static final long serialVersionUID = 1007856764641094257L;
 
 	private Long id;
+	private String instance = UUID.randomUUID().toString();
 	private String usernameHint;
 	private String userPrivateKey;
 	private String userPublicKey;
@@ -145,8 +147,18 @@ public class ConnectionImpl implements Connection, Serializable {
 	}
 
 	@Override
+	public String getInstance() {
+		return instance;
+	}
+
+	@Override
 	public void setOwner(String owner) {
 		this.owner = owner;
+	}
+
+	@Override
+	public void setInstance(String instance) {
+		this.instance = instance;
 	}
 
 	@Override
@@ -295,6 +307,7 @@ public class ConnectionImpl implements Connection, Serializable {
 			if (logonBoxSection.containsKey("MTU"))
 				setMtu(Integer.parseInt(logonBoxSection.get("MTU")));
 			setLastKnownServerIpAddress(logonBoxSection.get("LastKnownServerIpAddress"));
+			setInstance(logonBoxSection.get("Instance"));
 		}
 
 		/* Peer (them) */
@@ -476,6 +489,8 @@ public class ConnectionImpl implements Connection, Serializable {
 		}
 		if (StringUtils.isNotBlank(connection.getOwner()))
 			logonBoxSection.put("Owner", connection.getOwner());
+		if (StringUtils.isNotBlank(connection.getInstance()))
+			logonBoxSection.put("Instance", connection.getInstance());
 		if (StringUtils.isNotBlank(connection.getUsernameHint()))
 			logonBoxSection.put("UsernameHint", connection.getUsernameHint());
 		if (StringUtils.isNotBlank(connection.getHostname()))

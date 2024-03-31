@@ -66,6 +66,8 @@ public interface VPNConnection extends DBusInterface {
 
 	String getUserPublicKey();
 
+	String getInstance();
+
 	boolean hasPrivateKey();
 
 	String getPublicKey();

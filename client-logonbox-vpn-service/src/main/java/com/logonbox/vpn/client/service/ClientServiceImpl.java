@@ -97,7 +97,6 @@ public class ClientServiceImpl implements ClientService {
 	private ConnectionRepository connectionRepository;
 	private LocalContext context;
 	private Semaphore startupLock = new Semaphore(1);
-	private AtomicLong transientConnectionId = new AtomicLong();
 	private List<Listener> listeners = new ArrayList<>();
 	private Set<Long> deleting = Collections.synchronizedSet(new LinkedHashSet<>());
 
@@ -185,19 +184,30 @@ public class ClientServiceImpl implements ClientService {
 	public Connection connect(String owner, String uri) {
 		synchronized (activeSessions) {
 			if (hasStatus(owner, uri)) {
-				Connection connection = getStatus(owner, uri).getConnection();
+				var connection = getStatus(owner, uri).getConnection();
 				connect(connection);
 				return connection;
 			}
 
-			/* New temporary connection */
-			Connection connection = connectionRepository.createNew();
-			connection.setId(transientConnectionId.decrementAndGet());
-			connection.updateFromUri(uri);
-			connection.setConnectAtStartup(false);
-			connection.setStayConnected(true);
-			connect(connection);
-			return connection;
+			/* Maybe a new connection */
+			var tempConnection = connectionRepository.createNew();
+			tempConnection.updateFromUri(uri);
+			tempConnection.setConnectAtStartup(false);
+			tempConnection.setStayConnected(true);
+
+			if(probeAuthMethods(tempConnection)) {
+				/* A next gen server, create a new connection using just the URI */
+				var newConnection = create(uri, owner, false, Mode.MODERN, true);
+				requestAuthorize(newConnection);
+				return newConnection;	
+			}
+			else {
+				/* A legacy server. We used to create "temporary" connections, but
+				 * they never really worked properly, so now just throw an Exception
+				 */
+				throw new IllegalStateException("No connection with URI.");
+			}
+			
 		}
 	}
 
@@ -814,7 +824,7 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	public boolean isMatchesAnyServerURI(String owner, String uri) {
 		for(Connection c : getConnections(owner)) {
-			if(uri.startsWith(c.getUri(false))) {
+			if(uri.startsWith(c.getApiUri())) {
 				return true;
 			}
 		}
@@ -1086,10 +1096,23 @@ public class ClientServiceImpl implements ClientService {
 			/* Legacy authentication */
 			try {
 				if(connection.getMode() == Mode.MODERN) {
-					log.info("Asking client to authorize {} (modern)", connection.getDisplayName());
+					
+					/* NOTE: This should not really be necessary, but i've seen auth
+					 * methods get lost. Until the root cause is found, this code will
+					 * correct that.
+					 */
+					Connection saveConnection;
+					if(connection.getAuthMethods().length == 0 && probeAuthMethods(connection)) {
+						saveConnection = doSave(connection);
+					}
+					else {
+						saveConnection = connection;
+					}
+					
+					log.info("Asking client to authorize {} (modern)", saveConnection.getDisplayName());
 					context.sendMessage(
-							new VPNConnection.Authorize(String.format("/com/logonbox/vpn/%d", connection.getId()),
-									connection.getUri(false), String.join(",", Arrays.asList(connection.getAuthMethods()).stream().map(AuthMethod::toString).toList()), false));
+							new VPNConnection.Authorize(String.format("/com/logonbox/vpn/%d", saveConnection.getId()),
+									saveConnection.getUri(false), String.join(",", Arrays.asList(saveConnection.getAuthMethods()).stream().map(AuthMethod::toString).toList()), false));
 				}
 				else {
 					log.info("Asking client to authorize {} (legacy)", connection.getDisplayName());
