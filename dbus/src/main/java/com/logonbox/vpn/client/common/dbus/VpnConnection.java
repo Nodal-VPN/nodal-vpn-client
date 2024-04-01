@@ -33,6 +33,10 @@ public interface VpnConnection extends DBusInterface, IVpnConnection {
 
     @Override
     @DBusBoundProperty
+    String getInstance();
+
+    @Override
+    @DBusBoundProperty
     String getMode();
     
     @Override
