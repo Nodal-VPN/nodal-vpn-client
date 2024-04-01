@@ -243,6 +243,11 @@ public class EmbeddedVpnConnection implements IVpnConnection {
     }
 
     @Override
+    public String getInstance() {
+        return Utils.defaultIfBlank(connection.getInstance(), "");
+    }
+
+    @Override
     public String getUserPublicKey() {
         return defaultIfBlank(connection.getUserPublicKey(), "");
     }

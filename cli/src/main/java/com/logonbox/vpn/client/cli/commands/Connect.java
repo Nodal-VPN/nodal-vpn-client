@@ -87,7 +87,7 @@ public class Connect extends AbstractConnectionCommand implements Callable<Integ
 					cli.getConsole().flush();
 				}
 				stateHelper.on(Type.AUTHORIZING, (state, mode) -> {
-					if(mode.equals(Mode.SERVICE)) {
+					if(mode.equals(Mode.SERVICE) || mode.equals(Mode.MODERN)) {
 						register(cli, connection, out, err);
 					}
 					else {

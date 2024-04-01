@@ -199,6 +199,10 @@ public interface Connection extends VpnConfiguration {
     void setShared(boolean shared);
 
     String getOwner();
+    
+    String getInstance();
+
+    void setInstance(String instance);
 
     default String getOwnerOrCurrent() {
         var owner = getOwner();

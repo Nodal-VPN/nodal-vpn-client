@@ -59,6 +59,8 @@ public interface IVpnConnection {
 
     String getUserPublicKey();
 
+    String getInstance();
+
     boolean hasPrivateKey();
 
     String getPublicKey();

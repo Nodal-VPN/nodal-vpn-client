@@ -230,6 +230,12 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
 		return Utils.defaultIfBlank(connection.getPublicKey(), "");
 	}
 
+    @Override
+    public String getInstance() {
+        assertRegistered();
+        return Utils.defaultIfBlank(connection.getInstance(), "");
+    }
+
 	@Override
 	public String getStatus() {
 		assertRegistered();

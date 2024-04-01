@@ -102,7 +102,6 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 	private ConnectionRepository connectionRepository;
 	private LocalContext<CONX> context;
 	private Semaphore startupLock = new Semaphore(1);
-	private AtomicLong transientConnectionId = new AtomicLong();
 	private List<Listener> listeners = new ArrayList<>();
 	private Set<Long> deleting = Collections.synchronizedSet(new LinkedHashSet<>());
 
@@ -179,14 +178,24 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 				return connection;
 			}
 
-			/* New temporary connection */
-			Connection connection = connectionRepository.createNew();
-			connection.setId(transientConnectionId.decrementAndGet());
-			connection.updateFromUri(uri);
-			connection.setConnectAtStartup(false);
-			connection.setStayConnected(true);
-			connect(connection);
-			return connection;
+			/* Maybe a new connection */
+            var tempConnection = connectionRepository.createNew();
+            tempConnection.updateFromUri(uri);
+            tempConnection.setConnectAtStartup(false);
+            tempConnection.setStayConnected(true);
+
+            if(probeAuthMethods(tempConnection)) {
+                /* A next gen server, create a new connection using just the URI */
+                var newConnection = create(uri, owner, false, Mode.MODERN, true);
+                requestAuthorize(newConnection);
+                return newConnection;   
+            }
+            else {
+                /* A legacy server. We used to create "temporary" connections, but
+                 * they never really worked properly, so now just throw an Exception
+                 */
+                throw new IllegalStateException("No connection with URI.");
+            }
 		}
 	}
 
@@ -983,9 +992,28 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 			authorizingClients.put(connection, context.getScheduler().schedule(() -> {
 				disconnect(connection, "Authorization timeout.");
 			}, AUTHORIZE_TIMEOUT, TimeUnit.SECONDS));
+			
+            
+            /* NOTE: This should not really be necessary, but i've seen auth
+             * methods get lost. Until the root cause is found, this code will
+             * correct that.
+             */
+			if(connection.getMode() == Mode.MODERN) {
+                Connection saveConnection;
+                if(connection.getAuthMethods().length == 0 && probeAuthMethods(connection)) {
+                    saveConnection = doSave(connection);
+                }
+                else {
+                    saveConnection = connection;
+                }
 
-			log.info(String.format("Asking client to authorize %s", connection.getDisplayName()));
-			context.fireAuthorize(connection, AUTHORIZE_URI);
+                log.info(String.format("Asking client to authorize %s", saveConnection.getDisplayName()));
+                context.fireAuthorize(saveConnection, AUTHORIZE_URI);
+			}
+			else {
+    			log.info(String.format("Asking client to authorize %s", connection.getDisplayName()));
+    			context.fireAuthorize(connection, AUTHORIZE_URI);
+			}
 		}
 	}
 

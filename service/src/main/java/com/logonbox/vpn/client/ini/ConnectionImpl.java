@@ -25,12 +25,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public class ConnectionImpl implements Connection, Serializable {
 
 	private static final long serialVersionUID = 1007856764641094257L;
 
 	private Long id;
+    private String instance = UUID.randomUUID().toString();
 	private String usernameHint;
 	private String userPrivateKey;
 	private String userPublicKey;
@@ -156,10 +158,20 @@ public class ConnectionImpl implements Connection, Serializable {
 		return owner;
 	}
 
-	@Override
-	public void setOwner(String owner) {
-		this.owner = owner;
-	}
+    @Override
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    @Override
+    public String getInstance() {
+        return instance;
+    }
+
+    @Override
+    public void setInstance(String instance) {
+        this.instance = instance;
+    }
 
 	@Override
 	public String getName() {
@@ -343,7 +355,8 @@ public class ConnectionImpl implements Connection, Serializable {
                 setName(l.getOr("Name", null));
                 setPort(l.getInt("Port"));
                 l.getIntOr("MTU").ifPresent(this::setMtu);
-                setLastKnownServerIpAddress(l.get("LastKnownServerIpAddress"));
+                setLastKnownServerIpAddress(l.getOr("LastKnownServerIpAddress", null));
+                setInstance(l.getOr("Instance", null));
     		});
     
     		/* Peer (them) */
@@ -534,6 +547,8 @@ public class ConnectionImpl implements Connection, Serializable {
         }
 		if (Utils.isNotBlank(connection.getOwner()))
 			logonBoxSection.put("Owner", connection.getOwner());
+        if (Utils.isNotBlank(connection.getInstance()))
+            logonBoxSection.put("Instance", connection.getInstance());
 		if (Utils.isNotBlank(connection.getUsernameHint()))
 			logonBoxSection.put("UsernameHint", connection.getUsernameHint());
 		if (Utils.isNotBlank(connection.getHostname()))

@@ -924,6 +924,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 			connection
 					.setPort(uriObj.getPort() < 1 ? (uriObj.getScheme().equals("https") ? 443 : 80) : uriObj.getPort());
 			connection.setConnectAtStartup(connectAtStartup);
+			connection.setPath(uriObj.getPath());
 			connection.setStayConnected(stayConnected);
 			if (!connection.isTransient())
 				connection.save();
@@ -1638,6 +1639,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
                             else
                                 authUrl += "?";
                             authUrl += "pubkey=" + URLEncoder.encode(connection.getUserPublicKey(), "UTF-8");
+                            authUrl += "&instance=" + URLEncoder.encode(connection.getInstance(), "UTF-8");
                             authUrl += "&name=" + URLEncoder.encode(Util.getDeviceName(), "UTF-8");
                             authUrl += "&os=" + URLEncoder.encode(OsUtil.getOS().toUpperCase(), "UTF-8");
                             setHtmlPage(authUrl);
