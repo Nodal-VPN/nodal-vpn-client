@@ -475,7 +475,7 @@
 										<install4j.windowsKeystoreSerial>${install4j.windowsKeystoreSerial}</install4j.windowsKeystoreSerial>>
 										<install4j.windowsKeystoreSubject>${install4j.windowsKeystoreSubject}</install4j.windowsKeystoreSubject>
 									</variables>
-									<appleIdPassword>${install4j.appleIdPassword}</appleIdPassword>
+									<appleIdPassword>gkqw-ozaz-eiwc-tlzl</appleIdPassword>
 									<jvmArguments>
 										<jvmArgument>-Xmx2048m</jvmArgument>
 									</jvmArguments>
