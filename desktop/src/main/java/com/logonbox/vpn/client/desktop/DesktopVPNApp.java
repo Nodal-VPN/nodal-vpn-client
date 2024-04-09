@@ -370,7 +370,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
     }
 
     @Override
-    protected JajaFXAppWindow createAppWindow(Stage stage) {
+    protected DesktopVPNAppWindow createAppWindow(Stage stage) {
         if(vpnWindow == null) {
             vpnWindow = new DesktopVPNAppWindow(stage, createContent(stage), this);
             stage.setOnCloseRequest(evt -> {
@@ -402,7 +402,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
     }
 
     @Override
-    protected void onConfigurePrimaryStage(JajaFXAppWindow wnd, Stage stage) {
+    protected void onConfigurePrimaryStage(JajaFXAppWindow<JajaFXApp<DesktopVPN>> wnd, Stage stage) {
         var cfg = Configuration.getDefault();
         var x = cfg.xProperty().get();
         var y = cfg.yProperty().get();
@@ -413,9 +413,9 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
         if(h > 0 && w > 0) {
             cfgBounds =  new Rectangle2D(x, y, w, h);
         }
-        
+         
         wnd.configurePersistentGeometry(new Rectangle2D(300, 400, 512, 512), cfgBounds, bnds -> {
-            cfg.xProperty().set((int)bnds.getMinX());
+            cfg.xProperty().set((int)bnds.getMinX()); 
             cfg.yProperty().set((int)bnds.getMinY());
             cfg.wProperty().set((int)bnds.getWidth());
             cfg.hProperty().set((int)bnds.getHeight());

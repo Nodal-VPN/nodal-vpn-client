@@ -12,7 +12,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
-public class DesktopVPNAppWindow extends JajaFXAppWindow implements Navigator {
+public class DesktopVPNAppWindow extends JajaFXAppWindow<DesktopVPNApp> implements Navigator {
 
     private static final double DEFAULT_HEIGHT = 768;
     private static final double DEFAULT_WIDTH = 457;
