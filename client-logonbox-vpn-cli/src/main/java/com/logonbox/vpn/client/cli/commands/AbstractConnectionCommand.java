@@ -36,7 +36,6 @@ import com.logonbox.vpn.common.client.dbus.VPNConnection;
 
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.ParentCommand;
 
 public abstract class AbstractConnectionCommand implements Callable<Integer> {
 	static Logger log = LoggerFactory.getLogger(AbstractConnectionCommand.class);
