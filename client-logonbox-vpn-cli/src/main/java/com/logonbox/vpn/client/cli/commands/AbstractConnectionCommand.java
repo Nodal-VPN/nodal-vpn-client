@@ -43,9 +43,6 @@ public abstract class AbstractConnectionCommand implements Callable<Integer> {
 	@Spec
 	protected CommandSpec spec;
 
-	@ParentCommand // picocli injects the parent instance
-    protected CLI parentCommand;
-	
 	protected AbstractConnectionCommand() {
 	}
 

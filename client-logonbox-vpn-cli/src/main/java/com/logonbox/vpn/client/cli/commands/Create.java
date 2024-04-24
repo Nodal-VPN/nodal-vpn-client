@@ -49,13 +49,9 @@ public class Create extends AbstractConnectionCommand implements Callable<Intege
 		if (!uriObj.getScheme().equals("https")) {
 			throw new IllegalArgumentException("Only HTTPS is supported.");
 		}
-		
-		if(!parentCommand.isInteractive()) {
-			parentCommand.startBus();
-		}
 
 		CLIContext cli = getCLI();
-		
+
 		long connectionId = cli.getVPN().getConnectionIdForURI(uriObj.toASCIIString());
 		ConsoleProvider console = cli.getConsole();
 		PrintWriter err = console.err();

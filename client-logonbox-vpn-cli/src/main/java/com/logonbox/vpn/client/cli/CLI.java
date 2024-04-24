@@ -77,6 +77,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 		;
 
 		CLI cli = new CLI();
+		startBus();
 		try {
 			System.exit(new CommandLine(cli).execute(args));
 		} finally {
@@ -205,7 +206,6 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 	@Override
 	public void run() {
 		try {
-			startBus();
 			about();
 			runPrompt();
 			console.out().println();
