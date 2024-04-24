@@ -48,6 +48,7 @@ public class Create extends AbstractConnectionCommand implements Callable<Intege
 
 		var cli = getCLI();
 		var vpnManager = cli.getVpnManager();
+		vpnManager.start();
         var connectionId = vpnManager.getVpnOrFail().getConnectionIdForURI(uriObj.toASCIIString());
 		var console = cli.getConsole();
 		var err = console.err();
