@@ -287,7 +287,10 @@ public abstract class AbstractDBusClient implements DBusClient {
 		return log;
 	}
 
-	protected void startBus() {
+	/**
+	 * LDP Probably not the right way
+	 */
+	public void startBus() {
 		if (vpn == null) {
 			getLog().info("Trying connect to DBus");
 			try {
