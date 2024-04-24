@@ -318,7 +318,7 @@ public class CLI extends AbstractDBusClient implements Runnable, CLIContext, DBu
 	}
 
 	@Override
-	public boolean isInteractive() {
+	protected boolean isInteractive() {
 		return interactive;
 	}
 
