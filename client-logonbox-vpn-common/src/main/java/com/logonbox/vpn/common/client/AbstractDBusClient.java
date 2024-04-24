@@ -278,7 +278,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 		return builder;
 	}
 
-	protected abstract boolean isInteractive();
+	public abstract boolean isInteractive();
 
 	protected Logger getLog() {
 		if (log == null) {
