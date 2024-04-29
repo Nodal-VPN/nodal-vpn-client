@@ -177,14 +177,14 @@ public abstract class AbstractDBusClient implements DBusClient {
 	}
 
 	public VPN getVPN() {
-//		lazyInit();
+		startBus();
 		if (vpn == null)
 			throw new IllegalStateException("Bus not available.");
 		return vpn;
 	}
 
 	public VPNConnection getVPNConnection(long id) {
-//		lazyInit();
+		startBus();
 		try {
 			return conn.getRemoteObject(BUS_NAME, String.format("%s/%d", ROOT_OBJECT_PATH, id), VPNConnection.class);
 		} catch (DBusException e) {
