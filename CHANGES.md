@@ -1,5 +1,9 @@
 # Changes
 
+## 3.0.6-SNAPSHOT
+
+ * In progress.
+
 ## 3.0.5-459
 
  * Non-interactive use of the CLI client would fail.
