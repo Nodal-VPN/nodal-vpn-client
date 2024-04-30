@@ -1,6 +1,6 @@
 # Changes
 
-## 3.0.5-SNAPSHOT
+## 3.0.5-459
 
  * Non-interactive use of the CLI client would fail.
  * Further improvements to support next generation LogonBox VPN server.
