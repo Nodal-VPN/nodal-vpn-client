@@ -2,7 +2,8 @@
 
 ## 3.0.5-SNAPSHOT
 
- * In progress
+ * Non-interactive use of the CLI client would fail.
+ * Further improvements to support next generation LogonBox VPN server.
 
 ## 3.0.4-378
 
