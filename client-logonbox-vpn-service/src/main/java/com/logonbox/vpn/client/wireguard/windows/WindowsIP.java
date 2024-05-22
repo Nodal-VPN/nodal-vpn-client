@@ -52,6 +52,11 @@ public class WindowsIP extends AbstractVirtualInetAddress<WindowsPlatformService
 		synchronized (lock) {
 			try {
 				unsetDns();
+			}
+			catch(Exception e) {
+				LOG.warn("Failed to reconfigure DNS before taking interface down.", e);
+			}
+			try {
 				Services.get().stopService(getService());
 			} catch (IOException ioe) {
 				throw ioe;
@@ -217,9 +222,16 @@ public class WindowsIP extends AbstractVirtualInetAddress<WindowsPlatformService
 	}
 
 	private void unsetDns() {
-		String currentDomains = Advapi32Util.registryGetStringValue
-                (WinReg.HKEY_LOCAL_MACHINE,
-                        "System\\CurrentControlSet\\Services\\TCPIP\\Parameters", "SearchList");
+		String currentDomains;
+		try {
+			currentDomains = Advapi32Util.registryGetStringValue
+	                (WinReg.HKEY_LOCAL_MACHINE,
+	                        "System\\CurrentControlSet\\Services\\TCPIP\\Parameters", "SearchList");
+		}
+		catch(Exception e) {
+			LOG.debug("Failed to get current domain search list.", e);
+			currentDomains = null;
+		}
 		Set<String> currentDomainList = new LinkedHashSet<>(StringUtils.isBlank(currentDomains) ? Collections.emptySet() : Arrays.asList(currentDomains));
 		for(String dnsName : domainsAdded) {
 			LOG.info(String.format("Removing domain %s from search", dnsName));
