@@ -129,12 +129,15 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.web.PopupFeatures;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.util.Callback;
 import javafx.util.Duration;
 import netscape.javascript.JSObject;
 
@@ -1147,6 +1150,17 @@ public class UI implements BusLifecycleListener {
 		engine.setOnError((e) -> {
 			LOG.error(String.format("Error in webengine. %s", e.getMessage()), e.getException());
 		});
+		engine.setCreatePopupHandler(new Callback<PopupFeatures, WebEngine>() {
+
+	        @Override
+	        public WebEngine call(PopupFeatures p) {
+	            Stage stage = new Stage(StageStyle.UTILITY);
+	            WebView wv2 = new WebView();
+	            stage.setScene(new Scene(wv2));
+	            stage.show();
+	            return wv2.getEngine();
+	        }
+	    });
 
 		engine.setOnStatusChanged((e) -> {
 			LOG.debug(String.format("Status: %s", e));
