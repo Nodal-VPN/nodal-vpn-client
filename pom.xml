@@ -48,9 +48,9 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		
-        <javafx.version>23-ea+22</javafx.version>
-		<!--<javafx.version>21.0.1</javafx.version>-->
+		<!--
+        <javafx.version>23-ea+22</javafx.version>-->
+		<javafx.version>21.0.1</javafx.version>
 		
 		<!-- This version is used for Mac OS intel which has a very annoying
 		     crash on newer version -->
