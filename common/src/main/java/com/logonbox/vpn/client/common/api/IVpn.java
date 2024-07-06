@@ -1,10 +1,8 @@
 package com.logonbox.vpn.client.common.api;
 
-import java.util.List;
-
 public interface IVpn<CONX extends IVpnConnection> {
 
-	List<CONX> getConnections();
+	CONX[] getConnections();
 
 	CONX getConnection(long id);
 	

@@ -20,7 +20,7 @@ public class Disconnect extends AbstractConnectionCommand {
 
 		var cli = getCLI();
 		if ((names == null || names.length == 0) && isSingleConnection(cli)) {
-			disconnect(cli.getVpnManager().getVpnOrFail().getConnections().iterator().next(), cli);
+			disconnect(cli.getVpnManager().getVpnOrFail().getConnections()[0], cli);
 		} else {
 			var pattern = getPattern(cli, names);
 			for (var c : getConnectionsMatching(pattern, cli)) {

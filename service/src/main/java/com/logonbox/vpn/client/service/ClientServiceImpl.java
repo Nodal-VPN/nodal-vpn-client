@@ -4,6 +4,8 @@ import static com.logonbox.vpn.client.common.Utils.isBlank;
 import static java.util.Arrays.asList;
 
 import com.logonbox.vpn.client.LocalContext;
+import com.logonbox.vpn.client.common.AppVersion;
+import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConfigurationRepository;
 import com.logonbox.vpn.client.common.Connection;
@@ -13,11 +15,9 @@ import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
 import com.logonbox.vpn.client.common.PlatformUtilities;
-import com.logonbox.vpn.client.common.AppVersion;
-import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.PromptingCertManager;
-import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.UserCancelledException;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.drivers.lib.AbstractSystemContext;
@@ -72,7 +72,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ssl.SSLHandshakeException;
 
@@ -612,7 +611,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 
     					/* Interface (us) */
     					var interfaceSection = ini.section("Interface");
-    					connection.setDns(Arrays.asList(interfaceSection.getAllOr("DNS", new String[0])));
+    					connection.setDns(Arrays.asList(interfaceSection.getAllElse("DNS", new String[0])));
 
     					connection.setPreUp(interfaceSection.contains("PreUp") ?  String.join("\n", interfaceSection.getAll("PreUp")) : "");
     					connection.setPostUp(interfaceSection.contains("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
@@ -621,7 +620,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 
     					/* Custom LogonBox */
     					ini.sectionOr("LogonBox").ifPresent(s -> {
-                            connection.setRouteAll(s.getBooleanOr("RouteAll", false));
+                            connection.setRouteAll(s.getBoolean("RouteAll", false));
     					});
 
     					/* Peer (them) */
@@ -631,7 +630,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
     					connection.setEndpointAddress(endpoint.substring(0, idx));
     					connection.setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
     					connection.setPeristentKeepalive(peerSection.getInt("PersistentKeepalive"));
-    					connection.setAllowedIps(Arrays.asList(interfaceSection.getAllOr("AllowedIPs", new String[0])));
+    					connection.setAllowedIps(Arrays.asList(interfaceSection.getAllElse("AllowedIPs", new String[0])));
 
     					return save(connection);
 				    }

@@ -49,7 +49,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
-		<javafx.version>22-ea+28</javafx.version>
+		<javafx.version>21.0.4-ea+1</javafx.version>
 		
 		<!-- When you change this, remember to also change hypersocket-framework, hypersocket-enterprise, hypersocket-ui  -->
 		<hypersocket.languages>da,nl,fi,fr,de,it,no,pl,ru,sv,es,ja,he,pt,tr</hypersocket.languages>
@@ -59,7 +59,7 @@
         <jna.version>5.13.0</jna.version>
         <jaul.version>0.9.11-SNAPSHOT</jaul.version>
         
-        <dbus.version>5.0.0</dbus.version>
+        <dbus.version>5.1.0-SNAPSHOT</dbus.version>
         <logonbox.vpn.drivers.version>0.0.1-SNAPSHOT</logonbox.vpn.drivers.version>
         <native.image.annotations.version>0.9.1-SNAPSHOT</native.image.annotations.version>
         

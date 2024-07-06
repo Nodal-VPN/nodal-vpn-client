@@ -276,21 +276,25 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 		if (Utils.isNotBlank(busAddress)) {
 			if (log.isDebugEnabled())
 				log.debug("Getting bus. " + this.busAddress);
-			return configureBuilder(DBusConnectionBuilder.forAddress(busAddress)).build();
+			return configureBuilder(DBusConnectionBuilder.forAddress(busAddress)).
+			        build();
 		} else {
 			if (sessionBus) {
 				if (log.isDebugEnabled())
 					log.debug("Getting session bus.");
-				return configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
+				return configureBuilder(DBusConnectionBuilder.forSessionBus()).
+				        build();
 			} else {
 				if (fixedAddress == null) {
 					if (log.isDebugEnabled())
 						log.debug("Getting system bus.");
-					return configureBuilder(DBusConnectionBuilder.forSystemBus()).build();
+					return configureBuilder(DBusConnectionBuilder.forSystemBus()).
+					        build();
 				} else {
 					if (log.isDebugEnabled())
 						log.debug("Getting fixed bus " + fixedAddress);
-					return configureBuilder(DBusConnectionBuilder.forAddress(fixedAddress)).build();
+					return configureBuilder(DBusConnectionBuilder.forAddress(fixedAddress)).
+					        build();
 				}
 			}
 		}
@@ -304,7 +308,9 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 
 	protected DBusConnectionBuilder configureBuilder(DBusConnectionBuilder builder) {
 		builder.withShared(false);
-		builder.transportConfig().withRegisterSelf(true);
+		builder.transportConfig().
+		    withRegisterSelf(true).
+            withTimeout(500);
 		return builder;
 	}
 

@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.ServiceLoader;
 import java.util.UUID;
 
@@ -70,10 +69,10 @@ public class EmbeddedVpn implements IVpn<EmbeddedVpnConnection> {
 
 
     @Override
-    public List<EmbeddedVpnConnection> getConnections() {
+    public EmbeddedVpnConnection[] getConnections() {
         try {
             return ctx.getClientService().getStatus(getOwner()).stream()
-                    .map(s -> new EmbeddedVpnConnection(ctx, s.getConnection())).toList();
+                    .map(s -> new EmbeddedVpnConnection(ctx, s.getConnection())).toList().toArray(new EmbeddedVpnConnection[0]);
         } catch (Exception e) { 
             throw new IllegalStateException("Failed to get connections.", e);
         }

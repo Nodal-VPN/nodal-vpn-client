@@ -38,8 +38,8 @@
         </dependency> 
         <dependency>
             <groupId>com.sshtools</groupId>
-            <artifactId>jini</artifactId>
-            <version>0.1.1</version>
+            <artifactId>jini-lib</artifactId>
+            <version>0.3.2</version>
         </dependency>
     </dependencies>
     <repositories>

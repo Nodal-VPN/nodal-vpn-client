@@ -43,7 +43,7 @@ public class EmbeddedVpnConnection implements IVpnConnection {
             /* Interface (us) */
             var interfaceSection = ini.section("Interface");
             setAddress(interfaceSection.get("Address"));
-            setDns(interfaceSection.getAllOr("DNS", new String[0]));
+            setDns(interfaceSection.getAllElse("DNS", new String[0]));
 
             String privateKey = interfaceSection.get("PrivateKey");
             if (privateKey != null && hasPrivateKey() && !privateKey.equals(PRIVATE_KEY_NOT_AVAILABLE)) {
@@ -76,7 +76,7 @@ public class EmbeddedVpnConnection implements IVpnConnection {
             setEndpointAddress(endpoint.substring(0, idx));
             setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
             setPersistentKeepalive(peerSection.getInt("PersistentKeepalive"));
-            setAllowedIps(peerSection.getAllOr("AllowedIPs", new String[0]));
+            setAllowedIps(peerSection.getAllElse("AllowedIPs", new String[0]));
 
             return "";
         } catch (IOException | ParseException ioe) {

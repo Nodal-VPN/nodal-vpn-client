@@ -25,6 +25,7 @@ public class DesktopVPNAppWindow extends JajaFXAppWindow<DesktopVPNApp> implemen
     @Override
     protected TitleBar createTitleBar() {
         var tbar =  super.createTitleBar();
+        tbar.getStylesheets().add(DesktopVPNApp.vpnAppCss());
 
         back = new FontIcon();
         back.setIconSize(18);
@@ -44,7 +45,14 @@ public class DesktopVPNAppWindow extends JajaFXAppWindow<DesktopVPNApp> implemen
 
     @Override
     public void setImage(Image image) {
-        setTitleImage(new ImageView(image));
+        var titleImage = new ImageView(image);
+        
+        /* Sucks you cant do this in CSS */
+        titleImage.setFitWidth(200);
+        titleImage.setFitHeight(32);
+        titleImage.setPreserveRatio(true);
+        
+        setTitleImage(titleImage);
     }
 
     @Override

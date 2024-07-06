@@ -6,6 +6,7 @@ open module com.logonbox.vpn.client.desktop {
     requires transitive com.logonbox.vpn.client.dbus.client;
     requires transitive com.sshtools.jajafx;
     requires com.install4j.runtime;
+    requires org.scenicview.scenicview;
     requires static uk.co.bithatch.nativeimage.annotations;
     requires com.logonbox.vpn.client.logging;
     requires com.logonbox.vpn.client.app;

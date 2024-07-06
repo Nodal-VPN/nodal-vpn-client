@@ -45,7 +45,7 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
 			/* Interface (us) */
 			var interfaceSection = ini.section("Interface");
 			setAddress(interfaceSection.get("Address"));
-			setDns(interfaceSection.getAllOr("DNS", new String[0]));
+			setDns(interfaceSection.getAllElse("DNS", new String[0]));
 	
 			var privateKey = interfaceSection.getOr("PrivateKey");
 			if (privateKey.isPresent() && hasPrivateKey() && !privateKey.get().equals(PRIVATE_KEY_NOT_AVAILABLE)) {
@@ -75,8 +75,8 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
 			int idx = endpoint.lastIndexOf(':');
 			setEndpointAddress(endpoint.substring(0, idx));
 			setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
-			setPersistentKeepalive(peerSection.getIntOr("PersistentKeepalive", 0));
-			setAllowedIps(peerSection.getAllOr("AllowedIPs", new String[0]));
+			setPersistentKeepalive(peerSection.getInt("PersistentKeepalive", 0));
+			setAllowedIps(peerSection.getAllElse("AllowedIPs", new String[0]));
 			
 			return "";
 		}

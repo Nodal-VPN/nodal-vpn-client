@@ -103,12 +103,6 @@ Hyperlink:focused {
     -fx-alignment: top-left;*/
 }
 
-.title-bar #titleStack > ImageView {
-    -fx-fit-width: 200px;
-    -fx-fit-height: 32px;
-    -fx-preserve-ratio: true;
-}
-
 .title-bar {
     -fx-background-color: -fx-lbvpn-background !important;
 }

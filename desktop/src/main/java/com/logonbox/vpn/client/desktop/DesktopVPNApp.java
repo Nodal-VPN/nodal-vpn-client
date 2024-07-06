@@ -55,7 +55,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<VpnConnection>, RemoteUI {
+public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> implements UIContext<VpnConnection>, RemoteUI {
 
     private final static class AWTBrandImage implements BrandImage {
         private BufferedImage img;
@@ -343,7 +343,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
             log.debug(String.format("Using custom JavaFX stylesheet %s", tmpFile));
         var uri = Styling.toUri(tmpFile).toExternalForm();
         ss.add(0, uri);
-        var css = DesktopVPNApp.class.getResource(DesktopVPNApp.class.getSimpleName() + ".css").toExternalForm();
+        var css = vpnAppCss();
         ss.add(css);
 
         String defaultLogo = UI.class.getResource("logonbox-titlebar-logo.png").toExternalForm();
@@ -354,6 +354,10 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
             navigator().setImage(new Image(branding.logo().get().toUri().toString(), true));
         }
 
+    }
+
+    static String vpnAppCss() {
+        return DesktopVPNApp.class.getResource(DesktopVPNApp.class.getSimpleName() + ".css").toExternalForm();
     }
 
     @Override
@@ -402,7 +406,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN> implements UIContext<Vp
     }
 
     @Override
-    protected void onConfigurePrimaryStage(JajaFXAppWindow<JajaFXApp<DesktopVPN>> wnd, Stage stage) {
+    protected void onConfigurePrimaryStage(JajaFXAppWindow<?> wnd, Stage stage) {
         var cfg = Configuration.getDefault();
         var x = cfg.xProperty().get();
         var y = cfg.yProperty().get();

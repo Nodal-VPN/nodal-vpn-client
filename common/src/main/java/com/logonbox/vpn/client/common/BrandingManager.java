@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
@@ -258,7 +259,7 @@ public class BrandingManager<CONX extends IVpnConnection> {
             }
         } else {
             if (branding == null) {
-                for (var conx : vpnManager.getVpn().map(vpn -> vpn.getConnections()).orElse(Collections.emptyList())) {
+                for (var conx : vpnManager.getVpn().map(vpn -> Arrays.asList(vpn.getConnections())).orElse(Collections.emptyList())) {
                     try {
                         branding = getBrandingForConnection(conx);
                     } catch (IllegalStateException | IOException ioe) {

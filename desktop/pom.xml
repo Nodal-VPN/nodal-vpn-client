@@ -11,7 +11,7 @@
         <groupId>com.logonbox</groupId>
         <artifactId>logonbox-desktop-vpn-clients</artifactId>
         <version>4.0.0-SNAPSHOT</version>
-        <relativePath>..</relativePath>
+        <relativePath>..</relativePath> 
     </parent>
 
     <build>
@@ -176,6 +176,29 @@
 			<!--<scope>provided</scope>-->
 		</dependency>
 
+        <dependency>
+            <groupId>io.github.palexdev</groupId>
+            <artifactId>scenicview</artifactId>
+            <version>17.0.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-graphics</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-controls</artifactId> 
+                </exclusion>
+                <exclusion>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-base</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-fxml</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <repositories>

@@ -9,8 +9,6 @@ import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.DBusInterface;
 import org.freedesktop.dbus.messages.DBusSignal;
 
-import java.util.List;
-
 import uk.co.bithatch.nativeimage.annotations.Proxy;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.TypeReflect;
@@ -146,7 +144,7 @@ public interface VPN extends IVpn<VpnConnection>, DBusInterface {
     
     @Override
     @DBusMemberName("GetConnections")
-    List<VpnConnection> getConnections();
+    VpnConnection[] getConnections();
     
     @Override
     @DBusMemberName("GetConnection")

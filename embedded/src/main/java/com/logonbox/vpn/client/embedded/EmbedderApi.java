@@ -5,6 +5,7 @@ import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.api.IVpn;
 import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
 
+import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
 
@@ -36,7 +37,7 @@ public class EmbedderApi implements Api<EmbeddedVpnConnection> {
 
     public static void main(String[] args)  throws Exception {
         var embedder = new EmbedderApi((pf) -> true);
-        embedder.vpn().getConnections().forEach(vpn -> {
+        Arrays.asList(embedder.vpn().getConnections()).forEach(vpn -> {
             System.out.println(vpn.getDisplayName());
         });
     }

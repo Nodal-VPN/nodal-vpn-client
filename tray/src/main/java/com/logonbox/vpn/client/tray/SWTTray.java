@@ -46,7 +46,7 @@ public class SWTTray extends AbstractTray {
 		shell = new Shell(display, SWT.NONE);
 		display.asyncExec(() -> {
 			var connected = context.getVpnManager().isBackendAvailable();
-            List<VpnConnection> conx = connected ? context.getVpnManager().getVpn().map(vpn -> vpn.getConnections()).orElse(Collections.emptyList()) : Collections.emptyList();
+            List<VpnConnection> conx = connected ? context.getVpnManager().getVpn().map(vpn -> Arrays.asList(vpn.getConnections())).orElse(Collections.emptyList()) : Collections.emptyList();
 			adjustTray(connected, conx);
 		});
 	}
@@ -71,7 +71,7 @@ public class SWTTray extends AbstractTray {
 		display.asyncExec(() -> {
 			try {
 				var connected = context.getVpnManager().isBackendAvailable();
-				List<VpnConnection> conx = connected ? context.getVpnManager().getVpn().map(vpn -> vpn.getConnections()).orElse(Collections.emptyList()) : Collections.emptyList();
+				List<VpnConnection> conx = connected ? context.getVpnManager().getVpn().map(vpn -> Arrays.asList(vpn.getConnections())).orElse(Collections.emptyList()) : Collections.emptyList();
 				rebuildMenu(connected, conx);
 				setImage(connected, conx);
 			} catch (Exception re) {

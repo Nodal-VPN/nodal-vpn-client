@@ -983,7 +983,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	public void setAvailable() {
 		boolean isNoBack = "missingSoftware.html".equals(htmlPage) || "connections.html".equals(htmlPage)
 				|| !vpnManager.isBackendAvailable()
-				|| ("addLogonBoxVPN.html".equals(htmlPage) && vpnManager.getVpnOrFail().getConnections().isEmpty());
+				|| ("addLogonBoxVPN.html".equals(htmlPage) && vpnManager.getVpnOrFail().getConnections().length == 0);
 		var nav = uiContext.navigator();
 		if(nav != null)
 		    nav.setBackVisible(!isNoBack);
@@ -1571,7 +1571,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	}
 
 	private List<CONX> getAllConnections() {
-		return vpnManager.isBackendAvailable() ? vpnManager.getVpn().map(vpn -> vpn.getConnections()).orElse(Collections.emptyList()) : Collections.emptyList();
+		return vpnManager.isBackendAvailable() ? vpnManager.getVpn().map(vpn -> Arrays.asList(vpn.getConnections())).orElse(Collections.emptyList()) : Collections.emptyList();
 	}
 
 	private void resetAwaingBridgeEstablish() {
@@ -1599,7 +1599,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	private IVpnConnection getFirstConnectionForState(Type... type) {
 		if (vpnManager.isBackendAvailable()) {
 			List<Type> tl = Arrays.asList(type);
-			for (var connection : vpnManager.getVpn().map(vpn -> vpn.getConnections()).orElse(Collections.emptyList())) {
+			for (var connection : vpnManager.getVpn().map(vpn -> Arrays.asList(vpn.getConnections())).orElse(Collections.emptyList())) {
 				Type status = Type.valueOf(connection.getStatus());
 				if (tl.contains(status)) {
 					return connection;
@@ -1667,7 +1667,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 					setHtmlPage("updateAvailable.html");
 				} else {
 					/* Otherwise connections page */
-					if (vpnManager.getVpn().map(vpn -> vpn.getConnections().isEmpty()).orElse(true)) {
+					if (vpnManager.getVpn().map(vpn -> vpn.getConnections().length == 0).orElse(true)) {
 						if (uiContext.getAppContext().isNoAddWhenNoConnections()) {
 							if (uiContext.getAppContext().isConnect()
 									|| Utils.isNotBlank(uiContext.getAppContext().getUri()))

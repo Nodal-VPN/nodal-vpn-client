@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.ServiceLoader;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -112,11 +111,11 @@ public class VpnImpl extends AbstractVPNComponent implements VPN {
 	}
 
 	@Override
-	public List<VpnConnection> getConnections() {
+	public VpnConnection[] getConnections() {
 		assertRegistered();
 		try {
 			return ctx.getClientService().getStatus(getOwner()).stream()
-					.map(c -> new VpnConnectionImpl(ctx, c.getConnection())).collect(Collectors.toList());
+					.map(c -> getConnection(c.getConnection().getId())).collect(Collectors.toList()).toArray(new VpnConnection[0]);
 		} catch (Exception e) {	
 			throw new IllegalStateException("Failed to get connections.", e);
 		}

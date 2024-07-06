@@ -323,7 +323,7 @@ public class ConnectionImpl implements Connection, Serializable {
     		var interfaceSection = ini.section("Interface");
     		setAddress(interfaceSection.getOr("Address").orElse(null));
             setFwMark(interfaceSection.getIntOr("FwMark").orElse(0));
-    		setDns(Arrays.asList(interfaceSection.getAllOr("DNS", new String[0])));
+    		setDns(Arrays.asList(interfaceSection.getAllElse("DNS", new String[0])));
             setTable(interfaceSection.getOr("Table").orElse(null));
             setSaveConfig(interfaceSection.getBooleanOr("SaveConfig").orElse(false));
     
@@ -339,24 +339,24 @@ public class ConnectionImpl implements Connection, Serializable {
     
     		/* Custom LogonBox */
     		ini.sectionOr("LogonBox").ifPresent(l -> {
-                setRouteAll(l.getBooleanOr("RouteAll", false));
-                setShared(l.getBooleanOr("Shared", false));
-                setConnectAtStartup(l.getBooleanOr("ConnectAtStartup", false));
-                setStayConnected(l.getBooleanOr("StayConnected", false));
+                setRouteAll(l.getBoolean("RouteAll", false));
+                setShared(l.getBoolean("Shared", false));
+                setConnectAtStartup(l.getBoolean("ConnectAtStartup", false));
+                setStayConnected(l.getBoolean("StayConnected", false));
                 setMode(Mode.valueOf(l.get("Mode")));
                 l.getAllOr("AuthMethods").ifPresent(all -> {
                     setAuthMethods(Arrays.asList(all).stream().map(AuthMethod::valueOf).toList().toArray(new AuthMethod[0]));
                 });
-                setOwner(l.getOr("Owner", null));
-                setUsernameHint(l.getOr("UsernameHint", null));
-                setHostname(l.getOr("Hostname", null));
-                setPath(l.getOr("Path", null));
-                setError(l.getOr("Error", null));
-                setName(l.getOr("Name", null));
+                setOwner(l.get("Owner", null));
+                setUsernameHint(l.get("UsernameHint", null));
+                setHostname(l.get("Hostname", null));
+                setPath(l.get("Path", null));
+                setError(l.get("Error", null));
+                setName(l.get("Name", null));
                 setPort(l.getInt("Port"));
                 l.getIntOr("MTU").ifPresent(this::setMtu);
-                setLastKnownServerIpAddress(l.getOr("LastKnownServerIpAddress", null));
-                setInstance(l.getOr("Instance", null));
+                setLastKnownServerIpAddress(l.get("LastKnownServerIpAddress", null));
+                setInstance(l.get("Instance", null));
     		});
     
     		/* Peer (them) */
@@ -367,9 +367,9 @@ public class ConnectionImpl implements Connection, Serializable {
                     setEndpointAddress(endpoint.substring(0, idx));
                     setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
                 });
-                setPresharedKey(p.getOr("PresharedKey", null));
+                setPresharedKey(p.get("PresharedKey", null));
                 setPeristentKeepalive(p.getInt("PersistentKeepalive"));
-                setAllowedIps(Arrays.asList(p.getAllOr("AllowedIPs", new String[0])));
+                setAllowedIps(Arrays.asList(p.getAllElse("AllowedIPs", new String[0])));
     		});
 		}
 		catch(ParseException pe) {

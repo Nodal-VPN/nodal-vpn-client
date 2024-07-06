@@ -401,7 +401,7 @@ public class UI2 {
 			public void widgetSelected(SelectionEvent e) {
 				var busAvailable = vpnManager.isBackendAvailable();
 				if (busAvailable) {
-					for (var c : vpnManager.getVpn().map(vpn -> vpn.getConnections()).orElse(Collections.emptyList())) {
+					for (var c : vpnManager.getVpn().map(vpn -> Arrays.asList(vpn.getConnections())).orElse(Collections.emptyList())) {
 						if (c.getStatus().equals(ConnectionStatus.Type.AUTHORIZING.name())) {
 							c.disconnect(bundle.getString("cancelled"));
 							selectPageForState(false, false);
@@ -1380,7 +1380,7 @@ public class UI2 {
 	}
 
 	List<VpnConnection> getAllConnections() {
-		return context.getApp().getVpnManager().getVpn().map(vpn -> vpn.getConnections()).orElse(Collections.emptyList());
+		return context.getApp().getVpnManager().getVpn().map(vpn -> Arrays.asList(vpn.getConnections())).orElse(Collections.emptyList());
 	}
 
 	private VpnConnection getAuthorizingConnection() {
