@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="10.0.6" transformSequenceNumber="10">
+<install4j version="10.0.8" transformSequenceNumber="10">
   <directoryPresets config="./target" />
   <application name="LogonBox VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
@@ -14,6 +14,9 @@
       <variable name="install4j.windowsKeystoreIssuer" value="Sectigo Public Code Signing CA EV R36" description="Windows key store issuer" />
       <variable name="install4j.windowsKeystoreSerial" value="6a2d74c3e24c71aa08000ead302fbd46" description="Windows key store serial" />
       <variable name="install4j.windowsKeystoreSubject" value="Jadaptive Limited" description="Windows key store subject" />
+      <variable name="install4j.updatesBase" value="http://localhost" description="The base folder (on S3 usually) where updates are" />
+      <variable name="install4j.jaulAppId" value="UNSET" description="The Jaul update system app Id, e.g. com.sshtools.MyApp" />
+      <variable name="install4j.jaulUpdaterId" value="999" description="The ID (in this install4j project) of the updater application. Its a bit annoying we can't get this automatically!" />
     </variables>
     <codeSigning macEnabled="true" macPkcs12File="${compiler:install4j.macPkcs12File}" windowsEnabled="true" windowsKeySource="windows" macNotarize="true" appleId="${compiler:install4j.appleId}">
       <windowsKeystoreIdentifier issuer="${compiler:install4j.windowsKeystoreIssuer}" serial="${compiler:install4j.windowsKeystoreSerial}" subject="${compiler:install4j.windowsKeystoreSubject}" />
@@ -269,7 +272,7 @@
       </iconImageFiles>
     </launcher>
   </launchers>
-  <installerGui autoUpdateDescriptorUrl="https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client/${compiler:build.phase}/updates.xml" useAutoUpdateBaseUrl="true" autoUpdateBaseUrl="https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client/${compiler:sys.version}/">
+  <installerGui autoUpdateDescriptorUrl="${compiler:install4j.updatesBase}/${compiler:build.phase}/updates.xml" useAutoUpdateBaseUrl="true" autoUpdateBaseUrl="${compiler:install4j.updatesBase}/${compiler:sys.version}/">
     <customCode>
       <scanDirectory location="./target/jaul" />
     </customCode>
@@ -664,6 +667,11 @@ return path.replace('\\', '/');</property>
                   <property name="scheme" type="string">lbvpn</property>
                 </serializedBean>
               </action>
+              <action id="2281" beanClass="com.sshtools.jaul.RegisterJaulAppAction" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="appCategory" type="enum" class="com.sshtools.jaul.AppCategory" value="HYBRID" />
+                </serializedBean>
+              </action>
             </actions>
             <formComponents>
               <formComponent id="1730" beanClass="com.install4j.runtime.beans.formcomponents.ProgressComponent">
@@ -814,6 +822,7 @@ return console.askYesNo(message, true);
                   </property>
                 </serializedBean>
               </action>
+              <action id="2280" beanClass="com.sshtools.jaul.DeregisterJaulAppAction" rollbackBarrierExitCode="0" />
               <action id="2177" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="arguments" type="array" elementType="string" length="1">

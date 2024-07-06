@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="10.0.6" transformSequenceNumber="10">
+<install4j version="10.0.8" transformSequenceNumber="10">
   <directoryPresets config="./target" />
   <application name="LogonBox VPN Client" applicationId="0033-1388-2645-1798" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="4.0.0" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
@@ -10,6 +10,9 @@
       <variable name="build.exe.suffix" />
       <variable name="jfx.archdir" value="gui/win" description="The location of the architecture specific jars for JavaFX" />
       <variable name="install4j.appleId" value="unset@logonbox.com" description="The apple ID to use for notarisation" />
+      <variable name="install4j.jaulUpdaterId" value="999" description="The ID (in this install4j project) of the updater application. Its a bit annoying we can't get this automatically!" />
+      <variable name="install4j.jaulAppId" value="UNSET" description="The Jaul update system app Id, e.g. com.sshtools.MyApp" />
+      <variable name="install4j.updatesBase" value="http://localhost" description="The base folder (on S3 usually) where updates are" />
       <variable name="install4j.macPkcs12File" value="${user.home}/.logonbox-developer-id.p12" description="Location of Mac developer certificate" />
       <variable name="install4j.windowsSigning" value="false" description="Whether to sig for Windows" />
       <variable name="install4j.windowsKeystoreIssuer" value="Sectigo Public Code Signing CA EV R36" description="Windows key store issuer" />
@@ -180,7 +183,7 @@
     <launcher name="logonbox-vpn-cli" id="2268" external="true" excludeFromMenu="true" externalFile="logonbox-vpn-cli${compiler:build.exe.suffix}" />
     <launcher name="logonbox-vpn-tray-icon" id="2271" external="true" menuName="LogonBox VPN Tray Icon" externalFile="logonbox-vpn-tray-icon${compiler:build.exe.suffix}" />
   </launchers>
-  <installerGui autoUpdateDescriptorUrl="https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client/${compiler:build.phase}/updates.xml" useAutoUpdateBaseUrl="true" autoUpdateBaseUrl="https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client/${compiler:sys.version}/">
+  <installerGui autoUpdateDescriptorUrl="${compiler:install4j.updatesBase}/${compiler:build.phase}/updates.xml" useAutoUpdateBaseUrl="true" autoUpdateBaseUrl="${compiler:install4j.updatesBase}/${compiler:sys.version}/">
     <customCode>
       <scanDirectory location="./target/jaul" />
     </customCode>
@@ -588,6 +591,11 @@ return path.replace('\\', '/');</property>
                   <property name="scheme" type="string">lbvpn</property>
                 </serializedBean>
               </action>
+              <action id="2283" beanClass="com.sshtools.jaul.RegisterJaulAppAction" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="appCategory" type="enum" class="com.sshtools.jaul.AppCategory" value="HYBRID" />
+                </serializedBean>
+              </action>
             </actions>
             <formComponents>
               <formComponent id="1730" beanClass="com.install4j.runtime.beans.formcomponents.ProgressComponent">
@@ -738,6 +746,7 @@ return console.askYesNo(message, true);
                   </property>
                 </serializedBean>
               </action>
+              <action id="2284" beanClass="com.sshtools.jaul.DeregisterJaulAppAction" rollbackBarrierExitCode="0" />
               <action id="2177" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="arguments" type="array" elementType="string" length="1">
