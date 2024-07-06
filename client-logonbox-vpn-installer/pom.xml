@@ -324,7 +324,7 @@
 									</artifacts>
 								</configuration>
 							</execution>
-							<execution>
+							<!--<execution>
 								<id>copy-gui-jfx-linux-arm32-monocle</id>
 								<phase>package</phase>
 								<goals>
@@ -343,7 +343,7 @@
 										<artifact>org.openjfx:javafx-web:${javafx.version}:jar:linux-arm32-monocle</artifact>
 									</artifacts>
 								</configuration>
-							</execution>
+							</execution>-->
 							<execution>
 								<id>copy-gui-jfx-linux-aarch64</id>
 								<phase>package</phase>
