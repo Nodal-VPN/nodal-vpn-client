@@ -12,15 +12,14 @@ import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.LoggingConfig.Audience;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.api.IVpn;
+import com.logonbox.vpn.client.common.dbus.BusFactory;
 import com.logonbox.vpn.client.common.dbus.VPN;
 import com.logonbox.vpn.client.common.dbus.VPNFrontEnd;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.desktop.service.dbus.VpnConnectionImpl;
 import com.logonbox.vpn.client.desktop.service.dbus.VpnImpl;
 import com.logonbox.vpn.client.service.ClientService.Listener;
-import com.sshtools.jadbus.lib.JadbusAddress;
 import com.sshtools.liftlib.Helper;
-import com.sshtools.liftlib.OS;
 
 import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.connections.IDisconnectCallback;
@@ -595,72 +594,22 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 				connTask.cancel(false);
 				connTask = null;
 			}
+			
+			var busBldr = new BusFactory.Builder();
+			busBldr.withAddress(address);
+			if(sessionBus) {
+			    busBldr.withSessionBus();
+			}
+			if(useJadbus) {
+			    busBldr.withJadbus(useJadbus);
+			}
+			busBldr.withConnectionBuilderConfigurator(this::configureBuilder);
+			
+			conn = busBldr.
+			        build().
+			        connection();
 	
-			String newAddress = address;
-			if(isSideBySideDbusDaemonAvailable()) {
-			    try(var in = Files.newBufferedReader(getSideBySideDbusDaemonPropertiesPath())) {
-			        var p = new Properties();
-			        p.load(in);
-			        newAddress = p.getProperty("address");
-			    }
-                log.info(String.format("Connectin to DBus @%s", newAddress));
-                conn = configureBuilder(DBusConnectionBuilder.forAddress(newAddress)).build();
-                log.info(String.format("Ready on DBus @%s", newAddress));
-			}
-			else {
-				log.info("Looking for OS provided DBus");
-				if (newAddress != null) {
-					log.info(String.format("Connectin to DBus @%s", newAddress));
-					conn = configureBuilder(DBusConnectionBuilder.forAddress(newAddress)).build();
-					log.info(String.format("Ready on DBus @%s", newAddress));
-				} else  { 
-
-		            if (OS.isLinux() && !useJadbus) {
-                        if (OS.isAdministrator()) {
-                            if (sessionBus) {
-                                log.info("Per configuration, connecting to Session DBus");
-                                conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
-                                log.info("Ready on Session DBus");
-                                newAddress = conn.getAddress().toString();
-                            } else {
-                                log.info("Connecting to System DBus");
-                                conn = configureBuilder(DBusConnectionBuilder.forSystemBus()).build();
-                                log.info("Ready on System DBus");
-                                newAddress = conn.getAddress().toString();
-                            }
-                        } else {
-                            log.info("Not administrator, connecting to Session DBus");
-                            conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
-                            log.info("Ready on Session DBus");
-                            newAddress = conn.getAddress().toString();
-                        }
-		            }
-		            else {
-                        if(OS.isAdministrator()) {
-                            if (sessionBus) {
-                                log.info("Per configuration, connecting to Jadbus Session DBus");
-                                newAddress = JadbusAddress.sessionBus(false);
-                                conn = configureBuilder(DBusConnectionBuilder.forAddress(newAddress)).build();
-                                log.info("Ready on Jadbus Session DBus");
-                            }
-                            else {
-                                log.info("Connecting to Jadbus System DBus");
-                                newAddress = JadbusAddress.systemBus();
-                                conn = configureBuilder(DBusConnectionBuilder.forAddress(newAddress)).build();
-                                log.info("Ready on Jadbus System DBus");
-                            }
-                        }
-                        else {
-                            log.info("Not administrator, connecting to Jadbus Session DBus");
-                            newAddress = JadbusAddress.sessionBus(false);
-                            conn = configureBuilder(DBusConnectionBuilder.forAddress(newAddress)).build();
-                            log.info("Ready on Jadbus Session DBus");
-                        }
-		            }
-				}
-			}
-
-			log.info(String.format("Requesting name from Bus %s", newAddress));
+			log.info(String.format("Requesting name from Bus %s", conn.getAddress()));
 			
 			conn.setDisconnectCallback(new IDisconnectCallback() {
 			    public void disconnectOnError(IOException _ex) {
@@ -672,7 +621,7 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 			    ((DBusConnection)conn).requestBusName("com.logonbox.vpn");
                 
                 // Now can tell the client
-                storeAddress(newAddress.toString());
+                storeAddress(conn.getAddress().toString());
                 return true;
             } catch (Exception e) {
                 log.error("Failed to connect to DBus. No remote state monitoring or management.", e);

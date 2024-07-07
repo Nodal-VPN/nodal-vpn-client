@@ -9,6 +9,7 @@ import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IRemoteUI;
 import com.logonbox.vpn.client.common.api.IVpn;
+import com.logonbox.vpn.client.common.dbus.BusFactory;
 import com.logonbox.vpn.client.common.dbus.RemoteUI;
 import com.logonbox.vpn.client.common.dbus.RemoteUI.ConfirmedExit;
 import com.logonbox.vpn.client.common.dbus.VPN;
@@ -150,8 +151,15 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 //            lazyInit();
             if (altConn == null) {
                 try {
-                    altConn = DBusConnectionBuilder.forSessionBus().withShared(false).build();
-                } catch (DBusException e) {
+                    altConn = new BusFactory.Builder().
+                        withSessionBus().
+                        withConnectionBuilderConfigurator(bldr ->  {
+                            bldr.transportConfig().withTimeout(500);
+                            bldr.withShared(false); 
+                        }).
+                        build().
+                        connection();
+                } catch (DBusException | IOException e) {
                     throw new IllegalStateException("Could not get alternate bus.");
                 }
             }
@@ -270,34 +278,32 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 	}
 
 	protected final DBusConnection createBusConnection() throws Exception {
-
-		String fixedAddress = getServerDBusAddress(addressFile);
-		String busAddress = this.busAddress;
-		if (Utils.isNotBlank(busAddress)) {
-			if (log.isDebugEnabled())
-				log.debug("Getting bus. " + this.busAddress);
-			return configureBuilder(DBusConnectionBuilder.forAddress(busAddress)).
-			        build();
-		} else {
-			if (sessionBus) {
-				if (log.isDebugEnabled())
-					log.debug("Getting session bus.");
-				return configureBuilder(DBusConnectionBuilder.forSessionBus()).
-				        build();
-			} else {
-				if (fixedAddress == null) {
-					if (log.isDebugEnabled())
-						log.debug("Getting system bus.");
-					return configureBuilder(DBusConnectionBuilder.forSystemBus()).
-					        build();
-				} else {
-					if (log.isDebugEnabled())
-						log.debug("Getting fixed bus " + fixedAddress);
-					return configureBuilder(DBusConnectionBuilder.forAddress(fixedAddress)).
-					        build();
-				}
-			}
-		}
+	    var fixexdAddress = getServerDBusAddress(addressFile);
+		var busAddress = this.busAddress;
+		
+		var bldr = new BusFactory.Builder();
+        if(Utils.isNotBlank(busAddress)) {
+            bldr.withAddress(busAddress);
+        }
+        else {
+    		if(sessionBus) {
+    		    bldr.withSessionBus();
+    		}
+    		else {
+    	        if(Utils.isNotBlank(fixexdAddress)) {
+    	            bldr.withAddress(fixexdAddress);
+    	        }
+    		}
+        }
+		
+        return bldr.
+		        build().
+		        connection();
+		
+	}
+	
+	public boolean isRegistered() {
+	    return registered;
 	}
     
     protected final void setVPN(IVpn<VpnConnection> vpn) {

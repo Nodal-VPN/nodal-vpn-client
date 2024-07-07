@@ -671,8 +671,14 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 				if(doGetConnectionError(connection.getConnectionTestUri(false), connection))
 					return null;
 			}
+			catch(SSLHandshakeException sslhe) {
+			    return new ReauthorizeException("SSL Failure. "  +sslhe.getMessage());
+			}
 			catch(IOException ex) {
-				log.info("Check using IP address failed, trying using hostname.", ex);
+			    if(log.isDebugEnabled())
+	                log.info("Check using IP address failed, trying using hostname.", ex);
+			    else
+			        log.info("Check using IP address failed, trying using hostname.");
 				try {
 					if(doGetConnectionError(connection.getUri(false), connection))
 						return null;
