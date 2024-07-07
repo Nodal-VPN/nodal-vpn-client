@@ -104,7 +104,7 @@ pipeline {
                                 bat 'mvn -U -Dinstall4j.verbose=true ' +
                                     '-Dbuild.mediaTypes=windows,windowsArchive ' +
                                     '"-Dbuild.projectProperties=%BUILD_PROPERTIES%" ' +
-                                    '-P installer,cross-platform ' +
+                                    '-P installers,cross-platform ' +
                                     'clean package'
                                 
                                 /* Stash installers */

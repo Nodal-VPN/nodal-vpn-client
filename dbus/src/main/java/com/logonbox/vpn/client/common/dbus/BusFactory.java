@@ -97,9 +97,9 @@ public final class BusFactory {
             log.info(String.format("Connecting to DBus @%s", addr));
             conn = configureBuilder(DBusConnectionBuilder.forAddress(addr)).build();
         } else {
-            log.info("Looking for OS provided DBus");
+            log.info("Looking for DBus");
             if (address != null) {
-                log.info(String.format("Connectin to DBus @%s", address));
+                log.info(String.format("Connecting to specific DBus @%s", address));
                 conn = configureBuilder(DBusConnectionBuilder.forAddress(address)).build();
             } else {
                 var useJadbus = jadbus.orElseGet(() -> !OS.isLinux());
