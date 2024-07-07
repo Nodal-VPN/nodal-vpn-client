@@ -14,6 +14,7 @@ open module com.logonbox.vpn.client.desktop.service {
     requires jul.to.slf4j;
     requires java.logging;
     requires com.logonbox.vpn.client.logging;
+    requires com.sshtools.jadbus.lib;
     
     uses PlatformServiceFactory;
     uses DNSProvider.Factory;

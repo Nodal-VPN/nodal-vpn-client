@@ -8,4 +8,5 @@ open module com.logonbox.vpn.client.common.dbus {
     requires static uk.co.bithatch.nativeimage.annotations;
     requires java.naming;
     requires java.prefs;
+    requires com.sshtools.jadbus.lib;
 }

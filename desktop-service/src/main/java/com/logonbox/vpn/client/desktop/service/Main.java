@@ -18,6 +18,7 @@ import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.desktop.service.dbus.VpnConnectionImpl;
 import com.logonbox.vpn.client.desktop.service.dbus.VpnImpl;
 import com.logonbox.vpn.client.service.ClientService.Listener;
+import com.sshtools.jadbus.lib.JadbusAddress;
 import com.sshtools.liftlib.Helper;
 import com.sshtools.liftlib.OS;
 
@@ -116,6 +117,10 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 	@Option(names = { "-sb",
 			"--session-bus" }, description = "Force use of session DBus service. Usually it is automatically detected.")
 	private boolean sessionBus;
+
+    @Option(names = {
+            "--use-jadbus" }, description = "Force use of Jadbus (always true on non-Linux systems).")
+    private boolean useJadbus;
 
 	@Option(names = { "-R",
 			"--no-registration-required" }, description = "Enable this to allow unregistered DBus clients to control the VPN. Not recommended for security reasons, anyone would be able to control anyone else's VPN connections.")
@@ -608,23 +613,50 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 					log.info(String.format("Connectin to DBus @%s", newAddress));
 					conn = configureBuilder(DBusConnectionBuilder.forAddress(newAddress)).build();
 					log.info(String.format("Ready on DBus @%s", newAddress));
-				} else if (OS.isAdministrator()) {
-					if (sessionBus) {
-						log.info("Per configuration, connecting to Session DBus");
-						conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
-						log.info("Ready on Session DBus");
-						newAddress = conn.getAddress().toString();
-					} else {
-						log.info("Connecting to System DBus");
-						conn = configureBuilder(DBusConnectionBuilder.forSystemBus()).build();
-						log.info("Ready on System DBus");
-						newAddress = conn.getAddress().toString();
-					}
-				} else {
-					log.info("Not administrator, connecting to Session DBus");
-					conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
-					log.info("Ready on Session DBus");
-					newAddress = conn.getAddress().toString();
+				} else  { 
+
+		            if (OS.isLinux() && !useJadbus) {
+                        if (OS.isAdministrator()) {
+                            if (sessionBus) {
+                                log.info("Per configuration, connecting to Session DBus");
+                                conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
+                                log.info("Ready on Session DBus");
+                                newAddress = conn.getAddress().toString();
+                            } else {
+                                log.info("Connecting to System DBus");
+                                conn = configureBuilder(DBusConnectionBuilder.forSystemBus()).build();
+                                log.info("Ready on System DBus");
+                                newAddress = conn.getAddress().toString();
+                            }
+                        } else {
+                            log.info("Not administrator, connecting to Session DBus");
+                            conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
+                            log.info("Ready on Session DBus");
+                            newAddress = conn.getAddress().toString();
+                        }
+		            }
+		            else {
+                        if(OS.isAdministrator()) {
+                            if (sessionBus) {
+                                log.info("Per configuration, connecting to Jadbus Session DBus");
+                                newAddress = JadbusAddress.sessionBus(false);
+                                conn = configureBuilder(DBusConnectionBuilder.forAddress(newAddress)).build();
+                                log.info("Ready on Jadbus Session DBus");
+                            }
+                            else {
+                                log.info("Connecting to Jadbus System DBus");
+                                newAddress = JadbusAddress.systemBus();
+                                conn = configureBuilder(DBusConnectionBuilder.forAddress(newAddress)).build();
+                                log.info("Ready on Jadbus System DBus");
+                            }
+                        }
+                        else {
+                            log.info("Not administrator, connecting to Jadbus Session DBus");
+                            newAddress = JadbusAddress.sessionBus(false);
+                            conn = configureBuilder(DBusConnectionBuilder.forAddress(newAddress)).build();
+                            log.info("Ready on Jadbus Session DBus");
+                        }
+		            }
 				}
 			}
 

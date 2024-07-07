@@ -26,6 +26,11 @@
             <groupId>com.github.hypfvieh</groupId>
             <artifactId>dbus-java-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sshtools</groupId>
+            <artifactId>jadbus-lib</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
