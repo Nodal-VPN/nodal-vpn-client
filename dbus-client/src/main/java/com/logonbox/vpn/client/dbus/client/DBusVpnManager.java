@@ -160,7 +160,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
                         build().
                         connection();
                 } catch (DBusException | IOException e) {
-                    throw new IllegalStateException("Could not get alternate bus.");
+                    throw new IllegalStateException("Could not get alternate bus.", e);
                 }
             }
             return altConn;
