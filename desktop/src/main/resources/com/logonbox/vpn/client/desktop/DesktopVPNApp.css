@@ -114,3 +114,9 @@ Hyperlink:focused {
 .title-bar #accessories .ikonli-font-icon {
     -fx-icon-colod: -fx-lbvpn-foreground;
 }
+
+UI > BorderPane > StackPane {
+    -fx-padding: 0 0 8px 0;
+    -fx-background-color: -fx-base !important;
+    -fx-background-radius: 0 0 8px 8px;
+}
