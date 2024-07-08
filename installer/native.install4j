@@ -114,12 +114,6 @@
           <component id="1676" />
         </dependencies>
       </component>
-      <component name="DBus Daemons" id="2274">
-        <include>
-          <entry location="dbus-daemon" />
-          <entry location="logonbox-vpn-dbus-daemon" fileType="launcher" />
-        </include>
-      </component>
     </components>
   </files>
   <launchers>
@@ -1838,9 +1832,6 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
       <jreBundle usePack200="false" includedJre="windows-amd64-1.8.0_121" />
     </windows>
     <unixInstaller name="Arm64 Unix Installer" id="2166" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}" require64BitVm="true">
-      <excludedComponents>
-        <component id="2274" />
-      </excludedComponents>
       <exclude>
         <entry location="conf/logonbox-vpn-service.conf" />
         <entry location="gui/mac-aarch64" />
