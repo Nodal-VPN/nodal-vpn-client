@@ -112,7 +112,7 @@ Hyperlink:focused {
 }
 
 .title-bar #accessories .ikonli-font-icon {
-    -fx-icon-colod: -fx-lbvpn-foreground;
+    -fx-icon-color: -fx-lbvpn-foreground;
 }
 
 UI > BorderPane > StackPane {
