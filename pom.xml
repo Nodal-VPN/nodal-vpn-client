@@ -66,9 +66,9 @@
         <build.projectProperties>${project.basedir}/hypersocket.build.properties</build.projectProperties>
         <build.userProperties>${user.home}/.hypersocket.build.properties</build.userProperties>
         
-        <install4j.updatesBase>https://logonbox-packages.s3.eu-west-1.amazonaws.com/vmsee-agent</install4j.updatesBase>
+        <install4j.updatesBase>https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client</install4j.updatesBase>
         <install4j.jaulAppId>com.logonbox.VPNClient</install4j.jaulAppId>
-        <install4j.jaulUpdaterId>https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client</install4j.jaulUpdaterId>
+        <install4j.jaulUpdaterId>2103</install4j.jaulUpdaterId>
 	</properties>
 	
 	<profiles>

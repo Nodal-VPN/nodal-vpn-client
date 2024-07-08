@@ -526,6 +526,9 @@
                                         <install4j.windowsKeystoreIssuer>${install4j.windowsKeystoreIssuer}</install4j.windowsKeystoreIssuer>>
                                         <install4j.windowsKeystoreSerial>${install4j.windowsKeystoreSerial}</install4j.windowsKeystoreSerial>>
                                         <install4j.windowsKeystoreSubject>${install4j.windowsKeystoreSubject}</install4j.windowsKeystoreSubject>
+                                        <install4j.updatesBase>${install4j.updatesBase}</install4j.updatesBase>
+                                        <install4j.jaulAppId>${install4j.jaulAppId}</install4j.jaulAppId>
+                                        <install4j.jaulUpdaterId>${install4j.jaulUpdaterId}</install4j.jaulUpdaterId>
                                     </variables>
                                     <verbose>true</verbose>
                                     <jvmArguments>
