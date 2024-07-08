@@ -157,11 +157,11 @@ public class Styling {
 		    font-style: normal;
 		  }
 		""".
-		    replace("%url1", checkFAUrl("fontawesome-webfont.eot")).
-		    replace("%url2", checkFAUrl("fontawesome-webfont.woff2")).
-            replace("%url3", checkFAUrl("fontawesome-webfont.woff")).
-            replace("%url4", checkFAUrl("fontawesome-webfont.ttf")).
-            replace("%url5", checkFAUrl("fontawesome-webfont.svg"))
+		    replace("%url1%", checkFAUrl("fontawesome-webfont.eot")).
+		    replace("%url2%", checkFAUrl("fontawesome-webfont.woff2")).
+            replace("%url3%", checkFAUrl("fontawesome-webfont.woff")).
+            replace("%url4%", checkFAUrl("fontawesome-webfont.ttf")).
+            replace("%url5%", checkFAUrl("fontawesome-webfont.svg"))
 		);
 		
 		return bui.toString();
