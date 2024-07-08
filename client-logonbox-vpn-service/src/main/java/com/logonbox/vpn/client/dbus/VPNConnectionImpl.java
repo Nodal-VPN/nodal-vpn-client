@@ -3,6 +3,8 @@ package com.logonbox.vpn.client.dbus;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
@@ -72,7 +74,18 @@ public class VPNConnectionImpl extends AbstractVPNComponent implements VPNConnec
 			setEndpointAddress(endpoint.substring(0, idx));
 			setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
 			setPeristentKeepalive(Integer.parseInt(peerSection.get("PersistentKeepalive", "0")));
-			setAllowedIps(Util.toStringList(peerSection, "AllowedIPs").toArray(new String[0]));
+			
+			/* For backwards and forwards compatibility with both Legacy and next gen server */
+			List<String> allowedIps = Util.toStringList(peerSection, "AllowedIPs");
+			for(Iterator<String> it = allowedIps.iterator(); it.hasNext(); ) {
+				String ip = it.next();
+				if(ip.equals("0.0.0.0/0") || ip.equals("::/0")) {
+					setRouteAll(true);
+					it.remove();
+				}
+			}
+			
+			setAllowedIps(allowedIps.toArray(new String[0]));
 			
 			return "";
 		}
