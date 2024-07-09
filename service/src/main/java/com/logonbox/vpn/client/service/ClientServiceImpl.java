@@ -407,7 +407,13 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 						if (log.isInfoEnabled()) {
 							log.info("Closing wireguard session");
 						}
-						wireguardSession.close();
+						var adapter = wireguardSession.getSession();
+						if(adapter.isPresent()) {
+						    context.getPlatformService().stop(c, adapter.get());
+						}
+						else {
+						    wireguardSession.close();
+						}
 						if (log.isInfoEnabled()) {
 							log.info("WireGuard session closed");
 						}
@@ -686,7 +692,10 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 				catch(IOException ex2) {
 					/* Failed to reach Http server, assume this is a transient network error and
 					 * keep retrying */
-					log.info("Error is retryable.", ex2);
+				    if(log.isDebugEnabled())
+				        log.info("Error is retryable.", ex2);
+				    else
+                        log.info("Error is retryable. {}", ex2.getMessage());
 					return ex;
 				}
 			}
@@ -1083,8 +1092,14 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
     	            var connection = getStatusForPublicKey(peer.publicKey()).getConnection();
     	            activeSessions.put(connection, new VPNSession<>(connection, context, session)); 
 		        }
+		        catch(IllegalArgumentException iae) {
+                    log.warn("Adding active {}", peer.publicKey());
+                    var c = connectionRepository.getConnectionByPublicKey(peer.publicKey());
+                    var connection = new ConnectionStatusImpl(c, session.information(), getStatusType(c), AUTHORIZE_URI);
+                    activeSessions.put(connection.getConnection(), new VPNSession<>(connection.getConnection(), context, session));
+		        }
 		        catch(Exception e) {
-		            log.warn("Skipping {}, {}", peer.publicKey(), e.getMessage());
+		            log.error("Failed to add active interfaces.", e);
 		        }
 		    });
 		}
