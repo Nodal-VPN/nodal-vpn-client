@@ -48,12 +48,13 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <javafx.version>21.0.4-ea+1</javafx.version>
+		
+		<javafx.version>21.0.1</javafx.version>
 		
 		<!-- This version is used for Mac OS intel which has a very annoying
 		     crash on newer version -->
 		<!--<javafx.legacy.version>17.0.6</javafx.legacy.version>-->
-		<javafx.legacy.version>21.0.4-ea+1</javafx.legacy.version>
+		<javafx.legacy.version>21.0.1</javafx.legacy.version>
 		
 		<!-- When you change this, remember to also change hypersocket-framework, hypersocket-enterprise, hypersocket-ui  -->
 		<hypersocket.languages>da,nl,fi,fr,de,it,no,pl,ru,sv,es,ja,he,pt,tr</hypersocket.languages>
