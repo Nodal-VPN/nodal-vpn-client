@@ -723,7 +723,7 @@ public class ClientServiceImpl implements ClientService {
 			catch(IOException ex) {
 				log.info("Check using IP address failed, trying using hostname.", ex);
 				try {
-					if(doGetConnectionError(connection.getUri(false), connection))
+					if(doGetConnectionError(connection.getBaseUri(false), connection))
 						return null;
 				}
 				catch(IOException ex2) {
