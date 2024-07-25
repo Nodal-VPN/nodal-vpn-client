@@ -50,7 +50,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<javafx.version>17.0.12</javafx.version>
-		<javafx.aarch64.version>17.0.11</javafx.aarch64.version>
+		<javafx.aarch64.version>23-ea+22</javafx.aarch64.version>
 		
 		
 		<!-- This version is used for Mac OS intel which has a very annoying
