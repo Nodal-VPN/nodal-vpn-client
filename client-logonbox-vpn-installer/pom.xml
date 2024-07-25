@@ -355,12 +355,12 @@
 									<output>${project.build.directory}/gui/linux-aarch64</output>
 									<transitive>false</transitive>
 									<artifacts>
-										<artifact>org.openjfx:javafx-controls:${javafx.version}:jar:linux-aarch64</artifact>
-										<artifact>org.openjfx:javafx-base:${javafx.version}:jar:linux-aarch64</artifact>
-										<artifact>org.openjfx:javafx-fxml:${javafx.version}:jar:linux-aarch64</artifact>
-										<artifact>org.openjfx:javafx-graphics:${javafx.version}:jar:linux-aarch64</artifact>
-										<artifact>org.openjfx:javafx-media:${javafx.version}:jar:linux-aarch64</artifact>
-										<artifact>org.openjfx:javafx-web:${javafx.version}:jar:linux-aarch64</artifact>
+										<artifact>org.openjfx:javafx-controls:${javafx.aarch64.version}:jar:linux-aarch64</artifact>
+										<artifact>org.openjfx:javafx-base:${javafx.aarch64.version}:jar:linux-aarch64</artifact>
+										<artifact>org.openjfx:javafx-fxml:${javafx.aarch64.version}:jar:linux-aarch64</artifact>
+										<artifact>org.openjfx:javafx-graphics:${javafx.aarch64.version}:jar:linux-aarch64</artifact>
+										<artifact>org.openjfx:javafx-media:${javafx.aarch64.version}:jar:linux-aarch64</artifact>
+										<artifact>org.openjfx:javafx-web:${javafx.aarch64.version}:jar:linux-aarch64</artifact>
 									</artifacts>
 								</configuration>
 							</execution>
