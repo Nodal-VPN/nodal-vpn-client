@@ -147,23 +147,6 @@ public class Styling {
 		// End
 		bui.append("}\n");
 		
-		/* Strangeness on Windows - https://stackoverflow.com/questions/42416242/java-fx-failed-to-load-font-awesome-icons */
-		bui.append("""
-		@font-face {
-		    font-family: 'FontAwesome';
-		    src: url('%url1%');
-		    src: url('%url1%') format('embedded-opentype'), url('%url2%') format('woff2'), url('%url3%') format('woff'), url('%url4%') format('truetype'), url('%url5%') format('svg');
-		    font-weight: normal;
-		    font-style: normal;
-		  }
-		""".
-		    replace("%url1%", checkFAUrl("fontawesome-webfont.eot")).
-		    replace("%url2%", checkFAUrl("fontawesome-webfont.woff2")).
-            replace("%url3%", checkFAUrl("fontawesome-webfont.woff")).
-            replace("%url4%", checkFAUrl("fontawesome-webfont.ttf")).
-            replace("%url5%", checkFAUrl("fontawesome-webfont.svg"))
-		);
-		
 		return bui.toString();
 
 	}
@@ -222,6 +205,25 @@ public class Styling {
 		var linkStr = toHex(linkColor);
 		var baseInverseRgbStr = toRgba(getBaseInverse(), 0.05f);
 		try (var output = new PrintWriter(Files.newOutputStream(tmpFile))) {
+			
+			/* Strangeness on Windows - https://stackoverflow.com/questions/42416242/java-fx-failed-to-load-font-awesome-icons */
+			output.write("""
+			@font-face {
+			    font-family: 'FontAwesome';
+			    src: url('%url1%');
+			    src: url('%url1%') format('embedded-opentype'), url('%url2%') format('woff2'), url('%url3%') format('woff'), url('%url4%') format('truetype'), url('%url5%') format('svg');
+			    font-weight: normal;
+			    font-style: normal;
+			  }
+			""".
+			    replace("%url1%", checkFAUrl("fontawesome-webfont.eot")).
+			    replace("%url2%", checkFAUrl("fontawesome-webfont.woff2")).
+	            replace("%url3%", checkFAUrl("fontawesome-webfont.woff")).
+	            replace("%url4%", checkFAUrl("fontawesome-webfont.ttf")).
+	            replace("%url5%", checkFAUrl("fontawesome-webfont.svg"))
+			);
+			
+			
 			try (var input = new BufferedReader(new InputStreamReader(UI.class.getResource("local.css").openStream()))) {
 				String line;
 				while(( line = input.readLine()) != null) {
