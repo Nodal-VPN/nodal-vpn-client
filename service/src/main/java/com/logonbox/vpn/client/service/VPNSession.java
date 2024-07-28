@@ -96,23 +96,30 @@ public class VPNSession<CONX extends IVpnConnection> implements Closeable {
                 var sessionObj = session.get();
                 var ipName = getInterfaceName().get();
                 var platform = localContext.getPlatformService();
-                var lastHandshake = platform.getLatestHandshake(sessionObj.address(), connection.publicKey());
+                var lastHandshake = platform.getLatestHandshake(sessionObj.address(), connection.getPublicKey());
                 var now = Instant.now();
                 var alive = !lastHandshake.isBefore(now.minus(platform.context().configuration().handshakeTimeout()));
                 if (log.isDebugEnabled()) {
                     log.debug(
                             "Checking if {} ({}) is still alive. Now is {}, Latest Handshake is {}, Timeout secs is {}, Alive is {}",
-                            ipName, connection.publicKey(), now, lastHandshake,
+                            ipName, connection.getPublicKey(), now, lastHandshake,
                             platform.context().configuration().handshakeTimeout().toSeconds(), alive);
                 }
+                log.info(
+                        "Checking if {} ({}) is still alive. Now is {}, Latest Handshake is {}, Timeout secs is {}, Alive is {}",
+                        ipName, connection.getPublicKey(), now, lastHandshake,
+                        platform.context().configuration().handshakeTimeout().toSeconds(), alive);
                 return alive;
             } catch (Exception e) {
-                log.debug("Failed to test if alive, assuming not.", e);
+                //log.debug("Failed to test if alive, assuming not.", e);
+                log.info("Failed to test if alive, assuming not.", e);
                 return false;
             }
         }
-        else
+        else {
+            log.info("No session, so not alive");
             return false;
+        }
 
     }
 
