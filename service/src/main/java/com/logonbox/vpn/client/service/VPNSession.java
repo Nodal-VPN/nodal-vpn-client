@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
+import java.util.function.BiConsumer;
 
 public class VPNSession<CONX extends IVpnConnection> implements Closeable {
 
@@ -23,21 +24,23 @@ public class VPNSession<CONX extends IVpnConnection> implements Closeable {
 
     static Logger log = LoggerFactory.getLogger(VPNSession.class);
 
-    private LocalContext<CONX> localContext;
+    private final LocalContext<CONX> localContext;
     private ScheduledFuture<?> task;
     private boolean reconnect;
     private Optional<VpnAdapter> session = Optional.empty();
     private final Connection connection;
     private Agent agent;
+    private final BiConsumer<Connection, String> onUpdate;
 
-    public VPNSession(Connection connection, LocalContext<CONX> localContext) {
-        this(connection, localContext, null);
+    public VPNSession(Connection connection, LocalContext<CONX> localContext, BiConsumer<Connection, String> onUpdate) {
+        this(connection, localContext, null, onUpdate);
     }
 
-    public VPNSession(Connection connection, LocalContext<CONX> localContext, VpnAdapter session) {
+    public VPNSession(Connection connection, LocalContext<CONX> localContext, VpnAdapter session, BiConsumer<Connection, String> onUpdate) {
         this.localContext = localContext;
         this.connection = connection;
         this.session = Optional.ofNullable(session);
+        this.onUpdate = onUpdate;
     }
 
     public Connection getConnection() {
@@ -114,9 +117,8 @@ public class VPNSession<CONX extends IVpnConnection> implements Closeable {
     }
 
     public void open() throws IOException {
-//        LocalContext<CONX> cctx = getLocalContext();
-//        ConnectionStatus connection = cctx.getClientService().getStatus(this.connection.getId());
-        Connection vpnConnection = connection;
+
+        var vpnConnection = connection;
         if (log.isInfoEnabled()) {
             log.info(String.format("Connecting to %s (owned by %s)", vpnConnection.getUri(true),
                     vpnConnection.getOwnerOrCurrent()));
@@ -136,12 +138,17 @@ public class VPNSession<CONX extends IVpnConnection> implements Closeable {
         }
 
         
-//      try {
-//          agent = new Agent(connection);
-//      }
-//      catch(Exception e) {
-//          log.error("Failed to setup agent, server will not be able to communicate configuration updates to this peer.", e);
-//      }
+      try {
+          agent = new Agent(connection) {
+            @Override
+            protected void update(Connection connection, String configuration) {
+                onUpdate.accept(connection, configuration);
+            } 
+          };
+      }
+      catch(Exception e) {
+          log.error("Failed to setup agent, server will not be able to communicate configuration updates to this peer.", e);
+      }
     }
 
     public Optional<VpnAdapter> getSession() {

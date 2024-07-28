@@ -37,6 +37,10 @@ public interface VpnConnection extends DBusInterface, IVpnConnection {
 
     @Override
     @DBusBoundProperty
+    String getSerial();
+
+    @Override
+    @DBusBoundProperty
     String getMode();
     
     @Override
@@ -86,6 +90,10 @@ public interface VpnConnection extends DBusInterface, IVpnConnection {
     @Override
     @DBusBoundProperty
     boolean isTemporarilyOffline();
+
+    @Override
+    @DBusBoundProperty
+    boolean isBlocked();
 
     @Override
     @DBusBoundProperty
@@ -210,6 +218,10 @@ public interface VpnConnection extends DBusInterface, IVpnConnection {
     @Override
     @DBusBoundProperty
     void setName(String name);
+
+    @Override
+    @DBusBoundProperty
+    void setSerial(String serial);
 
     @Override
     @DBusBoundProperty
@@ -410,6 +422,20 @@ public interface VpnConnection extends DBusInterface, IVpnConnection {
 			return Long.parseLong(getPath().substring(getPath().lastIndexOf('/') + 1));
 		}
 	}
+
+
+    @Reflectable
+    @TypeReflect(methods = true, constructors = true)
+    public static class Blocked extends DBusSignal {
+
+        public Blocked(String path) throws DBusException {
+            super(path);
+        }
+        
+        public long getId() {
+            return Long.parseLong(getPath().substring(getPath().lastIndexOf('/') + 1));
+        }
+    }
 
 
     @Reflectable

@@ -37,6 +37,8 @@ public interface IVpnConnection {
 
     boolean isTemporarilyOffline();
 
+    boolean isBlocked();
+
     boolean isStayConnected();
 
     void setStayConnected(boolean stayConnected);
@@ -46,6 +48,8 @@ public interface IVpnConnection {
     void disconnect(String reason);
 
     void connect();
+    
+    String getSerial();
 
     String getStatus();
 
@@ -98,6 +102,8 @@ public interface IVpnConnection {
     void setConnectAtStartup(boolean connectAtStartup);
 
     void setName(String name);
+
+    void setSerial(String serial);
 
     void setHostname(String host);
 

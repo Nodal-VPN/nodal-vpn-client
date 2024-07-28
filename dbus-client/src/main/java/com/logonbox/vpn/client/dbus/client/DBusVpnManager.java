@@ -247,6 +247,9 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
                 conn.addSigHandler(VpnConnection.TemporarilyOffline.class, (VpnConnection)connection, (sig) -> {
                     onTemporarilyOffline.forEach(a -> a.accept(connection, sig.getReason()));
                 }),
+                conn.addSigHandler(VpnConnection.Blocked.class, (VpnConnection)connection, (sig) -> {
+                    onBlocked.forEach(a -> a.accept(connection));
+                }),
                 conn.addSigHandler(VpnConnection.Failed.class, (VpnConnection)connection, (sig) -> {
                     onFailure.forEach(a -> a.failure(connection, sig.getReason(), sig.getCause(), sig.getTrace()));
                 })

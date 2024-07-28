@@ -69,6 +69,8 @@ public interface VpnManager<CONX extends IVpnConnection> {
     
     Handle onTemporarilyOffline(BiConsumer<CONX, String> callback);
     
+    Handle onBlocked(Consumer<CONX> callback);
+    
     Handle onFailure(Failure<CONX> failure);
 
     default void checkVpnManagerAvailable() throws IllegalStateException {

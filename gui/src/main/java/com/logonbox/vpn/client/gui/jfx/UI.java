@@ -552,6 +552,14 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
             });
         });
         
+        /* Blocked offline */
+        vpnManager.onBlocked((conx) -> {
+            maybeRunLater(() -> {
+                LOG.info("Blocked {}", conx.getId());
+                selectPageForState(false, false);
+            });
+        });
+        
         /* Failure */
 		vpnManager.onFailure((conx, reason, cause, trace) -> {
             maybeRunLater(() -> {
@@ -878,6 +886,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
                     }
                     else {
                         showError(new String(Base64.getDecoder().decode(uri.substring(idx + 11)), "UTF-8"));
+                        return false;
                     }
                 }
                 else {
@@ -1720,7 +1729,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	}
 
 	private void showError(String error, String cause, String exception) {
-		if(cause.startsWith("No subject alternative")) {
+		if(cause != null && cause.startsWith("No subject alternative")) {
 			showError(error, cause, exception, "sanError.html");
 		}
 		else

@@ -176,14 +176,16 @@ public interface Connection extends VpnConfiguration {
             uri += ":" + getPort();
         }
         if(getMode().equals(Mode.MODERN))
-            uri += "/app";
-        else
             uri += getPath();
+        else
+            uri += "/app";
         return uri;
     }
 
     String getUsernameHint();
 
+    String getSerial();
+    
     void setUsernameHint(String usernameHint);
 
     void setId(Long id);
@@ -255,7 +257,7 @@ public interface Connection extends VpnConfiguration {
 
     void setPublicKey(String Key);
 
-    void setPeristentKeepalive(int peristentKeepalive);
+    void setPersistentKeepalive(int peristentKeepalive);
 
     void setAllowedIps(List<String> allowedIps);
 
@@ -306,5 +308,7 @@ public interface Connection extends VpnConfiguration {
     void setSaveConfig(boolean saveConfig);
     
     boolean isSaveConfig();
+
+    void setSerial(String serial);
 
 }

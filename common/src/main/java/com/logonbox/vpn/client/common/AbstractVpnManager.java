@@ -31,6 +31,7 @@ public abstract class AbstractVpnManager<CONX extends IVpnConnection> implements
     protected final List<BiConsumer<CONX, String>> onDisconnecting = Collections.synchronizedList(new ArrayList<>());
     protected final List<BiConsumer<CONX, String>> onDisconnected = Collections.synchronizedList(new ArrayList<>());
     protected final List<BiConsumer<CONX, String>> onTemporarilyOffline = Collections.synchronizedList(new ArrayList<>());
+    protected final List<Consumer<CONX>> onBlocked = Collections.synchronizedList(new ArrayList<>());
     protected final List<Failure<CONX>> onFailure = Collections.synchronizedList(new ArrayList<>());
     
     @Override
@@ -130,6 +131,12 @@ public abstract class AbstractVpnManager<CONX extends IVpnConnection> implements
     }
 
     @Override
+    public final Handle onBlocked(Consumer<CONX> callback) {
+        onBlocked.add(callback);
+        return () -> onBlocked.remove(callback);
+    }
+
+    @Override
     public final Handle onFailure(Failure<CONX> callback) {
         onFailure.add(callback);
         return () -> onFailure.remove(callback);
@@ -197,6 +204,10 @@ public abstract class AbstractVpnManager<CONX extends IVpnConnection> implements
 
     public final List<BiConsumer<CONX, String>> onTemporarilyOffline() {
         return onTemporarilyOffline;
+    }
+
+    public final List<Consumer<CONX>> onBlocked() {
+        return onBlocked;
     }
 
     public final List<Failure<CONX>> onFailure() {

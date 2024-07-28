@@ -483,7 +483,16 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
         } catch (DBusException e) {
             log.error("Failed to send temporarily offline.", e);
         }
-        
+    }
+
+    @Override
+    public void fireBlocked(Connection connection) {
+        try {
+            sendMessage(new VpnConnection.Blocked(
+                    String.format("/com/logonbox/vpn/%d", connection.getId())));
+        } catch (DBusException e) {
+            log.error("Failed to send temporarily offline.", e);
+        }
     }
 
     @Override

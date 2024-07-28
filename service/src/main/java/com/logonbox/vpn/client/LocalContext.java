@@ -33,6 +33,8 @@ public interface LocalContext<CONX extends IVpnConnection> extends Closeable, Co
 
     void fireTemporarilyOffline(Connection connection, Exception reason);
 
+    void fireBlocked(Connection connection);
+
     void fireConnected(Connection connection);
 
     void fireConnectionAdding();

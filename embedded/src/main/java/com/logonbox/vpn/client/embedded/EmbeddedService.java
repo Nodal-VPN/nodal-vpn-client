@@ -122,6 +122,12 @@ public final class EmbeddedService extends AbstractService<EmbeddedVpnConnection
     }
 
     @Override
+    public void fireBlocked(Connection connection) {
+        var wrapped = wrapConnection(connection);
+        this.main.onBlocked().forEach(c -> c.accept(wrapped));
+    }
+
+    @Override
     public void fireConnected(Connection connection) {
         var wrapped = wrapConnection(connection);
         this.main.onConnected().forEach(c -> c.accept(wrapped));

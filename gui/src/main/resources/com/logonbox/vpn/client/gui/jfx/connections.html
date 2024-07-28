@@ -109,7 +109,11 @@
 						iconName = 'fa-exclamation-triangle';
 						connected = true;
 						textStyle = 'text-warning';
-					} else if (statusName === 'AUTHORIZING') {
+					} else if (statusName === 'BLOCKED') {
+                        iconName = 'fa-shield';
+                        connected = true;
+                        textStyle = 'text-warning';
+                    } else if (statusName === 'AUTHORIZING') {
 						iconName = 'fa-spinner fa-spin';
 						connected = true;
 						textStyle = 'text-info';

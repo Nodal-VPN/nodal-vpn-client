@@ -53,7 +53,7 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
 				 * TODO private key should be removed from server at this point
 				 */
 				setUserPrivateKey(privateKey.get());
-				setUserPublicKey(Keys.pubkey(privateKey.get()).getBase64PublicKey());
+				setUserPublicKey(Keys.pubkeyBase64(privateKey.get()).getBase64PublicKey());
 			} else if (!hasPrivateKey()) {
 				throw new IllegalStateException(
 						"Did not receive private key from server, and we didn't generate one on the client. Connection impossible.");
@@ -66,6 +66,7 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
 			/* Custom LogonBox */
 			ini.sectionOr("LogonBox").ifPresent(l -> {
                 setRouteAll(l.getBoolean("RouteAll"));
+                setSerial(l.get("Serial", null));
 			});
 	
 			/* Peer (them) */
@@ -236,6 +237,12 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
         return Utils.defaultIfBlank(connection.getInstance(), "");
     }
 
+    @Override
+    public String getSerial() {
+        assertRegistered();
+        return Utils.defaultIfBlank(connection.getSerial(), "");
+    }
+
 	@Override
 	public String getStatus() {
 		assertRegistered();
@@ -386,10 +393,16 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
 		connection.setName(Utils.isBlank(name) ? null : name);
 	}
 
+    @Override
+    public void setSerial(String serial) {
+        assertRegistered();
+        connection.setSerial(Utils.isBlank(serial) ? null : serial);
+    }
+
 	@Override
 	public void setPersistentKeepalive(int peristentKeepalive) {
 		assertRegistered();
-		connection.setPeristentKeepalive(peristentKeepalive);
+		connection.setPersistentKeepalive(peristentKeepalive);
 	}
 
 	@Override
@@ -543,6 +556,11 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
 	public boolean isTemporarilyOffline() {
 		return ctx.getClientService().getStatus(connection.getId()).getStatus() == ConnectionStatus.Type.TEMPORARILY_OFFLINE;
 	}
+
+    @Override
+    public boolean isBlocked() {
+        return ctx.getClientService().getStatus(connection.getId()).getStatus() == ConnectionStatus.Type.BLOCKED;
+    }
 
 	@Override
 	public String getLastError() {

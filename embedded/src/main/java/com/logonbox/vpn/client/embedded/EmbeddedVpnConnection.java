@@ -51,7 +51,7 @@ public class EmbeddedVpnConnection implements IVpnConnection {
                  * TODO private key should be removed from server at this point
                  */
                 setUserPrivateKey(privateKey);
-                setUserPublicKey(Keys.pubkey(privateKey).getBase64PublicKey());
+                setUserPublicKey(Keys.pubkeyBase64(privateKey).getBase64PublicKey());
             } else if (!hasPrivateKey()) {
                 throw new IllegalStateException(
                         "Did not receive private key from server, and we didn't generate one on the client. Connection impossible.");
@@ -66,6 +66,7 @@ public class EmbeddedVpnConnection implements IVpnConnection {
             /* Custom LogonBox */
             ini.sectionOr("LogonBox").ifPresent(l -> {
                 setRouteAll(l.getBoolean("RouteAll"));
+                setSerial(l.get("Serial", null));
             });
 
             /* Peer (them) */
@@ -175,6 +176,11 @@ public class EmbeddedVpnConnection implements IVpnConnection {
     @Override
     public String getName() {
         return defaultIfBlank(connection.getName(), "");
+    }
+
+    @Override
+    public String getSerial() {
+        return defaultIfBlank(connection.getSerial(), "");
     }
 
     @Override
@@ -332,8 +338,13 @@ public class EmbeddedVpnConnection implements IVpnConnection {
     }
 
     @Override
+    public void setSerial(String serial) {
+        connection.setSerial(Utils.isBlank(serial) ? null : serial);
+    }
+
+    @Override
     public void setPersistentKeepalive(int peristentKeepalive) {
-        connection.setPeristentKeepalive(peristentKeepalive);
+        connection.setPersistentKeepalive(peristentKeepalive);
     }
 
     @Override
@@ -475,6 +486,12 @@ public class EmbeddedVpnConnection implements IVpnConnection {
     public boolean isTemporarilyOffline() {
         return ctx.getClientService().getStatus(connection.getId())
                 .getStatus() == ConnectionStatus.Type.TEMPORARILY_OFFLINE;
+    }
+
+    @Override
+    public boolean isBlocked() {
+        return ctx.getClientService().getStatus(connection.getId())
+                .getStatus() == ConnectionStatus.Type.BLOCKED;
     }
 
     @Override

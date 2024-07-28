@@ -6,6 +6,8 @@ import static javafx.application.Platform.runLater;
 import com.install4j.api.launcher.StartupNotification;
 import com.logonbox.vpn.client.common.BrandingManager.BrandImage;
 import com.logonbox.vpn.client.common.BrandingManager.ImageHandler;
+import com.logonbox.vpn.client.common.ConfigurationItem;
+import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.dbus.RemoteUI;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
@@ -19,6 +21,7 @@ import com.logonbox.vpn.client.gui.jfx.UI;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
 import com.sshtools.jajafx.JajaFXApp;
 import com.sshtools.jajafx.JajaFXAppWindow;
+import com.sshtools.liftlib.OS;
 
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.slf4j.Logger;
@@ -26,8 +29,10 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.SplashScreen;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.ProcessBuilder.Redirect;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -67,7 +72,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
 
     static final boolean allowBranding = System.getProperty("logonbox.vpn.allowBranding", "true").equals("true");
 
-    static Logger log = LoggerFactory.getLogger(DesktopVPNApp.class);
+    static Logger LOG = LoggerFactory.getLogger(DesktopVPNApp.class);
 
     final static ResourceBundle RESOURCES = ResourceBundle.getBundle(DesktopVPNApp.class.getName());
 
@@ -195,7 +200,12 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
                 BufferedImage bim = null;
                 bim = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
                 var graphics = (java.awt.Graphics2D) bim.getGraphics();
-                graphics.setColor(java.awt.Color.decode(color));
+                try {
+                    graphics.setColor(java.awt.Color.decode(color));
+                }
+                catch(Exception e) {
+                    LOG.warn("Failed to decode color. {}", e.getMessage());
+                }
                 graphics.fillRect(0, 0, width, height);
                 return new AWTBrandImage(bim);
             }
@@ -204,7 +214,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
             public void draw(BrandImage bim, Path logoFile) {
                 var img = ((AWTBrandImage) bim).img;
                 var graphics = (java.awt.Graphics2D) img.getGraphics();
-                log.info(String.format("Drawing logo on splash"));
+                LOG.info(String.format("Drawing logo on splash"));
                 try {
                     var logoImage = ImageIO.read(logoFile.toFile());
                     if (logoImage == null)
@@ -219,7 +229,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
             @Override
             public void write(BrandImage bim, Path splashFile) throws IOException {
                 ImageIO.write(((AWTBrandImage) bim).img, "png", splashFile.toFile());
-                log.info(String.format("Custom splash written to %s", splashFile));
+                LOG.info(String.format("Custom splash written to %s", splashFile));
             }
         };
     }
@@ -275,7 +285,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
 
     @Override
     public void open() {
-        log.info("Open request");
+        LOG.info("Open request");
         UI.maybeRunLater(() -> {
             var primaryStage = vpnWindow().stage();
             if (primaryStage.isIconified())
@@ -325,7 +335,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
 
     @Override
     public void reapplyBranding() {
-        log.info("Re-applying branding.");
+        LOG.info("Re-applying branding.");
         
         var primaryScene = vpnWindow().scene();
         var node = primaryScene.getRoot();
@@ -339,8 +349,8 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
         /* Create new custom styles */
         styling.apply(branding == null ? null : branding.branding());
         var tmpFile = styling.getCustomJavaFXCSSFile();
-        if (log.isDebugEnabled())
-            log.debug(String.format("Using custom JavaFX stylesheet %s", tmpFile));
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Using custom JavaFX stylesheet %s", tmpFile));
         var uri = Styling.toUri(tmpFile).toExternalForm();
         ss.add(0, uri);
         var css = vpnAppCss();
@@ -460,6 +470,34 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
         this.originalCookieHander = CookieHandler.getDefault();
         updateCookieHandlerState();
         reapplyBranding();
+        
+        TrayMode icon = getAppContext().getVpnManager().isBackendAvailable()
+                ? TrayMode.valueOf(getAppContext().getVpnManager().getVpnOrFail().getValue(ConfigurationItem.TRAY_MODE.getKey()))
+                : TrayMode.AUTO;
+        if(icon != TrayMode.OFF) {
+            startTray();
+        }
+    }
+
+    protected void startTray() {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    LOG.info("Starting tray");
+                    ProcessBuilder bldr;
+                    if (OS.isWindows())
+                        bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "logonbox-vpn-tray-icon.exe");
+                    else
+                        bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "logonbox-vpn-tray-icon");
+                    bldr.redirectError(Redirect.INHERIT);
+                    bldr.redirectOutput(Redirect.INHERIT);
+                    bldr.start();
+                } catch (IOException ioe) {
+                    throw new IllegalStateException("Failed to start system tray icon app.", ioe);
+                }
+            }
+        }.start();
     }
 
     protected void updateCookieHandlerState() {
@@ -469,11 +507,11 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
 
         if (isPersistJar != wantsPeristJar) {
             if (wantsPeristJar) {
-                log.info("Using in custom cookie manager");
+                LOG.info("Using in custom cookie manager");
                 var mgr = createCookieManager();
                 CookieHandler.setDefault(mgr);
             } else {
-                log.info("Using Webkit cookie manager");
+                LOG.info("Using Webkit cookie manager");
                 CookieHandler.setDefault(originalCookieHander);
             }
         }

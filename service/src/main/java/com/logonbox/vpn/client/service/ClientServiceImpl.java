@@ -45,6 +45,7 @@ import java.net.HttpCookie;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
@@ -52,11 +53,13 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.security.SecureRandom;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -96,6 +99,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 	protected Map<Connection, VPNSession<CONX>> connectingSessions = new HashMap<>();
 	protected Set<Connection> disconnectingClients = new HashSet<>();
 	protected Set<Connection> temporarilyOffline = new HashSet<>();
+    protected Set<Connection> blocked = new HashSet<>();
 
 	private ConfigurationRepository configurationRepository;
 	private ConnectionRepository connectionRepository;
@@ -136,12 +140,14 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 			}
 			authorizingClients.remove(connection).cancel(false);
 			temporarilyOffline.remove(connection);
+            blocked.remove(connection);
 		}
 		save(connection);
         log.info(String.format("Authorized %s", connection.getDisplayName()));
         
         var task = createJob(connection);
         temporarilyOffline.remove(connection);
+        blocked.remove(connection);
         task.setTask(context.getScheduler().schedule(() -> doConnect(task, false), 1, TimeUnit.MILLISECONDS));
 	}
 
@@ -164,6 +170,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 
 			var task = createJob(c);
 			temporarilyOffline.remove(c);
+            blocked.remove(c);
 			task.setTask(context.getScheduler().schedule(() -> doConnect(task, true), 1, TimeUnit.MILLISECONDS));
 		}
 	}
@@ -313,6 +320,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 			connection.deauthorize();
 			generateKeys(connection);
 			temporarilyOffline.remove(connection);
+            blocked.remove(connection);
 			ScheduledFuture<?> f = authorizingClients.remove(connection);
 			if (f != null)
 				f.cancel(false);
@@ -363,6 +371,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 			c.setError(Utils.isBlank(reason) ? null : reason);
 			save(c);
 			temporarilyOffline.remove(c);
+            blocked.remove(c);
 			if (!disconnectingClients.contains(c)) {
 				if (authorizingClients.containsKey(c)) {
 					if (log.isInfoEnabled()) {
@@ -466,8 +475,9 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 
 		try {
 			var rootUri = connection.getUri(false);
+			var baseUri = connection.getBaseUri(false);
 			try {
-				var newConnection = getConnectionStatusFromHost(rootUri, connection, client);
+				var newConnection = getConnectionStatusFromHost(rootUri, baseUri, connection, client);
 				if(newConnection != null)
 					return newConnection;
 			}
@@ -481,7 +491,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 					}
 					else {
 						log.warn("Hostname based URI check failed, falling back to IP address.");
-						var newConnection = getConnectionStatusFromHost(testUri, connection, client);
+						var newConnection = getConnectionStatusFromHost(testUri, baseUri, connection, client);
 						if(newConnection != null)
 							return connection;
 					}
@@ -522,10 +532,22 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
         return client;
     }
 
-	private Connection getConnectionStatusFromHost(String rootUri, Connection connection, HttpClient client)
+	private Connection getConnectionStatusFromHost(String rootUri, String baseUri, Connection connection, HttpClient client)
 			throws IOException, InterruptedException {
+        var uuid = getUUID(connection.getOwnerOrCurrent());
+	    
+	    if(connection.getMode() == Mode.MODERN) {
+	       return getModernConnectionStatusFromHost(baseUri, connection, client);
+	    }
+	    else {
+	        return legacyConnectionStatus(rootUri, connection, client, uuid);
+	    }
+	}
 
-		addConnectionCookie(connection, URI.create(rootUri));
+    @Deprecated
+    private Connection legacyConnectionStatus(String rootUri, Connection connection, HttpClient client, UUID uuid)
+            throws IOException, InterruptedException {
+        addConnectionCookie(connection, URI.create(rootUri));
 
 
         /* A simple ping first. This isn't strictly required, but getConnectionError()
@@ -536,7 +558,6 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 
 		log.info(String.format("Testing if a connection to %s should be retried using %s.",
 				connection.getDisplayName(), pingUrl));
-		var uuid = getUUID(connection.getOwnerOrCurrent());
 		var builder = HttpRequest.newBuilder();
 		var request = builder
 		         .uri(uriObj)
@@ -565,6 +586,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		log.info(String.format("Testing if a configuration is actually valid for %s on %s.",
 				connection.getDisplayName(), checkUri));
 		var checkUriObj = URI.create(checkUri);
+        builder = HttpRequest.newBuilder();
 		request = builder
 		         .uri(checkUriObj)
 		         .header(VpnManager.DEVICE_IDENTIFIER, uuid.toString())
@@ -598,6 +620,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 				var signature = challenge;
 				log.info("Signature: {}", signature);
 
+		        builder = HttpRequest.newBuilder();
 				request = builder
 				         .uri(URI.create(configUri))
 				         .version(Version.HTTP_1_1)
@@ -607,42 +630,12 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 
 				response = client.send(request, BodyHandlers.ofString());
 				if(response.statusCode() == 200) {
-
-				    var rdr = new INIReader.Builder().
-				            withMultiValueMode(MultiValueMode.SEPARATED).
-				            build();
-
-				    try {
-    					var ini = rdr.read(response.body());
-
-    					/* Interface (us) */
-    					var interfaceSection = ini.section("Interface");
-    					connection.setDns(Arrays.asList(interfaceSection.getAllElse("DNS", new String[0])));
-
-    					connection.setPreUp(interfaceSection.contains("PreUp") ?  String.join("\n", interfaceSection.getAll("PreUp")) : "");
-    					connection.setPostUp(interfaceSection.contains("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
-    					connection.setPreDown(interfaceSection.contains("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
-    					connection.setPostDown(interfaceSection.contains("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
-
-    					/* Custom LogonBox */
-    					ini.sectionOr("LogonBox").ifPresent(s -> {
-                            connection.setRouteAll(s.getBoolean("RouteAll", false));
-    					});
-
-    					/* Peer (them) */
-    					var peerSection = ini.section("Peer");
-    					var endpoint = peerSection.get("Endpoint");
-    					int idx = endpoint.lastIndexOf(':');
-    					connection.setEndpointAddress(endpoint.substring(0, idx));
-    					connection.setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
-    					connection.setPeristentKeepalive(peerSection.getInt("PersistentKeepalive"));
-    					connection.setAllowedIps(Arrays.asList(interfaceSection.getAllElse("AllowedIPs", new String[0])));
-
-    					return save(connection);
-				    }
-				    catch(ParseException pe) {
-				        log.error("Failed to parse configuration update.", pe);
-				    }
+		            try {
+	                    return updateConnectionFromResponse(connection, response);
+		            }
+    		        catch(ParseException pe) {
+    		            log.error("Failed to parse configuration update, may be p.", pe);
+    		        }
 				}
 				else {
 					log.info("Server appeared to be a 2.4.0 server, but it did not response to a configuration update request. Assuming no config change.");
@@ -659,9 +652,99 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 			log.info(String.format("No peer with the key %s is valid according to the server (error %d), so we need to re-authorize.", connection.getUserPublicKey(), response.statusCode()));
 		}
 		return null;
-	}
+    }
 
-	protected void addConnectionCookie(Connection connection, URI uri) {
+    private Connection updateConnectionFromResponse(Connection connection, HttpResponse<String> response) throws IOException, ParseException {
+        var rdr = new INIReader.Builder().
+                withMultiValueMode(MultiValueMode.SEPARATED).
+                build();
+
+    	var ini = rdr.read(response.body());
+
+    	/* Interface (us) */
+    	var interfaceSection = ini.section("Interface");
+    	connection.setDns(Arrays.asList(interfaceSection.getAllElse("DNS", new String[0])));
+
+    	connection.setPreUp(interfaceSection.contains("PreUp") ?  String.join("\n", interfaceSection.getAll("PreUp")) : "");
+    	connection.setPostUp(interfaceSection.contains("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
+    	connection.setPreDown(interfaceSection.contains("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
+    	connection.setPostDown(interfaceSection.contains("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
+
+    	/* Custom LogonBox */
+    	ini.sectionOr("LogonBox").ifPresent(s -> {
+            connection.setRouteAll(s.getBoolean("RouteAll", false));
+            connection.setMtu(s.getInt("MTU", 0));
+    	});
+
+    	/* Peer (them) */
+    	var peerSection = ini.section("Peer");
+    	var endpoint = peerSection.get("Endpoint");
+    	int idx = endpoint.lastIndexOf(':');
+    	connection.setEndpointAddress(endpoint.substring(0, idx));
+    	connection.setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
+    	connection.setPersistentKeepalive(peerSection.getInt("PersistentKeepalive"));
+    	connection.setAllowedIps(Arrays.asList(interfaceSection.getAllElse("AllowedIPs", new String[0])));
+
+    	return save(connection);
+    }
+
+	private Connection getModernConnectionStatusFromHost(String baseUri, Connection connection, HttpClient client) throws IOException, InterruptedException {
+	    var checkUri = baseUri + "/vpn-config?pubkey=" + URLEncoder.encode(connection.getUserPublicKey(), "UTF-8");
+	    if(connection.getSerial() != null && connection.getSerial().length() > 0) {
+	        checkUri += "&serial=" + URLEncoder.encode(connection.getSerial(), "UTF-8");
+	    }
+	    
+	    var rnd = new SecureRandom();
+	    var data = new byte[32];
+	    rnd.nextBytes(data);
+	    checkUri += "&data=" + URLEncoder.encode(Base64.getEncoder().encodeToString(data), "UTF-8");
+	    
+	    var kp = Keys.pubkeyBase64(connection.getUserPrivateKey());
+	    var sig = kp.sign(data);
+        checkUri += "&sig=" + URLEncoder.encode(Base64.getEncoder().encodeToString(sig), "UTF-8");
+	    
+	    
+        log.info(String.format("Testing if a configuration is actually valid for %s on %s (Modern check).", connection.getDisplayName(), checkUri));
+        var checkUriObj = URI.create(checkUri);
+        var builder = HttpRequest.newBuilder();
+        var request = builder
+                 .uri(checkUriObj)
+                 .version(Version.HTTP_1_1)
+                 .build();
+
+        var response = client.send(request, BodyHandlers.ofString());
+        if(response.statusCode() == 200) {
+            /* Exists, and changed */
+            log.info(String.format("Peer with the key %s is valid according to the server, and has changed, updating configuration.", connection.getUserPublicKey()));
+            try {
+                return updateConnectionFromResponse(connection, response);
+            }  catch (ParseException e) {
+                throw new IOException("Failed to parse configuration.", e);
+            }
+        } 
+        else if(response.statusCode() == 304) {
+            /* Exists, and hasn't changed */
+            log.info(String.format("Peer with the key %s is valid according to the server, and the configuration is up to date.", connection.getUserPublicKey()));
+            return connection;
+        }
+        else if(response.statusCode() == 410) {
+            /* This public key DOES NOT exist */
+            log.info(String.format("No peer with the key %s is valid according to the server (error %d), so we need to re-authorize.", connection.getUserPublicKey(), response.statusCode()));
+        }
+        else if(response.statusCode() == 404) {
+            throw new IOException("The server exists and is online, but doesn't appear to be a VPN server.");
+        }
+        else if(response.statusCode() == 500) {
+            throw new IOException("The serve encountered an error and could not complete the request.");
+        }
+        else {
+            throw new IOException("Unexpected response from server " + response.statusCode() + ".");
+        }
+        
+        return null;
+    }
+
+    protected void addConnectionCookie(Connection connection, URI uri) {
 		HttpCookie cookie = new HttpCookie(VpnManager.DEVICE_IDENTIFIER, getUUID(connection.getOwnerOrCurrent()).toString());
 		cookie.setSecure(true);
 		cookie.setPath("/");
@@ -674,7 +757,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 
 		try {
 			try {
-				if(doGetConnectionError(connection.getConnectionTestUri(false), connection))
+				if(doGetConnectionError(connection.getConnectionTestUri(false), connection.getBaseUri(false), connection))
 					return null;
 			}
 			catch(SSLHandshakeException sslhe) {
@@ -686,7 +769,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 			    else
 			        log.info("Check using IP address failed, trying using hostname.");
 				try {
-					if(doGetConnectionError(connection.getUri(false), connection))
+					if(doGetConnectionError(connection.getBaseUri(false), connection.getBaseUri(false), connection))
 						return null;
 				}
 				catch(IOException ex2) {
@@ -713,18 +796,32 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
                 "Your configuration has been invalidated, and you will need to sign-on again.");
 	}
 
-	private boolean doGetConnectionError(String rootUri, Connection connection) throws IOException, InterruptedException {
+
+    private boolean doGetConnectionError(String rootUri, String baseUri, Connection connection) throws IOException, InterruptedException {
+
+
+        var client = HttpClient.newBuilder()
+                .sslParameters(context.getSSLParameters())
+                .sslContext(context.getSSLContext())
+                .cookieHandler(new CookieManager(context.getCookieStore(), CookiePolicy.ACCEPT_ORIGINAL_SERVER))
+                .version(Version.HTTP_1_1)
+                .followRedirects(Redirect.NORMAL)
+                .connectTimeout(Duration.ofSeconds(20))
+                .build();
+        
+        if(connection.getMode() == Mode.MODERN) {
+            return getModernConnectionStatusFromHost(baseUri, connection, client) != null;
+                    
+        }
+        else {
+            return doLegacyGetConnectionError(rootUri, connection, client);
+        }
+            
+    }
+
+	private boolean doLegacyGetConnectionError(String rootUri, Connection connection, HttpClient client) throws IOException, InterruptedException {
 
 		addConnectionCookie(connection, URI.create(rootUri));
-
-		var client = HttpClient.newBuilder()
-				.sslParameters(context.getSSLParameters())
-				.sslContext(context.getSSLContext())
-                .cookieHandler(new CookieManager(context.getCookieStore(), CookiePolicy.ACCEPT_ORIGINAL_SERVER))
-		        .version(Version.HTTP_1_1)
-		        .followRedirects(Redirect.NORMAL)
-		        .connectTimeout(Duration.ofSeconds(20))
-		        .build();
 
 		var builder = HttpRequest.newBuilder();
 
@@ -915,6 +1012,8 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		synchronized (activeSessions) {
 			if (temporarilyOffline.contains(c))
 				return Type.TEMPORARILY_OFFLINE;
+			if (blocked.contains(c))
+                return Type.BLOCKED;
 			if (authorizingClients.containsKey(c))
 				return Type.AUTHORIZING;
 			if (activeSessions.containsKey(c))
@@ -1090,13 +1189,13 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		    session.configuration().firstPeer().ifPresent(peer -> {
 		        try {
     	            var connection = getStatusForPublicKey(peer.publicKey()).getConnection();
-    	            activeSessions.put(connection, new VPNSession<>(connection, context, session)); 
+    	            activeSessions.put(connection, new VPNSession<>(connection, context, session, this::updateConnection)); 
 		        }
 		        catch(IllegalArgumentException iae) {
                     log.warn("Adding active {}", peer.publicKey());
                     var c = connectionRepository.getConnectionByPublicKey(peer.publicKey());
                     var connection = new ConnectionStatusImpl(c, session.information(), getStatusType(c), AUTHORIZE_URI);
-                    activeSessions.put(connection.getConnection(), new VPNSession<>(connection.getConnection(), context, session));
+                    activeSessions.put(connection.getConnection(), new VPNSession<>(connection.getConnection(), context, session, this::updateConnection));
 		        }
 		        catch(Exception e) {
 		            log.error("Failed to add active interfaces.", e);
@@ -1156,11 +1255,12 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 			connectingSessions.clear();
 			authorizingClients.clear();
 			temporarilyOffline.clear();
+            blocked.clear();
 		}
 	}
 
 	protected VPNSession<CONX> createJob(Connection c) {
-		return new VPNSession<>(c, getContext());
+		return new VPNSession<>(c, getContext(), this::updateConnection);
 	}
 
 	protected boolean isUseAllCloudPhases() {
@@ -1304,7 +1404,10 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 						 */
 						IOException reason = getConnectionError(connection);
 						if(reason == null) {
-							log.warn("It appears the key is valid, so we have good HTTP comms. Only the wireguard channel appears to be down at the moment. We will assume the connection is still active, and keep polling.");
+						    if(!blocked.contains(connection)) {
+    							log.warn("It appears the key is valid, so we have good HTTP comms. Only the wireguard channel appears to be down at the moment. We will assume the connection is still active, and keep polling.");
+    							blocked(connection);
+						    }
 						}
 						else {
 							if (reason instanceof ReauthorizeException) {
@@ -1338,8 +1441,15 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 	protected void temporarilyOffline(Connection connection, Exception reason) {
 		log.info("Signalling temporarily offline.");
 		temporarilyOffline.add(connection);
+		blocked.remove(connection);
 		context.fireTemporarilyOffline(connection, reason);
 	}
+
+    protected void blocked(Connection connection) {
+        log.info("Signalling blocked.");
+        blocked.add(connection);
+        context.fireBlocked(connection);
+    }
 
 	private void checkValidConnect(Connection c) {
 		synchronized (activeSessions) {
@@ -1478,6 +1588,59 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 				log.error("Failed to get connection.", e);
 			}
 		}
+	}
+	
+	private void updateConnection(Connection connection, String config) {
+	    try {
+	        var hasPrivateKey = connection.getUserPrivateKey() != null && connection.getUserPrivateKey().length() > 0;
+            var rdr = new INIReader.Builder().
+                    withMultiValueMode(MultiValueMode.SEPARATED).
+                    build();
+            
+            var ini = rdr.read(config);
+    
+            /* Interface (us) */
+            var interfaceSection = ini.section("Interface");
+            connection.setAddress(interfaceSection.get("Address"));
+            connection.setDns(Arrays.asList(interfaceSection.getAllElse("DNS", new String[0])));
+    
+            var privateKey = interfaceSection.getOr("PrivateKey");
+            if (privateKey.isPresent() && hasPrivateKey) {
+                /*
+                 * TODO private key should be removed from server at this point
+                 */
+                connection.setUserPrivateKey(privateKey.get());
+                connection.setUserPublicKey(Keys.pubkeyBase64(privateKey.get()).getBase64PublicKey());
+            } else if (!hasPrivateKey) {
+                throw new IllegalStateException(
+                        "Did not receive private key from server, and we didn't generate one on the client. Connection impossible.");
+            }
+            connection.setPreUp(interfaceSection.contains("PreUp") ?  String.join("\n", interfaceSection.getAll("PreUp")) : "");
+            connection.setPostUp(interfaceSection.contains("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
+            connection.setPreDown(interfaceSection.contains("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
+            connection.setPostDown(interfaceSection.contains("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
+    
+            /* Custom LogonBox */
+            ini.sectionOr("LogonBox").ifPresent(l -> {
+                connection.setRouteAll(l.getBoolean("RouteAll"));
+            });
+    
+            /* Peer (them) */
+            var peerSection = ini.section("Peer");
+            connection.setPublicKey(peerSection.get("PublicKey"));
+            String endpoint = peerSection.get("Endpoint");
+            int idx = endpoint.lastIndexOf(':');
+            connection.setEndpointAddress(endpoint.substring(0, idx));
+            connection.setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
+            connection.setPersistentKeepalive(peerSection.getInt("PersistentKeepalive", 0));
+            connection.setAllowedIps(Arrays.asList(peerSection.getAllElse("AllowedIPs", new String[0])));
+        }
+        catch(IOException ioe) {
+            throw new UncheckedIOException(ioe);
+        }
+        catch(ParseException pe) {
+            throw new IllegalStateException(pe);
+        }
 	}
 
 	private String getCustomerInfo() {

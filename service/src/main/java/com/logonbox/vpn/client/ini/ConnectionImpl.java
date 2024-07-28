@@ -39,6 +39,7 @@ public class ConnectionImpl implements Connection, Serializable {
 	private String publicKey;
     private String presharedKey;
 	private String address;
+    private String serial;
 	private String endpointAddress;
 	private int endpointPort;
 	private int mtu;
@@ -173,7 +174,15 @@ public class ConnectionImpl implements Connection, Serializable {
         this.instance = instance;
     }
 
-	@Override
+	public String getSerial() {
+        return serial;
+    }
+
+    public void setSerial(String serial) {
+        this.serial = serial;
+    }
+
+    @Override
 	public String getName() {
 		return name;
 	}
@@ -329,7 +338,7 @@ public class ConnectionImpl implements Connection, Serializable {
     
     		String privateKey = interfaceSection.get("PrivateKey");
     		setUserPrivateKey(privateKey);
-    		setUserPublicKey(Keys.pubkey(privateKey).getBase64PublicKey());
+    		setUserPublicKey(Keys.pubkeyBase64(privateKey).getBase64PublicKey());
     		setPreUp(interfaceSection.contains("PreUp") ? String.join("\n", interfaceSection.getAll("PreUp")) : "");
     		setPostUp(interfaceSection.contains("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
     		setPreDown(
@@ -343,6 +352,9 @@ public class ConnectionImpl implements Connection, Serializable {
                 setShared(l.getBoolean("Shared", false));
                 setConnectAtStartup(l.getBoolean("ConnectAtStartup", false));
                 setStayConnected(l.getBoolean("StayConnected", false));
+                var serial = l.get("Serial", "");
+                if(serial.length() > 0)
+                    setSerial(serial);
                 setMode(Mode.valueOf(l.get("Mode")));
                 l.getAllOr("AuthMethods").ifPresent(all -> {
                     setAuthMethods(Arrays.asList(all).stream().map(AuthMethod::valueOf).toList().toArray(new AuthMethod[0]));
@@ -368,7 +380,7 @@ public class ConnectionImpl implements Connection, Serializable {
                     setEndpointPort(Integer.parseInt(endpoint.substring(idx + 1)));
                 });
                 setPresharedKey(p.get("PresharedKey", null));
-                setPeristentKeepalive(p.getInt("PersistentKeepalive"));
+                setPersistentKeepalive(p.getInt("PersistentKeepalive"));
                 setAllowedIps(Arrays.asList(p.getAllElse("AllowedIPs", new String[0])));
     		});
 		}
@@ -458,7 +470,7 @@ public class ConnectionImpl implements Connection, Serializable {
 		return peristentKeepalive;
 	}
 
-	public void setPeristentKeepalive(int peristentKeepalive) {
+	public void setPersistentKeepalive(int peristentKeepalive) {
 		this.peristentKeepalive = peristentKeepalive;
 	}
 
@@ -537,6 +549,9 @@ public class ConnectionImpl implements Connection, Serializable {
 		var logonBoxSection = ini.create("LogonBox");
 		logonBoxSection.put("RouteAll", connection.isRouteAll());
 		logonBoxSection.put("Shared", connection.isShared());
+		if(connection.getSerial() != null && connection.getSerial().length() > 0) {
+		    logonBoxSection.put("Serial", connection.getSerial());
+		}
 		logonBoxSection.put("ConnectAtStartup", connection.isConnectAtStartup());
 		logonBoxSection.put("StayConnected", connection.isStayConnected());
 		logonBoxSection.put("Mode", connection.getMode().name());

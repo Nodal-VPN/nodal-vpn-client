@@ -143,7 +143,8 @@ public class DOMProcessor<CONX extends IVpnConnection> {
 	}
 
 	public void process() {
-		dataAttributes(documentElement, newNodes, removeNodes);
+	    if(documentElement != null)
+	        dataAttributes(documentElement, newNodes, removeNodes);
 		
 		for (var en : newNodes.entrySet()) {
 			for (Node n : en.getValue())

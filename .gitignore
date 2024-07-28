@@ -1,3 +1,7 @@
 /.settings/
 /env.sh
 /desktop/scenicView.properties
+/.idea/
+/tmp/
+/conf/
+/logs/

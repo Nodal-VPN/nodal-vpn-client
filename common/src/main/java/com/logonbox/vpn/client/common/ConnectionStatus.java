@@ -8,6 +8,7 @@ public interface ConnectionStatus {
 		DISCONNECTING,
 		DISCONNECTED,
 		TEMPORARILY_OFFLINE,
+        BLOCKED,
 		AUTHORIZING,
 		CONNECTING,
 		CONNECTED;	
