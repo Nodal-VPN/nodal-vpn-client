@@ -1,13 +1,3 @@
-* {
--fx-lbvpn-background: #f24900;
--fx-lbvpn-foreground: #ffffff;
--fx-lbvpn-base: #202020;
--fx-lbvpn-base-inverse: #ffffff;
--fx-lbvpn-link: #f24900;
--fx-lbvpn-accent: #e5f200;
--fx-lbvpn-accent2: #f2006c;
-}
-
 @font-face {
 	src: url('/com/logonbox/vpn/client/gui/jfx/ARLRDBD.TTF');
 }
