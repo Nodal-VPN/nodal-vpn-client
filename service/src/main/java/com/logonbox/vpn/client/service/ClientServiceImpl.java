@@ -1193,9 +1193,14 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		        }
 		        catch(IllegalArgumentException iae) {
                     log.warn("Adding active {}", peer.publicKey());
-                    var c = connectionRepository.getConnectionByPublicKey(peer.publicKey());
-                    var connection = new ConnectionStatusImpl(c, session.information(), getStatusType(c), AUTHORIZE_URI);
-                    activeSessions.put(connection.getConnection(), new VPNSession<>(connection.getConnection(), context, session, this::updateConnection));
+                    try {
+	                    var c = connectionRepository.getConnectionByPublicKey(peer.publicKey());
+	                    var connection = new ConnectionStatusImpl(c, session.information(), getStatusType(c), AUTHORIZE_URI);
+	                    activeSessions.put(connection.getConnection(), new VPNSession<>(connection.getConnection(), context, session, this::updateConnection));
+                    }
+                    catch(IllegalArgumentException iae2) {
+                    	log.warn("Nothing stored with public key of {}, probably another client. Ignoing.");
+                    }
 		        }
 		        catch(Exception e) {
 		            log.error("Failed to add active interfaces.", e);

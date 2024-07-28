@@ -1,14 +1,5 @@
 package com.logonbox.vpn.client.gui.jfx;
 
-import com.logonbox.vpn.client.common.AppConstants;
-import com.logonbox.vpn.client.common.AppVersion;
-import com.logonbox.vpn.client.common.PlatformUtilities;
-import com.logonbox.vpn.client.common.lbapi.Branding;
-import com.logonbox.vpn.client.common.lbapi.BrandingInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,6 +11,15 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.logonbox.vpn.client.common.AppConstants;
+import com.logonbox.vpn.client.common.AppVersion;
+import com.logonbox.vpn.client.common.PlatformUtilities;
+import com.logonbox.vpn.client.common.lbapi.Branding;
+import com.logonbox.vpn.client.common.lbapi.BrandingInfo;
 
 import javafx.scene.paint.Color;
 
@@ -147,35 +147,9 @@ public class Styling {
 		// End
 		bui.append("}\n");
 		
-		/* Strangeness on Windows - https://stackoverflow.com/questions/42416242/java-fx-failed-to-load-font-awesome-icons */
-		bui.append("""
-		@font-face {
-		    font-family: 'FontAwesome';
-		    src: url('%url1%');
-		    src: url('%url1%') format('embedded-opentype'), url('%url2%') format('woff2'), url('%url3%') format('woff'), url('%url4%') format('truetype'), url('%url5%') format('svg');
-		    font-weight: normal;
-		    font-style: normal;
-		  }
-		""".
-		    replace("%url1%", checkFAUrl("fontawesome-webfont.eot")).
-		    replace("%url2%", checkFAUrl("fontawesome-webfont.woff2")).
-            replace("%url3%", checkFAUrl("fontawesome-webfont.woff")).
-            replace("%url4%", checkFAUrl("fontawesome-webfont.ttf")).
-            replace("%url5%", checkFAUrl("fontawesome-webfont.svg"))
-		);
-		
 		return bui.toString();
 
 	}
-
-    String checkFAUrl(String res) {
-        var url = Styling.class.getResource("fontawesome/fonts/" + res);
-        if(url == null) {
-            return "";
-        }
-        else
-            return url.toExternalForm();
-    }
 
 	protected Color getBaseInverse() {
 		if (context.isDarkMode())

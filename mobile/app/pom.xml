@@ -87,7 +87,7 @@
         </dependency>
         <dependency>
             <groupId>com.logonbox</groupId>
-            <artifactId>lbvpn</artifactId>
+            <artifactId>lbvpn</artifactId> 
             <version>${project.version}</version>
             <scope>runtime</scope>
             <classifier>${attach.extended.classifier}</classifier>
