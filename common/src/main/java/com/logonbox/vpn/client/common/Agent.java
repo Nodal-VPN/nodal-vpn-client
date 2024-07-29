@@ -1,26 +1,46 @@
 package com.logonbox.vpn.client.common;
 
+import com.logonbox.vpn.drivers.lib.util.Keys;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
+import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Base64;
 
-public abstract class Agent implements Closeable {
+public final class Agent implements Closeable {
+    
+    public record AgentCommand(Connection connection, Command command, String[] args) {}
+    
+    @FunctionalInterface
+    public interface AgentListener {
+        void command(AgentCommand command);
+    }
+    
+    public enum Command {
+        DISCONNECT,
+        DELETE,
+        UPDATE
+    }
 	
 	static Logger LOG = LoggerFactory.getLogger(Agent.class);
 
 	private final ServerSocket ss;
 	private final Thread thead;
+    private final AgentListener onCommand;
     private final Connection connection;
 
-	public Agent(Connection connection) throws UnknownHostException, IOException {
+	public Agent(Connection connection, AgentListener onCommand) throws UnknownHostException, IOException {
+	    this.onCommand = onCommand;
 	    this.connection = connection;
 	    
 		ss = new ServerSocket(0, 1, InetAddress.getByName(connection.getAddress()));
@@ -45,25 +65,43 @@ public abstract class Agent implements Closeable {
 
 	private void connection(Socket accept) throws IOException {
 		LOG.info("Got agent connection from {}", accept.getRemoteSocketAddress());
-		try(var in = new BufferedReader(new InputStreamReader(accept.getInputStream(), "UTF-8"))) {
-		    String line;
-		    var cfg = new StringBuilder();
-		    var boundary = in.readLine();
-		    while( ( line = in.readLine() ) != null) {
-                if(line.equals(boundary)) {
-                    break;
-                }
-                else {
-    		        if(!cfg.isEmpty())
-    		            cfg.append(System.lineSeparator());
-    		        cfg.append(line);
-                }
+		try(var in = new DataInputStream(accept.getInputStream())) {
+		    while(true) {
+		        /* Each command enclosed in a simple signature wrapper */
+		        var payloadSize = in.readInt();
+		        var payload = new byte[payloadSize];
+		        in.read(payload);
+
+                var sigSize = in.readShort();
+                var sig = new byte[sigSize];
+                in.read(sig);
+                
+                var pubkey = Base64.getDecoder().decode(connection.getPublicKey());
+                if(!Keys.verify(pubkey, payload, sig))
+                    throw new IllegalArgumentException("Command doesn't match signature.");
+                
+                var innerIn = new DataInputStream(new ByteArrayInputStream(payload));
+		        
+	            var cmd = Command.valueOf(innerIn.readUTF());
+	            
+	            var rnd = innerIn.readShort();
+	            var data = new byte[rnd];
+	            innerIn.read(data);
+	            
+	            var args = new ArrayList<String>();
+	            var argSize = innerIn.readShort();
+	            for(int i = 0 ; i < argSize;  i++) {
+	                args.add(innerIn.readUTF());
+	            }
+
+                onCommand.command(new AgentCommand(connection, cmd, args.toArray(new String[0])));
 		    }
-		    
-            var signature = in.readLine();
-            
-            /* TODO check signature */
-            update(connection, cfg.toString());
+		}
+		catch(EOFException eofe) {
+		    // OK
+		}
+		finally {
+		    accept.close();
 		}
 	}
 
@@ -73,6 +111,4 @@ public abstract class Agent implements Closeable {
 		Thread.interrupted();
 		ss.close();
 	}
-	
-	protected abstract void update(Connection connection, String configuration);
 }

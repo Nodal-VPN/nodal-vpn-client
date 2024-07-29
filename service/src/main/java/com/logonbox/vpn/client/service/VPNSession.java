@@ -2,6 +2,7 @@ package com.logonbox.vpn.client.service;
 
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.common.Agent;
+import com.logonbox.vpn.client.common.Agent.AgentCommand;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.drivers.lib.NoHandshakeException;
@@ -29,14 +30,14 @@ public class VPNSession<CONX extends IVpnConnection> implements Closeable {
     private boolean reconnect;
     private Optional<VpnAdapter> session = Optional.empty();
     private final Connection connection;
-    private Agent agent;
-    private final BiConsumer<Connection, String> onUpdate;
+    private Optional<Agent> agent = Optional.empty();
+    private final BiConsumer<VPNSession<CONX>, AgentCommand> onUpdate;
 
-    public VPNSession(Connection connection, LocalContext<CONX> localContext, BiConsumer<Connection, String> onUpdate) {
+    public VPNSession(Connection connection, LocalContext<CONX> localContext, BiConsumer<VPNSession<CONX>, AgentCommand> onUpdate) {
         this(connection, localContext, null, onUpdate);
     }
 
-    public VPNSession(Connection connection, LocalContext<CONX> localContext, VpnAdapter session, BiConsumer<Connection, String> onUpdate) {
+    public VPNSession(Connection connection, LocalContext<CONX> localContext, VpnAdapter session, BiConsumer<VPNSession<CONX>, AgentCommand> onUpdate) {
         this.localContext = localContext;
         this.connection = connection;
         this.session = Optional.ofNullable(session);
@@ -61,14 +62,14 @@ public class VPNSession<CONX extends IVpnConnection> implements Closeable {
 
     @Override
     public void close() throws IOException {
-        if(agent != null) {
+        agent.ifPresent(a -> {
             try {
-                agent.close();
+                a.close();
             }
             catch(IOException ioe) {
                 log.warn("Failed to close agent.", ioe);
-            }
-        }
+            }            
+        });
         if (task != null) {
             task.cancel(false);
         }
@@ -138,19 +139,20 @@ public class VPNSession<CONX extends IVpnConnection> implements Closeable {
         } catch (NoHandshakeException nse) {
             throw new ReauthorizeException(nse.getMessage());
         }
-
         
-      try {
-          agent = new Agent(connection) {
-            @Override
-            protected void update(Connection connection, String configuration) {
-                onUpdate.accept(connection, configuration);
-            } 
-          };
-      }
-      catch(Exception e) {
-          log.error("Failed to setup agent, server will not be able to communicate configuration updates to this peer.", e);
-      }
+        try {
+            agent = Optional.of(new Agent(connection, (cmd) -> {
+                onUpdate.accept(this, cmd);
+            }));
+            log.info("Agent opened on port {}", agent.get().getPort());
+        }
+        catch(Exception e) {
+            log.error("Failed to setup agent, server will not be able to communicate configuration updates to this peer.", e);
+        }
+    }
+    
+    public Optional<Agent> getAgent() {
+        return agent;
     }
 
     public Optional<VpnAdapter> getSession() {

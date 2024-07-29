@@ -11,7 +11,20 @@ public interface ConnectionStatus {
         BLOCKED,
 		AUTHORIZING,
 		CONNECTING,
-		CONNECTED;	
+		CONNECTED;
+
+        public boolean isDisconnectable() {
+            switch(this) {
+            case TEMPORARILY_OFFLINE:
+            case BLOCKED:
+            case AUTHORIZING:
+            case CONNECTED:
+            case CONNECTING:
+                return true;
+            default:
+                return false;
+            }
+        }	
 	}
 	
 	VpnInterfaceInformation getDetail();
