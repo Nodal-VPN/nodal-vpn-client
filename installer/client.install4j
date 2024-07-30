@@ -29,7 +29,7 @@
         <entry>install4j-*</entry>
       </macSearchedJars>
     </codeSigning>
-    <jreBundles jdkProviderId="Adoptium" release="21/jdk-21.0.1+12" />
+    <jreBundles jdkProviderId="Adoptium" release="22/jdk-22.0.2+9" />
   </application>
   <files keepModificationTimes="true" globalExcludeSuffixes="*.ser" defaultOverwriteMode="1" defaultUninstallMode="2">
     <roots>
