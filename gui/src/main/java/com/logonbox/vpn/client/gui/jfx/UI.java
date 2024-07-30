@@ -378,11 +378,16 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		this.vpnManager = appContext.getVpnManager();
         this.updateService = appContext.getUpdateService();
         
-        try(var in = UI.class.getResourceAsStream("fontawesome/css/fonts/FontAwesome.ttf")) {
-            Font.loadFont(in, 12);
+        // https://stackoverflow.com/questions/34036207/javafx-could-not-load-font-face-font-because-of-com-sun-javafx-css-stylemanager
+        // BUG - This workaround for when FontAwesome (web) cannot be found when the Jar it is in, 
+        // is located in a path with spaces! Fun ..
+        try {
+            var fontStr = UI.class.getResource("fontawesome/css/fonts/FontAwesome.ttf");
+    		var fixedFontStr = fontStr.toExternalForm().replace("%20", " ");
+    		Font.loadFont(fixedFontStr, 12);
         }
-        catch(IOException ioe) {
-            throw new UncheckedIOException(ioe);
+        catch(Exception e) {
+        	e.printStackTrace();
         }
 		
 		location = getClass().getResource("UI.fxml");

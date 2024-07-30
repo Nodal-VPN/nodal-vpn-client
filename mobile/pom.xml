@@ -12,8 +12,8 @@
     <name>LogonBox VPN - Mobile Specific Modules</name>
     <packaging>pom</packaging>
     <modules>
-        <!--<module>gluon</module>
+        <module>gluon</module>
         <module>app</module>
-        <module>cutdown</module>-->
+        <module>cutdown</module>
     </modules>
 </project>
