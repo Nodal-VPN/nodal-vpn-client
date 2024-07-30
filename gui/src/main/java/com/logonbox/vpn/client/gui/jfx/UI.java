@@ -377,6 +377,13 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		this.appContext = uiContext.getAppContext();
 		this.vpnManager = appContext.getVpnManager();
         this.updateService = appContext.getUpdateService();
+        
+        try(var in = UI.class.getResourceAsStream("fontawesome/css/fonts/FontAwesome.ttf")) {
+            Font.loadFont(in, 12);
+        }
+        catch(IOException ioe) {
+            throw new UncheckedIOException(ioe);
+        }
 		
 		location = getClass().getResource("UI.fxml");
 		brandingManager = new BrandingManager<>(vpnManager, uiContext.getImageHandler());
