@@ -662,7 +662,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
     	connection.setPreDown(interfaceSection.contains("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
     	connection.setPostDown(interfaceSection.contains("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
 
-    	/* Custom LogonBox */
+    	/* Custom */
     	ini.sectionOr("LogonBox").ifPresent(s -> {
             connection.setRouteAll(s.getBoolean("RouteAll", false));
             connection.setMtu(s.getInt("MTU", 0));
@@ -1409,7 +1409,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 								connection.getUserPublicKey(), ClientService.HANDSHAKE_TIMEOUT));
 
 						/*
-						 * Try to work out why .... we can only do this with LogonBox VPN because the
+						 * Try to work out why .... we can only do this with VPN because the
 						 * HTTP service should be there as well. If there is an internet outage, or a
 						 * problem on the server, then we can use this HTTP channel to try and get a
 						 * little more info as to why we have no received a handshake for a while.

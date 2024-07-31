@@ -91,10 +91,10 @@ public class DOMProcessor<CONX extends IVpnConnection> {
 		replacements.put("exception", exceptionText);
 		replacements.put("clientVersion", version);
 		replacements.put("snapshot", String.valueOf(version.endsWith("-0") || version.indexOf("-SNAPSHOT") != -1));
-		replacements.put("brand",
-				MessageFormat.format(resources.getString("brand"),
+		replacements.put("licensedTo",
+				MessageFormat.format(resources.getString("licensedTo"),
 						(branding == null || branding.resource() == null
-								|| Utils.isBlank(branding.resource().name()) ? "LogonBox"
+								|| Utils.isBlank(branding.resource().name()) ? "JADAPTIVE"
 										: branding.resource().name())));
 		replacements.put("trayConfigurable", String.valueOf(context.isTrayConfigurable()));
 

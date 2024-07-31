@@ -12,7 +12,7 @@
 
     <artifactId>client-logonbox-vpn-embedded</artifactId>
     <packaging>jar</packaging>
-    <name>LogonBox VPN - Embedding Library</name>
+    <name>JADAPTIVE VPN - Embedding Library</name>
 
     <dependencies>
         <dependency>

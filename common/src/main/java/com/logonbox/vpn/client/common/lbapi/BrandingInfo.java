@@ -12,7 +12,7 @@ public record BrandingInfo(String foreground, String background, String name) {
 	    return new BrandingInfo(
 	       obj.getString("foreground", DEFAULT_FOREGROUND),
            obj.getString("background", DEFAULT_BACKGROUND),
-           obj.getString("name", "LogonBox")
+           obj.getString("name", "JADAPTIVE")
 	    );
 	}
 }

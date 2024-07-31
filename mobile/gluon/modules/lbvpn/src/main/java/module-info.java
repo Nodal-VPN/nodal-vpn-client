@@ -1,6 +1,6 @@
 
 /**
- * LogonBox VPN Client Gluon Mobile Attach Library
+ * VPN Client Gluon Mobile Attach Library
  */
 
 import com.logonbox.vpn.client.attach.wireguard.MobilePlatformService.MobilePlatformServiceFactory;

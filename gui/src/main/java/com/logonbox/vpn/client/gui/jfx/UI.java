@@ -106,6 +106,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	static final String LOCBCOOKIE = "LOCBCKIE";
 
 	private static final String DEFAULT_LOCALHOST_ADDR = "http://localhost:59999/";
+	private final ThreadLocal<Boolean> checkForUpdate = new ThreadLocal<>();
 
 	/**
 	 * This object is exposed to the local HTML/Javascript that runs in the browser.
@@ -420,10 +421,8 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 
 		/* Watch for update check state changing */
 		updateService.setOnAvailableVersion(ver -> {
-		    maybeRunLater(() -> {
-                if (getAuthorizingConnection() == null)
-                    selectPageForState(false, false);
-            });
+		    if(!Boolean.TRUE.equals(checkForUpdate.get()) && getAuthorizingConnection() == null)
+		    maybeRunLater(() -> selectPageForState(false, false));
 		}); 
 
 		// TEMP
@@ -782,6 +781,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		webView.setContextMenuEnabled(uiContext.isContextMenuAllowed());
 		String ua = engine.getUserAgent();
 		LOG.info("User Agent: " + ua);
+		/* TODO changing user agent may be trickier, iirc the legacy server examines for something */
 		engine.setUserAgent(ua + " " + "LogonBoxVPNClient/"
 				+ AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-gui-jfx"));
 		engine.setOnAlert((e) -> {
@@ -1802,7 +1802,13 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	private void checkForUpdate() {
 	    uiContext.getAppContext().getScheduler().execute(() -> {
 	        try {
-	            updateService.checkForUpdate();
+	            checkForUpdate.set(true);
+	            try {
+	                updateService.checkForUpdate();
+	            }
+	            finally {
+	                checkForUpdate.remove();
+	            }
 	            maybeRunLater(() -> {
 	                if (updateService.isNeedsUpdating() && getAuthorizingConnection() == null) {
 	                    LOG.info("Updated needed and no authorizing connections, checking page state.");

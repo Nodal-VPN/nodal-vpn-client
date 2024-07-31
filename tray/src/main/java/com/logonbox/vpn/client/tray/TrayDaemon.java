@@ -36,7 +36,7 @@ import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 import uk.co.bithatch.nativeimage.annotations.TypeReflect;
 
-@Command(name = "lbvpn-tray", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN system tray.", versionProvider = TrayDaemon.VersionProvider.class)
+@Command(name = "lbvpn-tray", mixinStandardHelpOptions = true, description = "Start the VPN Client system tray.", versionProvider = TrayDaemon.VersionProvider.class)
 @Resource(siblings = true, value = { "default-log4j-tray\\.properties" })
 @Reflectable
 @TypeReflect(classes = true, fields = true, methods = true)

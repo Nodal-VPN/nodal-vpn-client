@@ -278,5 +278,5 @@
             <url>https://nexus.gluonhq.com/nexus/content/repositories/releases/</url>
         </pluginRepository>
     </pluginRepositories>
-    <description>Gluon Mobile based implementation of the LogonBox VPN client. This project contains the implementation code and produces final artifacts for multiple platforms.</description>
+    <description>Gluon Mobile based implementation of the VPN client. This project contains the implementation code and produces final artifacts for multiple platforms.</description>
 </project>

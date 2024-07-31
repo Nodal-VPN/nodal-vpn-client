@@ -17,8 +17,11 @@
 		<div id="main" class="container clear-top">
 			<div class="row text-center">
 				<div class="col-md-12">
-					<h4 data-content="brand">LogonBox</h4>
-					<span data-content="clientVersion">0.0.1</span>
+					<h4 data-i18n="brand">JADAPTIVE</h4>
+					<div class="mb-3 text-muted" data-content="clientVersion">0.0.1</div>
+					
+					<div data-content="licensedTo">Your Company</div>
+					<div class="text-muted" data-i18n="poweredBy"></div>
 				</div>
 			</div>
 			<div class="row text-center mt-3" data-conditional="snapshot">
@@ -35,12 +38,21 @@
 						data-content="serviceMaxMemory"></small>
 				</div>
 			</div>
-			<div class="row text-center" data-conditional="updatesEnabled">
+			<div class="row text-center mt-3" data-conditional="updatesEnabled">
 				<div class="col-12">
 					<a id="checkForUpdates" href="#" data-i18n="checkForUpdates">Check
 						for updates now</a>
 				</div>
-			</div>
+			<div class="row text-center mt-5">
+               <a href="#credits" data-bs-toggle="collapse"
+                   data-i18n="credits"></a>
+            </div>
+            <div id="credits" class="collapse row text-center mt-5">
+                <div class="col-12">
+                    <p data-i18n="credits.text"></p>
+                    <a href="https://jadaptive.com/open-source-software/" data-i18n="credits.os"></a>
+                </div>
+            </div>
 		</div>
 	</div>
 

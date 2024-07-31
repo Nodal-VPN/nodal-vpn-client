@@ -346,7 +346,7 @@ public class ConnectionImpl implements Connection, Serializable {
     		setPostDown(
     				interfaceSection.contains("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
     
-    		/* Custom LogonBox */
+    		/* Custom */
     		ini.sectionOr("LogonBox").ifPresent(l -> {
                 setRouteAll(l.getBoolean("RouteAll", false));
                 setShared(l.getBoolean("Shared", false));
@@ -545,7 +545,7 @@ public class ConnectionImpl implements Connection, Serializable {
 		if(Utils.isNotBlank("Table"))
             interfaceSection.put("Table", connection.getTable());
 
-		/* Custom LogonBox */
+		/* Custom */
 		var logonBoxSection = ini.create("LogonBox");
 		logonBoxSection.put("RouteAll", connection.isRouteAll());
 		logonBoxSection.put("Shared", connection.isShared());

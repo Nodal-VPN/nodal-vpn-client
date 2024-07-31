@@ -38,7 +38,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;
 
-@Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the LogonBox VPN graphical user interface.", versionProvider = DesktopVPN.VersionProvider.class
+@Command(name = "logonbox-vpn-gui", mixinStandardHelpOptions = true, description = "Start the VPN client graphical user interface.", versionProvider = DesktopVPN.VersionProvider.class
 ) 
 public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppContext<VpnConnection> {
 	@Reflectable

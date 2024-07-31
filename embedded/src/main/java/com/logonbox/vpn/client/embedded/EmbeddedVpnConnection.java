@@ -63,7 +63,7 @@ public class EmbeddedVpnConnection implements IVpnConnection {
             setPostDown(interfaceSection.contains("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown"))
                     : "");
 
-            /* Custom LogonBox */
+            /* Custom */
             ini.sectionOr("LogonBox").ifPresent(l -> {
                 setRouteAll(l.getBoolean("RouteAll"));
                 setSerial(l.get("Serial", null));

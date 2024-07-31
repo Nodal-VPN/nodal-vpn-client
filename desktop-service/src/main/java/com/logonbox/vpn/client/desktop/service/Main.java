@@ -61,7 +61,7 @@ import uk.co.bithatch.nativeimage.annotations.Bundle;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 
-@Command(name = "lbvpn-service", mixinStandardHelpOptions = true, description = "Command line interface to the LogonBox VPN service.", versionProvider =  Main.VersionProvider.class)
+@Command(name = "lbvpn-service", mixinStandardHelpOptions = true, description = "Command line interface to the VPN Client service.", versionProvider =  Main.VersionProvider.class)
 @Bundle
 @Resource({"default-log-service\\.properties", "default-log4j-service-console\\.properties"})
 public class Main extends AbstractService<VpnConnection> implements Callable<Integer>, DesktopServiceContext, Listener {
@@ -644,7 +644,7 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 		properties.put("address", newAddress);
 		File dbusPropertiesFile = getDBusPropertiesFile();
 		try (FileOutputStream out = new FileOutputStream(dbusPropertiesFile)) {
-			properties.store(out, "LogonBox VPN Client Service");
+			properties.store(out, "VPN Client Service");
 		}
 	}
 	

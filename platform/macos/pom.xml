@@ -9,7 +9,7 @@
         <relativePath>../</relativePath>
     </parent>
     <artifactId>client-logonbox-vpn-macos</artifactId>
-    <name>LogonBox VPN - Mac OS Platform Utilities</name>
+    <name>JADAPTIVE VPN - Mac OS Platform Utilities</name>
     <dependencies>
         <dependency>
             <groupId>com.logonbox</groupId>

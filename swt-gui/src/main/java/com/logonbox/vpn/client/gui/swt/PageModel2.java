@@ -223,7 +223,7 @@ public class PageModel2 {
 		replacements.put("brand",
 				MessageFormat.format(resources.getString("brand"),
 						(branding == null || branding.resource() == null
-								|| isBlank(branding.resource().name()) ? "LogonBox"
+								|| isBlank(branding.resource().name()) ? "JADAPTIVE"
 										: branding.resource().name())));
 		replacements.put("trayConfigurable", String.valueOf(client.isTrayConfigurable()));
 

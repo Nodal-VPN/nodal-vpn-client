@@ -6,8 +6,8 @@
 	<version>4.0.0-SNAPSHOT</version>
 	<url>http://www.hypersocket.com/</url>
 	<packaging>pom</packaging>
-	<name>LogonBox VPN - Group</name>
-	<description>Desktop LogonBox VPN Clients (Linux, OS X and Windows).</description>
+	<name>JADAPTIVE VPN - Group</name>
+	<description>Desktop VPN Clients (Linux, OS X and Windows).</description>
 
 	<distributionManagement>
 		<repository>
@@ -31,8 +31,13 @@
 	<scm>
 		<url>http://github.com/nervepoint/logonbox-desktop-vpn-clients</url>
 		<connection>scm:git:https://github.com/nervepoint/logonbox-desktop-vpn-clients</connection>
-		<developerConnection>scm:git:https://github.com/nervepointludup/logonbox-desktop-vpn-clients</developerConnection>
+		<developerConnection>scm:git:https://github.com/nervepoint/logonbox-desktop-vpn-clients</developerConnection>
 	</scm>
+	
+    <organization>
+        <name>JADAPTIVE</name>
+        <url>https://jadaptive.com</url>
+    </organization>
 
 	<developers>
 		<developer>

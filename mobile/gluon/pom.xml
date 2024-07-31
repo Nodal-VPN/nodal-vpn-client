@@ -13,7 +13,7 @@
     <artifactId>client-logonbox-vpn-gluon</artifactId>
     <packaging>pom</packaging>
 
-    <name>LogonBox VPN - Gluon Attach Libraries</name>
+    <name>JADAPTIVE VPN - Gluon Attach Libraries</name>
     
     <dependencies>
         <dependency>
@@ -100,5 +100,5 @@
             </plugin>
         </plugins>
     </build>
-    <description>Provides the bridge between Gluon Mobile and native Android/IOS code for LogonBox VPN.</description>
+    <description>Provides the bridge between Gluon Mobile and native Android/IOS code for VPN client.</description>
 </project>

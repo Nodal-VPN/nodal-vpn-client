@@ -63,7 +63,7 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
 			setPreDown(interfaceSection.contains("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
 			setPostDown(interfaceSection.contains("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
 	
-			/* Custom LogonBox */
+			/* Custom */
 			ini.sectionOr("LogonBox").ifPresent(l -> {
                 setRouteAll(l.getBoolean("RouteAll"));
                 setSerial(l.get("Serial", null));

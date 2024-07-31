@@ -386,7 +386,7 @@ public class UI2 {
 			}
 		}
 
-//		titleBarImageView.setText("LogonBox");
+//		titleBarImageView.setText("JADAPTIVE");
 //		titleBarImageView.setFont(new Font(display, lbFont));
 		var titleData = new GridData();
 		titleData.grabExcessHorizontalSpace = titleData.grabExcessVerticalSpace = true;

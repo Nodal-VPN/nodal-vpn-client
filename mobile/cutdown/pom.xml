@@ -13,7 +13,7 @@
     <artifactId>client-logonbox-vpn-cutdown-app</artifactId>
     <packaging>jar</packaging>
 
-    <name>LogonBox VPN - Cutdown Client (Native Compilation Experiment)</name>
+    <name>JADAPTIVE VPN - Cutdown Client (Native Compilation Experiment)</name>
 
     <properties>
         <mainClassName>com.logonbox.vpn.client.mobile/com.logonbox.vpn.client.mobile.Client</mainClassName>
