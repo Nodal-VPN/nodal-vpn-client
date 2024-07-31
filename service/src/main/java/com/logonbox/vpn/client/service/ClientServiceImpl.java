@@ -1750,7 +1750,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 			        String.join(",", targets));
 
 			if (log.isInfoEnabled()) {
-				log.info("Checking for updates from " + updateUrl);
+				log.info("Pinging legacy update server " + updateUrl);
 			}
 
 			var request = HttpRequest.newBuilder(new URI(updateUrl)).header("Accept", "application/json")

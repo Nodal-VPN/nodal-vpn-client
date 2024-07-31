@@ -177,8 +177,10 @@ public abstract class AbstractApp<CONX extends IVpnConnection> implements AppCon
 
 	@Override
     public final  UpdateService getUpdateService() {
-		if(updateService == null)
+		if(updateService == null) {
 			updateService = createUpdateService();
+			getLog().info("Using update service: {}", updateService.getClass().getName());
+		}
 		return updateService;
 	}
 

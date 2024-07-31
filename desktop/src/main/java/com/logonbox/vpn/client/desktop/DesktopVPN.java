@@ -308,9 +308,13 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
 
 	@Override
 	protected UpdateService createUpdateService() {
-		if(PlatformUtilities.get().isElevatableToAdministrator())
+		if(PlatformUtilities.get().isElevatableToAdministrator()) {
+            getLog().info("Elevatable to administrator, so updates allowed.");
 			return super.createUpdateService();
-		else
+		}
+		else {
+            getLog().info("Not elevatable to administrator, so updates NOT allowed.");
 			return new NoUpdateService(this);
+		}
 	}
 }

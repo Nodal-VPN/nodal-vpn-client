@@ -90,7 +90,7 @@ public class DOMProcessor<CONX extends IVpnConnection> {
 		replacements.put("errorCauseMessage", errorCauseText);
 		replacements.put("exception", exceptionText);
 		replacements.put("clientVersion", version);
-		replacements.put("snapshot", String.valueOf(version.indexOf("-SNAPSHOT") != -1));
+		replacements.put("snapshot", String.valueOf(version.endsWith("-0") || version.indexOf("-SNAPSHOT") != -1));
 		replacements.put("brand",
 				MessageFormat.format(resources.getString("brand"),
 						(branding == null || branding.resource() == null

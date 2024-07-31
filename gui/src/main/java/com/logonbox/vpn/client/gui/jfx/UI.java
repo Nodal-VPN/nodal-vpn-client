@@ -1800,19 +1800,25 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	}
 
 	private void checkForUpdate() {
-		try {
-			updateService.checkForUpdate();
-			maybeRunLater(() -> {
-				if (updateService.isNeedsUpdating() && getAuthorizingConnection() == null) {
-					LOG.info("Updated needed and no authorizing connections, checking page state.");
-					selectPageForState(false, true);
-				}
-			});
-		} catch (IOException ioe) {
-			maybeRunLater(() -> {
-				showError("Failed to check for updates.", ioe);
-			});
-		}
+	    uiContext.getAppContext().getScheduler().execute(() -> {
+	        try {
+	            updateService.checkForUpdate();
+	            maybeRunLater(() -> {
+	                if (updateService.isNeedsUpdating() && getAuthorizingConnection() == null) {
+	                    LOG.info("Updated needed and no authorizing connections, checking page state.");
+	                    selectPageForState(false, true);
+	                }
+	                else {
+	                    webView.getEngine().executeScript("noUpdates();");
+	                }
+	            });
+	        } catch (IOException ioe) {
+	            maybeRunLater(() -> {
+	                showError("Failed to check for updates.", ioe);
+	            });
+	        }    
+	    });
+		
 	}
 
 	private void deferUpdate() {
