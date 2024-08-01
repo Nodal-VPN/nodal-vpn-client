@@ -1832,7 +1832,7 @@ return true;</property>
         <entry rootId="2036" />
       </exclude>
     </windows>
-    <unixInstaller name="Unix Installer" id="1555" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}">
+    <unixInstaller name="Linux Installer" id="1555" mediaFileName="${compiler:sys.shortName}-linux-amd64-${compiler:sys.version}">
       <exclude>
         <entry location="conf/logonbox-vpn-service.conf" />
         <entry location="gui/mac-aarch64" />
@@ -1914,7 +1914,7 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
       </exclude>
       <jreBundle usePack200="false" includedJre="windows-amd64-1.8.0_121" />
     </windows>
-    <unixInstaller name="Arm64 Unix Installer" id="2166" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}" require64BitVm="true">
+    <unixInstaller name="Arm64 Linux Installer" id="2166" mediaFileName="${compiler:sys.shortName}-linux-aarch64-${compiler:sys.version}" require64BitVm="true">
       <exclude>
         <entry location="conf/logonbox-vpn-service.conf" />
         <entry location="gui/mac-aarch64" />
@@ -1929,7 +1929,7 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
       </variables>
       <jreBundle usePack200="false" platform="linux-aarch64" />
     </unixInstaller>
-    <unixArchive name="Unix Archive" id="2167">
+    <unixArchive name="Linux Archive" id="2167" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}">
       <exclude>
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux-aarch64" />
