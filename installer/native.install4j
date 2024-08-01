@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.8" transformSequenceNumber="10">
   <directoryPresets config="./target" />
-  <application name="LogonBox VPN Client" applicationId="0033-1388-2645-1798" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="logonbox-vpn-client" publisher="LogonBox Limited" publisherWeb="https://www.logonbox.com" version="4.0.0" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
+  <application name="JADAPTIVE VPN Client" applicationId="0033-1388-2645-1798" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="jadaptive-vpn-client" publisher="JADAPTIVE Limited" publisherWeb="https://jadaptive.com" version="4.0.0" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
     </searchSequence>
@@ -117,9 +117,9 @@
     </components>
   </files>
   <launchers>
-    <launcher name="logonbox-vpn-gui" id="783" menuName="LogonBox VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui">
+    <launcher name="logonbox-vpn-gui" id="783" menuName="JADAPTIVE VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui">
       <executable name="logonbox-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/gui-app.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true">
-        <versionInfo include="true" fileDescription="Graphical front end for the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
+        <versionInfo include="true" fileDescription="Graphical front end for the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
       <java mainClass="com.logonbox.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module">
@@ -148,7 +148,7 @@
     </launcher>
     <launcher name="logonbox-vpn-gui-remote" id="2035" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGuiRemote">
       <executable name="logonbox-vpn-gui-remote" iconSet="true" stderrFile="${installer:sys.userHome}/.logonbox-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.logonbox-vpn-client/gui-app.log" executableMode="console" dpiAware="false">
-        <versionInfo include="true" fileDescription="Remote control for the graphical front end to the LogonBox VPN service" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
+        <versionInfo include="true" fileDescription="Remote control for the graphical front end to the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
       <java mainClass="com.logonbox.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module" allowVMPassthroughParameters="false">
@@ -175,7 +175,7 @@
     </launcher>
     <launcher name="logonbox-vpn-service" id="2266" external="true" excludeFromMenu="true" externalFile="logonbox-vpn-service${compiler:build.exe.suffix}" />
     <launcher name="logonbox-vpn-cli" id="2268" external="true" excludeFromMenu="true" externalFile="logonbox-vpn-cli${compiler:build.exe.suffix}" />
-    <launcher name="logonbox-vpn-tray-icon" id="2271" external="true" menuName="LogonBox VPN Tray Icon" externalFile="logonbox-vpn-tray-icon${compiler:build.exe.suffix}" />
+    <launcher name="logonbox-vpn-tray-icon" id="2271" external="true" menuName="JADAPTIVE VPN Tray Icon" externalFile="logonbox-vpn-tray-icon${compiler:build.exe.suffix}" />
   </launchers>
   <installerGui autoUpdateDescriptorUrl="${compiler:install4j.updatesBase}/${compiler:build.phase}/updates.xml" useAutoUpdateBaseUrl="true" autoUpdateBaseUrl="${compiler:install4j.updatesBase}/${compiler:sys.version}/">
     <customCode>
@@ -534,7 +534,7 @@ return path.replace('\\', '/');</property>
               </action>
               <action id="584" beanClass="com.install4j.runtime.beans.actions.services.InstallServiceAction" actionElevationType="elevated" failureStrategy="askRetryQuit">
                 <serializedBean>
-                  <property name="description" type="string">Manages LogonBox VPN connections on behalf of users</property>
+                  <property name="description" type="string">Manages VPN connections on behalf of users</property>
                   <property name="executable">
                     <object class="java.io.File">
                       <string>logonbox-vpn-service${compiler:build.exe.suffix}</string>
@@ -544,7 +544,7 @@ return path.replace('\\', '/');</property>
                   <property name="macosIdentifier" type="string">com.logonbox.ClientService</property>
                   <property name="restartOnFailure" type="boolean" value="true" />
                   <property name="serviceName" type="string">logonbox-vpn-service</property>
-                  <property name="windowsDisplayName" type="string">LogonBox Client Service</property>
+                  <property name="windowsDisplayName" type="string">JADAPTIVE VPN Client Service</property>
                 </serializedBean>
               </action>
               <action id="856" beanClass="com.install4j.runtime.beans.actions.services.StartServiceAction" actionElevationType="elevated">
@@ -615,8 +615,8 @@ return path.replace('\\', '/');</property>
                   </property>
                   <property name="text" type="string">[Desktop Entry]
 Type=Application
-Name=LogonBox VPN Tray Icon
-Comment=LogonBox VPN Tray Icon
+Name=JADAPTIVE VPN Tray Icon
+Comment=JADAPTIVE VPN Tray Icon
 Exec=${installer:sys.installationDir}/logonbox-vpn-tray-icon
 Icon=${installer:sys.installationDir}/.install4j/logonbox-vpn-tray-icon.png
 X-GNOME-AutoRestart=false
@@ -632,7 +632,7 @@ X-GNOME-Autostart-enabled=true</property>
                       <string>logonbox-vpn-tray${compiler:build.exe.suffix}</string>
                     </object>
                   </property>
-                  <property name="name" type="string">LogonBox VPN Tray Icon</property>
+                  <property name="name" type="string">JADAPTIVE VPN Tray Icon</property>
                 </serializedBean>
               </action>
               <action id="1219" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" actionElevationType="none">
@@ -906,7 +906,7 @@ return console.askYesNo(message, true);
           </property>
           <property name="executableName" type="string">updater</property>
           <property name="executionMode" type="enum" class="com.install4j.runtime.beans.applications.ExecutionMode" value="UNATTENDED_WITH_PROGRESS" />
-          <property name="splashMessage" type="string">Downloading LogonBox VPN Client</property>
+          <property name="splashMessage" type="string">Downloading VPN Client</property>
           <property name="unattendedAlerts" type="boolean" value="true" />
           <property name="useCustomIcon" type="boolean" value="true" />
           <property name="windowTitle" type="string">${i18n:updater.WindowTitle("${compiler:sys.fullName}")}</property>
@@ -1739,7 +1739,7 @@ return true;</property>
       </variables>
       <jreBundle release="21/jdk-21.0.1+12" usePack200="false" includedJre="macosx-amd64-1.8.0_121" />
     </macosFolder>
-    <windows name="Windows x64" id="1554" installDir="LogonBox\VPN Client" architecture="64">
+    <windows name="Windows x64" id="1554" installDir="JADAPTIVE\VPN Client" architecture="64">
       <exclude>
         <entry location="conf/logonbox-vpn-service.conf" />
         <entry location="gui/mac-aarch64" />
@@ -1792,7 +1792,7 @@ rm -f /etc/dbus-1/system.d/logonbox-vpn-service.conf
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
 </preUninstallScript>
     </linuxRPM>
-    <linuxDeb name="Linux Deb Archive" id="1561" overwriteNeverAsConfigFiles="true" dependencies="dbus" description="LogonBox VPN Client, the ideal companion to the LogonBox VPN Server" maintainerEmail="brett@logonbox.com" architectureSet="true" architecture="amd64">
+    <linuxDeb name="Linux Deb Archive" id="1561" overwriteNeverAsConfigFiles="true" dependencies="dbus" description="JADAPTIVE VPN Client, the ideal companion to the JADAPTIVE VPN Server" maintainerEmail="brett@logonbox.com" architectureSet="true" architecture="amd64">
       <exclude>
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux-aarch64" />
@@ -1820,7 +1820,7 @@ rm -f /etc/dbus-1/system.d/logonbox-vpn-service.conf
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
 </preUninstallScript>
     </linuxDeb>
-    <windows name="MSI Windows x64" id="2047" installDir="LogonBox\VPN Client" msi="true" msiScope="selectable" msiProductIdType="custom" msiCustomProductId="0DC151EE-7A26-4A19-BD41-2581369651B3" architecture="64">
+    <windows name="MSI Windows x64" id="2047" installDir="JADAPTIVE\VPN Client" msi="true" msiScope="selectable" msiProductIdType="custom" msiCustomProductId="0DC151EE-7A26-4A19-BD41-2581369651B3" architecture="64">
       <exclude>
         <entry location="conf/logonbox-vpn-service.conf" />
         <entry location="gui/mac-aarch64" />
