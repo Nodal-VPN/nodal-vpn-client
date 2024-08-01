@@ -343,6 +343,10 @@ public interface VpnConnection extends DBusInterface, IVpnConnection {
     @DBusBoundProperty
     String getBaseUri();
 
+    @Override
+    @DBusBoundProperty
+    String getApiUri();
+
 
     @Reflectable
     @TypeReflect(methods = true, constructors = true)
