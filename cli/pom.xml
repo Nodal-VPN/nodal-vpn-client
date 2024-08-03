@@ -227,7 +227,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <imageName>logonbox-vpn-cli</imageName>
+                            <imageName>jad-vpn-cli</imageName>
                             <mainClass>com.logonbox.vpn.client.cli.CLI</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>

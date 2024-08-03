@@ -175,7 +175,7 @@
                             <metadataRepository>
                                 <enabled>true</enabled>
                             </metadataRepository>
-                            <imageName>logonbox-vpn-service</imageName>
+                            <imageName>jad-vpn-service</imageName>
                             <mainClass>com.logonbox.vpn.client.desktop.service.Main</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>

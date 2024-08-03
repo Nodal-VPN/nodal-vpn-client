@@ -283,7 +283,7 @@
                             <metadataRepository>
                                 <enabled>true</enabled>
                             </metadataRepository>
-                            <imageName>logonbox-vpn-gui-swt</imageName>
+                            <imageName>jad-vpn-gui-swt</imageName>
                             <mainClass>com.logonbox.vpn.client.gui.swt.SWTTest</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>

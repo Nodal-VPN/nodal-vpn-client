@@ -184,8 +184,6 @@
     <applications>
       <application id="installer" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" actionElevationType="elevated" styleId="1792" launchInNewProcess="false">
         <serializedBean>
-          <property name="customIconImageFiles">
-          </property>
           <property name="frameWidth" type="int" value="575" />
           <property name="useCustomIcon" type="boolean" value="false" />
         </serializedBean>
@@ -215,14 +213,6 @@
                   </object>
                 </property>
                 <property name="imageAnchor" type="enum" class="com.install4j.api.beans.Anchor" value="NORTH" />
-                <property name="imageEdgeBackgroundColor">
-                  <object class="java.awt.Color">
-                    <int>30</int>
-                    <int>12</int>
-                    <int>81</int>
-                    <int>255</int>
-                  </object>
-                </property>
                 <property name="imageEdgeBorder" type="boolean" value="true" />
                 <property name="imageFile">
                   <object class="com.install4j.api.beans.ExternalFile">

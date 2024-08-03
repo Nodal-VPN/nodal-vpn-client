@@ -260,7 +260,7 @@
                             <metadataRepository>
                                 <enabled>true</enabled>
                             </metadataRepository>
-                            <imageName>logonbox-vpn-tray</imageName>
+                            <imageName>jad-vpn-tray</imageName>
                             <mainClass>com.logonbox.vpn.client.tray.TrayDaemon</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>

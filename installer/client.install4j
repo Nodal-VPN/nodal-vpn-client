@@ -280,9 +280,48 @@
       <application id="installer" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" actionElevationType="elevated" styleId="1792" launchInNewProcess="false">
         <serializedBean>
           <property name="customIconImageFiles">
+            <add>
+              <object class="com.install4j.api.beans.ExternalFile">
+                <string>./images/install-logo16px.png</string>
+              </object>
+            </add>
+            <add>
+              <object class="com.install4j.api.beans.ExternalFile">
+                <string>./images/install-logo24px.png</string>
+              </object>
+            </add>
+            <add>
+              <object class="com.install4j.api.beans.ExternalFile">
+                <string>./images/install-logo32px.png</string>
+              </object>
+            </add>
+            <add>
+              <object class="com.install4j.api.beans.ExternalFile">
+                <string>./images/install-logo48px.png</string>
+              </object>
+            </add>
+            <add>
+              <object class="com.install4j.api.beans.ExternalFile">
+                <string>./images/install-logo64px.png</string>
+              </object>
+            </add>
+            <add>
+              <object class="com.install4j.api.beans.ExternalFile">
+                <string>./images/install-logo128px.png</string>
+              </object>
+            </add>
+            <add>
+              <object class="com.install4j.api.beans.ExternalFile">
+                <string>./images/install-logo256px.png</string>
+              </object>
+            </add>
+            <add>
+              <object class="com.install4j.api.beans.ExternalFile">
+                <string>./images/install-logo512px.png</string>
+              </object>
+            </add>
           </property>
           <property name="frameWidth" type="int" value="575" />
-          <property name="useCustomIcon" type="boolean" value="false" />
         </serializedBean>
         <styleOverrides>
           <styleOverride name="Customize banner image" enabled="true">
@@ -310,14 +349,6 @@
                   </object>
                 </property>
                 <property name="imageAnchor" type="enum" class="com.install4j.api.beans.Anchor" value="NORTH" />
-                <property name="imageEdgeBackgroundColor">
-                  <object class="java.awt.Color">
-                    <int>30</int>
-                    <int>12</int>
-                    <int>81</int>
-                    <int>255</int>
-                  </object>
-                </property>
                 <property name="imageEdgeBorder" type="boolean" value="true" />
                 <property name="imageFile">
                   <object class="com.install4j.api.beans.ExternalFile">
