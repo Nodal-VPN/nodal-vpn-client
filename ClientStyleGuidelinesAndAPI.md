@@ -7,7 +7,7 @@ Also described, is the configuration delivery API, that all clients must impleme
 
 ## Client Style
 
-This guide describes how the VPN client will look, not how the current stable version (2.4.0) looks. You can enable the new look client by creating the file `$HOME/.logonbox-vpn-client/gui.conf.d`  (creating the folder if it doesn't exist), and placing the line `system logonbox.vpn.newUI=true` inside this file. Note, this is very much still work in progress.
+This guide describes how the VPN client will look, not how the current stable version (2.4.0) looks. You can enable the new look client by creating the file `$HOME/.jad-vpn-client/gui.conf.d`  (creating the folder if it doesn't exist), and placing the line `system logonbox.vpn.newUI=true` inside this file. Note, this is very much still work in progress.
 
 **Some layout and styling may not make sense on other platforms. Use your judgement!**
       

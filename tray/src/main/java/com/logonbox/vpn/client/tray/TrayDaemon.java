@@ -253,9 +253,9 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 				    getLog().info("Starting GUI");
 				    ProcessBuilder bldr;
 					if (OS.isWindows())
-					    bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "logonbox-vpn-gui.exe");
+					    bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "jad-vpn-gui.exe");
 					else
-                        bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "logonbox-vpn-gui");
+                        bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "jad-vpn-gui");
 					bldr.redirectError(Redirect.INHERIT);
                     bldr.redirectOutput(Redirect.INHERIT);
                     bldr.start();

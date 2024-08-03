@@ -487,9 +487,9 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
                     LOG.info("Starting tray");
                     ProcessBuilder bldr;
                     if (OS.isWindows())
-                        bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "logonbox-vpn-tray-icon.exe");
+                        bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "jad-vpn-tray-icon.exe");
                     else
-                        bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "logonbox-vpn-tray-icon");
+                        bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "jad-vpn-tray-icon");
                     bldr.redirectError(Redirect.INHERIT);
                     bldr.redirectOutput(Redirect.INHERIT);
                     bldr.start();

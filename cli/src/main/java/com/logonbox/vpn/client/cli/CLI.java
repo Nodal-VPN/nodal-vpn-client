@@ -319,7 +319,7 @@ public class CLI extends AbstractDBusApp implements CLIContext {
 		}
 	}
 
-	@Command(name = "logonbox-vpn-cli-interactive", mixinStandardHelpOptions = true, description = "Interactive shell.", subcommands = {
+	@Command(name = "jad-vpn-cli-interactive", mixinStandardHelpOptions = true, description = "Interactive shell.", subcommands = {
 			Connections.class, Connect.class, Create.class, Delete.class, Disconnect.class, Exit.class, Show.class,
 			About.class, Edit.class, Update.class, Debug.class, Help.class, Config.class })
 

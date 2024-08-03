@@ -422,8 +422,8 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 
 
         /* Only active if GUI is */
-		var altBus = getAltBus();
 		try {
+	        var altBus = getAltBus();
             altHandles = Arrays.asList(
                 altBus.addSigHandler(RemoteUI.ConfirmedExit.class, RemoteUI.OBJECT_PATH, sig -> {
                     onConfirmedExit.forEach(r -> r.run());

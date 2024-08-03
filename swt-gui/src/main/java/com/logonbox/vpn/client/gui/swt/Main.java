@@ -24,7 +24,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "logonbox-vpn-gui-swt", mixinStandardHelpOptions = true, description = "Start the VPN Client graphical user interface.")
+@Command(name = "jad-vpn-gui-swt", mixinStandardHelpOptions = true, description = "Start the VPN Client graphical user interface.")
 public class Main extends AbstractDBusApp {
 
 	/**
