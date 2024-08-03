@@ -114,7 +114,8 @@ public abstract class AbstractDBusApp extends AbstractApp<VpnConnection> {
     protected DBusVpnManager.Builder buildVpnManager(DBusVpnManager.Builder builder) {
         builder.withAddressFilePath(addressFile);
         builder.withBusAddress(busAddress);
-        builder.withSessionBus(sessionBus);
+        if(sessionBus)
+            builder.withSessionBus();
         return builder;
     }
 
@@ -130,7 +131,7 @@ public abstract class AbstractDBusApp extends AbstractApp<VpnConnection> {
         log = LoggerFactory.getLogger(getClass());
         
         /*
-         * There is a bit of a chicken and egg situation here. We need to initialising 
+         * There is a bit of a chicken and egg situation here. We need to initialise
          * the manager (and so dbus) etc to get the shared configuration. But initialising
          * might produce logging, so we let this happen and reconfigure logging later
          */

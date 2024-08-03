@@ -296,6 +296,8 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
     	        if(Utils.isNotBlank(fixexdAddress)) {
     	            bldr.withAddress(fixexdAddress);
     	        }
+    	        else
+    	            bldr.withSystemBus();
     		}
         }
 		

@@ -103,7 +103,11 @@ public final class BusFactory {
                 conn = configureBuilder(DBusConnectionBuilder.forAddress(address)).build();
             } else {
                 var useJadbus = jadbus.orElseGet(() -> !OS.isLinux());
-                var useSystemBus = systemBus.orElseGet(() -> OS.isAdministrator());
+                var useSystemBus = systemBus.orElseGet(() -> { 
+                    var admin = OS.isAdministrator();
+                    log.info("No specific address requested, basing on if administrator. {}", admin ? "Which we are" : "Which we aren't");
+                    return admin;
+                });
                 if (useJadbus) {
                     if (useSystemBus) {
                         log.info("Connecting to Jadbus System DBus");
