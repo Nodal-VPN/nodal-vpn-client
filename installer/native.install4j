@@ -185,49 +185,9 @@
       <application id="installer" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" actionElevationType="elevated" styleId="1792" launchInNewProcess="false">
         <serializedBean>
           <property name="customIconImageFiles">
-            <add>
-              <object class="com.install4j.api.beans.ExternalFile">
-                <string>./images/install-logo16px.png</string>
-              </object>
-            </add>
-            <add>
-              <object class="com.install4j.api.beans.ExternalFile">
-                <string>./images/install-logo24px.png</string>
-              </object>
-            </add>
-            <add>
-              <object class="com.install4j.api.beans.ExternalFile">
-                <string>./images/install-logo32px.png</string>
-              </object>
-            </add>
-            <add>
-              <object class="com.install4j.api.beans.ExternalFile">
-                <string>./images/install-logo48px.png</string>
-              </object>
-            </add>
-            <add>
-              <object class="com.install4j.api.beans.ExternalFile">
-                <string>./images/install-logo64px.png</string>
-              </object>
-            </add>
-            <add>
-              <object class="com.install4j.api.beans.ExternalFile">
-                <string>./images/install-logo128px.png</string>
-              </object>
-            </add>
-            <add>
-              <object class="com.install4j.api.beans.ExternalFile">
-                <string>./images/install-logo256px.png</string>
-              </object>
-            </add>
-            <add>
-              <object class="com.install4j.api.beans.ExternalFile">
-                <string>./images/install-logo512px.png</string>
-              </object>
-            </add>
           </property>
           <property name="frameWidth" type="int" value="575" />
-          <property name="useCustomIcon" type="boolean" value="true" />
+          <property name="useCustomIcon" type="boolean" value="false" />
         </serializedBean>
         <styleOverrides>
           <styleOverride name="Customize banner image" enabled="true">
