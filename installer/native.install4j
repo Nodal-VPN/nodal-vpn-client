@@ -175,7 +175,7 @@
     </launcher>
     <launcher name="jad-vpn-service" id="2266" external="true" excludeFromMenu="true" externalFile="jad-vpn-service${compiler:build.exe.suffix}" />
     <launcher name="jad-vpn-cli" id="2268" external="true" excludeFromMenu="true" externalFile="jad-vpn-cli${compiler:build.exe.suffix}" />
-    <launcher name="jad-vpn-tray-icon" id="2271" external="true" menuName="JADAPTIVE VPN Tray Icon" externalFile="jad-vpn-tray-icon${compiler:build.exe.suffix}" />
+    <launcher name="jad-vpn-tray" id="2271" external="true" menuName="JADAPTIVE VPN Tray Icon" externalFile="jad-vpn-tray${compiler:build.exe.suffix}" />
   </launchers>
   <installerGui autoUpdateDescriptorUrl="${compiler:install4j.updatesBase}/${compiler:build.phase}/updates.xml" useAutoUpdateBaseUrl="true" autoUpdateBaseUrl="${compiler:install4j.updatesBase}/${compiler:sys.version}/">
     <customCode>
@@ -597,8 +597,8 @@ return path.replace('\\', '/');</property>
 Type=Application
 Name=JADAPTIVE VPN Tray Icon
 Comment=JADAPTIVE VPN Tray Icon
-Exec=${installer:sys.installationDir}/jad-vpn-tray-icon
-Icon=${installer:sys.installationDir}/.install4j/jad-vpn-tray-icon.png
+Exec=${installer:sys.installationDir}/jad-vpn-tray
+Icon=${installer:sys.installationDir}/.install4j/jad-vpn-tray.png
 X-GNOME-AutoRestart=false
 X-GNOME-Autostart-Notify=false
 X-GNOME-Autostart-enabled=true</property>
@@ -815,7 +815,7 @@ return console.askYesNo(message, true);
                   <property name="files" type="array" class="java.io.File" length="1">
                     <element index="0">
                       <object class="java.io.File">
-                        <string>/etc/xdg/autostart/jad-vpn-tray-icon.desktop</string>
+                        <string>/etc/xdg/autostart/jad-vpn-tray.desktop</string>
                       </object>
                     </element>
                   </property>
