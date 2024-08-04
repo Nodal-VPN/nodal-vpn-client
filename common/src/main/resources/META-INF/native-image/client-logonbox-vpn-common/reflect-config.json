@@ -139,5 +139,9 @@
 {
   "name":"sun.security.ssl.SSLContextImpl$TLSContext",
   "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.parsson.JsonProviderImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 }
 ]

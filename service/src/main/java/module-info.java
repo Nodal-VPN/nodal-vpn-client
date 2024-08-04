@@ -14,5 +14,7 @@ module com.logonbox.vpn.client.service {
     requires com.sshtools.jini;
     requires com.sshtools.liftlib;
     
+    requires static uk.co.bithatch.nativeimage.annotations;
+    
     uses PlatformServiceFactory;
 }

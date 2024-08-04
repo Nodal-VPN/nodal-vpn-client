@@ -521,6 +521,36 @@ return path.replace('\\', '/');</property>
                   <property name="variableName" type="string">PATH</property>
                 </serializedBean>
               </action>
+              <action name="Link CLI command" id="2285" beanClass="com.install4j.runtime.beans.actions.files.CreateSymlinkAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="file">
+                    <object class="java.io.File">
+                      <string>jad-vpn-cli${compiler:build.exe.suffix}</string>
+                    </object>
+                  </property>
+                  <property name="linkFile">
+                    <object class="java.io.File">
+                      <string>/usr/bin/jad-vpn-cli${compiler:build.exe.suffix}</string>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>!Util.isLinux()</condition>
+              </action>
+              <action name="Link Tray command" id="2286" beanClass="com.install4j.runtime.beans.actions.files.CreateSymlinkAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="file">
+                    <object class="java.io.File">
+                      <string>jad-vpn-tray${compiler:build.exe.suffix}</string>
+                    </object>
+                  </property>
+                  <property name="linkFile">
+                    <object class="java.io.File">
+                      <string>/usr/bin/jad-vpn-tray${compiler:build.exe.suffix}</string>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>!Util.isLinux()</condition>
+              </action>
               <action id="2030" beanClass="com.install4j.runtime.beans.actions.registry.SetRegistryValueAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="keyName" type="string">Software\LogonBox\VPN</property>
