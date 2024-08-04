@@ -1,7 +1,5 @@
 package com.logonbox.vpn.client.cli.commands;
 
-import com.logonbox.vpn.client.cli.CLIContext;
-import com.logonbox.vpn.client.cli.ConsoleProvider;
 import com.logonbox.vpn.client.common.Utils;
 
 import org.freedesktop.dbus.exceptions.DBusExecutionException;
@@ -20,8 +18,8 @@ public class Config extends AbstractConnectionCommand {
 
 	@Override
 	public Integer call() throws Exception {
-		CLIContext cli = getCLI();
-		ConsoleProvider console = cli.getConsole();
+		var cli = getCLI();
+		var console = cli.getConsole();
 		if (Utils.isBlank(name)) {
 			for (String n : cli.getVpnManager().getVpnOrFail().getKeys()) {
 				console.out().println(String.format("%-30s %s", n, cli.getVpnManager().getVpnOrFail().getValue(n)));

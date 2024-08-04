@@ -15,6 +15,7 @@ public class Delete extends AbstractConnectionCommand {
 	public Integer call() throws Exception {
 	    
 		var cli = getCLI();
+        
 		var pattern = getPattern(cli, names);
 		var c = getConnectionsMatching(pattern, cli);
 		var console = cli.getConsole();

@@ -20,6 +20,7 @@ public class Save extends AbstractConnectionCommand implements Callable<Integer>
 	public Integer call() throws Exception {
 	    
 		var cli = getCLI();
+        
 		var pattern = getPattern(cli, names);
 		var console = cli.getConsole();
 		var c = getConnectionsMatching(pattern, cli);

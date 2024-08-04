@@ -23,4 +23,6 @@ public interface CLIContext extends AppContext<VpnConnection> {
 	UpdateService getUpdateService();
 
 	CookieStore getCookieStore();
+
+    void initConsoleAndManager();
 }

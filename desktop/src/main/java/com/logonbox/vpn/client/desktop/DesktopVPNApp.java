@@ -9,6 +9,7 @@ import com.logonbox.vpn.client.common.BrandingManager.ImageHandler;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
 import com.logonbox.vpn.client.common.PromptingCertManager;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.dbus.RemoteUI;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
@@ -21,7 +22,6 @@ import com.logonbox.vpn.client.gui.jfx.UI;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
 import com.sshtools.jajafx.JajaFXApp;
 import com.sshtools.jajafx.JajaFXAppWindow;
-import com.sshtools.liftlib.OS;
 
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.slf4j.Logger;
@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.SplashScreen;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.ProcessBuilder.Redirect;
@@ -485,11 +484,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
             public void run() {
                 try {
                     LOG.info("Starting tray");
-                    ProcessBuilder bldr;
-                    if (OS.isWindows())
-                        bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "jad-vpn-tray.exe");
-                    else
-                        bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "jad-vpn-tray");
+                    var bldr = new ProcessBuilder(Utils.findCommandPath("jad-vpn-tray"));
                     bldr.redirectError(Redirect.INHERIT);
                     bldr.redirectOutput(Redirect.INHERIT);
                     bldr.start();

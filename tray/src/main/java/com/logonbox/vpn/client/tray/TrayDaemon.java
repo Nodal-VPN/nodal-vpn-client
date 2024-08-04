@@ -11,7 +11,6 @@ import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IRemoteUI;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
-import com.sshtools.liftlib.OS;
 import com.sshtools.twoslices.Slice;
 import com.sshtools.twoslices.Toast;
 import com.sshtools.twoslices.ToastType;
@@ -36,7 +35,7 @@ import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 import uk.co.bithatch.nativeimage.annotations.TypeReflect;
 
-@Command(name = "lbvpn-tray", mixinStandardHelpOptions = true, description = "Start the VPN Client system tray.", versionProvider = TrayDaemon.VersionProvider.class)
+@Command(name = "jad-vpn-tray", mixinStandardHelpOptions = true, description = "Start the VPN Client system tray.", versionProvider = TrayDaemon.VersionProvider.class)
 @Resource(siblings = true, value = { "default-log4j-tray\\.properties" })
 @Reflectable
 @TypeReflect(classes = true, fields = true, methods = true)
@@ -75,6 +74,8 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 
 	@Override
 	protected int onCall() throws Exception {
+	    
+	    Utils.applicationLock("jad-vpn-tray");
 
         initApp();
         
@@ -251,11 +252,10 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
             public void run() {
 				try {
 				    getLog().info("Starting GUI");
-				    ProcessBuilder bldr;
-					if (OS.isWindows())
-					    bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "jad-vpn-gui.exe");
-					else
-                        bldr = new ProcessBuilder(System.getProperty("user.dir") + File.separator + "jad-vpn-gui");
+				    
+				    var cmd = Utils.findCommandPath("jad-vpn-gui");
+				    
+				    var bldr = new ProcessBuilder(cmd);				    
 					bldr.redirectError(Redirect.INHERIT);
                     bldr.redirectOutput(Redirect.INHERIT);
                     bldr.start();

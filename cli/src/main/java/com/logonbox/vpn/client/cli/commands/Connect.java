@@ -32,10 +32,12 @@ public class Connect extends AbstractConnectionCommand implements Callable<Integ
 
 	@Override
 	public Integer call() throws Exception {
-		var cli = (CLIContext) spec.parent().userObject();
+		var cli = getCLI();
 		var console = cli.getConsole();
 		var out = console.out();
 		var err = console.err();
+		
+        cli.initConsoleAndManager();
 
 		IVpnConnection connection = null;
 

@@ -1,10 +1,8 @@
 package com.logonbox.vpn.client.cli.commands;
 
-import java.io.PrintWriter;
-import java.util.concurrent.Callable;
-
 import com.logonbox.vpn.client.cli.CLIContext;
-import com.logonbox.vpn.client.cli.ConsoleProvider;
+
+import java.util.concurrent.Callable;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -25,9 +23,11 @@ public class Update implements Callable<Integer> {
 	
 	@Override
 	public Integer call() throws Exception {
-		CLIContext cli = (CLIContext) spec.parent().userObject();
-		ConsoleProvider console = cli.getConsole();
-		PrintWriter writer = console.out();
+		var cli = (CLIContext) spec.parent().userObject();
+        cli.initConsoleAndManager();
+        
+		var console = cli.getConsole();
+		var writer = console.out();
 		cli.getUpdateService().checkForUpdate();
 		if(cli.getUpdateService().isNeedsUpdating()) {
 			if(checkOnly) {

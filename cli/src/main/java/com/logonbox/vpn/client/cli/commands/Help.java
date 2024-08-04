@@ -1,14 +1,10 @@
 package com.logonbox.vpn.client.cli.commands;
 
 import com.logonbox.vpn.client.cli.CLIContext;
-import com.logonbox.vpn.client.cli.ConsoleProvider;
 import com.logonbox.vpn.client.common.Utils;
 
-import java.io.PrintWriter;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Parameters;
@@ -25,18 +21,19 @@ public class Help implements Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
-		CLIContext cli = (CLIContext) spec.parent().userObject();
-		ConsoleProvider console = cli.getConsole();
-		PrintWriter out = console.out();
+		var cli = (CLIContext) spec.parent().userObject();
+        cli.initConsoleAndManager();
+		var console = cli.getConsole();
+		var out = console.out();
 		if(Utils.isNotBlank(command)) {
-			CommandLine cmd = spec.parent().subcommands().get(command);
+			var cmd = spec.parent().subcommands().get(command);
 			if(cmd == null)
 				throw new IllegalArgumentException("No such command.");
 			out.println(cmd.getUsageHelpWidth());
 		}
 		else {
-			Map<String, CommandLine> parentSubcommands = spec.parent().subcommands();
-			for (Map.Entry<String, CommandLine> en : parentSubcommands.entrySet()) {
+			var parentSubcommands = spec.parent().subcommands();
+			for (var en : parentSubcommands.entrySet()) {
 				out.println(String.format("%-12s %s", en.getKey(), en.getValue().getHelp().description().trim()));
 			}
 		}

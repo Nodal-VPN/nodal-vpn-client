@@ -27,6 +27,7 @@ public class Edit extends AbstractConnectionCommand {
 	@Override
 	public Integer call() throws Exception {
 		var cli = getCLI();
+        
 		var pattern = getPattern(cli, name);
 
 		var c = getConnectionsMatching(pattern, cli);

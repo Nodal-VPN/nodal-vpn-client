@@ -21,6 +21,8 @@ public class Connections implements Callable<Integer> {
 	public Integer call() throws Exception {
 	    
 	    var cli = (CLIContext) spec.parent().userObject();
+        cli.initConsoleAndManager();
+        
 		var console = cli.getConsole();
 		var writer = console.out();
 		

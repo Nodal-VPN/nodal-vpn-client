@@ -1,5 +1,7 @@
 package com.logonbox.vpn.client.common;
 
+import com.sshtools.liftlib.OS;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -13,8 +15,11 @@ import java.io.UncheckedIOException;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URL;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -128,6 +133,21 @@ public class Utils {
         return string;
     }
     
+    public static String findCommandPath(String name) {
+        String cmd = null;
+        var fn = OS.isWindows() ? name + ".exe" : name;
+        for(var path : Arrays.asList(System.getenv("PATH").split(File.pathSeparator)).stream().map(Paths::get).toList())  {
+            if(Files.exists(path.resolve(fn))) {
+                cmd = path.resolve(fn).toString();
+                break;
+            }
+        }
+        if(cmd == null) {
+            cmd = fn;
+        }
+        return cmd;
+    }
+    
     public static Collection<String> runCommandAndCaptureOutput(String... args) throws IOException {
         var largs = new ArrayList<String>(Arrays.asList(args));
         var pb = new ProcessBuilder(largs);
@@ -144,5 +164,39 @@ public class Utils {
             throw new IOException(e.getMessage(), e);
         }
         return lines;
+    }
+
+    public static void applicationLock(String name) {
+        var lockFile = AppConstants.CLIENT_HOME.resolve(name + ".lock");
+        if(!Files.exists(lockFile)) {
+            try {
+                Files.createDirectories(AppConstants.CLIENT_HOME);
+                Files.createFile(lockFile);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+        try {
+            var chan = FileChannel.open(lockFile, StandardOpenOption.APPEND);
+            if(chan.tryLock() == null)
+                throw new IllegalStateException("Application '" + name  +"' already in use."); 
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    try {
+                       chan.close(); 
+                    }
+                    catch(Exception e) {
+                        try {
+                            Files.delete(lockFile);
+                        } catch (IOException e1) {
+                        }
+                    }
+                }
+            });
+        }
+        catch(IOException ioe) {
+            throw new UncheckedIOException(ioe);
+        }
+        
     }
 }

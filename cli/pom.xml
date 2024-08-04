@@ -233,6 +233,10 @@
                                 <buildArg>--no-fallback</buildArg>
                                 <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                                 <buildArg>--allow-incomplete-classpath</buildArg>
+                                <buildArg>--install-exit-handlers</buildArg>
+                                <buildArg>--enable-http</buildArg>
+                                <buildArg>--enable-https</buildArg>
+                                <buildArg>--enable-url-protocols=http,https</buildArg>
                             </buildArgs>
                         </configuration>
                     </plugin>

@@ -41,7 +41,9 @@ public abstract class AbstractConnectionCommand implements Callable<Integer>, IV
 	}
 
 	protected CLIContext getCLI() {
-		return (CLIContext) spec.parent().userObject();
+		var cli = (CLIContext) spec.parent().userObject();
+		cli.initConsoleAndManager();
+		return cli;
 	}
 
 	@Override

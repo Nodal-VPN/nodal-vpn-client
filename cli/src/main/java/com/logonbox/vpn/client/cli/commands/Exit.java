@@ -17,6 +17,7 @@ public class Exit implements Callable<Integer> {
 	@Override
 	public Integer call() throws Exception {
 		var cli = (CLIContext) spec.parent().userObject();
+        cli.initConsoleAndManager();
 		if(!cli.isQuiet()) {
 			var console = cli.getConsole();
 			console.out().println("Goodbye!");

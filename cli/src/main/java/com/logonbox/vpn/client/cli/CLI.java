@@ -133,39 +133,7 @@ public class CLI extends AbstractDBusApp implements CLIContext {
 	@Override
 	protected int onCall() {
 		try {
-		    
-		    log = initApp();
-
-	        try {
-	            console = new NativeConsoleDevice();
-	        } catch (IllegalArgumentException iae) {
-	            console = new BufferedDevice();
-	        }
-	        
-	        getVpnManager().onVpnAvailable(() -> {
-	            log.info("Configuring Bus");
-	            giveUpWaitingForServiceStart();
-	        });
-	        getVpnManager().onVpnGone(() -> {
-	            if (awaitingServiceStop != null) {
-	                // Bridge lost as result of update, wait for it to come back
-	                giveUpWaitingForServiceStop();
-	                log.debug(String.format("Service stopped, awaiting restart"));
-	                awaitingServiceStart = new Thread() {
-	                    @Override
-	                    public void run() {
-	                        try {
-	                            Thread.sleep(30000);
-	                        } catch (InterruptedException e) {
-	                        }
-	                        if (awaitingServiceStop != null)
-	                            giveUpWaitingForServiceStart();
-	                    }
-	                };
-	                awaitingServiceStart.start();
-	            }
-	        });
-	        getVpnManager().start();
+	        initConsoleAndManager();
 			about();
 			runPrompt();
 			console.out().println();
@@ -178,6 +146,47 @@ public class CLI extends AbstractDBusApp implements CLIContext {
 		
 		return 0;
 	}
+
+	@Override
+    public void initConsoleAndManager() {
+        
+        if(log != null) {
+            return;
+        }
+
+        log = initApp();
+        
+        try {
+            console = new NativeConsoleDevice();
+        } catch (IllegalArgumentException iae) {
+            console = new BufferedDevice();
+        }
+        
+        getVpnManager().onVpnAvailable(() -> {
+            log.info("Configuring Bus");
+            giveUpWaitingForServiceStart();
+        });
+        getVpnManager().onVpnGone(() -> {
+            if (awaitingServiceStop != null) {
+                // Bridge lost as result of update, wait for it to come back
+                giveUpWaitingForServiceStop();
+                log.debug(String.format("Service stopped, awaiting restart"));
+                awaitingServiceStart = new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(30000);
+                        } catch (InterruptedException e) {
+                        }
+                        if (awaitingServiceStop != null)
+                            giveUpWaitingForServiceStart();
+                    }
+                };
+                awaitingServiceStart.start();
+            }
+        });
+        getVpnManager().start();
+    }
 	
     @Override
     protected LoggingConfig createLoggingConfig() {
@@ -330,6 +339,11 @@ public class CLI extends AbstractDBusApp implements CLIContext {
 		}
 
 		@Override
+        public void initConsoleAndManager() {
+            CLI.this.initConsoleAndManager();            
+        }
+
+        @Override
         public VpnManager<VpnConnection> getVpnManager() {
             return CLI.this.getVpnManager();
         }

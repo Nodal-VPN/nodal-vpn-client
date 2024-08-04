@@ -19,6 +19,7 @@ public class Disconnect extends AbstractConnectionCommand {
 	public Integer call() throws Exception {
 
 		var cli = getCLI();
+        
 		if ((names == null || names.length == 0) && isSingleConnection(cli)) {
 			disconnect(cli.getVpnManager().getVpnOrFail().getConnections()[0], cli);
 		} else {

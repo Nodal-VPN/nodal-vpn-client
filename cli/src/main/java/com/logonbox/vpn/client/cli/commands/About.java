@@ -20,6 +20,7 @@ public class About implements Callable<Integer> {
 	@Override
 	public Integer call() throws Exception {
 		var cli = (CLIContext) spec.parent().userObject();
+		cli.initConsoleAndManager();
 		cli.about();
 		var console = cli.getConsole();
 		var writer = console.out();

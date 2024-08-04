@@ -1,14 +1,11 @@
 package com.logonbox.vpn.client.cli.commands;
 
 import com.logonbox.vpn.client.cli.CLIContext;
-import com.logonbox.vpn.client.cli.ConsoleProvider;
 import com.logonbox.vpn.client.common.Utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import picocli.CommandLine.Command;
@@ -23,16 +20,18 @@ public class Debug implements Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
-		CLIContext cli = (CLIContext) spec.parent().userObject();
-		ConsoleProvider console = cli.getConsole();
-		PrintWriter out = console.out();
+		var cli = (CLIContext) spec.parent().userObject();
+        cli.initConsoleAndManager();
+        
+		var console = cli.getConsole();
+		var out = console.out();
 		out.println("Environment:");
-		for(Map.Entry<String, String> ee : System.getenv().entrySet()) {
+		for(var ee : System.getenv().entrySet()) {
 			out.println(String.format("  %s=%s", ee.getKey(), Utils.abbreviate(ee.getValue(), 40)));
 		}
 		out.println();
 		out.println("System:");
-		for(Map.Entry<Object, Object> ee : System.getProperties().entrySet()) {
+		for(var ee : System.getProperties().entrySet()) {
 			out.println(String.format("  %s=%s", ee.getKey(), Utils.abbreviate((String)ee.getValue(), 40)));
 		}
 		out.println();
@@ -44,11 +43,11 @@ public class Debug implements Callable<Integer> {
 	}
 	
 	protected String cmd(String... args) throws IOException {
-		ProcessBuilder b = new ProcessBuilder(args);
+		var b = new ProcessBuilder(args);
 		b.inheritIO();
 		b.redirectErrorStream(true);
-		Process p = b.start();
-		try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+		var p = b.start();
+		try(var out = new ByteArrayOutputStream()) {
 			try(InputStream in = p.getInputStream()) {
 				in.transferTo(out);
 			}
