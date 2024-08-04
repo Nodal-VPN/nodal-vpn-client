@@ -553,7 +553,7 @@ return path.replace('\\', '/');</property>
               </action>
               <action id="2030" beanClass="com.install4j.runtime.beans.actions.registry.SetRegistryValueAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
-                  <property name="keyName" type="string">Software\LogonBox\VPN</property>
+                  <property name="keyName" type="string">Software\JADAPTIVE\VPN</property>
                   <property name="registryRoot" type="enum" class="com.install4j.api.windows.RegistryRoot" value="HKEY_LOCAL_MACHINE" />
                   <property name="value" type="string">${installer:sys.installationDir}</property>
                   <property name="valueName" type="string">InstallDir</property>
@@ -998,7 +998,7 @@ context.goForward(1, true, true);
                     <add>
                       <object class="com.install4j.runtime.beans.KeyValuePair">
                         <property name="key" type="string">User-Agent</property>
-                        <property name="value" type="string">LogonBoxVPNClient/${installer:sys.version}</property>
+                        <property name="value" type="string">JADVPNClient/${installer:sys.version}</property>
                       </object>
                     </add>
                   </property>
@@ -1291,7 +1291,7 @@ context.goForward(1, true, true);
                         <add>
                           <object class="com.install4j.runtime.beans.KeyValuePair">
                             <property name="key" type="string">User-Agent</property>
-                            <property name="value" type="string">LogonBoxVPNClient/${installer:sys.version}</property>
+                            <property name="value" type="string">JADVPNClient/${installer:sys.version}</property>
                           </object>
                         </add>
                       </property>

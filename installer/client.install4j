@@ -129,7 +129,7 @@
   <launchers>
     <launcher name="jad-vpn-service" id="583" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientService">
       <executable name="jad-vpn-service" stderrFile="logs/service-app.log" redirectStdout="true" stdoutFile="logs/service-app.log" failOnStderrOutput="false" executableMode="service" dpiAware="false">
-        <versionInfo include="true" fileDescription="Privileged service for the LogonBox VPN" legalCopyright="LogonBox Limited" internalName="LogonBox VPN Client" />
+        <versionInfo include="true" fileDescription="Privileged service for the VPN" legalCopyright="JADAPTIVE Limited" internalName="VPN Client" />
       </executable>
       <java mainClass="com.logonbox.vpn.client.desktop.service/com.logonbox.vpn.client.desktop.service.Main" mainMode="module" vmParameters="-Xmx64m">
         <modulePath>
@@ -144,7 +144,7 @@
 -Djdk.internal.httpclient.disableHostnameVerification=true</content>
       </vmOptionsFile>
     </launcher>
-    <launcher name="jad-vpn-gui" id="783" menuName="LogonBox VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui">
+    <launcher name="jad-vpn-gui" id="783" menuName="JADAPTIVE VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui">
       <executable name="jad-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.jad-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.jad-vpn-client/gui-app.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true">
         <versionInfo include="true" fileDescription="Graphical front end for the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
@@ -646,7 +646,7 @@ return path.replace('\\', '/');</property>
               </action>
               <action id="2030" beanClass="com.install4j.runtime.beans.actions.registry.SetRegistryValueAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
-                  <property name="keyName" type="string">Software\LogonBox\VPN</property>
+                  <property name="keyName" type="string">Software\JADAPTIVE\VPN</property>
                   <property name="registryRoot" type="enum" class="com.install4j.api.windows.RegistryRoot" value="HKEY_LOCAL_MACHINE" />
                   <property name="value" type="string">${installer:sys.installationDir}</property>
                   <property name="valueName" type="string">InstallDir</property>
@@ -655,7 +655,7 @@ return path.replace('\\', '/');</property>
               <action id="2200" beanClass="com.install4j.runtime.beans.actions.desktop.UrlHandlerAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="launcherId" type="string">783</property>
-                  <property name="scheme" type="string">lbvpn</property>
+                  <property name="scheme" type="string">jadvpn</property>
                 </serializedBean>
               </action>
               <action id="2281" beanClass="com.sshtools.jaul.RegisterJaulAppAction" rollbackBarrierExitCode="0">
@@ -1092,7 +1092,7 @@ context.goForward(1, true, true);
                     <add>
                       <object class="com.install4j.runtime.beans.KeyValuePair">
                         <property name="key" type="string">User-Agent</property>
-                        <property name="value" type="string">LogonBoxVPNClient/${installer:sys.version}</property>
+                        <property name="value" type="string">JADVPNClient/${installer:sys.version}</property>
                       </object>
                     </add>
                   </property>
@@ -1385,7 +1385,7 @@ context.goForward(1, true, true);
                         <add>
                           <object class="com.install4j.runtime.beans.KeyValuePair">
                             <property name="key" type="string">User-Agent</property>
-                            <property name="value" type="string">LogonBoxVPNClient/${installer:sys.version}</property>
+                            <property name="value" type="string">JADVPNClient/${installer:sys.version}</property>
                           </object>
                         </add>
                       </property>

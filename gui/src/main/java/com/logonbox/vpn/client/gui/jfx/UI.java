@@ -782,7 +782,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		String ua = engine.getUserAgent();
 		LOG.info("User Agent: " + ua);
 		/* TODO changing user agent may be trickier, iirc the legacy server examines for something */
-		engine.setUserAgent(ua + " " + "LogonBoxVPNClient/"
+		engine.setUserAgent(ua + " " + "JADVPNClient/"
 				+ AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-gui-jfx"));
 		engine.setOnAlert((e) -> {
 			Alert alert = new Alert(AlertType.ERROR);
