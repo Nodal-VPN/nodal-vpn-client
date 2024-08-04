@@ -348,7 +348,23 @@
                     <property name="bottom" type="boolean" value="true" />
                   </object>
                 </property>
-                <property name="imageAnchor" type="enum" class="com.install4j.api.beans.Anchor" value="CENTER" />
+                <property name="imageAnchor" type="enum" class="com.install4j.api.beans.Anchor" value="NORTH" />
+                <property name="imageEdgeBackgroundColor">
+                  <object class="com.install4j.runtime.beans.LightOrDarkColor">
+                    <object class="java.awt.Color">
+                      <int>0</int>
+                      <int>0</int>
+                      <int>0</int>
+                      <int>255</int>
+                    </object>
+                    <object class="java.awt.Color">
+                      <int>255</int>
+                      <int>255</int>
+                      <int>255</int>
+                      <int>255</int>
+                    </object>
+                  </object>
+                </property>
                 <property name="imageEdgeBorder" type="boolean" value="true" />
                 <property name="imageFile">
                   <object class="com.install4j.api.beans.ExternalFile">
@@ -776,19 +792,19 @@ X-GNOME-Autostart-enabled=true</property>
                     <property name="bottom" type="boolean" value="true" />
                   </object>
                 </property>
-                <property name="imageAnchor" type="enum" class="com.install4j.api.beans.Anchor" value="CENTER" />
+                <property name="imageAnchor" type="enum" class="com.install4j.api.beans.Anchor" value="NORTH" />
                 <property name="imageEdgeBackgroundColor">
                   <object class="com.install4j.runtime.beans.LightOrDarkColor">
                     <object class="java.awt.Color">
-                      <int>25</int>
-                      <int>143</int>
-                      <int>220</int>
+                      <int>0</int>
+                      <int>0</int>
+                      <int>0</int>
                       <int>255</int>
                     </object>
                     <object class="java.awt.Color">
-                      <int>0</int>
-                      <int>74</int>
-                      <int>151</int>
+                      <int>255</int>
+                      <int>255</int>
+                      <int>255</int>
                       <int>255</int>
                     </object>
                   </object>
