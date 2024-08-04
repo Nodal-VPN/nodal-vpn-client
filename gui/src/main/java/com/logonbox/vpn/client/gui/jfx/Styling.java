@@ -134,8 +134,8 @@ public class Styling {
 //
 		// Highlight
 		if (backgroundColour.getSaturation() == 0) {
-			// Greyscale, so just use HS blue
-			bui.append("-fx-lbvpn-accent: 000033;\n");
+			// Greyscale, so just use JAD very dark grey
+			bui.append("-fx-lbvpn-accent: 0d0d0d;\n");
 			bui.append("-fx-lbvpn-accent2: 0e0041;\n");
 		} else {
 			// A colour, so choose the next adjacent colour in the HSB colour

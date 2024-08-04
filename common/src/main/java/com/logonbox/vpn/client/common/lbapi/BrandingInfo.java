@@ -5,7 +5,7 @@ import jakarta.json.JsonObject;
 public record BrandingInfo(String foreground, String background, String name) {
 
 	public static final String DEFAULT_FOREGROUND = "#ffffff";
-	public static final String DEFAULT_BACKGROUND = "#000033";
+	public static final String DEFAULT_BACKGROUND = "#0d0d0d";
 	
 
 	public static BrandingInfo of(JsonObject obj) {
