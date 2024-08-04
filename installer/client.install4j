@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.8" transformSequenceNumber="10">
-  <directoryPresets config="./target" />
+  <directoryPresets config="./images" />
   <application name="JADAPTIVE VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="jad-vpn-client" publisher="JADAPTIVE Limited" publisherWeb="https://jadaptive.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="22" javaMaxVersion="22" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
@@ -348,7 +348,7 @@
                     <property name="bottom" type="boolean" value="true" />
                   </object>
                 </property>
-                <property name="imageAnchor" type="enum" class="com.install4j.api.beans.Anchor" value="NORTH" />
+                <property name="imageAnchor" type="enum" class="com.install4j.api.beans.Anchor" value="CENTER" />
                 <property name="imageEdgeBorder" type="boolean" value="true" />
                 <property name="imageFile">
                   <object class="com.install4j.api.beans.ExternalFile">
@@ -746,11 +746,76 @@ X-GNOME-Autostart-enabled=true</property>
           </screen>
         </screens>
       </application>
-      <application id="uninstaller" beanClass="com.install4j.runtime.beans.applications.UninstallerApplication" actionElevationType="elevated" launchInNewProcess="false">
+      <application id="uninstaller" beanClass="com.install4j.runtime.beans.applications.UninstallerApplication" actionElevationType="elevated" styleId="1792" launchInNewProcess="false">
         <serializedBean>
           <property name="customMacosExecutableName" type="string">${i18n:UninstallerMenuEntry(${compiler:sys.fullName})}</property>
           <property name="useCustomMacosExecutableName" type="boolean" value="true" />
         </serializedBean>
+        <styleOverrides>
+          <styleOverride name="Customize banner image" enabled="true">
+            <group id="2282" beanClass="com.install4j.runtime.beans.groups.VerticalFormComponentGroup" useExternalParametrization="true" externalParametrizationName="Customize banner image" externalParametrizationMode="include">
+              <serializedBean>
+                <property name="backgroundColor">
+                  <object class="com.install4j.runtime.beans.LightOrDarkColor">
+                    <object class="java.awt.Color">
+                      <int>255</int>
+                      <int>255</int>
+                      <int>255</int>
+                      <int>255</int>
+                    </object>
+                    <object class="java.awt.Color">
+                      <int>49</int>
+                      <int>52</int>
+                      <int>53</int>
+                      <int>255</int>
+                    </object>
+                  </object>
+                </property>
+                <property name="borderSides">
+                  <object class="com.install4j.runtime.beans.formcomponents.BorderSides">
+                    <property name="bottom" type="boolean" value="true" />
+                  </object>
+                </property>
+                <property name="imageAnchor" type="enum" class="com.install4j.api.beans.Anchor" value="CENTER" />
+                <property name="imageEdgeBackgroundColor">
+                  <object class="com.install4j.runtime.beans.LightOrDarkColor">
+                    <object class="java.awt.Color">
+                      <int>25</int>
+                      <int>143</int>
+                      <int>220</int>
+                      <int>255</int>
+                    </object>
+                    <object class="java.awt.Color">
+                      <int>0</int>
+                      <int>74</int>
+                      <int>151</int>
+                      <int>255</int>
+                    </object>
+                  </object>
+                </property>
+                <property name="imageEdgeBorder" type="boolean" value="true" />
+                <property name="imageFile">
+                  <object class="com.install4j.api.beans.ExternalFile">
+                    <string>./images/banner.png</string>
+                  </object>
+                </property>
+                <property name="insets">
+                  <object class="java.awt.Insets">
+                    <int>5</int>
+                    <int>10</int>
+                    <int>10</int>
+                    <int>10</int>
+                  </object>
+                </property>
+              </serializedBean>
+              <externalParametrizationPropertyNames>
+                <propertyName>imageAnchor</propertyName>
+                <propertyName>imageEdgeBackgroundColor</propertyName>
+                <propertyName>imageFile</propertyName>
+              </externalParametrizationPropertyNames>
+            </group>
+          </styleOverride>
+        </styleOverrides>
         <startup>
           <screen id="14" beanClass="com.install4j.runtime.beans.screens.StartupScreen" rollbackBarrierExitCode="0">
             <actions>
