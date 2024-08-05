@@ -23,7 +23,7 @@
                         <path>
                             <groupId>info.picocli</groupId>
                             <artifactId>picocli-codegen</artifactId>
-                            <version>4.7.5</version>
+                            <version>4.7.6</version>
                         </path>
                         <path>
                             <groupId>uk.co.bithatch</groupId>
@@ -126,7 +126,7 @@
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli-shell-jline3</artifactId>
-            <version>4.7.4</version>
+            <version>4.7.6</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.jline</groupId>
@@ -231,8 +231,6 @@
                             <mainClass>com.logonbox.vpn.client.cli.CLI</mainClass>
                             <buildArgs>
                                 <buildArg>--no-fallback</buildArg>
-                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
-                                <buildArg>--allow-incomplete-classpath</buildArg>
                                 <buildArg>--install-exit-handlers</buildArg>
                                 <buildArg>--enable-http</buildArg>
                                 <buildArg>--enable-https</buildArg>

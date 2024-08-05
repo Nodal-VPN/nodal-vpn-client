@@ -215,11 +215,11 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 	}
 
 	public void open() {
-	    getVpnManager().getUserInterface().ifPresentOrElse(IRemoteUI::open, () -> startGui(true));
+	    getVpnManager().getUserInterface().ifPresentOrElse(IRemoteUI::open, () -> startGui(false));
 	}
 
 	public void options() {
-        getVpnManager().getUserInterface().ifPresentOrElse(IRemoteUI::options, () -> startGui(false));
+        getVpnManager().getUserInterface().ifPresentOrElse(IRemoteUI::options, () -> startGui(true));
 	}
 
 	@Override

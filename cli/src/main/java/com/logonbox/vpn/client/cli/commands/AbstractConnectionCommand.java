@@ -31,7 +31,9 @@ import jakarta.json.JsonObject;
 import picocli.CommandLine.IVersionProvider;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
+import uk.co.bithatch.nativeimage.annotations.Reflectable;
 
+@Reflectable(all = true)
 public abstract class AbstractConnectionCommand implements Callable<Integer>, IVersionProvider {
 
 	@Spec
@@ -41,6 +43,9 @@ public abstract class AbstractConnectionCommand implements Callable<Integer>, IV
 	}
 
 	protected CLIContext getCLI() {
+	    System.out.println("SPEC: " + spec);
+        System.out.println("PARENT: " + spec.parent());
+        System.out.println("PARENT: " + spec.parent().userObject());
 		var cli = (CLIContext) spec.parent().userObject();
 		cli.initConsoleAndManager();
 		return cli;
