@@ -158,7 +158,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		}
 
 		public void reset() {
-			UI.this.selectPageForState(false, true);
+			UI.this.selectPageForState(false, true, false);
 		}
 
 		public void details(long id) {
@@ -422,7 +422,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		/* Watch for update check state changing */
 		updateService.setOnAvailableVersion(ver -> {
 		    if(!Boolean.TRUE.equals(checkForUpdate.get()) && getAuthorizingConnection() == null)
-		    maybeRunLater(() -> selectPageForState(false, false));
+		    maybeRunLater(() -> selectPageForState(false, false, false));
 		}); 
 
 		// TEMP
@@ -465,7 +465,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
                         reloadState(() -> {
                             maybeRunLater(() -> {
                                 uiContext.reapplyBranding();
-                                selectPageForState(false, false);
+                                selectPageForState(false, false, false);
                             });
                         });
                     });
@@ -478,7 +478,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
         /* Connection Updated */
 		vpnManager.onConnectionUpdated(conx -> {
             maybeRunLater(() -> {
-                selectPageForState(false, false);
+                selectPageForState(false, false, false);
             });
         });
         
@@ -505,7 +505,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
                     maybeRunLater(() -> {
                         uiContext.open();
                         // setHtmlPage(connection.getUri(false) + sig.getUri());
-                        selectPageForState(false, false);
+                        selectPageForState(false, false, false);
                     });
                 } else {
                     LOG.info("This client doest not handle the authorization mode {}", mode);
@@ -514,7 +514,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
             else {
                 maybeRunLater(() -> {
                     uiContext.open();
-                    selectPageForState(false, false);
+                    selectPageForState(false, false, false);
                 });
             }
         });
@@ -523,7 +523,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		vpnManager.onConnecting(conx -> {
             disconnectionReason = null;
             maybeRunLater(() -> {
-                selectPageForState(false, false);
+                selectPageForState(false, false, false);
             });
         });
         
@@ -534,7 +534,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
                 if (uiContext.getAppContext().isExitOnConnection()) {
                     uiContext.exitApp();
                 } else
-                    selectPageForState(false, true);
+                    selectPageForState(false, true, false);
             });
         });
         
@@ -542,7 +542,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		vpnManager.onDisconnecting((conx, reason) -> {
             maybeRunLater(() -> {
                 LOG.info("Disconnecting {}", conx.getDisplayName());
-                selectPageForState(false, false);
+                selectPageForState(false, false, false);
             });
         });
 
@@ -550,7 +550,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		vpnManager.onDisconnected((conx, reason) -> {
             maybeRunLater(() -> {
                 LOG.info("Disconnected " + conx.getId());
-                    selectPageForState(false, false);
+                    selectPageForState(false, false, false);
 
             });
         });
@@ -559,7 +559,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		vpnManager.onTemporarilyOffline((conx, reason) -> {
             maybeRunLater(() -> {
                 LOG.info("Temporarily offline {}", conx.getId());
-                selectPageForState(false, false);
+                selectPageForState(false, false, false);
             });
         });
         
@@ -567,7 +567,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
         vpnManager.onBlocked((conx) -> {
             maybeRunLater(() -> {
                 LOG.info("Blocked {}", conx.getId());
-                selectPageForState(false, false);
+                selectPageForState(false, false, false);
             });
         });
         
@@ -586,7 +586,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		
 		try {
 		    vpnManager.checkVpnManagerAvailable();
-			selectPageForState(false, false);
+			selectPageForState(false, false, uiContext.getAppContext().isOptions());
 		} catch (Exception e) {
 			setHtmlPage("index.html");
 		}
@@ -649,7 +649,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 					Type status = Type.valueOf(n.getStatus());
 					LOG.info("  current status is {}", status);
 					if (status == Type.CONNECTED || status == Type.CONNECTING || status == Type.DISCONNECTING)
-						selectPageForState(false, false);
+						selectPageForState(false, false, false);
 					else if (n.isAuthorized())
 						joinNetwork(n);
 					else
@@ -717,13 +717,13 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	}
 
 	public void refresh() {
-		selectPageForState(false, true);
+		selectPageForState(false, true, false);
 	}
 
 	public void reload() {
 //		webView.getEngine().reload();
 		/* TODO: hrm, why cant we just refresh the page? */
-		selectPageForState(false, true);
+		selectPageForState(false, true, false);
 	}
 
 	
@@ -928,7 +928,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		 */
 		if (value != null && value.getMessage() != null) {
 			if (value.getMessage().equals("Connection refused by server")) {
-				selectPageForState(false, false);
+				selectPageForState(false, false, false);
 				return true;
 			}
 		}
@@ -1230,7 +1230,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
                         connectToUri(unprocessedUri);
                     } else {
                         initUi();
-                        selectPageForState(uiContext.getAppContext().isConnect(), false);
+                        selectPageForState(uiContext.getAppContext().isConnect(), false, false);
                     }
                 }
             }
@@ -1260,7 +1260,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
             } else {
                 connecting.clear();
                 initUi();
-                selectPageForState(false, false);
+                selectPageForState(false, false, false);
             }
         });
     }
@@ -1451,7 +1451,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 				throw new IOException(error);
 
 			config.save();
-			selectPageForState(false, false);
+			selectPageForState(false, false, false);
 			config.authorized();
 		} catch (Exception e) {
 			showError("Failed to configure connection.", e);
@@ -1517,7 +1517,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 			for (var c : vpnManager.getVpnOrFail().getConnections()) {
 				if (c.getStatus().equals(ConnectionStatus.Type.AUTHORIZING.name())) {
 					c.disconnect(bundle.getString("cancelled"));
-					selectPageForState(false, false);
+					selectPageForState(false, false, false);
 					return;
 				}
 			}
@@ -1580,7 +1580,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	private void giveUpWaitingForBridgeEstablish() {
 		LOG.info("Given up waiting for bridge to start");
 		resetAwaingBridgeEstablish();
-		selectPageForState(false, false);
+		selectPageForState(false, false, false);
 	}
 
 	private void initUi() {
@@ -1630,7 +1630,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		return null;
 	}
 
-	private void selectPageForState(boolean connectIfDisconnected, boolean force) {
+	private void selectPageForState(boolean connectIfDisconnected, boolean force, boolean options) {
 		try {
 			var busAvailable = vpnManager.isBackendAvailable();
 			if (!busAvailable) {
@@ -1697,7 +1697,9 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 								setHtmlPage("connections.html");
 						} else
 							setHtmlPage("addLogonBoxVPN.html");
-					} else {
+					} else if(options) {
+                        setHtmlPage("options.html");
+                    } else {
 						setHtmlPage("connections.html");
 					}
 				}
@@ -1812,7 +1814,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	            maybeRunLater(() -> {
 	                if (updateService.isNeedsUpdating() && getAuthorizingConnection() == null) {
 	                    LOG.info("Updated needed and no authorizing connections, checking page state.");
-	                    selectPageForState(false, true);
+	                    selectPageForState(false, true, false);
 	                }
 	                else {
 	                    webView.getEngine().executeScript("noUpdates();");
@@ -1829,7 +1831,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 
 	private void deferUpdate() {
 		updateService.deferUpdate();
-		selectPageForState(false, true);
+		selectPageForState(false, true, false);
 	}
 
 	public static void maybeRunLater(Runnable r) {

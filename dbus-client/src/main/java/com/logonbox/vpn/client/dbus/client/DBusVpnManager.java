@@ -22,6 +22,7 @@ import org.freedesktop.dbus.errors.NoReply;
 import org.freedesktop.dbus.errors.ServiceUnknown;
 import org.freedesktop.dbus.errors.UnknownObject;
 import org.freedesktop.dbus.exceptions.DBusException;
+import org.freedesktop.dbus.exceptions.DBusExecutionException;
 //import org.freedesktop.dbus.interfaces.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -599,7 +600,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
             var obj = getAltBus().getRemoteObject(RemoteUI.BUS_NAME, RemoteUI.OBJECT_PATH, RemoteUI.class);
             obj.ping();
             return Optional.of(obj);
-        } catch (ServiceUnknown su) {
+        } catch (DBusExecutionException su) {
             return Optional.empty();
         } catch (DBusException e) {
             throw new IllegalStateException("Failed to send remote call.");

@@ -23,6 +23,8 @@ public interface JfxAppContext<CONX extends IVpnConnection> extends AppContext<C
 
 	boolean isNoResize();
 
+    boolean isOptions();
+
 	boolean isNoMove();
 
 	boolean isNoSystemTray();

@@ -473,7 +473,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
         TrayMode icon = getAppContext().getVpnManager().isBackendAvailable()
                 ? TrayMode.valueOf(getAppContext().getVpnManager().getVpnOrFail().getValue(ConfigurationItem.TRAY_MODE.getKey()))
                 : TrayMode.AUTO;
-        if(icon != TrayMode.OFF) {
+        if(icon != TrayMode.OFF && !getAppContext().isNoSystemTray()) {
             startTray();
         }
     }

@@ -100,9 +100,6 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
 			"--no-systray" }, description = "Do not start the system tray, the application will immediately exit when the window is closed.")
 	private boolean noSystemTray;
 
-	@Option(names = { "-B", "--no-sidebar" }, description = "Do not show the burger menu or side menu.")
-	private boolean noSidebar;
-
 	@Option(names = { "-R", "--no-resize" }, description = "Do not allow the window to be resized.")
 	private boolean noResize;
 
@@ -127,6 +124,9 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
 
 	@Option(names = { "-n", "--create" }, description = "Create a new connection if one with the provided URI does not exist (requires URI parameter).")
 	private boolean createIfDoesntExist;
+
+    @Option(names = { "--options" }, description = "Show the options page on startup.")
+    private boolean options;
 
 	@Parameters(index = "0", arity = "0..1", description = "Connect to a particular server using a URI. Acceptable formats include <server[<port>]> or https://<server[<port>]>[/path]. If a pre-configured connection matching this URI already exists, it will be used.")
 	private String uri;
@@ -175,6 +175,11 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
 	}
 
 	@Override
+    public boolean isOptions() {
+        return options;
+    }
+
+    @Override
 	public String getUri() {
 		return uri;
 	}
@@ -241,10 +246,6 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
 	@Override
 	public boolean isNoResize() {
 		return noResize;
-	}
-
-	public boolean isNoSidebar() {
-		return noSidebar;
 	}
 	
     @Override

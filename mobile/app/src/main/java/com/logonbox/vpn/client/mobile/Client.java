@@ -170,6 +170,11 @@ public class Client extends Application implements UIContext<EmbeddedVpnConnecti
 	}
 
     @Override
+    public boolean isOptions() {
+        return false;
+    }
+
+    @Override
     public void start(Stage primaryStage) throws Exception {
         appManager.start(primaryStage);
     }

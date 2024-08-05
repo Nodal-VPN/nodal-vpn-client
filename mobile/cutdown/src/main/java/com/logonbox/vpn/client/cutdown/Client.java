@@ -170,6 +170,11 @@ public class Client extends Application implements UIContext<EmbeddedVpnConnecti
 //
     }
 
+    @Override
+    public boolean isOptions() {
+        return false;
+    }
+
 	@Override
 	public Styling styling() {
 		return styling;

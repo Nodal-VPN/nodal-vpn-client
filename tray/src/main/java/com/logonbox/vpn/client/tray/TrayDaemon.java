@@ -215,11 +215,11 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 	}
 
 	public void open() {
-	    getVpnManager().getUserInterface().ifPresentOrElse(IRemoteUI::open, () -> startGui());
+	    getVpnManager().getUserInterface().ifPresentOrElse(IRemoteUI::open, () -> startGui(true));
 	}
 
 	public void options() {
-        getVpnManager().getUserInterface().ifPresentOrElse(IRemoteUI::options, () -> startGui());
+        getVpnManager().getUserInterface().ifPresentOrElse(IRemoteUI::options, () -> startGui(false));
 	}
 
 	@Override
@@ -246,7 +246,7 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
         ));
     }
 
-	protected void startGui() {
+	protected void startGui(boolean options) {
 		new Thread() {
 			@Override
             public void run() {
@@ -254,8 +254,8 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 				    getLog().info("Starting GUI");
 				    
 				    var cmd = Utils.findCommandPath("jad-vpn-gui");
+				    var bldr = options ?  new ProcessBuilder(cmd, "--options") : new ProcessBuilder(cmd);
 				    
-				    var bldr = new ProcessBuilder(cmd);				    
 					bldr.redirectError(Redirect.INHERIT);
                     bldr.redirectOutput(Redirect.INHERIT);
                     bldr.start();
