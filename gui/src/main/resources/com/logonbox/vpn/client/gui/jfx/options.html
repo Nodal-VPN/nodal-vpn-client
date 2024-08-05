@@ -106,10 +106,21 @@
 	</div>
 	<script type="text/javascript">
         var bridgeReference;
+        var dnsIntegrationMethodsRef;
+        var darkModesRef;
+        var logLevelsRef;
+        var phasesRef;
+        var trayModesRef;
+        var bundleRef;
     
 		function uiReady() {
             bridgeReference =  bridge;
-            var bundleRef = pageBundle;
+            dnsIntegrationMethodsRef = dnsIntegrationMethods;
+            darkModesRef = darkModes;
+            logLevelsRef = logLevels;
+            phasesRef = phases;
+            trayModesRef = trayModes;
+            bundleRef = pageBundle;
             
 			try {
                 $('#logLevel').off('change');
@@ -137,59 +148,59 @@
                 }
 
 				if ($('#phase').length) {
-					for (var i = 0; i < phases.length; i++) {
-						var key = 'phase.' + phases[i].toLowerCase();
+					for (var i = 0; i < phasesRef.length; i++) {
+						var key = 'phase.' + phasesRef[i].toLowerCase();
 						var txt = 'i18n:' + key;
 						try {
 							txt = bundleRef.getString(key);
 						} catch (e) {}
-						$('#phase').append('<option value="' + phases[i] + '" ' + (phases[i] == phase ? 'selected=""' : '') + '>' + txt + '</option>');
+						$('#phase').append('<option value="' + phasesRef[i] + '" ' + (phasesRef[i] == phase ? 'selected=""' : '') + '>' + txt + '</option>');
 					}
 				}
 
 				if ($('#trayMode').length) {
-					for (var i = 0; i < trayModes.length; i++) {
-                        var key = 'trayMode.' + trayModes[i];
+					for (var i = 0; i < trayModesRef.length; i++) {
+                        var key = 'trayMode.' + trayModesRef[i];
                         var txt = 'i18n:' + key;
                         try {
                             txt = bundleRef.getString(key);
                         } catch (e) {}
                         
 						try {
-							$('#trayMode').append('<option ' + (trayModes[i] == trayMode ? 'selected="selected"' : '') + ' value="' + trayModes[i] + '">' + txt + '</option>');
+							$('#trayMode').append('<option ' + (trayModesRef[i] == trayMode ? 'selected="selected"' : '') + ' value="' + trayModesRef[i] + '">' + txt + '</option>');
 						} catch (e) {
 							console.log('Failed to initialize tray mode option. ' + e);
 						}
 					}
 				}
 				if ($('#darkMode').length) {
-					for (var i = 0; i < darkModes.length; i++) {
-                        var key = 'darkMode.' + darkModes[i];
+					for (var i = 0; i < darkModesRef.length; i++) {
+                        var key = 'darkMode.' + darkModesRef[i];
                         var txt = 'i18n:' + key;
                         try {
                             txt = bundleRef.getString(key);
                         } catch (e) {}
                         
-						$('#darkMode').append('<option ' + (darkModes[i] == darkMode ? 'selected="selected"' : '') + ' value="' + darkModes[i] + '">' + txt + '</option>');
+						$('#darkMode').append('<option ' + (darkModesRef[i] == darkMode ? 'selected="selected"' : '') + ' value="' + darkModesRef[i] + '">' + txt + '</option>');
 					}
 				}
 
-				for (var i = 0; i < logLevels.length; i++) {
-                    var key = 'logLevel.' + logLevels[i];
+				for (var i = 0; i < logLevelsRef.length; i++) {
+                    var key = 'logLevel.' + logLevelsRef[i];
                     var txt = 'i18n:' + key;
                     try {
                         txt = bundleRef.getString(key); 
                     } catch (e) {}
                     
 					try {
-						$('#logLevel').append('<option ' + (logLevels[i] == logLevel ? 'selected="selected"' : '') + ' value="' + logLevels[i] + '">' + txt + '</option>');
+						$('#logLevel').append('<option ' + (logLevelsRef[i] == logLevel ? 'selected="selected"' : '') + ' value="' + logLevelsRef[i] + '">' + txt + '</option>');
 					} catch (e) {
 						console.log('Failed to initialize cookie option. ' + e);
 					}
 				}
 
-				for (var i = 0; i < dnsIntegrationMethods.length; i++) {
-                    var key = 'dnsIntegrationMethod.' + (dnsIntegrationMethods[i].split('\\.').slice(-1)[0]).toUpperCase();
+				for (var i = 0; i < dnsIntegrationMethodsRef.length; i++) {
+                    var key = 'dnsIntegrationMethod.' + (dnsIntegrationMethodsRef[i].split('\\.').slice(-1)[0]).toUpperCase();
                     if(key.endsWith('DNSPROVIDER')) {
                     	key = key.substring(0, key.length - 11);
                     }
@@ -198,7 +209,7 @@
                         txt = bundleRef.getString(key);
                     } catch (e) {}
                     
-					$('#dnsIntegrationMethod').append('<option ' + (dnsIntegrationMethods[i] == dnsIntegrationMethod ? 'selected="selected"' : '') + ' value="' + dnsIntegrationMethods[i] + '">' + txt + '</option>');
+					$('#dnsIntegrationMethod').append('<option ' + (dnsIntegrationMethodsRef[i] == dnsIntegrationMethod ? 'selected="selected"' : '') + ' value="' + dnsIntegrationMethodsRef[i] + '">' + txt + '</option>');
 				}
 
 				if ($('#mtu').length) {

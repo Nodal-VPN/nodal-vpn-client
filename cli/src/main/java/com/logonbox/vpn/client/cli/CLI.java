@@ -52,7 +52,7 @@ import uk.co.bithatch.nativeimage.annotations.Bundle;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 
-@Command(name = "lbvpn-cli", versionProvider = CLI.VersionProvider.class, usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Command line interface to the VPN Client service.", subcommands = {
+@Command(name = "jad-vpn-cli", versionProvider = CLI.VersionProvider.class, usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Command line interface to the VPN Client service.", subcommands = {
 		Connections.class, Connect.class, Create.class, Delete.class, Disconnect.class, Exit.class, Show.class,
 		About.class, Edit.class, Update.class, Debug.class, Config.class, Shutdown.class })
 @Bundle

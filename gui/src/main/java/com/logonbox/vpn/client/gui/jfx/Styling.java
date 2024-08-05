@@ -84,8 +84,8 @@ public class Styling {
 		StringBuilder bui = new StringBuilder();
 
 		// Get the base colour. All other colours are derived from this
-        Color backgroundColour = safeParseColor(branding == null ? null : branding.resource().background(), BrandingInfo.DEFAULT_BACKGROUND);
-        Color foregroundColour = safeParseColor(branding == null ? null : branding.resource().foreground(), BrandingInfo.DEFAULT_FOREGROUND);
+        Color backgroundColour = safeParseColor(branding == null ? null : branding.resource().background(), !context.isDarkMode() ? BrandingInfo.DEFAULT_FOREGROUND : BrandingInfo.DEFAULT_BACKGROUND);
+        Color foregroundColour = safeParseColor(branding == null ? null : branding.resource().foreground(), !context.isDarkMode() ? BrandingInfo.DEFAULT_BACKGROUND : BrandingInfo.DEFAULT_FOREGROUND);
 		
 		if (backgroundColour.getOpacity() == 0) {
 			// Prevent total opacity, as mouse events won't be received
@@ -135,12 +135,18 @@ public class Styling {
 		// Highlight
 		if (backgroundColour.getSaturation() == 0) {
 			// Greyscale, so just use JAD very dark grey
-			bui.append("-fx-lbvpn-accent: 0d0d0d;\n");
-			bui.append("-fx-lbvpn-accent2: 0e0041;\n");
+		    if(context.isDarkMode()) {
+                bui.append("-fx-lbvpn-accent: #0d0d0d;\n");
+                bui.append("-fx-lbvpn-accent2: #0e0041;\n");
+		    }
+		    else {
+                bui.append("-fx-lbvpn-accent2: #f3f3f3;\n");
+                bui.append("-fx-lbvpn-accent: #f1ffff;\n");
+		    }
 		} else {
 			// A colour, so choose the next adjacent colour in the HSB colour
 			// wheel (45 degrees)
-			bui.append("-fx-lbvpn-accent: " + toHex(backgroundColour.deriveColor(45f, 1f, 1f, 1f)) + ";\n");
+            bui.append("-fx-lbvpn-accent: " + toHex(backgroundColour.deriveColor(45f, 1f, 1f, 1f)) + ";\n");
 			bui.append("-fx-lbvpn-accent2: " + toHex(backgroundColour.deriveColor(-45f, 1f, 1f, 1f)) + ";\n");
 		}
 
@@ -205,25 +211,6 @@ public class Styling {
 		var linkStr = toHex(linkColor);
 		var baseInverseRgbStr = toRgba(getBaseInverse(), 0.05f);
 		try (var output = new PrintWriter(Files.newOutputStream(tmpFile))) {
-			
-//			/* Strangeness on Windows - https://stackoverflow.com/questions/42416242/java-fx-failed-to-load-font-awesome-icons */
-//			output.write("""
-//			@font-face {
-//			    font-family: 'FontAwesome';
-//			    src: url('%url1%');
-//			    src: url('%url1%') format('embedded-opentype'), url('%url2%') format('woff2'), url('%url3%') format('woff'), url('%url4%') format('truetype'), url('%url5%') format('svg');
-//			    font-weight: normal;
-//			    font-style: normal;
-//			  }
-//			""".
-//			    replace("%url1%", checkFAUrl("fontawesome-webfont.eot")).
-//			    replace("%url2%", checkFAUrl("fontawesome-webfont.woff2")).
-//	            replace("%url3%", checkFAUrl("fontawesome-webfont.woff")).
-//	            replace("%url4%", checkFAUrl("fontawesome-webfont.ttf")).
-//	            replace("%url5%", checkFAUrl("fontawesome-webfont.svg"))
-//			);
-			
-			
 			try (var input = new BufferedReader(new InputStreamReader(UI.class.getResource("local.css").openStream()))) {
 				String line;
 				while(( line = input.readLine()) != null) {

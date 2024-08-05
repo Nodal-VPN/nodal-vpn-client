@@ -1,6 +1,8 @@
 package com.logonbox.vpn.client.common;
 
 
+import com.sshtools.jaul.Phase;
+
 import org.slf4j.event.Level;
 
 import java.util.Arrays;
@@ -27,7 +29,7 @@ public class ConfigurationItem<T> {
 	public final static ConfigurationItem<String> DNS_INTEGRATION_METHOD = add("dnsIntegrationMethod", String.class, "AUTO");
 	public final static ConfigurationItem<Boolean> AUTOMATIC_UPDATES = add("automaticUpdates", Boolean.class, Scope.USER, true, true, false);
 	public final static ConfigurationItem<Boolean> SINGLE_ACTIVE_CONNECTION = add("singleActiveConnection", Boolean.class, Scope.GLOBAL, true, true, false);
-	public final static ConfigurationItem<String> PHASE = add("phase", String.class, "stable", "stable", "ea", "continuous");
+	public final static ConfigurationItem<Phase> PHASE = add("phase", Phase.class, Phase.STABLE, Phase.EA, Phase.CONTINUOUS);
 	public final static ConfigurationItem<Long> DEFER_UPDATE_UNTIL = add("deferUpdatesUntil", Long.class, Scope.USER, 0l);
 	public final static ConfigurationItem<Integer> RECONNECT_DELAY = add("reconnectDelay", Integer.class, 5);
 	public final static ConfigurationItem<Integer> MTU = add("mtu", Integer.class, Scope.GLOBAL, 0);
@@ -144,7 +146,7 @@ public class ConfigurationItem<T> {
 			else if(type == String.class)
 				return (T)val;
 			else if(Enum.class.isAssignableFrom(type))
-				return (T)type.getMethod("valueOf", String.class).invoke(null, val);
+				return (T)type.getMethod("valueOf", String.class).invoke(null, val.toUpperCase());
 			else
 				throw new IllegalArgumentException("Cannot parse type " + type);
 		}
