@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.net.HttpCookie;
 import java.util.Objects;
 
+import uk.co.bithatch.nativeimage.annotations.Serialization;
+
+@Serialization
 public class CookieWrapper implements Serializable {
 	private static final long serialVersionUID = 1L;
 
