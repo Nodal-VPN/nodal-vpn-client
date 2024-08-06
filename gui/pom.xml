@@ -83,6 +83,10 @@
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-fontawesome-pack</artifactId>
         </dependency> 
+        <dependency>
+            <groupId>com.sshtools</groupId>
+            <artifactId>jini-config</artifactId>
+        </dependency>
 
     </dependencies>
 

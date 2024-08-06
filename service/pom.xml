@@ -34,8 +34,7 @@
         </dependency> 
         <dependency>
             <groupId>com.sshtools</groupId>
-            <artifactId>jini-lib</artifactId>
-            <version>0.3.2</version>
+            <artifactId>jini-config</artifactId> 
         </dependency>
     </dependencies>
     <repositories>

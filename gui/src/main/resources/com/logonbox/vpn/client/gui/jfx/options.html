@@ -160,7 +160,7 @@
 
 				if ($('#trayMode').length) {
 					for (var i = 0; i < trayModesRef.length; i++) {
-                        var key = 'trayMode.' + trayModesRef[i];
+                        var key = 'trayMode.' + trayModesRef[i].name();
                         var txt = 'i18n:' + key;
                         try {
                             txt = bundleRef.getString(key);

@@ -7,6 +7,7 @@ import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.BrandingManager;
 import com.logonbox.vpn.client.common.ConfigurationItem;
+import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus;
@@ -596,6 +597,8 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	protected URL location;
 	private RotateTransition loadingRotation;
 
+    private Map<String, Object> beansForOptions;
+
 	public final void cleanUp() {
 	}
 
@@ -697,8 +700,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		}
 
 		/* Option collections */
-		beans.put("trayModes", new String[] { Configuration.TRAY_MODE_AUTO, Configuration.TRAY_MODE_COLOR,
-				Configuration.TRAY_MODE_DARK, Configuration.TRAY_MODE_LIGHT, Configuration.TRAY_MODE_OFF });
+		beans.put("trayModes", TrayMode.values());
 		beans.put("darkModes", new String[] { Configuration.DARK_MODE_AUTO, Configuration.DARK_MODE_ALWAYS,
 				Configuration.DARK_MODE_NEVER });
 		beans.put("logLevels", Arrays.asList(Level.values()).stream().map(Level::toString).collect(Collectors.toList()).toArray(new String[0]));
@@ -1017,8 +1019,13 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 			/* Local per-user GUI specific configuration */
 			Configuration config = Configuration.getDefault();
 
-			if (trayMode != null)
-				config.trayModeProperty().set(trayMode);
+			if (trayMode != null) {
+				var trayModeVal = TrayMode.valueOf(trayMode);
+				if(config.trayModeProperty().get().equals(TrayMode.OFF) && trayModeVal != TrayMode.OFF) {
+				    uiContext.startTray();
+				}
+                config.trayModeProperty().set(trayModeVal);
+			}
 
 			if (darkMode != null)
 				config.darkModeProperty().set(darkMode);
@@ -1301,7 +1308,8 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 
 		/* Special pages */
 		if ("options.html".equals(baseHtmlPage)) {
-			for (var beanEn : beansForOptions().entrySet()) {
+			beansForOptions = beansForOptions();
+            for (var beanEn : beansForOptions.entrySet()) {
 				LOG.debug(String.format(" Setting %s to %s", beanEn.getKey(), beanEn.getValue()));
 				jsobj.setMember(beanEn.getKey(), beanEn.getValue());
 			}

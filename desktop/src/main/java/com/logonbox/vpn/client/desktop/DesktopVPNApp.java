@@ -6,7 +6,6 @@ import static javafx.application.Platform.runLater;
 import com.install4j.api.launcher.StartupNotification;
 import com.logonbox.vpn.client.common.BrandingManager.BrandImage;
 import com.logonbox.vpn.client.common.BrandingManager.ImageHandler;
-import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.Utils;
@@ -447,7 +446,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
 
     @Override
     protected void onStarted() {
-
+        
         if (Boolean.getBoolean("logonbox.vpn.chromeDebug")) {
             debugger = Optional
                     .of(ServiceLoader.load(Debugger.class).findFirst().orElseThrow(() -> new IllegalStateException(
@@ -470,16 +469,14 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
         updateCookieHandlerState();
         reapplyBranding();
         
-        var mgr = getAppContext().getVpnManager();
-        var icon = mgr.isBackendAvailable()
-                ? TrayMode.valueOf(mgr.getVpnOrFail().getValue(ConfigurationItem.TRAY_MODE.getKey()))
-                : TrayMode.AUTO;
-        if(icon != TrayMode.OFF && !getAppContext().isNoSystemTray()) {
+        var icon = Configuration.getDefault().trayModeProperty().get();
+        if(!icon.equals(TrayMode.OFF) && !getAppContext().isNoSystemTray()) {
             startTray();
         }
     }
 
-    protected void startTray() {
+    @Override
+    public void startTray() {
         new Thread() {
             @Override
             public void run() {

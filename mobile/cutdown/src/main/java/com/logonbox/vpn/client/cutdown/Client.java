@@ -215,6 +215,10 @@ public class Client extends Application implements UIContext<EmbeddedVpnConnecti
 	}
 
 	@Override
+    public void startTray() {
+    }
+
+    @Override
 	public void init() {
 
 //		appManager.addViewFactory(AppManager.HOME_VIEW, () -> {

@@ -48,4 +48,6 @@ public interface UIContext<CONX extends IVpnConnection> {
 	boolean isContextMenuAllowed();
 	
 	ImageHandler getImageHandler();
+
+    void startTray();
 }

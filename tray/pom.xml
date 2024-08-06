@@ -18,6 +18,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.sshtools</groupId>
+            <artifactId>jini-config</artifactId> 
+        </dependency>
+        <dependency>
             <groupId>com.logonbox</groupId>
             <artifactId>client-logonbox-vpn-dbus-app</artifactId>
             <version>${project.version}</version>

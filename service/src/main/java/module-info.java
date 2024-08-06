@@ -7,11 +7,11 @@ module com.logonbox.vpn.client.service {
     
     requires transitive com.logonbox.vpn.client.common;
     requires org.slf4j;
-    requires java.prefs;
     requires java.net.http;
     
     requires com.github.jgonian.ipmath;
     requires com.sshtools.jini;
+    requires com.sshtools.jini.config;
     requires com.sshtools.liftlib;
     
     requires static uk.co.bithatch.nativeimage.annotations;

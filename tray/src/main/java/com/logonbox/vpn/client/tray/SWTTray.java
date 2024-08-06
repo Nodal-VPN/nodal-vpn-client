@@ -288,7 +288,7 @@ public class SWTTray extends AbstractTray {
 		try {
 			Image image;
 			if (context.getVpnManager().isBackendAvailable()) {
-				TrayMode icon = TrayMode.valueOf(context.getVpnManager().getVpnOrFail().getValue(ConfigurationItem.TRAY_MODE.getKey()));
+				TrayMode icon = uiSection.getEnum(TrayMode.class, ConfigurationItem.TRAY_MODE.getKey());
 				if (TrayMode.LIGHT.equals(icon)) {
 					disposableImage = image = overlay(SWTTray.class.getResource("light-logonbox-icon64x64.png"), 48,
 							devs);

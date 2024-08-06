@@ -1,27 +1,28 @@
 package com.logonbox.vpn.client.gui.jfx;
 
-import java.util.prefs.Preferences;
+import com.logonbox.vpn.client.common.AppConstants;
+import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
+import com.sshtools.jini.INI.Section;
+import com.sshtools.jini.config.INISet;
+import com.sshtools.jini.config.INISet.Scope;
+import com.sshtools.jini.config.Monitor;
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
 public class Configuration {
-	public static final String TRAY_MODE = "trayMode";
-	public static final String TRAY_MODE_DARK = "dark";
-	public static final String TRAY_MODE_COLOR = "color";
-	public static final String TRAY_MODE_LIGHT = "light";
-	public static final String TRAY_MODE_AUTO = "auto";
-	public static final String TRAY_MODE_OFF = "off";
 	
 	public static final String DARK_MODE_AUTO = "auto";
 	public static final String DARK_MODE_ALWAYS = "always";
 	public static final String DARK_MODE_NEVER = "never";
 
-	private StringProperty trayMode = new SimpleStringProperty();
+	private ObjectProperty<TrayMode> trayMode = new SimpleObjectProperty<TrayMode>();
 	private StringProperty darkMode = new SimpleStringProperty();
 	private StringProperty logLevel = new SimpleStringProperty();
 	private StringProperty configurationFileDirectory = new SimpleStringProperty();
@@ -32,48 +33,53 @@ public class Configuration {
 
 	//
 	private final static Configuration DEFAULT_INSTANCE = new Configuration(
-			Preferences.userNodeForPackage(Configuration.class));
+			new INISet.Builder(AppConstants.CLIENT_NAME).
+			    withMonitor(new Monitor()).
+			    withApp(AppConstants.CLIENT_NAME).
+			    withoutSystemPropertyOverrides().
+			    withWriteScope(Scope.USER).
+			    build());
 
 	class IntegerPreferenceUpdateChangeListener implements ChangeListener<Number> {
 
-		private Preferences node;
+		private Section node;
 		private String key;
 
-		IntegerPreferenceUpdateChangeListener(Preferences node, String key) {
+		IntegerPreferenceUpdateChangeListener(Section node, String key) {
 			this.node = node;
 			this.key = key;
 		}
 
 		@Override
 		public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-			node.putInt(key, newValue.intValue());
+			node.put(key, newValue.intValue());
 		}
 
 	}
 
 	class BooleanPreferenceUpdateChangeListener implements ChangeListener<Boolean> {
 
-		private Preferences node;
+		private Section node;
 		private String key;
 
-		BooleanPreferenceUpdateChangeListener(Preferences node, String key) {
+		BooleanPreferenceUpdateChangeListener(Section node, String key) {
 			this.node = node;
 			this.key = key;
 		}
 
 		@Override
 		public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-			node.putBoolean(key, newValue);
+			node.put(key, newValue);
 		}
 
 	}
 
 	class StringPreferenceUpdateChangeListener implements ChangeListener<String> {
 
-		private Preferences node;
+		private Section node;
 		private String key;
 
-		StringPreferenceUpdateChangeListener(Preferences node, String key) {
+		StringPreferenceUpdateChangeListener(Section node, String key) {
 			this.node = node;
 			this.key = key;
 		}
@@ -85,35 +91,59 @@ public class Configuration {
 
 	}
 
-	public Configuration(Preferences node) {
-		x.set(node.getInt("x", 0));
+    class EnumPreferenceUpdateChangeListener<E extends Enum<E>> implements ChangeListener<E> {
+
+        private Section node;
+        private String key;
+
+        EnumPreferenceUpdateChangeListener(Section node, String key) {
+            this.node = node;
+            this.key = key;
+        }
+
+        @Override
+        public void changed(ObservableValue<? extends E> observable, E oldValue, E newValue) {
+            node.putEnum(key, newValue);
+        }
+
+    }
+	
+	public Configuration(INISet set) {
+		var doc = set.document();
+		
+        var wnd = doc.obtainSection("window");
+        x.set(wnd.getInt("x", 0));
 		x.addListener((c, o, n) -> {
-			node.putInt("x", n.intValue());
+			wnd.put("x", n.intValue());
 		});
-		y.set(node.getInt("y", 0));
+		y.set(wnd.getInt("y", 0));
 		y.addListener((c, o, n) -> {
-			node.putInt("y", n.intValue());
+			wnd.put("y", n.intValue());
 		});
-		w.set(node.getInt("w", 0));
+		w.set(wnd.getInt("w", 0));
 		w.addListener((c, o, n) -> {
-			node.putInt("w", n.intValue());
+			wnd.put("w", n.intValue());
 		});
-		h.set(node.getInt("h", 0));
+		h.set(wnd.getInt("h", 0));
 		h.addListener((c, o, n) -> {
-			node.putInt("h", n.intValue());
+			wnd.put("h", n.intValue());
 		});
 
-		trayMode.set(node.get("trayMode", TRAY_MODE_AUTO));
-		trayMode.addListener(new StringPreferenceUpdateChangeListener(node, "trayMode"));
+        var ui = doc.obtainSection("ui");
+		trayMode.set(ui.getEnum(TrayMode.class, "trayMode", TrayMode.AUTO)); 
+		trayMode.addListener(new EnumPreferenceUpdateChangeListener<TrayMode>(ui, "trayMode"));
 
-		darkMode.set(node.get("darkMode", DARK_MODE_AUTO));
-		darkMode.addListener(new StringPreferenceUpdateChangeListener(node, "darkMode"));
+		darkMode.set(ui.get("darkMode", DARK_MODE_AUTO));
+		darkMode.addListener(new StringPreferenceUpdateChangeListener(ui, "darkMode"));
 
-		configurationFileDirectory.set(node.get("configurationFileDirectory", System.getProperty("user.home")));
-		configurationFileDirectory.addListener(new StringPreferenceUpdateChangeListener(node, "configurationFileDirectory"));
+        var filesystem = doc.obtainSection("filesystem");
 
-		logLevel.set(node.get("logLevel", null));
-		logLevel.addListener(new StringPreferenceUpdateChangeListener(node, "logLevel"));
+		configurationFileDirectory.set(filesystem.get("configurationFileDirectory", System.getProperty("user.home")));
+		configurationFileDirectory.addListener(new StringPreferenceUpdateChangeListener(filesystem, "configurationFileDirectory"));
+
+        var troubleshooting = doc.obtainSection("troubleshooting");
+		logLevel.set(troubleshooting.get("logLevel", null));
+		logLevel.addListener(new StringPreferenceUpdateChangeListener(troubleshooting, "logLevel"));
 
 	}
 
@@ -141,7 +171,7 @@ public class Configuration {
 		return y;
 	}
 
-	public StringProperty trayModeProperty() {
+	public ObjectProperty<TrayMode> trayModeProperty() {
 		return trayMode;
 	}
 

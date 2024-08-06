@@ -1,11 +1,18 @@
 package com.logonbox.vpn.client.tray;
 
+import com.logonbox.vpn.client.common.AppConstants;
+import com.logonbox.vpn.client.common.ConfigurationItem;
+import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
+import com.sshtools.jini.Data.Handle;
+import com.sshtools.jini.INI.Section;
+import com.sshtools.jini.config.INISet;
+import com.sshtools.jini.config.INISet.Scope;
+import com.sshtools.jini.config.Monitor;
+
 import java.util.Arrays;
 import java.util.List;
-import java.util.prefs.PreferenceChangeEvent;
-import java.util.prefs.PreferenceChangeListener;
 
-public abstract class AbstractTray implements AutoCloseable, Tray, PreferenceChangeListener {
+public abstract class AbstractTray implements AutoCloseable, Tray {
 
 	protected static final int DEFAULT_ICON_SIZE = 48;
 
@@ -13,11 +20,24 @@ public abstract class AbstractTray implements AutoCloseable, Tray, PreferenceCha
 
 	private boolean constructing;
 
-    private List<AutoCloseable> listeners;
+    private final List<AutoCloseable> listeners;
+    private final Handle handle;
+
+    protected final Section uiSection;
+
 
 	public AbstractTray(TrayDaemon context) throws Exception {
 		constructing = true;
 		this.context = context;
+		
+		var iniSet = new INISet.Builder(AppConstants.CLIENT_NAME).
+                withMonitor(new Monitor()).
+                withApp(AppConstants.CLIENT_NAME).
+                withoutSystemPropertyOverrides().
+                withWriteScope(Scope.USER).
+                build();
+		
+		uiSection = iniSet.document().obtainSection("ui");
 		
 		try {
             var mgr = context.getVpnManager();
@@ -37,17 +57,26 @@ public abstract class AbstractTray implements AutoCloseable, Tray, PreferenceCha
                 mgr.onTemporarilyOffline((conx, reason) -> reload())
             );
 
-            Configuration.getDefault().node().addPreferenceChangeListener(this);
+            handle = uiSection.onValueUpdate(vu -> {
+                if(vu.key().equals(ConfigurationItem.TRAY_MODE.getKey()) &&
+                   Arrays.asList(vu.newValues()).contains(TrayMode.OFF.name())
+                ) {
+                    try {
+                        close();
+                    } catch (Exception e) {
+                    } finally {
+                        System.exit(0);
+                    }
+                }
+                else {
+                    reload();
+                }
+            });
         }
         finally {
             constructing = false;
         }
 		
-	}
-
-	@Override
-	public void preferenceChange(PreferenceChangeEvent evt) {
-		reload();
 	}
 
 	@Override
@@ -59,7 +88,7 @@ public abstract class AbstractTray implements AutoCloseable, Tray, PreferenceCha
                 throw new IllegalStateException("Failed to close.", e);
             }
         });
-		Configuration.getDefault().node().removePreferenceChangeListener(this);
+	    handle.close();
 		onClose();
 	}
 
