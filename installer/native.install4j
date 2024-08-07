@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.8" transformSequenceNumber="10">
-  <directoryPresets config="./images" />
+  <directoryPresets config="./os/windows/win32-x86-64/jad-vpn-client-service.xml" />
   <application name="JADAPTIVE VPN Client" applicationId="0033-1388-2645-1798" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="jadaptive-vpn-client" publisher="JADAPTIVE Limited" publisherWeb="https://jadaptive.com" version="4.0.0" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
@@ -47,6 +47,7 @@
     <entries>
       <dirEntry mountPoint="82" file="./conf" subDirectory="conf" excludeSuffixes=".svn" />
       <fileEntry mountPoint="82" file="./os/linux/dbus/jad-vpn-service.conf" />
+      <fileEntry mountPoint="82" file="./instance.properties" />
       <dirEntry mountPoint="859" file="./target/gui" subDirectory="gui">
         <exclude>
           <entry location="javafx-controls-17.jar" />
@@ -66,6 +67,8 @@
       <fileEntry mountPoint="2032" file="../cli/target/jad-vpn-cli${compiler:build.exe.suffix}" fileMode="755" overrideFileMode="true" />
       <fileEntry mountPoint="2032" file="../desktop-service/target/jad-vpn-service${compiler:build.exe.suffix}" fileMode="755" overrideFileMode="true" />
       <fileEntry mountPoint="2032" file="../tray/target/jad-vpn-tray${compiler:build.exe.suffix}" fileMode="755" overrideFileMode="true" />
+      <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/jad-vpn-client-service.exe" />
+      <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/jad-vpn-client-service.xml" />
       <fileEntry mountPoint="2037" file="./os/linux/dbus/jad-vpn-service.conf" />
     </entries>
     <components>
@@ -498,7 +501,7 @@ return path.replace('\\', '/');</property>
                 </serializedBean>
                 <condition>Util.isLinux()</condition>
               </action>
-              <action id="584" beanClass="com.install4j.runtime.beans.actions.services.InstallServiceAction" actionElevationType="elevated" failureStrategy="askRetryQuit">
+              <action name="Install service (non windows)" id="584" beanClass="com.install4j.runtime.beans.actions.services.InstallServiceAction" actionElevationType="elevated" failureStrategy="askRetryQuit">
                 <serializedBean>
                   <property name="description" type="string">Manages VPN connections on behalf of users</property>
                   <property name="executable">
@@ -512,8 +515,27 @@ return path.replace('\\', '/');</property>
                   <property name="serviceName" type="string">jad-vpn-service</property>
                   <property name="windowsDisplayName" type="string">JADAPTIVE VPN Client Service</property>
                 </serializedBean>
+                <condition>!Util.isWindows()</condition>
               </action>
-              <action id="856" beanClass="com.install4j.runtime.beans.actions.services.StartServiceAction" actionElevationType="elevated">
+              <action name="Install service (windows)" id="2289" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="arguments" type="array" elementType="string" length="1">
+                    <element index="0">install</element>
+                  </property>
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>jad-vpn-client-service.exe</string>
+                    </object>
+                  </property>
+                  <property name="workingDirectory">
+                    <object class="java.io.File">
+                      <string>.</string>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>Util.isWindows()</condition>
+              </action>
+              <action name="Start a service (non windows)" id="856" beanClass="com.install4j.runtime.beans.actions.services.StartServiceAction" actionElevationType="elevated">
                 <serializedBean>
                   <property name="executable">
                     <object class="java.io.File">
@@ -523,6 +545,25 @@ return path.replace('\\', '/');</property>
                   <property name="launcherId" type="null" />
                   <property name="serviceName" type="string">jad-vpn-service</property>
                 </serializedBean>
+                <condition>!Util.isWindows()</condition>
+              </action>
+              <action name="Start service (windows)" id="2290" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="arguments" type="array" elementType="string" length="1">
+                    <element index="0">start</element>
+                  </property>
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>jad-vpn-client-service.exe</string>
+                    </object>
+                  </property>
+                  <property name="workingDirectory">
+                    <object class="java.io.File">
+                      <string>.</string>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>Util.isWindows()</condition>
               </action>
               <action id="1815" beanClass="com.install4j.runtime.beans.actions.control.SleepAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <serializedBean>
@@ -838,7 +879,7 @@ return console.askYesNo(message, true);
                 </serializedBean>
                 <condition>Util.isLinux()</condition>
               </action>
-              <action id="2178" beanClass="com.install4j.runtime.beans.actions.services.StopServiceAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+              <action name="Stop service (non windows)" id="2178" beanClass="com.install4j.runtime.beans.actions.services.StopServiceAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="executable">
                     <object class="java.io.File">
@@ -848,6 +889,43 @@ return console.askYesNo(message, true);
                   <property name="launcherId" type="null" />
                   <property name="serviceName" type="string">jad-vpn-service</property>
                 </serializedBean>
+                <condition>!Util.isWindow()</condition>
+              </action>
+              <action name="Stop service (windows)" id="2291" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="arguments" type="array" elementType="string" length="1">
+                    <element index="0">stop</element>
+                  </property>
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>jad-vpn-client-service.exe</string>
+                    </object>
+                  </property>
+                  <property name="workingDirectory">
+                    <object class="java.io.File">
+                      <string>.</string>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>Util.isWindows()</condition>
+              </action>
+              <action name="Uninstall service (windows)" id="2292" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="arguments" type="array" elementType="string" length="1">
+                    <element index="0">uninstall</element>
+                  </property>
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>jad-vpn-client-service.exe</string>
+                    </object>
+                  </property>
+                  <property name="workingDirectory">
+                    <object class="java.io.File">
+                      <string>.</string>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>Util.isWindows() &amp;&amp; !context.isUninstallForUpgrade()</condition>
               </action>
               <action id="2179" beanClass="com.install4j.runtime.beans.actions.misc.CheckRunningProcessesAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <serializedBean>
@@ -1788,11 +1866,13 @@ return true;</property>
       <exclude>
         <entry location="conf/jad-vpn-service.conf" />
         <entry location="gui/mac-aarch64" />
-        <entry location="gui/linux-aarch64" />
         <entry location="gui/linux" />
         <entry location="gui/win" />
+        <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="jad-vpn-client-service.exe" />
+        <entry location="jad-vpn-client-service.xml" />
         <entry rootId="2036" />
       </exclude>
       <variables>
@@ -1814,11 +1894,13 @@ return true;</property>
       <exclude>
         <entry location="conf/jad-vpn-service.conf" />
         <entry location="gui/mac-aarch64" />
-        <entry location="gui/linux-aarch64" />
-        <entry location="gui/win" />
         <entry location="gui/mac" />
+        <entry location="gui/win" />
+        <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="jad-vpn-client-service.exe" />
+        <entry location="jad-vpn-client-service.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
@@ -1828,15 +1910,13 @@ return true;</property>
     <linuxRPM name="Linux RPM" id="1560" arch="amd64">
       <exclude>
         <entry location="gui/mac-aarch64" />
-        <entry location="gui/linux-aarch64" />
-        <entry location="gui/win" />
         <entry location="gui/mac" />
-        <entry location="gui/linux-arm32-monocle" />
+        <entry location="gui/win" />
+        <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="network-configuration-service.exe" />
-        <entry location="vcruntime140.dll" />
-        <entry rootId="2027" />
+        <entry location="jad-vpn-client-service.exe" />
+        <entry location="jad-vpn-client-service.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
@@ -1856,15 +1936,13 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
     <linuxDeb name="Linux Deb Archive" id="1561" overwriteNeverAsConfigFiles="true" dependencies="dbus" description="JADAPTIVE VPN Client, the ideal companion to the JADAPTIVE VPN Server" maintainerEmail="brett@logonbox.com" architectureSet="true" architecture="amd64">
       <exclude>
         <entry location="gui/mac-aarch64" />
-        <entry location="gui/linux-aarch64" />
-        <entry location="gui/win" />
         <entry location="gui/mac" />
-        <entry location="gui/linux-arm32-monocle" />
+        <entry location="gui/win" />
+        <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="network-configuration-service.exe" />
-        <entry location="vcruntime140.dll" />
-        <entry rootId="2027" />
+        <entry location="jad-vpn-client-service.exe" />
+        <entry location="jad-vpn-client-service.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
@@ -1896,11 +1974,13 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
       <exclude>
         <entry location="conf/jad-vpn-service.conf" />
         <entry location="gui/mac-aarch64" />
+        <entry location="gui/mac" />
         <entry location="gui/linux" />
         <entry location="gui/win" />
-        <entry location="gui/mac" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="jad-vpn-client-service.exe" />
+        <entry location="jad-vpn-client-service.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux-aarch64" />
@@ -1910,14 +1990,13 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
     <unixArchive name="Linux Archive" id="2167" mediaFileName="${compiler:sys.shortName}-linux-amd64-${compiler:sys.version}">
       <exclude>
         <entry location="gui/mac-aarch64" />
-        <entry location="gui/linux-aarch64" />
-        <entry location="gui/win" />
         <entry location="gui/mac" />
-        <entry location="gui/linux-arm32-monocle" />
+        <entry location="gui/win" />
+        <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="network-configuration-service.exe" />
-        <entry location="vcruntime140.dll" />
+        <entry location="jad-vpn-client-service.exe" />
+        <entry location="jad-vpn-client-service.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
@@ -1927,12 +2006,14 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
     <macosFolder name="Mac OS X Folder (Arm)" id="2173" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}" architecture="aarch64">
       <exclude>
         <entry location="conf/jad-vpn-service.conf" />
-        <entry location="gui/linux-aarch64" />
+        <entry location="gui/mac" />
         <entry location="gui/linux" />
         <entry location="gui/win" />
-        <entry location="gui/mac" />
+        <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="jad-vpn-client-service.exe" />
+        <entry location="jad-vpn-client-service.xml" />
         <entry rootId="2036" />
       </exclude>
       <variables>
