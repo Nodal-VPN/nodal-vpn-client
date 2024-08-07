@@ -140,7 +140,6 @@
                                 <buildArg>--no-fallback</buildArg>
                                 <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                                 <buildArg>--allow-incomplete-classpath</buildArg>
-                                <buildArg>${build.native.args}</buildArg>
                             </buildArgs>
                         </configuration>
                     </plugin>
@@ -181,7 +180,6 @@
                                 <buildArg>--no-fallback</buildArg>
                                 <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                                 <buildArg>--allow-incomplete-classpath</buildArg>
-                                <buildArg>${build.native.args}</buildArg>
                             </buildArgs>
                         </configuration>
                     </plugin>
@@ -222,7 +220,6 @@
                                 <buildArg>--no-fallback</buildArg>
                                 <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                                 <buildArg>--allow-incomplete-classpath</buildArg>
-                                <buildArg>${build.native.args}</buildArg>
                             </buildArgs>
                         </configuration>
                     </plugin>
