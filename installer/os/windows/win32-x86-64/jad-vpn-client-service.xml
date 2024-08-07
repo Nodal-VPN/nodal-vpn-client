@@ -2,6 +2,9 @@
   <id>jad-vpn-client-service</id>
   <name>JADAPTIVE VPN Client Service</name>
   <description>A service that manages connections for the JADAPTIVE VPN Client</description>
-  <executable>%BASE%\jad-vpn-client-service.exe</executable>
+  <executable>%BASE%\jad-vpn-service.exe</executable>
   <depend>jadbus-daemon</depend>
+  <log mode="reset">
+    <logpath>>%BASE%\logs</logpath>
+  </log>
 </service>

@@ -1891,6 +1891,9 @@ return true;</property>
         <entry location="gui/mac" />
         <entry rootId="2036" />
       </exclude>
+      <variables>
+        <variable name="build.exe.suffix" value=".exe" />
+      </variables>
     </windows>
     <unixInstaller name="Linux Installer" id="1555" mediaFileName="${compiler:sys.shortName}-linux-amd64-${compiler:sys.version}">
       <exclude>
@@ -1970,6 +1973,9 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <entry location="gui/mac" />
         <entry rootId="2036" />
       </exclude>
+      <variables>
+        <variable name="build.exe.suffix" value=".exe" />
+      </variables>
       <jreBundle usePack200="false" includedJre="windows-amd64-1.8.0_121" />
     </windows>
     <unixInstaller name="Arm64 Unix Installer" id="2166" mediaFileName="${compiler:sys.shortName}-linux-aarch64-${compiler:sys.version}" require64BitVm="true">
