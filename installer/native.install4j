@@ -889,7 +889,7 @@ return console.askYesNo(message, true);
                   <property name="launcherId" type="null" />
                   <property name="serviceName" type="string">jad-vpn-service</property>
                 </serializedBean>
-                <condition>!Util.isWindow()</condition>
+                <condition>!Util.isWindows()</condition>
               </action>
               <action name="Stop service (windows)" id="2291" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
