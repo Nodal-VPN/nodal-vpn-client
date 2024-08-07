@@ -82,6 +82,8 @@
           <entry location="CHANGES.md" />
           <entry location="WIREGUARD-LICENSE.txt" />
           <entry location="jad-vpn-service${compiler:build.exe.suffix}" />
+          <entry location="jad-vpn-client-service.exe" />
+          <entry location="jad-vpn-client-service.xml" />
           <entry rootId="2036" location="jad-vpn-service.conf" />
         </include>
       </component>
@@ -121,7 +123,7 @@
   </files>
   <launchers>
     <launcher name="jad-vpn-gui" id="783" menuName="JADAPTIVE VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui">
-      <executable name="jad-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.jad-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.jad-vpn-client/gui-app.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true">
+      <executable name="jad-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.config/jad-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/jad-vpn-client/gui-app.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true">
         <versionInfo include="true" fileDescription="Graphical front end for the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
@@ -132,7 +134,7 @@
         </modulePath>
       </java>
       <vmOptionsFile mode="content" overwriteMode="2">
-        <content>-include-options ${HOME}/.jad-vpn-client/gui.vmoptions
+        <content>-include-options ${HOME}/.config/jad-vpn-client/gui.vmoptions
 -Xmx128m
 -Djdk.internal.httpclient.disableHostnameVerification=true
 -Dlogonbox.vpn.logConfiguration=conf/gui.log.properties
@@ -150,7 +152,7 @@
       </iconImageFiles>
     </launcher>
     <launcher name="jad-vpn-gui-remote" id="2035" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGuiRemote">
-      <executable name="jad-vpn-gui-remote" iconSet="true" stderrFile="${installer:sys.userHome}/.jad-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.jad-vpn-client/gui-app.log" executableMode="console" dpiAware="false">
+      <executable name="jad-vpn-gui-remote" iconSet="true" stderrFile="${installer:sys.userHome}/.config/jad-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/jad-vpn-client/gui-app.log" executableMode="console" dpiAware="false">
         <versionInfo include="true" fileDescription="Remote control for the graphical front end to the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
@@ -161,7 +163,7 @@
         </modulePath>
       </java>
       <vmOptionsFile mode="content" overwriteMode="2">
-        <content>-include-options ${HOME}/.jad-vpn-client/gui.vmoptions
+        <content>-include-options ${HOME}/.config/jad-vpn-client/gui.vmoptions
 -Xmx128m
 -Djdk.internal.httpclient.disableHostnameVerification=true
 -Dlogonbox.vpn.logConfiguration=conf/gui.log.properties
