@@ -5,6 +5,6 @@
   <executable>%BASE%\jad-vpn-service.exe</executable>
   <depend>jadbus-daemon</depend>
   <log mode="reset">
-    <logpath>>%BASE%\logs</logpath>
+    <logpath>%BASE%\logs</logpath>
   </log>
 </service>
