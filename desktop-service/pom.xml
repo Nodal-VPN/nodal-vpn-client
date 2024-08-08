@@ -56,7 +56,7 @@
         <dependency>
             <groupId>com.sshtools</groupId>
             <artifactId>liftlib</artifactId>
-            <version>0.9.10</version>
+            <version>0.9.11</version>
         </dependency>
         <dependency>
             <groupId>com.logonbox</groupId>
@@ -104,44 +104,36 @@
             <dependencies>
                 <dependency>
                     <groupId>com.logonbox</groupId>
-                    <artifactId>logonbox-vpn-windows</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>com.logonbox</groupId>
                     <artifactId>client-logonbox-vpn-windows</artifactId>
                     <version>${project.version}</version>
                 </dependency>
-                <dependency>
-                    <groupId>net.java.dev.jna</groupId>
-                    <artifactId>jna-jpms</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>net.java.dev.jna</groupId>
-                    <artifactId>jna-platform-jpms</artifactId>
-                </dependency>
             </dependencies>
             <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.graalvm.buildtools</groupId>
-                        <artifactId>native-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <metadataRepository>
-                                <enabled>true</enabled>
-                            </metadataRepository>
-                            <imageName>jad-vpn-service</imageName>
-                            <mainClass>com.logonbox.vpn.client.desktop.service.Main</mainClass>
-                            <buildArgs>
-                                <buildArg>-H:+UnlockExperimentalVMOptions</buildArg>
-                                <buildArg>-H:+AddAllCharsets</buildArg>
-                                <buildArg>--no-fallback</buildArg>
-                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
-                                <buildArg>--allow-incomplete-classpath</buildArg>
-                            </buildArgs>
-                        </configuration>
-                    </plugin>
-                </plugins>
+            	<pluginManagement>
+	                <plugins>
+	                    <plugin>
+	                        <groupId>org.graalvm.buildtools</groupId>
+	                        <artifactId>native-maven-plugin</artifactId>
+	                        <extensions>true</extensions>
+	                        <configuration>
+	                            <metadataRepository>
+	                                <enabled>true</enabled>
+	                            </metadataRepository>
+	                            <imageName>jad-vpn-service</imageName>
+	                            <mainClass>com.logonbox.vpn.client.desktop.service.Main</mainClass>
+	                            <buildArgs>
+	                                <buildArg>-H:+UnlockExperimentalVMOptions</buildArg>
+	                                <buildArg>-H:+AddAllCharsets</buildArg>
+									<buildArg>-H:Log=registerResource:verbose</buildArg>
+	                                <buildArg>--no-fallback</buildArg>
+	                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
+                                        <!--TODO This should not be necessary! For some reason native-image-annotations is not working for these -->
+                                        <buildArg>-H:IncludeResources=.*win32.*</buildArg>
+	                            </buildArgs>
+	                        </configuration>
+	                    </plugin>
+	                </plugins>
+                </pluginManagement>
             </build>
         </profile>
         <profile>
@@ -154,34 +146,31 @@
             <dependencies>
                 <dependency>
                     <groupId>com.logonbox</groupId>
-                    <artifactId>logonbox-vpn-linux</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>com.logonbox</groupId>
                     <artifactId>client-logonbox-vpn-linux</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
             <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.graalvm.buildtools</groupId>
-                        <artifactId>native-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <metadataRepository>
-                                <enabled>true</enabled>
-                            </metadataRepository>
-                            <imageName>jad-vpn-service</imageName>
-                            <mainClass>com.logonbox.vpn.client.desktop.service.Main</mainClass>
-                            <buildArgs>
-                                <buildArg>--no-fallback</buildArg>
-                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
-                                <buildArg>--allow-incomplete-classpath</buildArg>
-                            </buildArgs>
-                        </configuration>
-                    </plugin>
-                </plugins>
+            	<pluginManagement>
+	                <plugins>
+	                    <plugin>
+	                        <groupId>org.graalvm.buildtools</groupId>
+	                        <artifactId>native-maven-plugin</artifactId>
+	                        <extensions>true</extensions>
+	                        <configuration>
+	                            <metadataRepository>
+	                                <enabled>true</enabled>
+	                            </metadataRepository>
+	                            <imageName>jad-vpn-service</imageName>
+	                            <mainClass>com.logonbox.vpn.client.desktop.service.Main</mainClass>
+	                            <buildArgs>
+	                                <buildArg>--no-fallback</buildArg>
+	                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
+	                            </buildArgs>
+	                        </configuration>
+	                    </plugin>
+	                </plugins>
+            	</pluginManagement>
             </build>
         </profile>
         <profile>
@@ -194,34 +183,31 @@
             <dependencies>
                 <dependency>
                     <groupId>com.logonbox</groupId>
-                    <artifactId>logonbox-vpn-macos</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>com.logonbox</groupId>
                     <artifactId>client-logonbox-vpn-macos</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
             <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.graalvm.buildtools</groupId>
-                        <artifactId>native-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <metadataRepository>
-                                <enabled>true</enabled>
-                            </metadataRepository>
-                            <imageName>jad-vpn-service</imageName>
-                            <mainClass>com.logonbox.vpn.client.desktop.service.Main</mainClass>
-                            <buildArgs>
-                                <buildArg>--no-fallback</buildArg>
-                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
-                                <buildArg>--allow-incomplete-classpath</buildArg>
-                            </buildArgs>
-                        </configuration>
-                    </plugin>
-                </plugins>
+            	<pluginManagement>
+	                <plugins>
+	                    <plugin>
+	                        <groupId>org.graalvm.buildtools</groupId>
+	                        <artifactId>native-maven-plugin</artifactId>
+	                        <extensions>true</extensions>
+	                        <configuration>
+	                            <metadataRepository>
+	                                <enabled>true</enabled>
+	                            </metadataRepository>
+	                            <imageName>jad-vpn-service</imageName>
+	                            <mainClass>com.logonbox.vpn.client.desktop.service.Main</mainClass>
+	                            <buildArgs>
+	                                <buildArg>--no-fallback</buildArg>
+	                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
+	                            </buildArgs>
+	                        </configuration>
+	                    </plugin>
+	                </plugins>	               
+            	</pluginManagement>
             </build>
         </profile>
         <profile>

@@ -17,6 +17,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.logonbox</groupId>
+            <artifactId>logonbox-vpn-windows</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna-jpms</artifactId>
         </dependency>

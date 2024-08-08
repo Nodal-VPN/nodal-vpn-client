@@ -16,5 +16,9 @@
             <artifactId>client-logonbox-vpn-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.logonbox</groupId>
+            <artifactId>logonbox-vpn-linux</artifactId>
+        </dependency>
     </dependencies>
 </project>
