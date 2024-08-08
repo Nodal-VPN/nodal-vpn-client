@@ -11,6 +11,7 @@ import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
 import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
 import com.sshtools.jaul.NoUpdateService;
 import com.sshtools.jaul.UpdateService;
+import com.sshtools.liftlib.OS;
 
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.event.Level;
@@ -92,13 +93,14 @@ public class Main extends AbstractDBusApp {
 
         log = initApp();
 
-        log.info(String.format("Desktop App Version: %s", AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop")));
-        log.info(String.format("DBus Version: %s", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")));
-        log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " (" + System.getProperty("os.version") + ")"));
+        log.info("Desktop App Version: {}", AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop"));
+        log.info("DBus Version: {}", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core"));
+        log.info("OS: {}", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " (" + System.getProperty("os.version") + ")");
         try {
-            log.info(String.format("CWD: %s", new File(".").getCanonicalPath()));
+            log.info("CWD: {}", new File(".").getCanonicalPath());
         } catch (IOException e) {
         }
+        log.info("JVM Mode: {}", OS.isNativeImage() ? "Native" : "Interpreted");
         
 		display = Display.getDefault();
 		client = new Client(this, display);

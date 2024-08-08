@@ -13,6 +13,7 @@ import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
 import com.logonbox.vpn.client.common.api.IRemoteUI;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
+import com.sshtools.liftlib.OS;
 import com.sshtools.twoslices.Slice;
 import com.sshtools.twoslices.Toast;
 import com.sshtools.twoslices.ToastType;
@@ -81,14 +82,15 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 
         initApp();
         
-		log.info(String.format("System Tray Version: %s", AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-tray")));
-        log.info(String.format("DBus Version: %s", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")));
-		log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " ("
-				+ System.getProperty("os.version") + ")"));
+		log.info("System Tray Version: {}", AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-tray"));
+        log.info("DBus Version: {}", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core"));
+		log.info("OS: {}", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " ("
+				+ System.getProperty("os.version") + ")");
 		try {
-			log.info(String.format("CWD: %s", new File(".").getCanonicalPath()));
+			log.info("CWD: {}", new File(".").getCanonicalPath());
 		} catch (IOException e) {
 		}
+        log.info("JVM Mode: {}", OS.isNativeImage() ? "Native" : "Interpreted");
 
 		tray = new SWTTray(this);
 

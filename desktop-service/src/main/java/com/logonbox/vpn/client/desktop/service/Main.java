@@ -20,6 +20,7 @@ import com.logonbox.vpn.client.desktop.service.dbus.VpnConnectionImpl;
 import com.logonbox.vpn.client.desktop.service.dbus.VpnImpl;
 import com.logonbox.vpn.client.service.ClientService.Listener;
 import com.sshtools.liftlib.Helper;
+import com.sshtools.liftlib.OS;
 
 import org.freedesktop.dbus.connections.AbstractConnection;
 import org.freedesktop.dbus.connections.IDisconnectCallback;
@@ -218,13 +219,12 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 			}
 			
 			/* About */
-			log.info(String.format("VPN Desktop Service Version: %s",
-					AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop-service")));
-			log.info(String.format("VPN Library Version: %s",
-                    AppVersion.getVersion("com.logonbox", "logonbox-vpn-lib")));
-	        log.info(String.format("DBus Version: %s", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")));
-			log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch")
-					+ " (" + System.getProperty("os.version") + ")"));
+			log.info("VPN Desktop Service Version: {}", AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop-service"));
+			log.info("VPN Library Version: {}", AppVersion.getVersion("com.logonbox", "logonbox-vpn-lib"));
+	        log.info("DBus Version: {}", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core"));
+			log.info("OS: {}", System.getProperty("os.name") + " / " + System.getProperty("os.arch")
+					+ " (" + System.getProperty("os.version") + ")");
+			log.info("JVM Mode: {}", OS.isNativeImage() ? "Native" : "Interpreted");
 
             
 			if (!configureDBus()) {

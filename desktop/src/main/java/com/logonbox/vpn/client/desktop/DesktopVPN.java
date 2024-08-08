@@ -16,6 +16,7 @@ import com.logonbox.vpn.client.gui.jfx.JfxAppContext;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
 import com.sshtools.jaul.NoUpdateService;
 import com.sshtools.jaul.UpdateService;
+import com.sshtools.liftlib.OS;
 
 import org.slf4j.event.Level;
 
@@ -157,13 +158,14 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
 
         log = initApp();
 
-        log.info(String.format("Desktop App Version: %s", AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop")));
-        log.info(String.format("DBus Version: %s", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")));
-        log.info(String.format("OS: %s", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " (" + System.getProperty("os.version") + ")"));
+        log.info("Desktop App Version: {}", AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop"));
+        log.info("DBus Version: {}", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core"));
+        log.info("OS: {}", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " (" + System.getProperty("os.version") + ")");
         try {
-            log.info(String.format("CWD: %s", new File(".").getCanonicalPath()));
+            log.info("CWD: {}", new File(".").getCanonicalPath());
         } catch (IOException e) {
         }
+        log.info("JVM Mode: {}", OS.isNativeImage() ? "Native" : "Interpreted");
         
         getVpnManager().start();
 		Application.launch(DesktopVPNApp.class, new String[0]);
