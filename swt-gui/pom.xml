@@ -123,7 +123,7 @@
 
     <profiles>
         <profile>
-            <id>tray-swt-linux</id>
+            <id>gui-swt-linux</id>
             <activation>
                 <os>
                     <name>linux</name>
@@ -154,7 +154,7 @@
             </dependencies>
         </profile>
         <profile>
-            <id>tray-swt-windows-amd64</id>
+            <id>gui-swt-windows-amd64</id>
             <activation>
                 <os>
                     <arch>amd64</arch>
@@ -186,7 +186,7 @@
             </dependencies>
         </profile>
         <profile>
-            <id>tray-swt-windows-x86</id>
+            <id>gui-swt-windows-x86</id>
             <activation>
                 <os>
                     <arch>x86</arch>
@@ -218,7 +218,7 @@
             </dependencies>
         </profile>
         <profile>
-            <id>tray-swt-mac-amd64</id>
+            <id>gui-swt-mac-amd64</id>
             <activation>
                 <os>
                     <arch>x86_64</arch>

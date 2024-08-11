@@ -47,6 +47,9 @@ pipeline {
                 }
                 /*
                  * Linux AARC64 Installers and Packages
+                 *
+                 * NOTE: javafx.version is set to 22.0.2 as later version with the Apache Maven 3.9.7
+                         fix do not build AARCH64. Argggh 
                  */
                 stage ('Linux AARCH64 LogonBox VPN Client Native Installers') {
                     agent {
@@ -67,6 +70,7 @@ pipeline {
                                 sh 'mvn -U -Dbuild.mediaTypes=unixInstaller,unixArchive,linuxRPM,linuxDeb ' +
                                    '-Dinstall4j.disableSigning=true ' + 
                                    '-Dbuild.buildIds=2166,2300,2304,2308 ' +  
+                                   '-Djavafx.version=22.0.2 ' +
                                    '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
                                    '-P installers,native-image ' +
                                    'clean package'
