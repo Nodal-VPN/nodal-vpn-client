@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.HostnameVerifier;
 
 import jakarta.json.JsonObject;
+import picocli.CommandLine.Help.Ansi;
 import picocli.CommandLine.IVersionProvider;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
@@ -139,9 +140,9 @@ public abstract class AbstractConnectionCommand implements Callable<Integer>, IV
 
             @Override
             public void prompt(DeviceCode code) {
-                out.println(CLI.BUNDLE.getString("connection.prompt"));
-                out.println(code.verification_uri);
-                out.println(MessageFormat.format(CLI.BUNDLE.getString("connection.userCode"), code.user_code));
+                out.println(Ansi.AUTO.string(CLI.BUNDLE.getString("connection.prompt")));
+                out.println(Ansi.AUTO.string(MessageFormat.format(CLI.BUNDLE.getString("connection.uri"), CLI.link(code.verification_uri_complete, code.verification_uri))));
+                out.println(Ansi.AUTO.string(MessageFormat.format(CLI.BUNDLE.getString("connection.userCode"), code.user_code)));
                 out.flush();
             }
 

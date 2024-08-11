@@ -295,4 +295,19 @@ public class CLI extends AbstractDBusApp implements CLIContext {
 		return true;
 	}
 
+    public static String link(String url, String text) {
+        var ttype = System.getenv("TERM");
+        if(ttype != null && ttype.startsWith("xterm")) {
+            var astr = new StringBuilder();
+            astr.append((char) 27 + "]8;;");
+            astr.append(url);
+            astr.append((char) 27 + "\\");
+            astr.append(text);
+            astr.append((char) 27 + "]8;;" + (char) 27 + "\\");
+            return astr.toString();
+        }
+        else {
+            return text;
+        }
+    }
 }

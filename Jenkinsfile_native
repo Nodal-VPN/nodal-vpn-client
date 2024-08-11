@@ -31,6 +31,7 @@ pipeline {
                                    '-Dinstall4j.disableSigning=true ' +
                                    '-Dbuild.buildIds=1555,1560,1561,2167 ' +  
                                    '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
+                                   '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +
                                    '-P installers,native-image ' +
                                    'clean package'
                                 
@@ -69,7 +70,8 @@ pipeline {
                             ) {
                                 sh 'mvn -U -Dbuild.mediaTypes=unixInstaller,unixArchive,linuxRPM,linuxDeb ' +
                                    '-Dinstall4j.disableSigning=true ' + 
-                                   '-Dbuild.buildIds=2166,2300,2304,2308 ' +  
+                                   '-Dbuild.buildIds=2166,2300,2304,2308 ' +
+                                   '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +  
                                    '-Djavafx.version=22.0.2 ' +
                                    '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
                                    '-P installers,native-image ' +
@@ -109,6 +111,7 @@ pipeline {
                                 // -Dinstall4j.disableNotarization=true
                                 sh 'mvn -U -Dbuild.mediaTypes=macos,macosFolder,macosFolderArchive ' +
                                    '"-Dbuild.projectProperties=$BUILD_PROPERTIES" ' +
+                                   '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +
                                    '-P installers,native-image ' +
                                    'clean package'
                                 
@@ -146,6 +149,7 @@ pipeline {
                                 bat 'mvn -U -Dinstall4j.verbose=true ' +
                                     '-Dbuild.mediaTypes=windows,windowsArchive ' +
                                     '-Dbuild.exe.suffix=.exe ' +
+                                    '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +
                                     '"-Dbuild.projectProperties=%BUILD_PROPERTIES%" ' +
                                     '-P installers,native-image ' +
                                     'clean package'
