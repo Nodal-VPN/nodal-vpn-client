@@ -70,6 +70,8 @@
         
         <build.projectProperties>${project.basedir}/hypersocket.build.properties</build.projectProperties>
         <build.userProperties>${user.home}/.hypersocket.build.properties</build.userProperties>
+        <build.mediaTypes>windows,unixInstaller,macos,macosFolder,windowsArchive,unixArchive,linuxRPM,linuxDeb,macosArchive,macosFolderArchive</build.mediaTypes>
+        <build.buildIds></build.buildIds>
         
         <install4j.updatesBase>https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client</install4j.updatesBase>
         <install4j.jaulAppId>com.logonbox.VPNClient</install4j.jaulAppId>

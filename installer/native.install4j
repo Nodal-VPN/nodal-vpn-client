@@ -1895,7 +1895,7 @@ return true;</property>
         <variable name="build.exe.suffix" value=".exe" />
       </variables>
     </windows>
-    <unixInstaller name="Linux Installer" id="1555" mediaFileName="${compiler:sys.shortName}-linux-amd64-${compiler:sys.version}">
+    <unixInstaller name="Linux AMD64 Installer" id="1555" mediaFileName="${compiler:sys.shortName}-linux-amd64-${compiler:sys.version}">
       <exclude>
         <entry location="conf/jad-vpn-service.conf" />
         <entry location="gui/mac-aarch64" />
@@ -1912,7 +1912,7 @@ return true;</property>
       </variables>
       <jreBundle usePack200="false" />
     </unixInstaller>
-    <linuxRPM name="Linux RPM" id="1560" arch="amd64">
+    <linuxRPM name="Linux RPM X86_64" id="1560" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-x84_64-${compiler:sys.version}" arch="amd64">
       <exclude>
         <entry location="gui/mac-aarch64" />
         <entry location="gui/mac" />
@@ -1938,7 +1938,7 @@ rm -f /etc/dbus-1/system.d/jad-vpn-service.conf
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
 </preUninstallScript>
     </linuxRPM>
-    <linuxDeb name="Linux Deb Archive" id="1561" overwriteNeverAsConfigFiles="true" dependencies="dbus" description="JADAPTIVE VPN Client, the ideal companion to the JADAPTIVE VPN Server" maintainerEmail="brett@logonbox.com" architectureSet="true" architecture="amd64">
+    <linuxDeb name="Linux Deb AMD64" id="1561" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}" overwriteNeverAsConfigFiles="true" dependencies="dbus" description="JADAPTIVE VPN Client, the ideal companion to the JADAPTIVE VPN Server" maintainerEmail="brett@logonbox.com" architectureSet="true" architecture="amd64">
       <exclude>
         <entry location="gui/mac-aarch64" />
         <entry location="gui/mac" />
@@ -1978,7 +1978,7 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
       </variables>
       <jreBundle usePack200="false" includedJre="windows-amd64-1.8.0_121" />
     </windows>
-    <unixInstaller name="Arm64 Unix Installer" id="2166" mediaFileName="${compiler:sys.shortName}-linux-aarch64-${compiler:sys.version}" require64BitVm="true">
+    <unixInstaller name="Linux AARCH64 Installer" id="2166" mediaFileName="${compiler:sys.shortName}-linux-aarch64-${compiler:sys.version}" require64BitVm="true">
       <exclude>
         <entry location="conf/jad-vpn-service.conf" />
         <entry location="gui/mac-aarch64" />
@@ -1995,7 +1995,7 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
       </variables>
       <jreBundle usePack200="false" platform="linux-aarch64" />
     </unixInstaller>
-    <unixArchive name="Linux Archive" id="2167" mediaFileName="${compiler:sys.shortName}-linux-amd64-${compiler:sys.version}">
+    <unixArchive name="Linux AMD64 Archive" id="2167" mediaFileName="${compiler:sys.shortName}-linux-amd64-${compiler:sys.version}">
       <exclude>
         <entry location="gui/mac-aarch64" />
         <entry location="gui/mac" />
@@ -2029,6 +2029,76 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
       </variables>
       <jreBundle release="21/jdk-21.0.1+12" usePack200="false" includedJre="macosx-amd64-1.8.0_121" />
     </macosFolder>
+    <linuxRPM name="Linux RPM AARCH64" id="2300" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-x84_64-${compiler:sys.version}" arch="aarch64">
+      <exclude>
+        <entry location="gui/mac-aarch64" />
+        <entry location="gui/mac" />
+        <entry location="gui/win" />
+        <entry location="gui/linux-aarch64" />
+        <entry location="cleanup.bat" />
+        <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="jad-vpn-client-service.exe" />
+        <entry location="jad-vpn-client-service.xml" />
+      </exclude>
+      <variables>
+        <variable name="jfx.archdir" value="gui/linux" />
+      </variables>
+      <jreBundle platform="linux-aarch64" />
+      <postInstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
+cp -f conf/jad-vpn-service.conf /etc/dbus-1/system.d
+dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+systemctl enable jad-vpn-service
+systemctl start jad-vpn-service</postInstallScript>
+      <preUninstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
+
+systemctl stop jad-vpn-service
+rm -f /etc/dbus-1/system.d/jad-vpn-service.conf
+dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+</preUninstallScript>
+    </linuxRPM>
+    <linuxDeb name="Linux Deb AARCH64" id="2304" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}" overwriteNeverAsConfigFiles="true" dependencies="dbus" description="JADAPTIVE VPN Client, the ideal companion to the JADAPTIVE VPN Server" maintainerEmail="brett@logonbox.com" architectureSet="true" architecture="aarch64">
+      <exclude>
+        <entry location="gui/mac-aarch64" />
+        <entry location="gui/mac" />
+        <entry location="gui/win" />
+        <entry location="gui/linux-aarch64" />
+        <entry location="cleanup.bat" />
+        <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="jad-vpn-client-service.exe" />
+        <entry location="jad-vpn-client-service.xml" />
+      </exclude>
+      <variables>
+        <variable name="jfx.archdir" value="gui/linux" />
+      </variables>
+      <jreBundle platform="linux-aarch64" />
+      <postInstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
+cp -f conf/jad-vpn-service.conf /etc/dbus-1/system.d
+dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+systemctl enable jad-vpn-service
+systemctl start jad-vpn-service</postInstallScript>
+      <preUninstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
+
+systemctl stop jad-vpn-service
+rm -f /etc/dbus-1/system.d/jad-vpn-service.conf
+dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+</preUninstallScript>
+    </linuxDeb>
+    <unixArchive name="Linux AARCH64 Archive" id="2308" mediaFileName="${compiler:sys.shortName}-linux-aarch64-${compiler:sys.version}">
+      <exclude>
+        <entry location="gui/mac-aarch64" />
+        <entry location="gui/mac" />
+        <entry location="gui/win" />
+        <entry location="gui/linux-aarch64" />
+        <entry location="cleanup.bat" />
+        <entry location="WireGuardNT-LICENSE.txt" />
+        <entry location="jad-vpn-client-service.exe" />
+        <entry location="jad-vpn-client-service.xml" />
+      </exclude>
+      <variables>
+        <variable name="jfx.archdir" value="gui/linux" />
+      </variables>
+      <jreBundle jreBundleSource="none" />
+    </unixArchive>
   </mediaSets>
   <buildIds buildAll="false">
     <mediaSet refId="1555" />

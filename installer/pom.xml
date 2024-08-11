@@ -12,6 +12,7 @@
 	<properties>
 		<build.phase>continuous</build.phase>
 		<build.mediaTypes>windows,unixInstaller,macos,macosFolder,windowsArchive,unixArchive,linuxRPM,linuxDeb,macosArchive,macosFolderArchive</build.mediaTypes>
+        <build.buildIds></build.buildIds>
 		<build.exe.suffix></build.exe.suffix>
 	</properties>
 	<build>
@@ -164,7 +165,8 @@
                             <inputs>
                                 <input>${project.build.directory}/media-macos/updates.xml</input>
                                 <input>${project.build.directory}/media-windows/updates.xml</input>
-                                <input>${project.build.directory}/media-linux/updates.xml</input>
+                                <input>${project.build.directory}/media-linux-aarch/updates.xml</input>
+                                <input>${project.build.directory}/media-linux-amd64/updates.xml</input>
                             </inputs>
                             <output>${project.build.directory}/media/updates.xml</output>
                         </configuration>
@@ -514,6 +516,7 @@
                                     <attach>true</attach>
                                     <release>${product.version}-${build.number}</release>
                                     <mediaTypes>${build.mediaTypes}</mediaTypes>
+                                    <buildIds>${build.buildIds}</buildIds>
                                     <variables>
                                         <build.phase>${build.phase}</build.phase>
                                         
@@ -592,6 +595,7 @@
                                     <attach>true</attach>
                                     <release>${product.version}-${build.number}</release>
                                     <mediaTypes>${build.mediaTypes}</mediaTypes>
+                                    <buildIds>${build.buildIds}</buildIds>
                                     <variables>
                                         <build.phase>${build.phase}</build.phase>
                                         <build.exeSuffix>${build.exe.suffix}</build.exeSuffix>

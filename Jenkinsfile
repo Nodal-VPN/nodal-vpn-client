@@ -9,11 +9,11 @@ pipeline {
         stage ('LogonBox VPN Client Installers') {
             parallel {
                 /*
-                 * Linux Installers and Packages
+                 * Linux AMD64 Installers and Packages
                  */
-                stage ('Linux LogonBox VPN Client Installers') {
+                stage ('Linux AMD64 LogonBox VPN Client Installers') {
                     agent {
-                        label 'install4j && linux'
+                        label 'install4j && linux && x86_64'
                     }
                     steps {
                         configFileProvider([
@@ -29,16 +29,54 @@ pipeline {
                             ) {
                                 sh 'mvn -U -Dbuild.mediaTypes=unixInstaller,unixArchive,linuxRPM,linuxDeb ' +
                                    '-Dinstall4j.disableSigning=true ' + 
+                                   '-Dbuild.buildIds=1555,1560,1561,2167 ' +  
                                    '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
                                    '-P installers,cross-platform ' +
                                    'clean package'
                                 
                                 /* Stash installers */
-                                stash includes: 'installer/target/media/*', name: 'linux-vpn-client'
+                                stash includes: 'installer/target/media/*', name: 'linux-amd64-vpn-client'
                                 
                                 /* Stash updates.xml */
                                 dir('installer/target/media') {
-                                    stash includes: 'updates.xml', name: 'linux-updates-xml'
+                                    stash includes: 'updates.xml', name: 'linux-amd64-updates-xml'
+                                }
+                            }
+                        }
+                    }
+                }
+                /*
+                 * Linux AARCH64 Installers and Packages
+                 */
+                stage ('Linux AARCH64 LogonBox VPN Client Installers') {
+                    agent {
+                        label 'install4j && linux && aarch64'
+                    }
+                    steps {
+                        configFileProvider([
+                                configFile(
+                                    fileId: 'bb62be43-6246-4ab5-9d7a-e1f35e056d69',  
+                                    replaceTokens: true,
+                                    targetLocation: 'hypersocket.build.properties',
+                                    variable: 'BUILD_PROPERTIES'
+                                )
+                            ]) {
+                            withMaven(
+                                globalMavenSettingsConfig: '4bc608a8-6e52-4765-bd72-4763f45bfbde'
+                            ) {
+                                sh 'mvn -U -Dbuild.mediaTypes=unixInstaller,unixArchive,linuxRPM,linuxDeb ' +
+                                   '-Dinstall4j.disableSigning=true ' + 
+                                   '-Dbuild.buildIds=2166,2300,2304,2308 ' +  
+                                   '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
+                                   '-P installers,cross-platform ' +
+                                   'clean package'
+                                
+                                /* Stash installers */
+                                stash includes: 'installer/target/media/*', name: 'linux-aarch64-vpn-client'
+                                
+                                /* Stash updates.xml */
+                                dir('installer/target/media') {
+                                    stash includes: 'updates.xml', name: 'linux-aarch64-updates-xml'
                                 }
                             }
                         }
@@ -138,7 +176,8 @@ pipeline {
                 
                 /* Unstash installers */
                 unstash 'windows-vpn-client'
-                unstash 'linux-vpn-client'
+                unstash 'linux-amd64-vpn-client'
+                unstash 'linux-aarch64-vpn-client'
                 unstash 'macos-vpn-client'
                 
                 /* Unstash updates.xml */
@@ -148,8 +187,11 @@ pipeline {
                 dir('installer/target/media-windows') {
                     unstash 'windows-updates-xml'
                 }
-                dir('installer/target/media-linux') {
-                    unstash 'linux-updates-xml'
+                dir('installer/target/media-linux-amd64') {
+                    unstash 'linux-amd64-updates-xml'
+                }
+                dir('installer/target/media-linux-aarch64') {
+                    unstash 'linux-aarch64-updates-xml'
                 }
                 
                 /* Merge all updates.xml into one */
