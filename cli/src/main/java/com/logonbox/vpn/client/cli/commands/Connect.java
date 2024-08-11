@@ -6,7 +6,9 @@ import com.logonbox.vpn.client.common.api.IVpnConnection;
 
 import java.net.URI;
 import java.text.MessageFormat;
+import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -20,7 +22,7 @@ public class Connect extends AbstractConnectingCommand implements Callable<Integ
 	private CommandSpec spec;
 
 	@Parameters(index = "0", arity = "0..1", description = "Connect to a particular server using a URI. Acceptable formats include <server[<port>]> or https://<server[<port>]>[/path]. If a pre-configured connection matching this URI already exists, it will be used.")
-	private String uri;
+	private Optional<String> uri;
 
 	@Override
 	public Integer call() throws Exception {
@@ -33,37 +35,47 @@ public class Connect extends AbstractConnectingCommand implements Callable<Integ
 
 		IVpnConnection connection = null;
 
-		var pattern = getPattern(cli, new String[] { uri });
-		var c = getConnectionsMatching(pattern, cli);
-		if (c.isEmpty()) {
-			if (Utils.isNotBlank(uri)) {
-				if (!uri.startsWith("https://")) {
-					if (uri.indexOf("://") != -1) {
-						throw new IllegalArgumentException(CLI.BUNDLE.getString("error.onlyHttps"));
-					}
-					uri = "https://" + uri;
-				}
-				var uriObj = new URI(uri);
-				if (!uriObj.getScheme().equals("https")) {
-					throw new IllegalArgumentException(CLI.BUNDLE.getString("error.onlyHttps"));
-				}
-
-				var vpnManager = cli.getVpnManager();
-                var vpn = vpnManager.getVpnOrFail();
-                var connectionId = vpn.getConnectionIdForURI(uri);
-				connection = connectionId < 0 ? null : vpn.getConnection(connectionId);
-
-				if (connection == null) {
-					connectionId = vpn.connect(uri);
-					connection = vpn.getConnection(connectionId);
-					if (cli.isVerbose())
-						out.println(MessageFormat.format(CLI.BUNDLE.getString("info.created"), uri));
-				}
-			} else {
-				throw new IllegalStateException(CLI.BUNDLE.getString("error.missingUri"));
-			}
-		} else
-			connection = c.get(0);
+		if(uri.isPresent()) {
+		    var uriVal = uri.get();
+    		var pattern = getPattern(cli, new String[] { uriVal });
+    		var c = getConnectionsMatching(pattern, cli);
+    		if (c.isEmpty()) {
+    			if (Utils.isNotBlank(uriVal)) {
+    				if (!uriVal.startsWith("https://")) {
+    					if (uriVal.indexOf("://") != -1) {
+    						throw new IllegalArgumentException(CLI.BUNDLE.getString("error.onlyHttps"));
+    					}
+    					uriVal = "https://" + uriVal;
+    				}
+    				var uriObj = new URI(uriVal);
+    				if (!uriObj.getScheme().equals("https")) {
+    					throw new IllegalArgumentException(CLI.BUNDLE.getString("error.onlyHttps"));
+    				}
+    
+    				var vpnManager = cli.getVpnManager();
+                    var vpn = vpnManager.getVpnOrFail();
+                    var connectionId = vpn.getConnectionIdForURI(uriVal);
+    				connection = connectionId < 0 ? null : vpn.getConnection(connectionId);
+    
+    				if (connection == null) {
+    					connectionId = vpn.connect(uriVal);
+    					connection = vpn.getConnection(connectionId);
+    					if (cli.isVerbose())
+    						out.println(MessageFormat.format(CLI.BUNDLE.getString("info.created"), uriVal));
+    				}
+    			} else {
+    				throw new IllegalStateException(CLI.BUNDLE.getString("error.missingUri"));
+    			}
+    		} else
+    			connection = c.get(0);
+		}
+		else {
+		    var allConnections = cli.getVpnManager().getVpnOrFail().getConnections();
+            connection = Stream.of(allConnections).
+                    filter(IVpnConnection::isFavourite).
+                    findFirst().orElseGet(() -> Stream.of(allConnections).
+                        findFirst().orElseThrow(() -> new IllegalStateException(CLI.BUNDLE.getString("error.noConnections"))));
+		}
 		
 		console.flush();
 

@@ -25,6 +25,10 @@ public class Change extends AbstractConnectionCommand {
 			"--connect-at-startup" }, negatable = true, description = "Set the connect at startup option.")
 	private Optional<Boolean> connectAtStartup;
 
+    @Option(names = { "-f",
+            "--favourite" }, negatable = true, description = "Set the favourite option.")
+    private Optional<Boolean> favourite;
+
 	@Option(names = { "-c",
 			"--stay-connected" }, negatable = true, description = "Set the stay connected option.")
 	private Optional<Boolean> stayConnected;
@@ -44,6 +48,9 @@ public class Change extends AbstractConnectionCommand {
 			        uri.orElseGet(() -> connection.getUri(false)),
 			        connectAtStartup.orElseGet(() -> connection.isConnectAtStartup()),
 			        stayConnected.orElseGet(() -> connection.isStayConnected()));
+			if(favourite.isPresent()) {
+			    connection.setAsFavourite();
+			}
 			if (cli.isVerbose())
 			    cli.getConsole().err().println(MessageFormat.format(CLI.BUNDLE.getString("info.updated"), connection.getUri(false)));
 		} else {

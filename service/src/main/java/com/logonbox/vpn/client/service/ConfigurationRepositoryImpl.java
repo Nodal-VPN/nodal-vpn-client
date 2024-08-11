@@ -53,11 +53,11 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 		
 		var node = getSection(owner, key);
 		
-		V v = key.parse(node.get(key.getKey(), null));
+		V v = key.parse(node.get(key.getKey(), key.getDefaultValue().toString()));
 		if(key.getValues() != null && !key.getValues().isEmpty()) {
 			if(!key.getValues().contains(v)) {
-				log.warn(String.format("Invalid value found in %s. %s is not in %s, resetting to default", key.getKey(), v, key.getValues(), key.getDefaultValue()));
-				setValue(owner, key, key.getDefaultValue());
+				log.warn("Invalid value found in {}. {} is not in {}, resetting to default {}", key.getKey(), v, key.getValues(), key.getDefaultValue());
+                node.remove(key.getKey());
 				return key.getDefaultValue();
 			}
 		}

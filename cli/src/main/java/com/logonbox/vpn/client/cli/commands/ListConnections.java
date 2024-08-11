@@ -55,47 +55,53 @@ public class ListConnections implements Callable<Integer> {
         
 		if(OsUtil.isAdministrator())  {
 		    if(longFormat) {
-                var allExceptUrl = 69;
-                var remain = width - allExceptUrl;
+                var allExceptUrl = 44;
+                var remain = ( width - allExceptUrl );
+                var left = (int)(remain * 0.33);
+                var right= (int)(remain * 0.66);
                 if(headings)
-                    writer.println(Ansi.AUTO.string(String.format("@|underline %5s %-20s %-15s %-5s %-13s %-" + remain + "s|@", "ID", "Name", "Owner", "Flags", "Status", "URL")));
+                    writer.println(Ansi.AUTO.string(String.format("@|underline %5s %-" + left + "s %-15s %-5s %-13s %-" + right + "s|@", "ID", "Name", "Owner", "Flags", "Status", "URL")));
                 for (var connection : connections) {
-    				writer.println(String.format("%5d %-20s %-15s %-5s %-13s %-" + remain + "s", 
+                    var t = Type.valueOf(connection.getStatus());
+    				writer.println(typeToStyleString(t, "%5d %-" + left + "s %-15s %-5s %-13s %-" + right + "s", 
     						connection.getId(),
-    						trimMax(connection.getDisplayName(), 20),
+    						trimMax(connection.getDisplayName(), left),
     						trimMax(connection.getOwner(), 15),  
     						getFlags(connection),
     						trimMax(CLI.BUNDLE.getString("status." + connection.getStatus()), 13), 
-    						trimMax(connection.getUri(true), remain)));
+    						trimMax(connection.getUri(true), right)));
     			}
 		    }
 		    else {
                 for (var connection : connections) {
                     var t = Type.valueOf(connection.getStatus());
                     var ownerStr = "@|faint " + connection.getOwner() + "|@";
-                    writer.println((t.isSuccess() ? "*" : "") + typeToStyleString(t, "%s", connection.getDisplayName()) + " " + Ansi.AUTO.string(ownerStr));
+                    writer.println(typeToStyleString(t, "%s", connection.getDisplayName()) + " " + Ansi.AUTO.string(ownerStr) + typeToIndicatorString(t));
                 }
 		    }
 		}
 		else {
             if(longFormat) {
-                var allExceptUrl = 59;
-                var remain = width - allExceptUrl;
+                var allExceptUrl = 28;
+                var remain = ( width - allExceptUrl );
+                var left = (int)(remain * 0.33);
+                var right= (int)(remain * 0.66);
                 if(headings)
-                    writer.println(Ansi.AUTO.string(String.format("@|underline %5s %-35s %-5s %-13s %-" + remain + "s|@", "ID", "Name", "Flags", "Status", "URL")));
+                    writer.println(Ansi.AUTO.string(String.format("@|underline %5s %-" + left + "s %-5s %-13s %-" + right + "s|@", "ID", "Name", "Flags", "Status", "URL")));
     			for (var connection : connections) {
-    				writer.println(String.format("%5d %-35s %-5s %-13s %-" + remain + "s", 
+                    var t = Type.valueOf(connection.getStatus());
+    				writer.println(typeToStyleString(t, "%5d %-" + left + "s %-5s %-13s %-" + right + "s", 
     						connection.getId(),
-    						trimMax(connection.getDisplayName(), 32), 
+    						trimMax(connection.getDisplayName(), left), 
     						getFlags(connection),
     						trimMax(CLI.BUNDLE.getString("status." + connection.getStatus()), 13), 
-    						trimMax(connection.getUri(true), remain)));
+    						trimMax(connection.getUri(true), right)));
     			}
             }
             else {
                 for (var connection : connections) {
                     var t = Type.valueOf(connection.getStatus());
-                    writer.println((t.isSuccess() ? "*" : "") + typeToStyleString(t, "%s", connection.getDisplayName()));
+                    writer.println(typeToStyleString(t, "%s", connection.getDisplayName()) + typeToIndicatorString(t));
                 }
             }
 		}
@@ -108,17 +114,29 @@ public class ListConnections implements Callable<Integer> {
 	    if(type.isSuccess()) {
 	        return Ansi.AUTO.string("@|green " + String.format(fmt, args) + "|@");
         }
-        else if(type.isWarn()) {
+        else if(type.isWarn() || type.isPrompt()) {
             return Ansi.AUTO.string("@|yellow " + String.format(fmt, args) + "|@");
-        }
-        else if(type.isPrompt()) {
-            /* Haha! */
-            return Ansi.AUTO.string("@|blink " + String.format(fmt, args) + "|@");
         }
         else {
             return String.format(fmt, args);
         } 
 	}
+    
+    private String typeToIndicatorString(Type type) {
+        if(type.isSuccess()) {
+            return Ansi.AUTO.string("*");
+        }
+        else if(type.isWarn()) {
+            return Ansi.AUTO.string("@|blink !|@");
+        }
+        else if(type.isPrompt()) {
+            /* Haha! */
+            return Ansi.AUTO.string("@|blink ?|@");
+        }
+        else {
+            return "";
+        } 
+    }
 
 	private String getFlags(IVpnConnection connection) {
 		String flags = "";
