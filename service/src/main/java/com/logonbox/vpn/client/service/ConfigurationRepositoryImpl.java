@@ -1,6 +1,7 @@
 package com.logonbox.vpn.client.service;
 
 import com.logonbox.vpn.client.common.AppConstants;
+import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConfigurationItem.Scope;
 import com.logonbox.vpn.client.common.ConfigurationRepository;
@@ -29,18 +30,20 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
                 withMonitor(new Monitor()).
                 withApp(AppConstants.CLIENT_NAME).
                 withoutSystemPropertyOverrides();
-	    
-	    if(OS.isAdministrator()) {
+
+        if(AppVersion.isDeveloperWorkspace()) {
+            bldr.withScopes(com.sshtools.jini.config.INISet.Scope.USER).
+                withPath(com.sshtools.jini.config.INISet.Scope.USER, Paths.get("conf")).
+                withWriteScope(com.sshtools.jini.config.INISet.Scope.USER);
+        }
+        else if(OS.isAdministrator()) {
             bldr.withScopes(com.sshtools.jini.config.INISet.Scope.GLOBAL).
-                withPath(com.sshtools.jini.config.INISet.Scope.GLOBAL, Paths.get("conf")).
                 withWriteScope(com.sshtools.jini.config.INISet.Scope.GLOBAL);
 	    }
 	    else {
             bldr.withScopes(com.sshtools.jini.config.INISet.Scope.USER).
-                withPath(com.sshtools.jini.config.INISet.Scope.USER, Paths.get("conf")).
                 withWriteScope(com.sshtools.jini.config.INISet.Scope.USER);
 	    }
-	        
 	    
         doc = bldr.build().document();
 	}
