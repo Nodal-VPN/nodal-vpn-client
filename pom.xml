@@ -108,7 +108,7 @@
 		<module>embedded</module>
 		<module>gui</module>
 		<module>gui-debugger</module>
-		<module>swt-gui</module>
+		<!--<module>swt-gui</module>-->
 		<module>desktop</module>
 		<module>desktop-service</module>
 		<module>cli</module>

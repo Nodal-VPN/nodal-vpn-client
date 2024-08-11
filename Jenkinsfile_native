@@ -48,7 +48,7 @@ pipeline {
                 /*
                  * Linux AARC64 Installers and Packages
                  */
-                stage ('Linux AARC64 LogonBox VPN Client Native Installers') {
+                stage ('Linux AARCH64 LogonBox VPN Client Native Installers') {
                     agent {
                         label 'install4j && linux && aarch64'
                     }
