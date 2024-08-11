@@ -96,13 +96,13 @@ public abstract class AbstractConnectionCommand implements Callable<Integer>, IV
 	protected void disconnect(IVpnConnection c, CLIContext cli)
 			throws InterruptedException, IOException, DBusException {
 		var console = cli.getConsole();
-		if (!cli.isQuiet())
+		if (cli.isVerbose())
             console.out().println(MessageFormat.format(CLI.BUNDLE.getString("connection.disconnecting"), c.getUri(true)));
 		console.flush();
 		try (var helper = new StateHelper((VpnConnection) c, cli.getVpnManager())) {
 			c.disconnect("");
 			helper.waitForState(1, TimeUnit.MINUTES, Type.DISCONNECTED);
-			if (!cli.isQuiet())
+			if (cli.isVerbose())
                 console.out().println(CLI.BUNDLE.getString("connection.disconnected"));
 		}
 		console.flush();

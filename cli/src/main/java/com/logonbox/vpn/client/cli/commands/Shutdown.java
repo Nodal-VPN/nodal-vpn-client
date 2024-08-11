@@ -24,7 +24,6 @@ public class Shutdown implements Callable<Integer> {
         cli.initConsoleAndManager();
         
 		cli.getVpnManager().getVpnOrFail().shutdown(false);
-		cli.exitWhenDone();
 		return 0;
 	}
 }

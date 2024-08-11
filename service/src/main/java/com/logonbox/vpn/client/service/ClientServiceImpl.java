@@ -41,6 +41,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.HttpCookie;
@@ -233,10 +234,22 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		connection.setStayConnected(stayConnected);
 		context.fireConnectionAdding();
 		generateKeys(connection);
-        probeAuthMethods(connection);
-		Connection newConnection = doSave(connection);
-		context.connectionAdded(newConnection);
-		return newConnection;
+		try {
+            probeAuthMethods(connection);
+    		Connection newConnection = doSave(connection);
+    		context.connectionAdded(newConnection);
+    		return newConnection;
+		}
+		catch(UncheckedIOException ucioe) {
+		    var io = ucioe.getCause();
+		    if(io instanceof ConnectException) {
+		        throw new IllegalArgumentException("Failed to connect to VPN server " + uri + ". Check the connection URL, including the server name or IP address, the port, and the configuration name.");
+		    }
+		    else {
+    		    log.error("Failed to create connection.", ucioe);
+    		    throw new IllegalArgumentException("Failed to create connection to " + uri + ". " + ( ucioe.getMessage() == null ? "" : ucioe.getMessage() ) );
+		    }
+		}
 	}
     
     private boolean probeAuthMethods(Connection connection) {
@@ -1286,7 +1299,10 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		Connection newConnection = connectionRepository.save(c);
 
 		if (wasTransient) {
-			log.info(String.format("Saving non-persistent connection, now has ID %d", newConnection.getId()));
+			log.info("Saving non-persistent connection, now {}", newConnection);
+		}
+		else {
+		    log.info("Saving connection. {}", c);
 		}
 
 		synchronized (activeSessions) {

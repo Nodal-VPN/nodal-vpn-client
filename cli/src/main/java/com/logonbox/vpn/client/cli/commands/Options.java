@@ -1,19 +1,22 @@
 package com.logonbox.vpn.client.cli.commands;
 
+import com.logonbox.vpn.client.cli.CLI;
 import com.logonbox.vpn.client.common.Utils;
 
 import org.freedesktop.dbus.exceptions.DBusExecutionException;
 
+import java.text.MessageFormat;
+
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "config", usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "List, set or get global configuration.")
-public class Config extends AbstractConnectionCommand {
+@Command(name = "option", aliases = { "option", "options", "config", "cfg", "configuration", "options" }, usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "List, set or get global options.")
+public class Options extends AbstractConnectionCommand {
 
-	@Parameters(description = "Name of configuration property.", arity = "0..1")
+	@Parameters(description = "Name of option.", arity = "0..1")
 	private String name;
 
-	@Parameters(description = "Value of configuration property.", arity = "0..1")
+	@Parameters(description = "Value of option.", arity = "0..1")
 	private String value;
 
 	@Override
@@ -29,7 +32,7 @@ public class Config extends AbstractConnectionCommand {
 				console.out().println(cli.getVpnManager().getVpnOrFail().getValue(name));
 			}
 			catch(DBusExecutionException dee) {
-				throw new IllegalArgumentException(String.format("No such configuration item %s", name));
+				throw new IllegalArgumentException(MessageFormat.format(CLI.BUNDLE.getString("error.noSuchOption"), name));
 			}
 		} else {
 			cli.getVpnManager().getVpnOrFail().setValue(name, value);

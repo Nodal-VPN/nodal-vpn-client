@@ -8,7 +8,7 @@ import java.io.PrintWriter;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "show", usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Show connection details.")
+@Command(name = "show", aliases = { "s", "sh", "view" }, usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Show connection details.")
 public class Show extends AbstractConnectionCommand {
 
 	@Parameters(description = "Show connection details.")

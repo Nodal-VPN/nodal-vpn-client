@@ -16,9 +16,7 @@ public interface CLIContext extends AppContext<VpnConnection> {
 
 	void about() throws IOException;
 
-	void exitWhenDone();
-
-	boolean isQuiet();
+	boolean isVerbose();
 
 	UpdateService getUpdateService();
 

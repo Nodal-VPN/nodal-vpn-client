@@ -7,7 +7,7 @@ open module com.logonbox.vpn.client.cli {
     requires transitive com.logonbox.vpn.client.logging;
     requires transitive com.logonbox.vpn.client.dbus.app;
     requires static uk.co.bithatch.nativeimage.annotations;
-    requires info.picocli;
+    requires transitive info.picocli;
     requires com.sshtools.liftlib;
     requires jakarta.json;
     requires jul.to.slf4j;

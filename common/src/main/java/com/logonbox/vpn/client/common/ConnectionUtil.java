@@ -1,8 +1,5 @@
 package com.logonbox.vpn.client.common;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,7 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ConnectionUtil {
-    static Logger log = LoggerFactory.getLogger(ConnectionUtil.class);
 
 	public static HttpRequest.BodyPublisher ofMap(Map<String, String> parms) {
 		var b = new StringBuilder();
@@ -54,13 +50,11 @@ public class ConnectionUtil {
 		try {
 			var addr = InetAddress.getByName(connection.getHostname()).getHostAddress();
 			if(!Objects.equals(addr, connection.getLastKnownServerIpAddress())) {
-			    log.info("Changing last known server IP address for connection {} to {}", connection.getId(), addr);
 			    connection.setLastKnownServerIpAddress(addr);
 			}
 		}
 		catch(Exception e) {
 		    if(connection.getLastKnownServerIpAddress() != null) {
-                log.info("Resetting last known server IP address for connection {}", connection.getId());
 		        connection.setLastKnownServerIpAddress(null);
 		    }
 		}

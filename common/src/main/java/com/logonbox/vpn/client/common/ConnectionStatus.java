@@ -24,6 +24,31 @@ public interface ConnectionStatus {
             default:
                 return false;
             }
+        }
+
+        public boolean isPrompt() {
+            return this == AUTHORIZING;
+        }
+
+        public boolean isSuccess() {
+            switch(this) {
+            case CONNECTED:
+            case CONNECTING:
+                return true;
+            default:
+                return false;
+            }
+        }
+
+        public boolean isWarn() {
+            switch(this) {
+            case BLOCKED:
+            case DISCONNECTING:
+            case TEMPORARILY_OFFLINE:
+                return true;
+            default:
+                return false;
+            }
         }	
 	}
 	

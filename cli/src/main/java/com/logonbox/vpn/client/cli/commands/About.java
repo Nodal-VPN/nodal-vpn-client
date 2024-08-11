@@ -11,7 +11,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
 
-@Command(name = "about", mixinStandardHelpOptions = true, description = "Show version information.")
+@Command(name = "about", aliases = { "a", "ab" }, mixinStandardHelpOptions = true, description = "Show version information.")
 public class About implements Callable<Integer> {
 
 	@Spec

@@ -6,8 +6,9 @@ A major new release with many architectural changes.
 
  * Now uses `logonbox-vpn-drivers` for low level VPN support.
  * Experimental Android and iOS builds.
- * New standandalone version that does not require a system service.
+ * New stand-alone version that does not require a system service.
  * Now natively compiled for much faster startup and better resource usage.
+ * Improved appearance, fits better with other native applications.
 
 ## 3.0.4-SNAPSHOT
 

@@ -1,5 +1,8 @@
 package com.logonbox.vpn.client.cli.commands;
 
+import com.logonbox.vpn.client.cli.CLI;
+
+import java.text.MessageFormat;
 import java.util.concurrent.Callable;
 
 import picocli.CommandLine.Command;
@@ -26,7 +29,7 @@ public class Save extends AbstractConnectionCommand implements Callable<Integer>
 		var c = getConnectionsMatching(pattern, cli);
 		
 		if (c.isEmpty())
-			throw new IllegalArgumentException(String.format("No connection matches %s", pattern));
+            throw new IllegalArgumentException(MessageFormat.format(CLI.BUNDLE.getString("error.noMatch"), pattern));
 		for (var connection : c) {
 		    
 			var wasTransient = connection.isTransient();
@@ -34,9 +37,8 @@ public class Save extends AbstractConnectionCommand implements Callable<Integer>
 			
 			if (wasTransient) {
 				connection = cli.getVpnManager().getVpnOrFail().getConnection(id);
-				if(!cli.isQuiet()) {
-					console.out()
-							.println(String.format("Saved %s, ID is now %d", connection.getUri(true), connection.getId()));
+				if(cli.isVerbose()) {
+				    console.out().println(MessageFormat.format(CLI.BUNDLE.getString("info.saved"), connection.getUri(true), connection.getId()));
 					console.flush();
 				}
 			}

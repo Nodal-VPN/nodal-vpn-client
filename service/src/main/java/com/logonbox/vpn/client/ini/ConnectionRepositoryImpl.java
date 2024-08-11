@@ -87,7 +87,7 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 	}
 
 	protected Long getNextId() throws IOException {
-		var id = 0l;
+		var id = 1l;
 		var dir = dir();
 		if(Files.exists(dir)) {
             try (var stream = Files.newDirectoryStream(dir)) {

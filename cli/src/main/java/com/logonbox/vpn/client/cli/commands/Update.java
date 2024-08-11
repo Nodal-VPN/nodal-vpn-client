@@ -1,7 +1,10 @@
 package com.logonbox.vpn.client.cli.commands;
 
+import com.logonbox.vpn.client.cli.CLI;
 import com.logonbox.vpn.client.cli.CLIContext;
 
+import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.concurrent.Callable;
 
 import picocli.CommandLine.Command;
@@ -9,16 +12,16 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
-@Command(name = "update", usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Update the client.")
+@Command(name = "update", aliases = { "up", "upd", "upgrade" }, usageHelpAutoWidth = true, mixinStandardHelpOptions = true, description = "Update the client.")
 public class Update implements Callable<Integer> {
 
 	@Spec
 	private CommandSpec spec;
 	
-	@Option(names = { "y", "yes" })
+	@Option(names = { "y", "yes", "-y", "--yes" })
 	private boolean yes;
 	
-	@Option(names = { "c", "check" })
+	@Option(names = { "c", "check", "-c", "--check" })
 	private boolean checkOnly;
 	
 	@Override
@@ -31,23 +34,20 @@ public class Update implements Callable<Integer> {
 		cli.getUpdateService().checkForUpdate();
 		if(cli.getUpdateService().isNeedsUpdating()) {
 			if(checkOnly) {
-				writer.println(String.format("Version %s available.", cli.getUpdateService().getAvailableVersion()));
+			    if(cli.isVerbose())
+			        writer.println(MessageFormat.format(CLI.BUNDLE.getString("info.availableUpdate"), cli.getUpdateService().getAvailableVersion(), cli.getUpdateService().getContext().getPhase()));
 				console.flush();
 				return 0;
 			}
 			else if(!yes) {
 				String answer = console.readLine("Version %s available. Update? (Y)/N: ", cli.getUpdateService().getAvailableVersion()).toLowerCase();
 				if(!answer.equals("") && !answer.equals("y") && !answer.equals("yes")) {
-					writer.println("Cancelled");
-					console.flush();
-					return 1;
+				    throw new IOException(CLI.BUNDLE.getString("error.abortedUpdate"));
 				}
 			}
 		}
 		else {
-			writer.println("You are on the latest version.");
-			console.flush();
-			return 3;
+	        throw new IllegalStateException(MessageFormat.format(CLI.BUNDLE.getString("info.upToDate"), cli.getUpdateService().getContext().getVersion(), cli.getUpdateService().getContext().getPhase()));
 		}
 		
 		cli.getUpdateService().update();

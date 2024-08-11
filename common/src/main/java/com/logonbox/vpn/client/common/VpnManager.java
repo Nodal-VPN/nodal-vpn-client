@@ -42,7 +42,7 @@ public interface VpnManager<CONX extends IVpnConnection> {
     Optional<IRemoteUI> getUserInterface();
     
     default IVpn<CONX> getVpnOrFail() {
-        return getVpn().orElseThrow(() -> new IllegalStateException("Vpn server not available."));
+        return getVpn().orElseThrow(() -> new IllegalStateException("Vpn service not available."));
     }
     
     Handle onConnectionAdded(Consumer<CONX> callback);
