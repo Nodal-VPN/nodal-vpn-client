@@ -41,7 +41,7 @@ public class Show extends AbstractConnectionCommand {
         writeDetail(writer, "name", connection.getDisplayName());
         writeDetail(writer, "uri", connection.getUri(true));
         writeDetail(writer, "status", CLI.BUNDLE.getString("status." + connection.getStatus()));
-        writeDetail(writer, "mode", connection.getMode());
+        writeDetail(writer, "mode", CLI.BUNDLE.getString("mode." + connection.getMode()));
         writeDetail(writer, "transient", connection.isTransient() ? CLI.BUNDLE.getString("show.yes") : CLI.BUNDLE.getString("show.no"));
         writeDetail(writer, "authorized", connection.isAuthorized() ? CLI.BUNDLE.getString("show.yes") : CLI.BUNDLE.getString("show.no"));
         writeDetail(writer, "shared", connection.isShared() ? CLI.BUNDLE.getString("show.yes") : CLI.BUNDLE.getString("show.no"));

@@ -64,7 +64,7 @@
       <fileEntry mountPoint="2032" file="./WireGuardNT-LICENSE.txt" />
       <fileEntry mountPoint="2032" file="target/CHANGES.md" />
       <fileEntry mountPoint="2032" file="./WIREGUARD-LICENSE.txt" />
-      <fileEntry mountPoint="2032" file="../cli/target/jad-vpn-cli${compiler:build.exe.suffix}" fileMode="755" overrideFileMode="true" />
+      <fileEntry mountPoint="2032" file="../cli/target/jad-vpn${compiler:build.exe.suffix}" fileMode="755" overrideFileMode="true" />
       <fileEntry mountPoint="2032" file="../desktop-service/target/jad-vpn-service${compiler:build.exe.suffix}" fileMode="755" overrideFileMode="true" />
       <fileEntry mountPoint="2032" file="../tray/target/jad-vpn-tray${compiler:build.exe.suffix}" fileMode="755" overrideFileMode="true" />
       <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/jad-vpn-client-service.exe" />
@@ -104,7 +104,7 @@
         <include>
           <entry location="EULA.txt" />
           <entry location="WIREGUARD-LICENSE.txt" />
-          <entry location="jad-vpn-cli${compiler:build.exe.suffix}" />
+          <entry location="jad-vpn${compiler:build.exe.suffix}" />
         </include>
         <dependencies>
           <component id="1676" />
@@ -179,7 +179,7 @@
       </iconImageFiles>
     </launcher>
     <launcher name="jad-vpn-service" id="2266" external="true" excludeFromMenu="true" externalFile="jad-vpn-service${compiler:build.exe.suffix}" />
-    <launcher name="jad-vpn-cli" id="2268" external="true" excludeFromMenu="true" externalFile="jad-vpn-cli${compiler:build.exe.suffix}" />
+    <launcher name="jad-vpn" id="2268" external="true" excludeFromMenu="true" externalFile="jad-vpn${compiler:build.exe.suffix}" />
     <launcher name="jad-vpn-tray" id="2271" external="true" menuName="JADAPTIVE VPN Tray Icon" externalFile="jad-vpn-tray${compiler:build.exe.suffix}" />
   </launchers>
   <installerGui autoUpdateDescriptorUrl="${compiler:install4j.updatesBase}/${compiler:build.phase}/updates.xml" useAutoUpdateBaseUrl="true" autoUpdateBaseUrl="${compiler:install4j.updatesBase}/${compiler:sys.version}/">
@@ -584,12 +584,12 @@ return path.replace('\\', '/');</property>
                 <serializedBean>
                   <property name="file">
                     <object class="java.io.File">
-                      <string>jad-vpn-cli${compiler:build.exe.suffix}</string>
+                      <string>jad-vpn${compiler:build.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="linkFile">
                     <object class="java.io.File">
-                      <string>/usr/bin/jad-vpn-cli${compiler:build.exe.suffix}</string>
+                      <string>/usr/bin/jad-vpn${compiler:build.exe.suffix}</string>
                     </object>
                   </property>
                 </serializedBean>
@@ -852,7 +852,7 @@ return console.askYesNo(message, true);
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-cli${compiler:build.exe.suffix}</string>
+                      <string>jad-vpn${compiler:build.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="timeout" type="int" value="20" />

@@ -48,7 +48,7 @@ import uk.co.bithatch.nativeimage.annotations.Resource;
 @Resource({"default-log4j-cli\\.properties"})
 public class CLI extends AbstractDBusApp implements CLIContext {
     
-    public final static String COMMAND_NAME = "jad-vpn-cli";
+    public final static String COMMAND_NAME = "jad-vpn";
 
     @Reflectable
 	public final static class VersionProvider implements IVersionProvider {

@@ -109,7 +109,7 @@
           <entry location="cli" />
           <entry location="EULA.txt" />
           <entry location="WIREGUARD-LICENSE.txt" />
-          <entry location="jad-vpn-cli" fileType="launcher" />
+          <entry location="jad-vpn" fileType="launcher" />
         </include>
         <dependencies>
           <component id="1676" />
@@ -145,7 +145,7 @@
       </vmOptionsFile>
     </launcher>
     <launcher name="jad-vpn-gui" id="783" menuName="JADAPTIVE VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui">
-      <executable name="jad-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.config/jad-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/jad-vpn-client/gui-app.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true">
+      <executable name="jad-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.config/jad-vpnent/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/jad-vpnent/gui-app.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true">
         <versionInfo include="true" fileDescription="Graphical front end for the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
@@ -156,7 +156,7 @@
         </modulePath>
       </java>
       <vmOptionsFile mode="content" overwriteMode="2">
-        <content>-include-options ${HOME}/.config/jad-vpn-client/gui.vmoptions
+        <content>-include-options ${HOME}/.config/jad-vpnent/gui.vmoptions
 -Xmx128m
 -Djdk.internal.httpclient.disableHostnameVerification=true
 -Dlogonbox.vpn.logConfiguration=conf/gui.log.properties
@@ -173,8 +173,8 @@
         <file path="./images/logo128px.png" />
       </iconImageFiles>
     </launcher>
-    <launcher name="jad-vpn-cli" id="1488" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientCLI">
-      <executable name="jad-vpn-cli" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false">
+    <launcher name="jad-vpn" id="1488" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientCLI">
+      <executable name="jad-vpn" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false">
         <versionInfo include="true" fileDescription="Command Line Interface to the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
       <java mainClass="com.logonbox.vpn.client.cli/com.logonbox.vpn.client.cli.CLI" mainMode="module" vmParameters="-Xmx32m">
@@ -902,7 +902,7 @@ return console.askYesNo(message, true);
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-cli</string>
+                      <string>jad-vpn</string>
                     </object>
                   </property>
                   <property name="timeout" type="int" value="20" />

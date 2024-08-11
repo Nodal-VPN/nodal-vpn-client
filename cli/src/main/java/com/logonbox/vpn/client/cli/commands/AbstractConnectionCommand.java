@@ -7,6 +7,7 @@ import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ServiceClient;
 import com.logonbox.vpn.client.common.ServiceClient.DeviceCode;
 import com.logonbox.vpn.client.common.ServiceClient.NameValuePair;
+import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.common.lbapi.InputField;
@@ -19,7 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -69,7 +70,7 @@ public abstract class AbstractConnectionCommand implements Callable<Integer>, IV
 	}
 
 	protected List<IVpnConnection> getConnectionsMatching(String pattern, CLIContext cli) {
-		var l = new ArrayList<IVpnConnection>();
+		var l = new LinkedHashSet<IVpnConnection>();
 		try {
 			var id = Long.parseLong(pattern);
 			var connection = cli.getVpnManager().getVpnOrFail().getConnection(id);
@@ -84,13 +85,26 @@ public abstract class AbstractConnectionCommand implements Callable<Integer>, IV
 			l.add(connection);
 		} catch (NumberFormatException nfe) {
 			for (var c : cli.getVpnManager().getVpnOrFail().getConnections()) {
-				if (pattern == null || pattern.equals("") || c.getUri(true).matches(pattern)
-						|| (c.getName() != null && c.getName().matches(pattern)) || c.getUri(true).matches(pattern)) {
+				if (pattern == null || 
+				    pattern.equals("") || 
+				    matches(c.getDisplayName(), pattern) ||
+                    matches(c.getUserPublicKey(), pattern) ||  
+				    matches(c.getUri(true), pattern)) {
 					l.add(c);
 				}
 			}
+            for (var c : cli.getVpnManager().getVpnOrFail().getConnections()) {
+                if (pattern != null && 
+                    matches(c.getUri(false), pattern)) {
+                    l.add(c);
+                }
+            }
 		}
-		return l;
+		return l.stream().toList();
+	}
+	
+	protected boolean matches(String item, String pattern) {
+	    return item != null && item.length() > 0 && item.matches(Utils.convertGlobToRegex(pattern));
 	}
 
 	protected void disconnect(IVpnConnection c, CLIContext cli)
