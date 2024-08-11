@@ -53,7 +53,7 @@ public class ListConnections implements Callable<Integer> {
         
         var width = spec.commandLine().getUsageHelpWidth(); 
         
-		if(!OsUtil.isAdministrator())  {
+		if(OsUtil.isAdministrator())  {
 		    if(longFormat) {
                 var allExceptUrl = 69;
                 var remain = width - allExceptUrl;
