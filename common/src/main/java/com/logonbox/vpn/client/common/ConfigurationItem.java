@@ -130,7 +130,7 @@ public class ConfigurationItem<T> {
 		return Objects.equals(key, other.key);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public T parse(String val) {
 		if(val == null)
 			return defaultValue;
@@ -145,8 +145,9 @@ public class ConfigurationItem<T> {
 				return (T)Level.valueOf(val);
 			else if(type == String.class)
 				return (T)val;
-			else if(Enum.class.isAssignableFrom(type))
-				return (T)type.getMethod("valueOf", String.class).invoke(null, val.toUpperCase());
+			else if(Enum.class.isAssignableFrom(type)) {
+		        return (T)Enum.valueOf((Class<Enum>)type, val);
+			}
 			else
 				throw new IllegalArgumentException("Cannot parse type " + type);
 		}

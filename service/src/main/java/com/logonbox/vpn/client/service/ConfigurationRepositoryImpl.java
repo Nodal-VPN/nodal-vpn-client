@@ -21,7 +21,6 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
 	static Logger log = LoggerFactory.getLogger(ConfigurationRepositoryImpl.class);
 
-
     private INI doc;
 
 	public ConfigurationRepositoryImpl() {
@@ -45,10 +44,9 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
 	@Override
 	public <V> V getValue(String owner, ConfigurationItem<V> key) {
-		
 		var node = getSection(owner, key);
-		
-		V v = key.parse(node.get(key.getKey(), key.getDefaultValue().toString()));
+		var strVal = node.get(key.getKey(), key.getDefaultValue().toString());
+        V v = key.parse(strVal);
 		if(key.getValues() != null && !key.getValues().isEmpty()) {
 			if(!key.getValues().contains(v)) {
 				log.warn("Invalid value found in {}. {} is not in {}, resetting to default {}", key.getKey(), v, key.getValues(), key.getDefaultValue());
@@ -62,26 +60,24 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 	@Override
 	public <V> void setValue(String owner, ConfigurationItem<V> key, V value) {
 		var node = getSection(owner, key);
-		var was = node.get(key.getKey(), null);
-		if (!Objects.equals(was, value)) {
-			if (value == null) {
-				log.info(String.format("Setting '%s' to default value", key.getKey()));
-				node.remove(key.getKey());
-			} else {
-				log.info(String.format("Setting '%s' to '%s'", key.getKey(), value));
-				node.put(key.getKey(), value.toString());
-			}
+		var was = node.get(key.getKey(), key.getDefaultValue().toString());
+		if (!Objects.equals(was, value.toString())) {
+			log.info(String.format("Setting '%s' to '%s'", key.getKey(), value));
+			node.put(key.getKey(), value.toString());
 		}
 
 	}
 
 	protected <V> Data getSection(String owner, ConfigurationItem<V> key) {
-		Data node = doc;
+		Data node;
 		if(key.getScope() == Scope.USER && Utils.isBlank(owner)) {
 			throw new IllegalArgumentException(String.format("No owner provided for a %s scoped configuration item, '%s'.", key.getScope(), key.getKey()));
 		}
 		else if(key.getScope() == Scope.USER) {
-			node = node.obtainSection(owner);
+			node = doc.obtainSection("users", owner);
+		}
+		else {
+            node = doc.obtainSection("global");
 		}
 		return node;
 	}
