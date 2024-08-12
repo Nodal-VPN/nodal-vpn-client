@@ -96,7 +96,8 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 
 		var settings = ToasterFactory.getSettings();
 		settings.setAppName(Tray.bundle.getString("appName"));
-		settings.setPreferredToasterClassName("com.sshtools.twoslices.impl.SWTToaster");
+		if(!OS.isLinux())
+		    settings.setPreferredToasterClassName("com.sshtools.twoslices.impl.SWTToaster");
 		
 		var handles = new ArrayList<AutoCloseable>();
 		

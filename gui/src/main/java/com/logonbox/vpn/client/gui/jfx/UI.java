@@ -1309,7 +1309,10 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		jsobj.setMember("jlog", LoggerFactory.getLogger("html-" + htmlPage));
 
 		/* Special pages */
-		if ("options.html".equals(baseHtmlPage)) {
+        if ("updateAvailable.html".equals(baseHtmlPage)) {
+            jsobj.setMember("automaticUpdates", vpnManager.getVpn().map(vpn -> vpn.getBooleanValue(ConfigurationItem.AUTOMATIC_UPDATES.getKey())).orElse(false));
+        }
+        else if ("options.html".equals(baseHtmlPage)) {
 			beansForOptions = beansForOptions();
             for (var beanEn : beansForOptions.entrySet()) {
 				LOG.debug(String.format(" Setting %s to %s", beanEn.getKey(), beanEn.getValue()));
