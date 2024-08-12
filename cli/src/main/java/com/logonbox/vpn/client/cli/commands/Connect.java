@@ -79,7 +79,7 @@ public class Connect extends AbstractConnectingCommand implements Callable<Integ
 		
 		console.flush();
 
-		return doConnect(cli, out, err, connection);
+		return doConnect(cli, out, err, connection, false);
 
 	}
 }

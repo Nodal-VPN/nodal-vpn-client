@@ -57,7 +57,7 @@ public class Create extends AbstractConnectingCommand implements Callable<Intege
 
 		var newConnectionId = vpn.createConnection(uriObj.toASCIIString(), connectAtStartup, stayConnected, mode.name());
 		if (!dontConnectNow) {
-		    return doConnect(cli, out, err, vpn.getConnection(newConnectionId));
+		    return doConnect(cli, out, err, vpn.getConnection(newConnectionId), true);
 		}
 
 		return 0;

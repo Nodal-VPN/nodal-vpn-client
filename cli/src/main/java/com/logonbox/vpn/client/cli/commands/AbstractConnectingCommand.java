@@ -16,7 +16,7 @@ import java.text.MessageFormat;
 public abstract class AbstractConnectingCommand extends AbstractConnectionCommand {
 
 
-   protected Integer doConnect(CLIContext cli, PrintWriter out, PrintWriter err, IVpnConnection connection)
+   protected Integer doConnect(CLIContext cli, PrintWriter out, PrintWriter err, IVpnConnection connection, boolean deleteOnFail)
             throws Exception {
         var status = Type.valueOf(connection.getStatus());
         if (status == Type.DISCONNECTED) {
@@ -24,7 +24,10 @@ public abstract class AbstractConnectingCommand extends AbstractConnectionComman
              * by Ctrl+C or similar. If this code block actually completes, then remove the hook.
              */
             Runnable cleanUpRunner = () -> {
-                connection.delete();
+                if(deleteOnFail)
+                    connection.delete();
+                else
+                    connection.disconnect("Cancelled.");
             }; 
             var cleanUp = new Thread(cleanUpRunner, "RemoveCreatedConnectionOnError");
             Runtime.getRuntime().addShutdownHook(cleanUp);
