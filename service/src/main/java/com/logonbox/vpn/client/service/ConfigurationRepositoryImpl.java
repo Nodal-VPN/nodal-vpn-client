@@ -10,7 +10,6 @@ import com.sshtools.jini.Data;
 import com.sshtools.jini.INI;
 import com.sshtools.jini.config.INISet;
 import com.sshtools.jini.config.Monitor;
-import com.sshtools.liftlib.OS;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,23 +28,19 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 	    var bldr = new INISet.Builder(AppConstants.CLIENT_SERVICE_NAME).
                 withMonitor(new Monitor()).
                 withApp(AppConstants.CLIENT_NAME).
-                withoutSystemPropertyOverrides();
+                withoutSystemPropertyOverrides().
+                withScopes(com.sshtools.jini.config.INISet.Scope.GLOBAL).
+                withWriteScope(com.sshtools.jini.config.INISet.Scope.GLOBAL);
 
         if(AppVersion.isDeveloperWorkspace()) {
-            bldr.withScopes(com.sshtools.jini.config.INISet.Scope.USER).
-                withPath(com.sshtools.jini.config.INISet.Scope.USER, Paths.get("conf")).
-                withWriteScope(com.sshtools.jini.config.INISet.Scope.USER);
+            bldr.withPath(com.sshtools.jini.config.INISet.Scope.GLOBAL, Paths.get("conf"));
         }
-        else if(OS.isAdministrator()) {
-            bldr.withScopes(com.sshtools.jini.config.INISet.Scope.GLOBAL).
-                withWriteScope(com.sshtools.jini.config.INISet.Scope.GLOBAL);
-	    }
-	    else {
-            bldr.withScopes(com.sshtools.jini.config.INISet.Scope.USER).
-                withWriteScope(com.sshtools.jini.config.INISet.Scope.USER);
-	    }
 	    
-        doc = bldr.build().document();
+        var set = bldr.build();
+        doc = set.document();
+        
+        log.info("Configuration repository initialised.");
+        log.info("  Global scope: {}", set.appPathForScope(com.sshtools.jini.config.INISet.Scope.GLOBAL));
 	}
 
 	@Override
