@@ -74,7 +74,7 @@
         <build.buildIds></build.buildIds>
         
         <install4j.updatesBase>https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client</install4j.updatesBase>
-        <install4j.jaulAppId>com.logonbox.VPNClient</install4j.jaulAppId>
+        <install4j.jaulAppId>com.jadaptive.VPNClient</install4j.jaulAppId>
         <install4j.jaulUpdaterId>2103</install4j.jaulUpdaterId>
 	</properties>
 	

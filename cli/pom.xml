@@ -203,6 +203,12 @@
                     </plugin>
                 </plugins>
             </build>
+            <dependencies>
+                <dependency>
+                    <groupId>com.install4j</groupId>
+                    <artifactId>install4j-runtime</artifactId>
+                </dependency>
+            </dependencies>
         </profile>
         <profile>
             <id>windows</id>

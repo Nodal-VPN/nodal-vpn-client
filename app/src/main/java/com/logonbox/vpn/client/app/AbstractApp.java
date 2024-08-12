@@ -45,7 +45,7 @@ import picocli.CommandLine.Spec;
 public abstract class AbstractApp<CONX extends IVpnConnection> implements AppContext<CONX>, Callable<Integer> {
 
 	final static int DEFAULT_TIMEOUT = 10000;
-	final static String TOOLBOX_APP_ID = "com.logonbox.VPNClient";
+	final static String TOOLBOX_APP_ID = "com.jadaptive.VPNClient";
 
 	private ScheduledExecutorService scheduler;
 
@@ -150,6 +150,8 @@ public abstract class AbstractApp<CONX extends IVpnConnection> implements AppCon
 				throw new Exception("Not an administrator, and userUpdates=false");
 			}
             var app = locateApp().orElseThrow(() -> new IllegalStateException("Could not locate registered app."));
+            getLog().info("Jaul Application ID: {}", app.getId());
+            getLog().info("Install Directory: {}", app.getDir());
 			return new Install4JUpdateService(this, () -> {
                 return Install4JUpdaterBuilder.
 			            builder().onExit(ret -> {
