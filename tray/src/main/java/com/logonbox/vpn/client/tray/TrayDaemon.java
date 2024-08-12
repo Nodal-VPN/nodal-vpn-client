@@ -3,13 +3,13 @@ package com.logonbox.vpn.client.tray;
 
 import com.logonbox.vpn.client.app.SimpleLoggingConfig;
 import com.logonbox.vpn.client.common.AppVersion;
-import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.LoggingConfig.Audience;
 import com.logonbox.vpn.client.common.PromptingCertManager;
+import com.logonbox.vpn.client.common.TrayMode;
+import com.logonbox.vpn.client.common.UiConfiguration;
 import com.logonbox.vpn.client.common.Utils;
-import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
 import com.logonbox.vpn.client.common.api.IRemoteUI;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
@@ -105,7 +105,7 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
     		handles.addAll(Arrays.asList(
     		    mgr.onConfirmedExit(() -> shutdown(false)),
     		    mgr.onGlobalConfigChanged((item, val) -> {
-    		        if(item.equals(ConfigurationItem.TRAY_MODE) && val.equals(TrayMode.OFF.name())) {
+    		        if(item.equals(UiConfiguration.TRAY_MODE) && val.equals(TrayMode.OFF.name())) {
     		            System.exit(0);
     		        }
     		        else {

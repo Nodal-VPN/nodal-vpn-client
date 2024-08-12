@@ -6,14 +6,15 @@ import static javafx.application.Platform.runLater;
 import com.install4j.api.launcher.StartupNotification;
 import com.logonbox.vpn.client.common.BrandingManager.BrandImage;
 import com.logonbox.vpn.client.common.BrandingManager.ImageHandler;
-import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
 import com.logonbox.vpn.client.common.PromptingCertManager;
+import com.logonbox.vpn.client.common.TrayMode;
+import com.logonbox.vpn.client.common.UiConfiguration;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.dbus.RemoteUI;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
-import com.logonbox.vpn.client.gui.jfx.Configuration;
 import com.logonbox.vpn.client.gui.jfx.Debugger;
+import com.logonbox.vpn.client.gui.jfx.JavaFXUiConfiguration;
 import com.logonbox.vpn.client.gui.jfx.JfxAppContext;
 import com.logonbox.vpn.client.gui.jfx.Navigator;
 import com.logonbox.vpn.client.gui.jfx.Styling;
@@ -118,11 +119,19 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
                 (DesktopVPN) DesktopVPN.getInstance(), 
                 Preferences.userNodeForPackage(UI.class));
         styling = new Styling(this);
+        UiConfiguration.get().ui().onValueUpdate((evt) -> {
+            vpnWindow.updateDarkMode();
+        });
     }
 
     @Override
     public void back() {
         ui.back();
+    }
+    
+    @Override
+    protected DarkMode getDarkMode() {
+        return DarkMode.valueOf(JavaFXUiConfiguration.getDefault().darkModeProperty().get().name());
     }
 
     @Override
@@ -415,7 +424,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
 
     @Override
     protected void onConfigurePrimaryStage(JajaFXAppWindow<?> wnd, Stage stage) {
-        var cfg = Configuration.getDefault();
+        var cfg = JavaFXUiConfiguration.getDefault();
         var x = cfg.xProperty().get();
         var y = cfg.yProperty().get();
         var h = cfg.hProperty().get();
@@ -469,7 +478,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
         updateCookieHandlerState();
         reapplyBranding();
         
-        var icon = Configuration.getDefault().trayModeProperty().get();
+        var icon = JavaFXUiConfiguration.getDefault().trayModeProperty().get();
         if(!icon.equals(TrayMode.OFF) && !getAppContext().isNoSystemTray()) {
             startTray();
         }

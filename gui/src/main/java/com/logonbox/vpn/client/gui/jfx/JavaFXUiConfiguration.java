@@ -1,11 +1,9 @@
 package com.logonbox.vpn.client.gui.jfx;
 
-import com.logonbox.vpn.client.common.AppConstants;
-import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
+import com.logonbox.vpn.client.common.DarkMode;
+import com.logonbox.vpn.client.common.TrayMode;
+import com.logonbox.vpn.client.common.UiConfiguration;
 import com.sshtools.jini.INI.Section;
-import com.sshtools.jini.config.INISet;
-import com.sshtools.jini.config.INISet.Scope;
-import com.sshtools.jini.config.Monitor;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -16,14 +14,10 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
-public class Configuration {
-	
-	public static final String DARK_MODE_AUTO = "auto";
-	public static final String DARK_MODE_ALWAYS = "always";
-	public static final String DARK_MODE_NEVER = "never";
+public class JavaFXUiConfiguration {
 
 	private ObjectProperty<TrayMode> trayMode = new SimpleObjectProperty<TrayMode>();
-	private StringProperty darkMode = new SimpleStringProperty();
+    private ObjectProperty<DarkMode> darkMode = new SimpleObjectProperty<DarkMode>();
 	private StringProperty logLevel = new SimpleStringProperty();
 	private StringProperty configurationFileDirectory = new SimpleStringProperty();
 	private IntegerProperty w = new SimpleIntegerProperty();
@@ -31,14 +25,7 @@ public class Configuration {
 	private IntegerProperty x = new SimpleIntegerProperty();
 	private IntegerProperty y = new SimpleIntegerProperty();
 
-	//
-	private final static Configuration DEFAULT_INSTANCE = new Configuration(
-			new INISet.Builder(AppConstants.CLIENT_NAME).
-			    withMonitor(new Monitor()).
-			    withApp(AppConstants.CLIENT_NAME).
-			    withoutSystemPropertyOverrides().
-			    withWriteScope(Scope.USER).
-			    build());
+	private final static JavaFXUiConfiguration DEFAULT_INSTANCE = new JavaFXUiConfiguration(UiConfiguration.get());
 
 	class IntegerPreferenceUpdateChangeListener implements ChangeListener<Number> {
 
@@ -108,10 +95,9 @@ public class Configuration {
 
     }
 	
-	public Configuration(INISet set) {
-		var doc = set.document();
+	public JavaFXUiConfiguration(UiConfiguration uiConfig) {
 		
-        var wnd = doc.obtainSection("window");
+        var wnd = uiConfig.window();
         x.set(wnd.getInt("x", 0));
 		x.addListener((c, o, n) -> {
 			wnd.put("x", n.intValue());
@@ -129,25 +115,25 @@ public class Configuration {
 			wnd.put("h", n.intValue());
 		});
 
-        var ui = doc.obtainSection("ui");
+        var ui = uiConfig.ui();
 		trayMode.set(ui.getEnum(TrayMode.class, "trayMode", TrayMode.AUTO)); 
 		trayMode.addListener(new EnumPreferenceUpdateChangeListener<TrayMode>(ui, "trayMode"));
 
-		darkMode.set(ui.get("darkMode", DARK_MODE_AUTO));
-		darkMode.addListener(new StringPreferenceUpdateChangeListener(ui, "darkMode"));
+		darkMode.set(ui.getEnum(DarkMode.class, "darkMode", DarkMode.AUTO));
+		darkMode.addListener(new EnumPreferenceUpdateChangeListener<DarkMode>(ui, "darkMode"));
 
-        var filesystem = doc.obtainSection("filesystem");
+        var filesystem = uiConfig.filesystem();
 
 		configurationFileDirectory.set(filesystem.get("configurationFileDirectory", System.getProperty("user.home")));
 		configurationFileDirectory.addListener(new StringPreferenceUpdateChangeListener(filesystem, "configurationFileDirectory"));
 
-        var troubleshooting = doc.obtainSection("troubleshooting");
+        var troubleshooting = uiConfig.troubleshooting();
 		logLevel.set(troubleshooting.get("logLevel", null));
 		logLevel.addListener(new StringPreferenceUpdateChangeListener(troubleshooting, "logLevel"));
 
 	}
 
-	public static Configuration getDefault() {
+	public static JavaFXUiConfiguration getDefault() {
 		return DEFAULT_INSTANCE;
 	}
 	
@@ -175,7 +161,7 @@ public class Configuration {
 		return trayMode;
 	}
 
-	public StringProperty darkModeProperty() {
+	public ObjectProperty<DarkMode> darkModeProperty() {
 		return darkMode;
 	}
 

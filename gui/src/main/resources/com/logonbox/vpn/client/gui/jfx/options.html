@@ -167,7 +167,7 @@
                         } catch (e) {}
                         
 						try {
-							$('#trayMode').append('<option ' + (trayModesRef[i] == trayMode ? 'selected="selected"' : '') + ' value="' + trayModesRef[i] + '">' + txt + '</option>');
+							$('#trayMode').append('<option ' + (trayModesRef[i].equals(trayMode) ? 'selected="selected"' : '') + ' value="' + trayModesRef[i].name() + '">' + txt + '</option>');
 						} catch (e) {
 							console.log('Failed to initialize tray mode option. ' + e);
 						}
@@ -175,13 +175,13 @@
 				}
 				if ($('#darkMode').length) {
 					for (var i = 0; i < darkModesRef.length; i++) {
-                        var key = 'darkMode.' + darkModesRef[i];
+                        var key = 'darkMode.' + darkModesRef[i].name();
                         var txt = 'i18n:' + key;
                         try {
                             txt = bundleRef.getString(key);
                         } catch (e) {}
                         
-						$('#darkMode').append('<option ' + (darkModesRef[i] == darkMode ? 'selected="selected"' : '') + ' value="' + darkModesRef[i] + '">' + txt + '</option>');
+						$('#darkMode').append('<option ' + (darkModesRef[i].equals(darkMode) ? 'selected="selected"' : '') + ' value="' + darkModesRef[i].name() + '">' + txt + '</option>');
 					}
 				}
 

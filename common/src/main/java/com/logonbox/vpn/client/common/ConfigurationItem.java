@@ -20,11 +20,7 @@ public class ConfigurationItem<T> {
 		GLOBAL, USER
 	}
 
-    public enum TrayMode {
-        DARK, COLOR, LIGHT, AUTO, OFF
-    }
-
-	public final static ConfigurationItem<Level> LOG_LEVEL = add("logLevel", Level.class, Level.INFO, Level.TRACE, Level.DEBUG, Level.WARN, Level.INFO, Level.ERROR, Level.ERROR);
+    public final static ConfigurationItem<Level> LOG_LEVEL = add("logLevel", Level.class, Level.INFO, Level.TRACE, Level.DEBUG, Level.WARN, Level.INFO, Level.ERROR, Level.ERROR);
 	public final static ConfigurationItem<Boolean> IGNORE_LOCAL_ROUTES = add("ignoreLocalRoutes", Boolean.class, true, true, false);
 	public final static ConfigurationItem<String> DNS_INTEGRATION_METHOD = add("dnsIntegrationMethod", String.class, "AUTO");
 	public final static ConfigurationItem<Boolean> AUTOMATIC_UPDATES = add("automaticUpdates", Boolean.class, Scope.USER, true, true, false);
@@ -35,7 +31,6 @@ public class ConfigurationItem<T> {
 	public final static ConfigurationItem<Integer> MTU = add("mtu", Integer.class, Scope.GLOBAL, 0);
 	public final static ConfigurationItem<Long> FAVOURITE = add("favourite", Long.class, Scope.USER, 0l);
 	public final static ConfigurationItem<String> DEVICE_UUID = add("deviceUUID", String.class, Scope.USER, "");
-    public final static ConfigurationItem<TrayMode> TRAY_MODE = add("trayMode", TrayMode.class, Scope.USER, TrayMode.AUTO, TrayMode.values());
 	
 	private final String key;
 	private final Class<?> type;

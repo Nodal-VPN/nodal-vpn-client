@@ -9,15 +9,17 @@ import com.logonbox.vpn.client.common.AuthenticationCancelledException;
 import com.logonbox.vpn.client.common.BrandingManager;
 import com.logonbox.vpn.client.common.BrandingManager.ImageHandler;
 import com.logonbox.vpn.client.common.ConfigurationItem;
-import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
+import com.logonbox.vpn.client.common.DarkMode;
 import com.logonbox.vpn.client.common.ServiceClient;
 import com.logonbox.vpn.client.common.ServiceClient.DeviceCode;
 import com.logonbox.vpn.client.common.ServiceClient.NameValuePair;
+import com.logonbox.vpn.client.common.TrayMode;
+import com.logonbox.vpn.client.common.UiConfiguration;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
@@ -691,7 +693,7 @@ public class UI {
             /* Configuration stored globally in service */
             beans.put("phase", vpn.getValue(ConfigurationItem.PHASE.getKey()));
             beans.put("dnsIntegrationMethod", vpn.getValue(ConfigurationItem.DNS_INTEGRATION_METHOD.getKey()));
-            beans.put("trayMode", vpn.getValue(ConfigurationItem.TRAY_MODE.getKey()));
+            beans.put("trayMode", UiConfiguration.get().getValue(null, UiConfiguration.TRAY_MODE));
 
             /* Store locally in preference */
             beans.put("automaticUpdates", vpn.getBooleanValue(ConfigurationItem.AUTOMATIC_UPDATES.getKey()));
@@ -702,14 +704,14 @@ public class UI {
             beans.put("automaticUpdates", "true");
             beans.put("ignoreLocalRoutes", "true");
             beans.put("dnsIntegrationMethod", "AUTO");
-            beans.put("trayMode", TrayMode.AUTO.name());
+            beans.put("trayMode", DarkMode.AUTO.name());
 		});
 
 		/* Option collections */
 		beans.put("trayModes", Arrays.asList(TrayMode.values()).stream().map(TrayMode::name)
 				.collect(Collectors.toUnmodifiableList()).toArray(new String[0]));
-		beans.put("darkModes", new String[] { Configuration.DARK_MODE_AUTO, Configuration.DARK_MODE_ALWAYS,
-				Configuration.DARK_MODE_NEVER });
+		beans.put("darkModes", Arrays.asList(DarkMode.values()).stream().map(DarkMode::name)
+                .collect(Collectors.toUnmodifiableList()).toArray(new String[0]));
         beans.put("logLevels", Arrays.asList(Level.values()).stream().map(Level::toString).collect(Collectors.toList()).toArray(new String[0]));
         beans.put("dnsIntegrationMethods", ConfigurationItem.DNS_INTEGRATION_METHOD.getValues().toArray(new String[0]));
 
@@ -1071,7 +1073,7 @@ public class UI {
 				vpn.setValue(ConfigurationItem.DNS_INTEGRATION_METHOD.getKey(), dnsIntegrationMethod);
 			}
 			if (trayMode != null) {
-				vpn.setValue(ConfigurationItem.TRAY_MODE.getKey(), trayMode);
+                UiConfiguration.get().setValue(null, UiConfiguration.TRAY_MODE, TrayMode.valueOf(trayMode));
 			}
 
 			if (automaticUpdates != null && checkUpdates) {

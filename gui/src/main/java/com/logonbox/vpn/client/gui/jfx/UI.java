@@ -7,14 +7,15 @@ import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.BrandingManager;
 import com.logonbox.vpn.client.common.ConfigurationItem;
-import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.ConnectionUtil;
+import com.logonbox.vpn.client.common.DarkMode;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.ServiceClient;
+import com.logonbox.vpn.client.common.TrayMode;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
@@ -140,7 +141,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		
 		public String browse() {
 			var fileChooser = new FileChooser();
-			var cfgDir = Configuration.getDefault().configurationFileProperty();
+			var cfgDir = JavaFXUiConfiguration.getDefault().configurationFileProperty();
 			fileChooser.setInitialDirectory(new File(cfgDir.get()));
 			fileChooser.setTitle(bundle.getString("chooseConfigurationFile"));
 			var file = fileChooser.showOpenDialog(getStage());
@@ -701,12 +702,11 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 
 		/* Option collections */
 		beans.put("trayModes", TrayMode.values());
-		beans.put("darkModes", new String[] { Configuration.DARK_MODE_AUTO, Configuration.DARK_MODE_ALWAYS,
-				Configuration.DARK_MODE_NEVER });
+		beans.put("darkModes", DarkMode.values());
 		beans.put("logLevels", Arrays.asList(Level.values()).stream().map(Level::toString).collect(Collectors.toList()).toArray(new String[0]));
 
 		/* Per-user GUI specific */
-		var config = Configuration.getDefault();
+		var config = JavaFXUiConfiguration.getDefault();
 		beans.put("trayMode", config.trayModeProperty().get());
 		beans.put("darkMode", config.darkModeProperty().get());
 		beans.put("logLevel", config.logLevelProperty().get() == null ? "" : config.logLevelProperty().get());
@@ -1017,7 +1017,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 			String logLevel, Boolean ignoreLocalRoutes, String dnsIntegrationMethod, Integer mtu, Boolean singleActiveConnection) {
 		try {
 			/* Local per-user GUI specific configuration */
-			Configuration config = Configuration.getDefault();
+			JavaFXUiConfiguration config = JavaFXUiConfiguration.getDefault();
 
 			if (trayMode != null) {
 				var trayModeVal = TrayMode.valueOf(trayMode);
@@ -1027,8 +1027,10 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
                 config.trayModeProperty().set(trayModeVal);
 			}
 
-			if (darkMode != null)
-				config.darkModeProperty().set(darkMode);
+			if (darkMode != null) {
+                var darkModeVal = DarkMode.valueOf(darkMode);
+				config.darkModeProperty().set(darkModeVal);
+			}
 
 			if (logLevel != null) {
 				config.logLevelProperty().set(logLevel);

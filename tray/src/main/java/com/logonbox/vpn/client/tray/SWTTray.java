@@ -1,8 +1,8 @@
 package com.logonbox.vpn.client.tray;
 
-import com.logonbox.vpn.client.common.ConfigurationItem;
-import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
+import com.logonbox.vpn.client.common.TrayMode;
+import com.logonbox.vpn.client.common.UiConfiguration;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.sshtools.liftlib.OS;
 import com.sshtools.twoslices.ToasterFactory;
@@ -144,9 +144,7 @@ public class SWTTray extends AbstractTray {
 	}
 
 	void adjustTray(boolean connected, List<VpnConnection> devs) {
-		TrayMode icon = context.getVpnManager().isBackendAvailable()
-				? TrayMode.valueOf(context.getVpnManager().getVpnOrFail().getValue(ConfigurationItem.TRAY_MODE.getKey()))
-				: TrayMode.AUTO;
+		TrayMode icon = UiConfiguration.get().getValue(null, UiConfiguration.TRAY_MODE);
 		if (systemTray == null && !Objects.equals(icon, TrayMode.OFF)) {
 			disposeIcon();
 			clearMenus();
@@ -288,7 +286,7 @@ public class SWTTray extends AbstractTray {
 		try {
 			Image image;
 			if (context.getVpnManager().isBackendAvailable()) {
-				TrayMode icon = uiSection.getEnum(TrayMode.class, ConfigurationItem.TRAY_MODE.getKey());
+				TrayMode icon = UiConfiguration.get().getValue(null, UiConfiguration.TRAY_MODE);
 				if (TrayMode.LIGHT.equals(icon)) {
 					disposableImage = image = overlay(SWTTray.class.getResource("light-logonbox-icon64x64.png"), 48,
 							devs);

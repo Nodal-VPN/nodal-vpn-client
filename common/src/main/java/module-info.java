@@ -13,6 +13,7 @@ open module com.logonbox.vpn.client.common {
     requires java.naming;
     requires java.prefs;
     requires java.xml;
+    requires transitive com.sshtools.jini.config;
     requires transitive com.sshtools.liftlib;
     requires transitive jakarta.json;
     requires transitive com.sshtools.jaul;

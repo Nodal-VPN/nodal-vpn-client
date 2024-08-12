@@ -1,13 +1,14 @@
 package com.logonbox.vpn.client.cutdown;
 
 import com.logonbox.vpn.client.common.BrandingManager.ImageHandler;
+import com.logonbox.vpn.client.common.DarkMode;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.PlatformUtilities;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.embedded.EmbeddedVpnConnection;
 import com.logonbox.vpn.client.embedded.EmbedderApi;
-import com.logonbox.vpn.client.gui.jfx.Configuration;
+import com.logonbox.vpn.client.gui.jfx.JavaFXUiConfiguration;
 import com.logonbox.vpn.client.gui.jfx.Debugger;
 import com.logonbox.vpn.client.gui.jfx.JfxAppContext;
 import com.logonbox.vpn.client.gui.jfx.Navigator;
@@ -326,10 +327,10 @@ public class Client extends Application implements UIContext<EmbeddedVpnConnecti
 	}
 
 	public boolean isDarkMode() {
-		String mode = Configuration.getDefault().darkModeProperty().get();
-		if (mode.equals(Configuration.DARK_MODE_AUTO))
+		DarkMode mode = JavaFXUiConfiguration.getDefault().darkModeProperty().get();
+		if (mode.equals(DarkMode.AUTO))
 			return true; // TODO
-		else if (mode.equals(Configuration.DARK_MODE_ALWAYS))
+		else if (mode.equals(DarkMode.ALWAYS))
 			return true;
 		else
 			return false;

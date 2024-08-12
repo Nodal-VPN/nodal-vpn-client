@@ -1,13 +1,8 @@
 package com.logonbox.vpn.client.tray;
 
-import com.logonbox.vpn.client.common.AppConstants;
-import com.logonbox.vpn.client.common.ConfigurationItem;
-import com.logonbox.vpn.client.common.ConfigurationItem.TrayMode;
+import com.logonbox.vpn.client.common.TrayMode;
+import com.logonbox.vpn.client.common.UiConfiguration;
 import com.sshtools.jini.Data.Handle;
-import com.sshtools.jini.INI.Section;
-import com.sshtools.jini.config.INISet;
-import com.sshtools.jini.config.INISet.Scope;
-import com.sshtools.jini.config.Monitor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,21 +18,12 @@ public abstract class AbstractTray implements AutoCloseable, Tray {
     private final List<AutoCloseable> listeners;
     private final Handle handle;
 
-    protected final Section uiSection;
-
 
 	public AbstractTray(TrayDaemon context) throws Exception {
 		constructing = true;
 		this.context = context;
 		
-		var iniSet = new INISet.Builder(AppConstants.CLIENT_NAME).
-                withMonitor(new Monitor()).
-                withApp(AppConstants.CLIENT_NAME).
-                withoutSystemPropertyOverrides().
-                withWriteScope(Scope.USER).
-                build();
-		
-		uiSection = iniSet.document().obtainSection("ui");
+		var uiSection = UiConfiguration.get().ui();
 		
 		try {
             var mgr = context.getVpnManager();
@@ -58,7 +44,7 @@ public abstract class AbstractTray implements AutoCloseable, Tray {
             );
 
             handle = uiSection.onValueUpdate(vu -> {
-                if(vu.key().equals(ConfigurationItem.TRAY_MODE.getKey()) &&
+                if(vu.key().equals(UiConfiguration.TRAY_MODE.getKey()) &&
                    Arrays.asList(vu.newValues()).contains(TrayMode.OFF.name())
                 ) {
                     try {
