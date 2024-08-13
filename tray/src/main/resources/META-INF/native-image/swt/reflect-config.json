@@ -4,5 +4,10 @@
 },
 {
   "name":"java.lang.String"
+},
+{
+  "name":"org.eclipse.swt.internal.image.PNGFileFormat",
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 }
 ]
