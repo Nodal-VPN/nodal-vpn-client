@@ -286,24 +286,45 @@ public class SWTTray extends AbstractTray {
 		try {
 			Image image;
 			if (context.getVpnManager().isBackendAvailable()) {
-				TrayMode icon = UiConfiguration.get().getValue(null, UiConfiguration.TRAY_MODE);
-				if (TrayMode.LIGHT.equals(icon)) {
-					disposableImage = image = overlay(SWTTray.class.getResource("light-logonbox-icon64x64.png"), 48,
-							devs);
-				} else if (TrayMode.DARK.equals(icon)) {
-					disposableImage = image = overlay(SWTTray.class.getResource("dark-logonbox-icon64x64.png"),
-							DEFAULT_ICON_SIZE, devs);
-				} else if (TrayMode.COLOR.equals(icon)) {
-					disposableImage = image = overlay(SWTTray.class.getResource("color-logonbox-icon64x64.png"), 48,
-							devs);
-				} else {
-					if (isDark())
-						disposableImage = image = overlay(SWTTray.class.getResource("light-logonbox-icon64x64.png"), 48,
-								devs);
-					else
-						disposableImage = image = overlay(SWTTray.class.getResource("dark-logonbox-icon64x64.png"), 48,
-								devs);
-				}
+			    
+	            if(Boolean.getBoolean("logonbox.vpn.compositeTrayIcon")) {
+
+                    TrayMode icon = UiConfiguration.get().getValue(null, UiConfiguration.TRAY_MODE);
+                    if (TrayMode.LIGHT.equals(icon)) {
+                        disposableImage = image = overlay(SWTTray.class.getResource("light-logonbox-icon64x64.png"), 48,
+                                devs);
+                    } else if (TrayMode.DARK.equals(icon)) {
+                        disposableImage = image = overlay(SWTTray.class.getResource("dark-logonbox-icon64x64.png"),
+                                DEFAULT_ICON_SIZE, devs);
+                    } else if (TrayMode.COLOR.equals(icon)) {
+                        disposableImage = image = overlay(SWTTray.class.getResource("color-logonbox-icon64x64.png"), 48,
+                                devs);
+                    } else {
+                        if (isDark())
+                            disposableImage = image = overlay(SWTTray.class.getResource("light-logonbox-icon64x64.png"), 48,
+                                    devs);
+                        else
+                            disposableImage = image = overlay(SWTTray.class.getResource("dark-logonbox-icon64x64.png"), 48,
+                                    devs);
+                    }
+                    
+			    }
+			    else {
+
+                    TrayMode icon = UiConfiguration.get().getValue(null, UiConfiguration.TRAY_MODE);
+                    if (TrayMode.LIGHT.equals(icon)) {
+                        disposableImage = image = overlay("light-logonbox-icon", 64, devs);
+                    } else if (TrayMode.DARK.equals(icon)) {
+                        disposableImage = image = overlay("dark-logonbox-icon", 64, devs);
+                    } else if (TrayMode.COLOR.equals(icon)) {
+                        disposableImage = image = overlay("color-logonbox-icon", 64, devs);
+                    } else {
+                        if (isDark())
+                            disposableImage = image = overlay("light-logonbox-icon", 64, devs);
+                        else
+                            disposableImage = image = overlay("dark-logonbox-icon", 64, devs);
+                    }
+			    }
 			} else {
 				image = display.getSystemImage(SWT.ICON_ERROR);
 			}
@@ -312,6 +333,50 @@ public class SWTTray extends AbstractTray {
 			e.printStackTrace();
 		}
 	}
+
+    protected Image overlay(String resource, int sz, List<VpnConnection> devs) {
+
+        try {
+            resource += sz + "x" + sz;
+            
+            int connecting = 0;
+            int connected = 0;
+            int authorizing = 0;
+            int total = 0;
+            for (var s : devs) {
+                Type status = Type.valueOf(s.getStatus());
+                if (status == Type.CONNECTED)
+                    connected++;
+                else if (status == Type.AUTHORIZING)
+                    authorizing++;
+                else if (status == Type.CONNECTING)
+                    connecting++;
+                total++;
+            }
+            if (total > 0) {
+                if (authorizing > 0)
+                    resource += "-blue";
+                else if (connecting > 0)
+                    resource += "-blue";
+                else if (connected == total)
+                    resource += "-green";
+                else if (connected > 0)
+                    resource += "-dark-green";
+                else if (total > 0)
+                    resource += "-red";
+            }
+            
+            resource += ".png";
+
+            try (var in = SWTTray.class.getResource(resource).openStream()) {
+                return new Image(display, in);
+            } catch (IOException ioe) {
+                throw new IllegalStateException("Failed to load image " + resource + ".");
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load image.", e);
+        }
+    }
 
 	protected Image overlay(URL resource, int sz, List<VpnConnection> devs) {
 		Image image;

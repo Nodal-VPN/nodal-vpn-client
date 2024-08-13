@@ -512,7 +512,7 @@ return path.replace('\\', '/');</property>
                     </object>
                   </property>
                   <property name="launcherId" type="null" />
-                  <property name="macosIdentifier" type="string">com.logonbox.ClientService</property>
+                  <property name="macosIdentifier" type="string">com.jadaptive.VPNClientService</property>
                   <property name="restartOnFailure" type="boolean" value="true" />
                   <property name="serviceName" type="string">jad-vpn-service</property>
                   <property name="windowsDisplayName" type="string">JADAPTIVE VPN Client Service</property>

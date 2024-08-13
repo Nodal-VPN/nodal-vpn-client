@@ -637,7 +637,7 @@ return path.replace('\\', '/');</property>
               <action id="584" beanClass="com.install4j.runtime.beans.actions.services.InstallServiceAction" actionElevationType="elevated" failureStrategy="askRetryQuit">
                 <serializedBean>
                   <property name="launcherId" type="string">583</property>
-                  <property name="macosIdentifier" type="string">com.logonbox.ClientService</property>
+                  <property name="macosIdentifier" type="string">com.jadaptive.VPNClientService</property>
                   <property name="restartOnFailure" type="boolean" value="true" />
                   <property name="windowsDisplayName" type="string">JADAPTIVE VPN Client Service</property>
                 </serializedBean>

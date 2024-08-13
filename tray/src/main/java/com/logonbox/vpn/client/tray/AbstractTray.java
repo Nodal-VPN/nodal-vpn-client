@@ -9,7 +9,7 @@ import java.util.List;
 
 public abstract class AbstractTray implements AutoCloseable, Tray {
 
-	protected static final int DEFAULT_ICON_SIZE = 48;
+	protected static final int DEFAULT_ICON_SIZE = 64;
 
 	protected TrayDaemon context;
 

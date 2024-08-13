@@ -44,13 +44,15 @@
 						for updates now</a>
 				</div>
 			<div class="row text-center mt-5">
-               <a href="#credits" data-bs-toggle="collapse"
-                   data-i18n="credits"></a>
+                <div class="col-12">
+	               <a href="#credits" data-bs-toggle="collapse"
+	                   data-i18n="credits"></a>
+                </div>
             </div>
             <div id="credits" class="collapse row text-center mt-5">
                 <div class="col-12">
                     <p data-i18n="credits.text"></p>
-                    <a href="https://jadaptive.com/open-source-software/" data-i18n="credits.os"></a>
+                    <a class="system-browser-link" href="https://jadaptive.com/open-source-software/" data-i18n="credits.os"></a>
                 </div>
             </div>
 		</div>
@@ -68,6 +70,10 @@
 		function uiReady() {
 
             bridgeReference = bridge;
+            $(".system-browser-link").off('click').on('click', function(e) {
+                bridgeReference.openURL($(this).attr('href'));
+                e.preventDefault();
+            });
             
 			$('#checkForUpdates').off('click').on('click', function(event) {
 				try {
