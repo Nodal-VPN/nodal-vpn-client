@@ -179,8 +179,8 @@ public abstract class AbstractService<CONX extends IVpnConnection> implements Lo
 
 	protected final boolean buildServices() throws Exception {
 	    getLogger().info("Using file data backend");
+        configurationRepository = new ConfigurationRepositoryImpl();
 		connectionRepository = new ConnectionRepositoryImpl(configurationDir().resolve("ini"));
-		configurationRepository = new ConfigurationRepositoryImpl();
 		clientService = new ClientServiceImpl<>(this, connectionRepository, configurationRepository);
 		clientService.addListener(this);
 		getLogger().info("Creating platform service");
