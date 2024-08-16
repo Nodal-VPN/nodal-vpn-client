@@ -89,7 +89,7 @@ public final class EmbeddedService extends AbstractService<EmbeddedVpnConnection
 	
 	@Override
     protected Path configurationDir() {
-        return Paths.get(System.getProperty("user.dir"));
+        return Paths.get(System.getProperty("user.dir")).resolve("conf");
     }
 
     EmbeddedVpnConnection wrapConnection(Connection connection) {
