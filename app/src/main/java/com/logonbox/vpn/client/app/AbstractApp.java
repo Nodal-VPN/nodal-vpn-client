@@ -45,7 +45,8 @@ import picocli.CommandLine.Spec;
 public abstract class AbstractApp<CONX extends IVpnConnection> implements AppContext<CONX>, Callable<Integer> {
 
 	final static int DEFAULT_TIMEOUT = 10000;
-	final static String TOOLBOX_APP_ID = "com.jadaptive.VPNClient";
+	
+	public final static String TOOLBOX_APP_ID = "com.jadaptive.VPNClient";
 
 	private ScheduledExecutorService scheduler;
 

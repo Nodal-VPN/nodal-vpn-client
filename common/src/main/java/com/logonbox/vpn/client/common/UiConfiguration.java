@@ -5,6 +5,8 @@ import com.sshtools.jini.config.INISet;
 import com.sshtools.jini.config.INISet.Scope;
 import com.sshtools.jini.config.Monitor;
 
+import java.nio.file.Path;
+
 public class UiConfiguration implements ConfigurationRepository {
     public final static ConfigurationItem<TrayMode> TRAY_MODE = ConfigurationItem.add("trayMode", TrayMode.class, com.logonbox.vpn.client.common.ConfigurationItem.Scope.USER, TrayMode.AUTO, TrayMode.values());
 
@@ -54,5 +56,10 @@ public class UiConfiguration implements ConfigurationRepository {
 
     public Section troubleshooting() {
         return set.document().obtainSection("troubleshooting");
+    }
+
+    @Override
+    public Path getDirectory() {
+        throw new UnsupportedOperationException();
     }
 }

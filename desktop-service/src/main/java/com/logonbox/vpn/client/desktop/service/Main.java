@@ -1,6 +1,7 @@
 package com.logonbox.vpn.client.desktop.service;
 
 import com.logonbox.vpn.client.AbstractService;
+import com.logonbox.vpn.client.app.AbstractApp;
 import com.logonbox.vpn.client.app.SimpleLoggingConfig;
 import com.logonbox.vpn.client.common.AppConstants;
 import com.logonbox.vpn.client.common.AppVersion;
@@ -19,6 +20,7 @@ import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.desktop.service.dbus.VpnConnectionImpl;
 import com.logonbox.vpn.client.desktop.service.dbus.VpnImpl;
 import com.logonbox.vpn.client.service.ClientService.Listener;
+import com.sshtools.jaul.JaulApp;
 import com.sshtools.liftlib.Helper;
 import com.sshtools.liftlib.OS;
 
@@ -62,9 +64,10 @@ import uk.co.bithatch.nativeimage.annotations.Bundle;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 
-@Command(name = "lbvpn-service", mixinStandardHelpOptions = true, description = "Command line interface to the VPN Client service.", versionProvider =  Main.VersionProvider.class)
+@Command(name = "jad-vpn-service", mixinStandardHelpOptions = true, description = "VPN Client service. Manages VPN connections on behalf of users.", versionProvider =  Main.VersionProvider.class)
 @Bundle
 @Resource({"default-log-service\\.properties", "default-log4j-service-console\\.properties"})
+@JaulApp(id = AbstractApp.TOOLBOX_APP_ID)
 public class Main extends AbstractService<VpnConnection> implements Callable<Integer>, DesktopServiceContext, Listener {
 
 	public final static ResourceBundle BUNDLE = ResourceBundle.getBundle(Main.class.getName());
@@ -260,6 +263,11 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 
 		return 0;
 	}
+
+    @Override
+    protected Path configurationDir() {
+        return getConfigurationRepository().getDirectory();
+    }
 
     @Override
     protected LoggingConfig createLoggingConfig() {

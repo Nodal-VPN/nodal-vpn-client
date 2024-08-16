@@ -960,9 +960,9 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 			Collection<Connection> connections = connectionRepository.getConnections(owner);
 			List<Connection> added = new ArrayList<>();
 			synchronized (activeSessions) {
-				addConnections(ret, connections, added);
-				addConnections(ret, activeSessions.keySet(), added);
-				addConnections(ret, connectingSessions.keySet(), added);
+				addConnections(owner, ret, connections, added);
+				addConnections(owner, ret, activeSessions.keySet(), added);
+				addConnections(owner, ret, connectingSessions.keySet(), added);
 			}
 			return ret;
 		}
@@ -1319,9 +1319,9 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		return newConnection;
 	}
 
-	private void addConnections(List<ConnectionStatus> ret, Collection<Connection> connections,
+	private void addConnections(String owner, List<ConnectionStatus> ret, Collection<Connection> connections,
 			List<Connection> added) {
-		for (Connection c : connections) {
+		for (Connection c : connections.stream().filter((c) -> owner == null || owner.equals("") || owner.equals(c.getOwner()) || c.isShared()).toList()) {
 			if (!added.contains(c) && !deleting.contains(c.getId())) {
 				var status = VpnInterfaceInformation.EMPTY;
 				var session = activeSessions.get(c);

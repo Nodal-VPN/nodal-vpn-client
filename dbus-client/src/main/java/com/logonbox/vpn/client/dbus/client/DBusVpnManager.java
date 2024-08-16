@@ -21,6 +21,7 @@ import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.errors.NoReply;
 import org.freedesktop.dbus.errors.ServiceUnknown;
 import org.freedesktop.dbus.errors.UnknownObject;
+import org.freedesktop.dbus.exceptions.AddressResolvingException;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.exceptions.DBusExecutionException;
 //import org.freedesktop.dbus.interfaces.Local;
@@ -433,7 +434,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
                 })
             );
 		}
-		catch(DBusException dbe) {
+		catch(DBusException | AddressResolvingException dbe) {
 		    altHandles = Collections.emptyList();
 		}
 

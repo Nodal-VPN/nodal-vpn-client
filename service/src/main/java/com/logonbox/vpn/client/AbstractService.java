@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.CookieManager;
 import java.net.CookieStore;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -178,7 +179,7 @@ public abstract class AbstractService<CONX extends IVpnConnection> implements Lo
 
 	protected final boolean buildServices() throws Exception {
 	    getLogger().info("Using file data backend");
-		connectionRepository = new ConnectionRepositoryImpl();
+		connectionRepository = new ConnectionRepositoryImpl(configurationDir());
 		configurationRepository = new ConfigurationRepositoryImpl();
 		clientService = new ClientServiceImpl<>(this, connectionRepository, configurationRepository);
 		clientService.addListener(this);
@@ -190,6 +191,8 @@ public abstract class AbstractService<CONX extends IVpnConnection> implements Lo
 		return true;
 
 	}
+	
+	protected abstract Path configurationDir();
     
     protected Audience calcLoggingAudience(Optional<Audience> selectedAudience) {
         return selectedAudience.orElseGet(() -> {

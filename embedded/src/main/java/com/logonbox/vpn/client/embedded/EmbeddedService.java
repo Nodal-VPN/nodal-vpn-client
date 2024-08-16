@@ -12,6 +12,8 @@ import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.ServiceLoader;
@@ -85,7 +87,12 @@ public final class EmbeddedService extends AbstractService<EmbeddedVpnConnection
                         System.getProperty("os.name"))));
     }
 	
-	EmbeddedVpnConnection wrapConnection(Connection connection) {
+	@Override
+    protected Path configurationDir() {
+        return Paths.get(System.getProperty("user.dir"));
+    }
+
+    EmbeddedVpnConnection wrapConnection(Connection connection) {
 	    return new EmbeddedVpnConnection(this, connection);
 	}
 

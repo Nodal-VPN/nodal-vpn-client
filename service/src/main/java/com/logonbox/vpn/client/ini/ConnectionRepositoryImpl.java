@@ -14,7 +14,6 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -27,6 +26,11 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 
 	private Object session = new Object();
 	private PlatformService<?> platformService;
+    private Path dir;
+	
+	public ConnectionRepositoryImpl(Path dir) {
+	    this.dir = dir;
+	}
 
     @Override
 	public void start(PlatformService<?> platformService) {
@@ -104,7 +108,7 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 
 	@Override
 	public List<Connection> getConnections(String owner) {
-		return getAllConnections().stream().filter((c) -> owner == null || owner.equals(c.getOwner()) || c.isShared())
+		return getAllConnections().stream().filter((c) -> owner == null || owner.equals("") || owner.equals(c.getOwner()) || c.isShared())
 				.collect(Collectors.toList());
 	}
 
@@ -174,7 +178,7 @@ public class ConnectionRepositoryImpl implements ConnectionRepository {
 	}
 
 	Path dir() {
-		return Paths.get("conf").resolve("ini");
+		return dir;
 	}
 	
 	Path checkDir(Path dir) {

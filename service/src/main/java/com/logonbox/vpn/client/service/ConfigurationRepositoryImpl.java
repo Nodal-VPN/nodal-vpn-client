@@ -7,13 +7,13 @@ import com.logonbox.vpn.client.common.ConfigurationItem.Scope;
 import com.logonbox.vpn.client.common.ConfigurationRepository;
 import com.logonbox.vpn.client.common.Utils;
 import com.sshtools.jini.Data;
-import com.sshtools.jini.INI;
 import com.sshtools.jini.config.INISet;
 import com.sshtools.jini.config.Monitor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
@@ -21,7 +21,8 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
 	static Logger log = LoggerFactory.getLogger(ConfigurationRepositoryImpl.class);
 
-    private INI doc;
+//    private final INI doc;
+    private final INISet set;
 
 	public ConfigurationRepositoryImpl() {
 	    var bldr = new INISet.Builder(AppConstants.CLIENT_SERVICE_NAME).
@@ -35,12 +36,16 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
             bldr.withPath(com.sshtools.jini.config.INISet.Scope.GLOBAL, Paths.get("conf"));
         }
 	    
-        var set = bldr.build();
-        doc = set.document();
+        set = bldr.build();
         
         log.info("Configuration repository initialised.");
-        log.info("  Global scope: {}", set.appPathForScope(com.sshtools.jini.config.INISet.Scope.GLOBAL));
+        log.info("  Global scope: {}", getDirectory());
 	}
+
+	@Override
+    public Path getDirectory() {
+        return set.appPathForScope(com.sshtools.jini.config.INISet.Scope.GLOBAL);
+    }
 
 	@Override
 	public <V> V getValue(String owner, ConfigurationItem<V> key) {
@@ -74,10 +79,10 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 			throw new IllegalArgumentException(String.format("No owner provided for a %s scoped configuration item, '%s'.", key.getScope(), key.getKey()));
 		}
 		else if(key.getScope() == Scope.USER) {
-			node = doc.obtainSection("users", owner);
+			node = set.document().obtainSection("users", owner);
 		}
 		else {
-            node = doc.obtainSection("global");
+            node = set.document().obtainSection("global");
 		}
 		return node;
 	}
