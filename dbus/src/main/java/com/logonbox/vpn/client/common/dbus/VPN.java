@@ -147,6 +147,10 @@ public interface VPN extends IVpn<VpnConnection>, DBusInterface {
     VpnConnection[] getConnections();
     
     @Override
+    @DBusMemberName("GetAllConnections")
+    VpnConnection[] getAllConnections();
+    
+    @Override
     @DBusMemberName("GetConnection")
     VpnConnection getConnection(long id);
 

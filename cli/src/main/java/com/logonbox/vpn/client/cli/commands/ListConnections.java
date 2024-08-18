@@ -32,6 +32,9 @@ public class ListConnections implements Callable<Integer> {
     @Option(names = { "-n", "--sort-name" }, negatable = true, description = "Sort by name rather than ID.")
     private boolean sortName;
 
+    @Option(names = { "-a", "--all" }, negatable = true, description = "Show all connections including those not owned by you (administrator only).")
+    private boolean all;
+
 	@Override
 	public Integer call() throws Exception {
 	    
@@ -43,7 +46,9 @@ public class ListConnections implements Callable<Integer> {
         
         var width = spec.commandLine().getUsageHelpWidth(); 
         
-		if(OsUtil.isAdministrator())  {
+		if(all)  {
+		    if(!OsUtil.isAdministrator())
+		        throw new IllegalStateException(CLI.BUNDLE.getString("error.notAdministrator"));
 	        var connections = sortConnections(cli, cli.getVpnManager().getVpnOrFail().getAllConnections());
 		    if(longFormat) {
                 var allExceptUrl = 44;
