@@ -33,6 +33,10 @@ public class Change extends AbstractConnectionCommand {
 			"--stay-connected" }, negatable = true, description = "Set the stay connected option.")
 	private Optional<Boolean> stayConnected;
 
+    @Option(names = { "-S",
+            "--shared" }, negatable = true, description = "Set whether the connection is shared to all users (only administrator).")
+    private Optional<Boolean> shared;
+
 	@Override
 	public Integer call() throws Exception {
 		var cli = getCLI();
@@ -50,6 +54,10 @@ public class Change extends AbstractConnectionCommand {
 			        stayConnected.orElseGet(() -> connection.isStayConnected()));
 			if(favourite.isPresent()) {
 			    connection.setAsFavourite();
+			}
+			if(shared.isPresent()) {
+			    connection.setShared(shared.get());
+			    connection.save();
 			}
 			if (cli.isVerbose())
 			    cli.getConsole().err().println(MessageFormat.format(CLI.BUNDLE.getString("info.updated"), connection.getUri(false)));

@@ -156,7 +156,7 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 
     @Override
     public boolean hasFrontEnd(String source) {
-        return frontEnds.containsKey(source);
+        return  frontEnds.containsKey(source);
     }
 
     public VPNFrontEnd getFrontEnd(String source) {

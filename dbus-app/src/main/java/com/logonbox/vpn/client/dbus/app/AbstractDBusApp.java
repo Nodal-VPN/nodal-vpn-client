@@ -13,16 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
-import java.nio.file.Path;
 import java.util.Optional;
 
 import picocli.CommandLine.Option;
 
 public abstract class AbstractDBusApp extends AbstractApp<VpnConnection> {
 
-	@Option(names = { "-a", "--address-file" }, description = "File to obtain DBUS address from.")
-	private Optional<Path> addressFile;
-	
 	@Option(names = { "-ba", "--bus-address" }, description = "Use an alternative bus address.")
 	private Optional<String> busAddress;
 	
@@ -112,7 +108,6 @@ public abstract class AbstractDBusApp extends AbstractApp<VpnConnection> {
     }
 
     protected DBusVpnManager.Builder buildVpnManager(DBusVpnManager.Builder builder) {
-        builder.withAddressFilePath(addressFile);
         builder.withBusAddress(busAddress);
         if(sessionBus)
             builder.withSessionBus();

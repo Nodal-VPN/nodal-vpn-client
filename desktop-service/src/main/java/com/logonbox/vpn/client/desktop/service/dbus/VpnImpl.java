@@ -59,7 +59,7 @@ public class VpnImpl extends AbstractVPNComponent implements VPN {
 	@Override
 	public String getUUID() {
 		assertRegistered();
-		UUID uuid = ctx.getClientService().getUUID(getOwner());
+		UUID uuid = ctx.getClientService().getUUID(getCurrentUser());
 		return uuid == null ? null : uuid.toString();
 	}
 
@@ -86,7 +86,7 @@ public class VpnImpl extends AbstractVPNComponent implements VPN {
 	@Override
 	public long importConfiguration(String configuration) {
 		assertRegistered();
-		return ctx.getClientService().importConfiguration(getOwner(), configuration).getId();
+		return ctx.getClientService().importConfiguration(getCurrentUser(), configuration).getId();
 	}
 
 	@Override
@@ -114,12 +114,23 @@ public class VpnImpl extends AbstractVPNComponent implements VPN {
 	public VpnConnection[] getConnections() {
 		assertRegistered();
 		try {
-			return ctx.getClientService().getStatus(getOwner()).stream()
+			return ctx.getClientService().getStatus(getCurrentUser()).stream()
 					.map(c -> getConnection(c.getConnection().getId())).collect(Collectors.toList()).toArray(new VpnConnection[0]);
 		} catch (Exception e) {	
 			throw new IllegalStateException("Failed to get connections.", e);
 		}
 	}
+
+    @Override
+    public VpnConnection[] getAllConnections() {
+        assertRegistered();
+        try {
+            return ctx.getClientService().getStatus("").stream()
+                    .map(c -> getConnection(c.getConnection().getId())).collect(Collectors.toList()).toArray(new VpnConnection[0]);
+        } catch (Exception e) { 
+            throw new IllegalStateException("Failed to get connections.", e);
+        }
+    }
 
 	@Override
 	public String getDeviceName() {
@@ -131,7 +142,7 @@ public class VpnImpl extends AbstractVPNComponent implements VPN {
 	public long getConnectionIdForURI(String uri) {
 		assertRegistered();
 		try {
-			return ctx.getClientService().getStatus(getOwner(), uri).getConnection().getId();
+			return ctx.getClientService().getStatus(getCurrentUser(), uri).getConnection().getId();
 		} catch (IllegalArgumentException iae) {
 			return -1;
 		}
@@ -141,7 +152,7 @@ public class VpnImpl extends AbstractVPNComponent implements VPN {
 	public long createConnection(String uri, boolean connectAtStartup, boolean stayConnected, String mode) {
 		assertRegistered();
 		try {
-			ctx.getClientService().getStatus(getOwner(), uri);
+			ctx.getClientService().getStatus(getCurrentUser(), uri);
 			throw new IllegalArgumentException(String.format("Connection with URI %s already exists.", uri));
 		} catch (Exception e) {
 			/* Doesn't exist */
@@ -153,20 +164,20 @@ public class VpnImpl extends AbstractVPNComponent implements VPN {
 	@Override
 	public long connect(String uri) {
 		assertRegistered();
-		return ctx.getClientService().connect(getOwner(), uri).getId();
+		return ctx.getClientService().connect(getCurrentUser(), uri).getId();
 	}
 
 	@Override
 	public int getNumberOfConnections() {
 		assertRegistered();
-		return ctx.getClientService().getStatus(getOwner()).size();
+		return ctx.getClientService().getStatus(getCurrentUser()).size();
 	}
 
 	@Override
 	public String getValue(String name) {
 		assertRegistered();
 		ConfigurationItem<?> item = ConfigurationItem.get(name);
-		Object val = ctx.getClientService().getValue(getOwner(), item); 
+		Object val = ctx.getClientService().getValue(getCurrentUser(), item); 
 		return val.toString();
 	}
 
@@ -174,53 +185,53 @@ public class VpnImpl extends AbstractVPNComponent implements VPN {
 	@Override
 	public void setValue(String name, String value) {
 		assertRegistered();
-		ctx.getClientService().setValue(getOwner(), (ConfigurationItem<String>)ConfigurationItem.get(name), value);
+		ctx.getClientService().setValue(getCurrentUser(), (ConfigurationItem<String>)ConfigurationItem.get(name), value);
 
 	}
 
 	@Override
 	public int getIntValue(String key) {
 		assertRegistered();
-		return (Integer)ctx.getClientService().getValue(getOwner(), ConfigurationItem.get(key));
+		return (Integer)ctx.getClientService().getValue(getCurrentUser(), ConfigurationItem.get(key));
 	}
 
 	@Override
 	public long getLongValue(String key) {
 		assertRegistered();
-		return (Long)ctx.getClientService().getValue(getOwner(), ConfigurationItem.get(key));
+		return (Long)ctx.getClientService().getValue(getCurrentUser(), ConfigurationItem.get(key));
 	}
 
 	@Override
 	public boolean getBooleanValue(String key) {
 		assertRegistered();
-		return (Boolean)ctx.getClientService().getValue(getOwner(), ConfigurationItem.get(key));
+		return (Boolean)ctx.getClientService().getValue(getCurrentUser(), ConfigurationItem.get(key));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setIntValue(String key, int value) {
 		assertRegistered();
-		ctx.getClientService().setValue(getOwner(), (ConfigurationItem<Integer>)ConfigurationItem.get(key), value);
+		ctx.getClientService().setValue(getCurrentUser(), (ConfigurationItem<Integer>)ConfigurationItem.get(key), value);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setLongValue(String key, long value) {
 		assertRegistered();
-		ctx.getClientService().setValue(getOwner(), (ConfigurationItem<Long>)ConfigurationItem.get(key), value);
+		ctx.getClientService().setValue(getCurrentUser(), (ConfigurationItem<Long>)ConfigurationItem.get(key), value);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setBooleanValue(String key, boolean value) {
 		assertRegistered();
-		ctx.getClientService().setValue(getOwner(), (ConfigurationItem<Boolean>)ConfigurationItem.get(key), value);		
+		ctx.getClientService().setValue(getCurrentUser(), (ConfigurationItem<Boolean>)ConfigurationItem.get(key), value);		
 	}
 
 	@Override
 	public void disconnectAll() {
 		assertRegistered();
-		for (ConnectionStatus s : ctx.getClientService().getStatus(getOwner())) {
+		for (ConnectionStatus s : ctx.getClientService().getStatus(getCurrentUser())) {
 			if (s.getStatus() != Type.DISCONNECTED && s.getStatus() != Type.DISCONNECTING) {
 				try {
 					ctx.getClientService().disconnect(s.getConnection(), null);
@@ -235,7 +246,7 @@ public class VpnImpl extends AbstractVPNComponent implements VPN {
 	public int getActiveButNonPersistentConnections() {
 		assertRegistered();
 		int active = 0;
-		for (ConnectionStatus s : ctx.getClientService().getStatus(getOwner())) {
+		for (ConnectionStatus s : ctx.getClientService().getStatus(getCurrentUser())) {
 			if (s.getStatus() == Type.CONNECTED && !s.getConnection().isStayConnected()) {
 				active++;
 			}
@@ -282,7 +293,7 @@ public class VpnImpl extends AbstractVPNComponent implements VPN {
 	@Override
 	public boolean isMatchesAnyServerURI(String uri) {
 		assertRegistered();
-		return ctx.getClientService().isMatchesAnyServerURI(getOwner(), uri);
+		return ctx.getClientService().isMatchesAnyServerURI(getCurrentUser(), uri);
 	}
 
     @Override

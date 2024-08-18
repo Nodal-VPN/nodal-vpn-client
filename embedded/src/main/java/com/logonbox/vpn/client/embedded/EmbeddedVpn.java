@@ -67,11 +67,20 @@ public class EmbeddedVpn implements IVpn<EmbeddedVpnConnection> {
         return new EmbeddedVpnConnection(ctx, ctx.getClientService().getStatus(id).getConnection());
     }
 
-
     @Override
     public EmbeddedVpnConnection[] getConnections() {
         try {
             return ctx.getClientService().getStatus(getOwner()).stream()
+                    .map(s -> new EmbeddedVpnConnection(ctx, s.getConnection())).toList().toArray(new EmbeddedVpnConnection[0]);
+        } catch (Exception e) { 
+            throw new IllegalStateException("Failed to get connections.", e);
+        }
+    }
+
+    @Override
+    public EmbeddedVpnConnection[] getAllConnections() {
+        try {
+            return ctx.getClientService().getStatus("").stream()
                     .map(s -> new EmbeddedVpnConnection(ctx, s.getConnection())).toList().toArray(new EmbeddedVpnConnection[0]);
         } catch (Exception e) { 
             throw new IllegalStateException("Failed to get connections.", e);

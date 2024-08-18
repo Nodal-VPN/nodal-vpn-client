@@ -4,6 +4,8 @@ public interface IVpn<CONX extends IVpnConnection> {
 
 	CONX[] getConnections();
 
+    CONX[] getAllConnections();
+
 	CONX getConnection(long id);
 	
 	long getMaxMemory();

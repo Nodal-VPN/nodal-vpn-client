@@ -4,9 +4,11 @@ import com.logonbox.vpn.client.cli.CLI;
 import com.logonbox.vpn.client.cli.CLIContext;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
+import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.drivers.lib.util.OsUtil;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import picocli.CommandLine.Command;
@@ -38,22 +40,11 @@ public class ListConnections implements Callable<Integer> {
         
 		var console = cli.getConsole();
 		var writer = console.out();
-        var connections = Arrays.asList(cli.getVpnManager().getVpnOrFail().getConnections()).stream().sorted((o1, o2) -> {
-            if(sortName) {
-                return o1.getName().compareTo(o2.getName());
-            }
-            else {
-                return Long.valueOf(o1.getId()).compareTo(o2.getId());
-            }
-        }).toList();
-        
-        if(connections.isEmpty()) {
-            throw new IllegalStateException(CLI.BUNDLE.getString("error.noConnections"));
-        }
         
         var width = spec.commandLine().getUsageHelpWidth(); 
         
 		if(OsUtil.isAdministrator())  {
+	        var connections = sortConnections(cli, cli.getVpnManager().getVpnOrFail().getAllConnections());
 		    if(longFormat) {
                 var allExceptUrl = 44;
                 var remain = ( width - allExceptUrl );
@@ -81,6 +72,7 @@ public class ListConnections implements Callable<Integer> {
 		    }
 		}
 		else {
+	        var connections = sortConnections(cli, cli.getVpnManager().getVpnOrFail().getConnections());
             if(longFormat) {
                 var allExceptUrl = 28;
                 var remain = ( width - allExceptUrl );
@@ -109,6 +101,22 @@ public class ListConnections implements Callable<Integer> {
 
 		return 0;
 	}
+
+    protected List<VpnConnection> sortConnections(CLIContext cli, VpnConnection[] connections ) {
+        var sortedConnections = Arrays.asList(connections).stream().sorted((o1, o2) -> {
+            if(sortName) {
+                return o1.getName().compareTo(o2.getName());
+            }
+            else {
+                return Long.valueOf(o1.getId()).compareTo(o2.getId());
+            }
+        }).toList();
+        
+        if(sortedConnections.isEmpty()) {
+            throw new IllegalStateException(CLI.BUNDLE.getString("error.noConnections"));
+        }
+        return sortedConnections;
+    }
 	
 	private String typeToStyleString(Type type, String fmt, Object... args) {
 	    if(type.isSuccess()) {

@@ -29,9 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,7 +36,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +44,6 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
     private final static Logger log = LoggerFactory.getLogger(DBusVpnManager.class);
     
     public final static class Builder {
-        private Optional<Path> addressFile = Optional.empty();
         private Optional<String> busAddress = Optional.empty();
         private boolean sessionBus;
         private boolean supportsAuthorization;
@@ -56,19 +51,6 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
         
         public Builder(AppContext<VpnConnection> app) {
             this.app = app;
-        }
-        
-        public Builder withAddressFilePath(Optional<Path> addressFile) {
-            this.addressFile = addressFile;
-            return this;
-        }
-        
-        public Builder withAddressFile(Optional<String> addressFile) {
-            this.addressFile = addressFile.map(Paths::get);
-            return this;
-        }
-        public Builder withAddressFile(String addressFile) {
-            return withAddressFile(addressFile);
         }
         
         public Builder withBusAddress(String busAddress) {
@@ -108,7 +90,6 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 	private static final String BUS_NAME = "com.logonbox.vpn";
 	private static final String ROOT_OBJECT_PATH = "/com/logonbox/vpn";
 
-	private final Path addressFile;
 	private final String busAddress;
 	private final boolean sessionBus;
     private final boolean supportsAuthorization;
@@ -130,7 +111,6 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 	    
 	    this.app = bldr.app;
 	    this.supportsAuthorization = bldr.supportsAuthorization;
-	    this.addressFile = bldr.addressFile.orElse(null);
 	    this.sessionBus = bldr.sessionBus;
 	    this.busAddress = bldr.busAddress.orElse(null);
 	    
@@ -264,8 +244,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 
 	protected final void onInit() throws Exception {
 
-		String fixedAddress = getServerDBusAddress(addressFile);
-		if (conn == null || !conn.isConnected() || (Utils.isNotBlank(fixedAddress) && !fixedAddress.equals(conn.getAddress().toString()) )) {
+		if (conn == null || !conn.isConnected()) {
 			conn = createBusConnection();
 			 log.debug("Got bus connection.");
 			brokerAvailable = true;
@@ -283,7 +262,6 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 	}
 
 	protected final DBusConnection createBusConnection() throws Exception {
-	    var fixexdAddress = getServerDBusAddress(addressFile);
 		var busAddress = this.busAddress;
 		
 		var bldr = new BusFactory.Builder();
@@ -295,11 +273,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
     		    bldr.withSessionBus();
     		}
     		else {
-    	        if(Utils.isNotBlank(fixexdAddress)) {
-    	            bldr.withAddress(fixexdAddress);
-    	        }
-    	        else
-    	            bldr.withSystemBus();
+	            bldr.withSystemBus();
     		}
         }
 		
@@ -554,39 +528,6 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 			}, 5, TimeUnit.SECONDS);
 		}
 	}
-	
-	static String getServerDBusAddress(Path addressFile) {
-        Properties properties = new Properties();
-        Path file;
-        if(addressFile != null)
-            file = addressFile;
-        else if (System.getProperty("lbvpn.dbus") != null) {
-            file = Paths.get(System.getProperty("lbvpn.dbus"));
-        } else if (Files.exists(Paths.get("pom.xml"))) {
-            /* Decide whether to look for side-by-side `dbus-daemon`, or if the
-             * service is running with an embedded bus (legacy mode)
-             */
-            var dbusDaemonProps = Paths.get("..", "dbus-daemon", "conf", "dbus.properties");
-            if(Files.exists(dbusDaemonProps))
-                file = dbusDaemonProps;
-            else
-                file = Paths.get("..", "desktop-service", "conf", "dbus.properties");
-        } else {
-            file = Paths.get("conf", "dbus.properties");
-        }
-        if (Files.exists(file)) {
-            try (var in = Files.newInputStream(file)) {
-                properties.load(in);
-                String addr = properties.getProperty("address", "");
-                if (addr.equals(""))
-                    throw new IllegalStateException("DBus address file exists, but has no content.");
-                return addr;
-            } catch (IOException ioe) {
-                throw new IllegalStateException("Failed to read DBus address file.", ioe);
-            }
-        } else
-            return null;
-    }
 
     @Override
     public Optional<IVpn<VpnConnection>> getVpn() {

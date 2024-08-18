@@ -10,6 +10,7 @@ import com.logonbox.vpn.client.common.dbus.VpnConnection;
 
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 
@@ -56,10 +57,7 @@ public abstract class AbstractConnectingCommand extends AbstractConnectionComman
                             cli.getConsole().flush();
                             return 0;
                         } else {
-                            if (cli.isVerbose())
-                                err.println(MessageFormat.format(CLI.BUNDLE.getString("error.failedToConnect"), connection.getUri(true)));
-                            cli.getConsole().flush();
-                            return 1;
+                            throw new IOException(MessageFormat.format(CLI.BUNDLE.getString("error.failedToCnnect"), connection.getUri(true)));
                         }
                     }
                     catch(Exception e) {
