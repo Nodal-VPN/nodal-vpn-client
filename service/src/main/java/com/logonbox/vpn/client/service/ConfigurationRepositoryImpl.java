@@ -7,6 +7,8 @@ import com.logonbox.vpn.client.common.ConfigurationItem.Scope;
 import com.logonbox.vpn.client.common.ConfigurationRepository;
 import com.logonbox.vpn.client.common.Utils;
 import com.sshtools.jini.Data;
+import com.sshtools.jini.INIReader;
+import com.sshtools.jini.INIWriter;
 import com.sshtools.jini.config.INISet;
 import com.sshtools.jini.config.Monitor;
 
@@ -27,6 +29,12 @@ public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 	public ConfigurationRepositoryImpl() {
 	    var bldr = new INISet.Builder(AppConstants.CLIENT_SERVICE_NAME).
                 withMonitor(new Monitor()).
+                withWriterFactory(() -> 
+                    new INIWriter.Builder().withSectionPathSeparator('/')
+                ).
+                withReaderFactory(() -> 
+                    new INIReader.Builder().withSectionPathSeparator('/')
+                ).
                 withApp(AppConstants.CLIENT_NAME).
                 withoutSystemPropertyOverrides().
                 withScopes(com.sshtools.jini.config.INISet.Scope.GLOBAL).
