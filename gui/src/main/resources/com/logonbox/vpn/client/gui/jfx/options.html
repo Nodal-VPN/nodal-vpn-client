@@ -85,6 +85,15 @@
 								data-i18n="ignoreLocalRoutesHelp" class="form-text text-muted">Help</small>
 						</p>
 					</div>
+                    <div class="form-check mt-3">
+                        <input type="checkbox" class="form-check-input"
+                            id="ipForwarding" /> <label for="ipForwarding"
+                            data-i18n="ipForwarding">Ip Forwarding</label>
+                        <p>
+                            <small id="ipForwardingHelp"
+                                data-i18n="ipForwardingHelp" class="form-text text-muted">Help</small>
+                        </p>
+                    </div>
 					<div class="form-check ">
 						<input type="checkbox" class="form-check-input"
 							id="singleActiveConnection" /> <label for="singleActiveConnection"
@@ -142,6 +151,9 @@
                 }
                 if ($('#ignoreLocalRoutes').length) {
                     $('#ignoreLocalRoutes').off('change');;
+                }
+                if ($('#ipForwarding').length) {
+                    $('#ipForwarding').off('change');;
                 }
                 if ($('#mtu').length) {
                     $('#mtu').off('change keyup keypress');;
@@ -224,6 +236,10 @@
 					$('#ignoreLocalRoutes').prop('checked', ignoreLocalRoutes);
 				}
 
+                if ($('#ipForwarding').length) {
+                    $('#ipForwarding').prop('checked', ipForwarding);
+                }
+
 				if ($('#singleActiveConnection').length) {
 					$('#singleActiveConnection').prop('checked', singleActiveConnection);
 				}
@@ -257,6 +273,11 @@
                 if ($('#ignoreLocalRoutes').length) {
                     $('#ignoreLocalRoutes').on('change', function() {
                     	bridgeReference.saveOptions({ ignoreLocalRoutes : $('#ignoreLocalRoutes').is(':checked') });
+                    });
+                }
+                if ($('#ipForwarding').length) {
+                    $('#ipForwarding').on('change', function() {
+                        bridgeReference.saveOptions({ ipForwarding : $('#ipForwarding').is(':checked') });
                     });
                 }
                 if ($('#singleActiveConnection').length) {

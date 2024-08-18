@@ -1240,8 +1240,30 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 			}
 		}, 0, 1, TimeUnit.DAYS);
 
+        updateIpForwarding(platformService);
+        addListener((e,o,n) -> updateIpForwarding(platformService));
 
 	}
+
+    protected void updateIpForwarding(PlatformService<?> platformService) {
+        var requireIpForwarding = configurationRepository.getValue(null, ConfigurationItem.IP_FORWARDING);
+        var hasIpForwarding = platformService.isIpForwardingEnabledOnSystem();
+        if(requireIpForwarding && hasIpForwarding) {
+	        try {
+    	        platformService.setIpForwardingEnabledOnSystem(true);
+                log.info("Enabled IP forwarding");
+	        }
+	        catch(UnsupportedOperationException uoe) {
+	            if(log.isDebugEnabled()) {
+	                log.warn("Failed to enable IP forwarding.", uoe);
+	            }
+	            else {
+	                log.warn("Failed to enable IP forwarding.");
+	            }
+	        }
+	        
+	    }
+    }
 
 	public boolean startSavedConnections() {
 

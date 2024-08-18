@@ -235,7 +235,8 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 			Boolean ignoreLocalRoutes = memberOrDefault(o, "ignoreLocalRoutes", Boolean.class, null);
 			Integer mtu = memberOrDefault(o, "mtu", Integer.class, null);
 			Boolean singleActiveConnection = memberOrDefault(o, "singleActiveConnection", Boolean.class, null);
-			UI.this.saveOptions(trayMode, darkMode, phase, automaticUpdates, logLevel, ignoreLocalRoutes,
+            Boolean ipForwarding = memberOrDefault(o, "ipForwarding", Boolean.class, null);
+			UI.this.saveOptions(trayMode, darkMode, phase, automaticUpdates, logLevel, ignoreLocalRoutes, ipForwarding,
 					dnsIntegrationMethod, mtu, singleActiveConnection);
 		}
 
@@ -693,6 +694,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 			beans.put("mtu", vpn.getIntValue(ConfigurationItem.MTU.getKey()));
 			beans.put("automaticUpdates", vpn.getBooleanValue(ConfigurationItem.AUTOMATIC_UPDATES.getKey()));
 			beans.put("ignoreLocalRoutes", vpn.getBooleanValue(ConfigurationItem.IGNORE_LOCAL_ROUTES.getKey()));
+            beans.put("ipForwarding", vpn.getBooleanValue(ConfigurationItem.IP_FORWARDING.getKey()));
 			
 			var l = new ArrayList<String>();
 			l.add("AUTO");
@@ -1014,7 +1016,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 	}
 
 	protected void saveOptions(String trayMode, String darkMode, String phase, Boolean automaticUpdates,
-			String logLevel, Boolean ignoreLocalRoutes, String dnsIntegrationMethod, Integer mtu, Boolean singleActiveConnection) {
+			String logLevel, Boolean ipForwarding, Boolean ignoreLocalRoutes, String dnsIntegrationMethod, Integer mtu, Boolean singleActiveConnection) {
 		try {
 			/* Local per-user GUI specific configuration */
 			JavaFXUiConfiguration config = JavaFXUiConfiguration.getDefault();
@@ -1067,6 +1069,9 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 			if (ignoreLocalRoutes != null) {
 				vpn.setBooleanValue(ConfigurationItem.IGNORE_LOCAL_ROUTES.getKey(), ignoreLocalRoutes);
 			}
+            if (ipForwarding != null) {
+                vpn.setBooleanValue(ConfigurationItem.IP_FORWARDING.getKey(), ipForwarding);
+            }
 			if (singleActiveConnection != null) {
 				vpn.setBooleanValue(ConfigurationItem.SINGLE_ACTIVE_CONNECTION.getKey(), singleActiveConnection);
 			}
