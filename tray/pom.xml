@@ -116,6 +116,43 @@
                 </executions>
             </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.graalvm.buildtools</groupId>
+                    <artifactId>native-maven-plugin</artifactId>
+                    <extensions>true</extensions>
+                    <executions>
+                        <execution>
+                            <id>build-native</id>
+                            <goals>
+                                <goal>compile-no-fork</goal>
+                            </goals>
+                            <phase>package</phase>
+                        </execution>
+                        <execution>
+                            <id>test-native</id>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                            <phase>test</phase>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <metadataRepository>
+                            <enabled>true</enabled>
+                        </metadataRepository>
+                        <imageName>jad-vpn-tray</imageName>
+                        <mainClass>com.logonbox.vpn.client.tray.TrayDaemon</mainClass>
+                        <buildArgs>
+                            <buildArg>--no-fallback</buildArg>
+                            <buildArg>--report-unsupported-elements-at-runtime</buildArg>
+                            <buildArg>--allow-incomplete-classpath</buildArg>
+                        </buildArgs>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <profiles>
@@ -175,6 +212,28 @@
                     </exclusions>
                 </dependency>
             </dependencies>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.graalvm.buildtools</groupId>
+                            <artifactId>native-maven-plugin</artifactId>
+                            <extensions>true</extensions>
+                            <configuration>
+                                <buildArgs>
+                                    <!-- https://github.com/oracle/graal/issues/2256 -->
+                                    <buildArg>-H:NativeLinkerOption=/SUBSYSTEM:WINDOW</buildArg>
+                                    <buildArg>-H:NativeLinkerOption=/ENTRY:mainCRTStartup</buildArg>
+                                    
+                                    <buildArg>--no-fallback</buildArg>
+                                    <buildArg>--report-unsupported-elements-at-runtime</buildArg>
+                                    <buildArg>--allow-incomplete-classpath</buildArg>
+                                </buildArgs>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
         </profile>
         <profile>
             <id>tray-swt-windows-x86</id>
@@ -202,6 +261,28 @@
                     </exclusions>
                 </dependency>
             </dependencies>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.graalvm.buildtools</groupId>
+                            <artifactId>native-maven-plugin</artifactId>
+                            <extensions>true</extensions>
+                            <configuration>
+                                <buildArgs>
+                                    <!-- https://github.com/oracle/graal/issues/2256 -->
+                                    <buildArg>-H:NativeLinkerOption=/SUBSYSTEM:WINDOW</buildArg>
+                                    <buildArg>-H:NativeLinkerOption=/ENTRY:mainCRTStartup</buildArg>
+                                    
+                                    <buildArg>--no-fallback</buildArg>
+                                    <buildArg>--report-unsupported-elements-at-runtime</buildArg>
+                                    <buildArg>--allow-incomplete-classpath</buildArg>
+                                </buildArgs>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
         </profile>
         <profile>
             <id>tray-swt-mac-amd64</id>
@@ -244,35 +325,6 @@
                         <groupId>org.graalvm.buildtools</groupId>
                         <artifactId>native-maven-plugin</artifactId>
                         <extensions>true</extensions>
-                        <executions>
-                            <execution>
-                                <id>build-native</id>
-                                <goals>
-                                    <goal>compile-no-fork</goal>
-                                </goals>
-                                <phase>package</phase>
-                            </execution>
-                            <execution>
-                                <id>test-native</id>
-                                <goals>
-                                    <goal>test</goal>
-                                </goals>
-                                <phase>test</phase>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <metadataRepository>
-                                <enabled>true</enabled>
-                            </metadataRepository>
-                            <imageName>jad-vpn-tray</imageName>
-                            <mainClass>com.logonbox.vpn.client.tray.TrayDaemon</mainClass>
-                            <buildArgs>
-                                <buildArg>--no-fallback</buildArg>
-                                <buildArg>
-                                    --report-unsupported-elements-at-runtime</buildArg>
-                                <buildArg>--allow-incomplete-classpath</buildArg>
-                            </buildArgs>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
