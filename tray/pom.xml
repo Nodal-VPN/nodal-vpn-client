@@ -222,7 +222,7 @@
                             <configuration>
                                 <buildArgs>
                                     <!-- https://github.com/oracle/graal/issues/2256 -->
-                                    <buildArg>-H:NativeLinkerOption=/SUBSYSTEM:WINDOW</buildArg>
+                                    <buildArg>-H:NativeLinkerOption=/SUBSYSTEM:WINDOWS</buildArg>
                                     <buildArg>-H:NativeLinkerOption=/ENTRY:mainCRTStartup</buildArg>
                                     
                                     <buildArg>--no-fallback</buildArg>
@@ -271,7 +271,7 @@
                             <configuration>
                                 <buildArgs>
                                     <!-- https://github.com/oracle/graal/issues/2256 -->
-                                    <buildArg>-H:NativeLinkerOption=/SUBSYSTEM:WINDOW</buildArg>
+                                    <buildArg>-H:NativeLinkerOption=/SUBSYSTEM:WINDOWS</buildArg>
                                     <buildArg>-H:NativeLinkerOption=/ENTRY:mainCRTStartup</buildArg>
                                     
                                     <buildArg>--no-fallback</buildArg>
