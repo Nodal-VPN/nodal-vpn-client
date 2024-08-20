@@ -193,6 +193,7 @@
                             <imageName>jad-vpn</imageName>
                             <mainClass>com.logonbox.vpn.client.cli.CLI</mainClass>
                             <buildArgs>
+                                <buildArgs>-march=compatibility</buildArgs>
                                 <buildArg>--no-fallback</buildArg>
                                 <buildArg>--install-exit-handlers</buildArg>
                                 <buildArg>--enable-http</buildArg>

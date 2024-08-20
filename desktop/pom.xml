@@ -291,6 +291,7 @@
                             <imageName>logonbox-vpn-gui</imageName>
                             <mainClass>com.logonbox.vpn.client.desktop.Main</mainClass>
                             <buildArgs>
+                                <buildArgs>-march=compatibility</buildArgs>
                                 <buildArg>--no-fallback</buildArg>
                                 <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                                 <buildArg>--allow-incomplete-classpath</buildArg>

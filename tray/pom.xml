@@ -148,6 +148,7 @@
                             <buildArg>--no-fallback</buildArg>
                             <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                             <buildArg>--allow-incomplete-classpath</buildArg>
+                            <buildArgs>-march=compatibility</buildArgs>
                         </buildArgs>
                     </configuration>
                 </plugin>
@@ -228,6 +229,7 @@
                                     <buildArg>--no-fallback</buildArg>
                                     <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                                     <buildArg>--allow-incomplete-classpath</buildArg>
+                                    <buildArgs>-march=compatibility</buildArgs>
                                 </buildArgs>
                             </configuration>
                         </plugin>
@@ -277,6 +279,7 @@
                                     <buildArg>--no-fallback</buildArg>
                                     <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                                     <buildArg>--allow-incomplete-classpath</buildArg>
+                                    <buildArgs>-march=compatibility</buildArgs>
                                 </buildArgs>
                             </configuration>
                         </plugin>
