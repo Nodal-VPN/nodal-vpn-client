@@ -286,8 +286,8 @@ public class CLI extends AbstractDBusApp implements CLIContext {
 	}
 
 	@Override
-	public String getVersion() {
-		return app().map((app) -> app.asLocalApp().getVersion()).orElseGet(() -> ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-cli"));
+	public String getArtifactVersion() {
+		return ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-cli");
 	}
 
 	@Override
