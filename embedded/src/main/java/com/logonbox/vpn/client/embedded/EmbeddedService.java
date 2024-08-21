@@ -8,6 +8,7 @@ import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.api.IVpn;
 import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
+import com.sshtools.jaul.ArtifactVersion;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,11 @@ public final class EmbeddedService extends AbstractService<EmbeddedVpnConnection
 		startSavedConnections();
 	}
     
+    @Override
+    public String getVersion() {
+        return ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-embedded");
+    }
+
     @Override
     protected LoggingConfig createLoggingConfig() {
         return LoggingConfig.dumb();

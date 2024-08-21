@@ -3,7 +3,6 @@ package com.logonbox.vpn.client.gui.jfx;
 import static com.logonbox.vpn.client.common.Utils.isNotBlank;
 import static javafx.application.Platform.runLater;
 
-import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.BrandingManager;
 import com.logonbox.vpn.client.common.ConfigurationItem;
@@ -786,8 +785,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 		String ua = engine.getUserAgent();
 		LOG.info("User Agent: " + ua);
 		/* TODO changing user agent may be trickier, iirc the legacy server examines for something */
-		engine.setUserAgent(ua + " " + "JADVPNClient/"
-				+ AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-gui-jfx"));
+		engine.setUserAgent(ua + " " + "JADVPNClient/"+ appContext.getVersion());
 		engine.setOnAlert((e) -> {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.initModality(Modality.APPLICATION_MODAL);

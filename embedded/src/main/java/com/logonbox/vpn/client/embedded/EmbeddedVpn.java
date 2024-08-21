@@ -1,13 +1,13 @@
 package com.logonbox.vpn.client.embedded;
 
 import com.logonbox.vpn.client.LocalContext;
-import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.api.IVpn;
 import com.logonbox.vpn.drivers.lib.DNSProvider;
+import com.sshtools.jaul.ArtifactVersion;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ public class EmbeddedVpn implements IVpn<EmbeddedVpnConnection> {
 
     @Override
     public String getVersion() {
-        return AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-mobile");
+        return ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-mobile");
     }
 
     @Override

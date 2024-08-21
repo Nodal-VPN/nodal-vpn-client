@@ -1,10 +1,10 @@
 package com.logonbox.vpn.client.gui.swt;
 
+import org.eclipse.swt.browser.Browser;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.eclipse.swt.browser.Browser;
 
 public class BoundObjects2 {
 

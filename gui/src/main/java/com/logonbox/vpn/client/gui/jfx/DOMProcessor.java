@@ -2,7 +2,6 @@ package com.logonbox.vpn.client.gui.jfx;
 
 import static com.logonbox.vpn.drivers.lib.util.Util.toHumanSize;
 
-import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConnectionStatus;
 import com.logonbox.vpn.client.common.Utils;
@@ -59,7 +58,7 @@ public class DOMProcessor<CONX extends IVpnConnection> {
         var vpnMaxMemory = vpn == null ? 0 : vpn.getMaxMemory();
         var freeMemory = Runtime.getRuntime().freeMemory();
         var maxMemory = Runtime.getRuntime().maxMemory();
-        var version = AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-gui-jfx");
+        var version = context.getAppContext().getVersion();
         var statusType = connection == null ? "" : connection.getStatus();
 
 		/* VPN service */

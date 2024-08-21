@@ -19,6 +19,7 @@ import com.logonbox.vpn.client.service.ClientServiceImpl;
 import com.logonbox.vpn.client.service.ConfigurationRepositoryImpl;
 import com.logonbox.vpn.drivers.lib.PlatformService;
 import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
+import com.sshtools.jaul.AppRegistry.App;
 
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
@@ -52,10 +53,12 @@ public abstract class AbstractService<CONX extends IVpnConnection> implements Lo
     
     private final ResourceBundle bundle;
     private final LoggingConfig logging;
+    private final Optional<App> app;
 
 	protected AbstractService(ResourceBundle bundle) {
 		this.bundle = bundle;
         logging = createLoggingConfig();
+        app = AppVersion.locateApp(getClass());
     }
 
     @Override
@@ -269,6 +272,10 @@ public abstract class AbstractService<CONX extends IVpnConnection> implements Lo
     }
     
     protected abstract Optional<IVpn<CONX>> buildVpn();
+    
+    protected final Optional<App> app() {
+        return app;
+    }
 
 	protected final boolean startServices() {
 	    getLogger().info("Starting internal services.");
@@ -284,4 +291,5 @@ public abstract class AbstractService<CONX extends IVpnConnection> implements Lo
 
 		return true;
 	}
+	
 }

@@ -58,4 +58,6 @@ public interface LocalContext<CONX extends IVpnConnection> extends Closeable, Co
     
     void fireExit();
 
+    String getVersion();
+
 }

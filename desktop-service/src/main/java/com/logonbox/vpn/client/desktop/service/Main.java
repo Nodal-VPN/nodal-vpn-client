@@ -20,6 +20,7 @@ import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.desktop.service.dbus.VpnConnectionImpl;
 import com.logonbox.vpn.client.desktop.service.dbus.VpnImpl;
 import com.logonbox.vpn.client.service.ClientService.Listener;
+import com.sshtools.jaul.ArtifactVersion;
 import com.sshtools.jaul.JaulApp;
 import com.sshtools.liftlib.Helper;
 import com.sshtools.liftlib.OS;
@@ -80,9 +81,9 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {
-                "Service: " + AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop-service"),
-                "VPN Library: " + AppVersion.getVersion("com.logonbox", "logonbox-vpn-lib"),
-                "DBus Java: " +AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
+                "Service: " + AppVersion.getVersion(Main.class, "com.logonbox", "client-logonbox-vpn-desktop-service"),
+                "VPN Library: " + ArtifactVersion.getVersion("com.logonbox", "logonbox-vpn-lib"),
+                "DBus Java: " +ArtifactVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
             };
         }
     }
@@ -222,9 +223,9 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 			}
 			
 			/* About */
-			log.info("VPN Desktop Service Version: {}", AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop-service"));
-			log.info("VPN Library Version: {}", AppVersion.getVersion("com.logonbox", "logonbox-vpn-lib"));
-	        log.info("DBus Version: {}", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core"));
+			log.info("VPN Desktop Service Version: {}", getVersion());
+			log.info("VPN Library Version: {}", ArtifactVersion.getVersion("com.logonbox", "logonbox-vpn-lib"));
+	        log.info("DBus Version: {}", ArtifactVersion.getVersion("com.github.hypfvieh", "dbus-java-core"));
 			log.info("OS: {}", System.getProperty("os.name") + " / " + System.getProperty("os.arch")
 					+ " (" + System.getProperty("os.version") + ")");
 			log.info("JVM Mode: {}", OS.isNativeImage() ? "Native" : "Interpreted");
@@ -262,6 +263,11 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 		}
 
 		return 0;
+	}
+	
+	@Override
+	public String getVersion() {
+        return app().map((app) -> app.asLocalApp().getVersion()).orElseGet(() -> ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop-service"));
 	}
 
     @Override

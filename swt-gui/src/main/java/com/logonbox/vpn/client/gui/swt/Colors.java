@@ -1,14 +1,14 @@
 package com.logonbox.vpn.client.gui.swt;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.logonbox.vpn.client.common.lbapi.Branding;
 import com.logonbox.vpn.client.common.lbapi.BrandingInfo;
 
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.RGBA;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class Colors {

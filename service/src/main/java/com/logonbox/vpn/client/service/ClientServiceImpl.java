@@ -28,6 +28,7 @@ import com.logonbox.vpn.drivers.lib.VpnAdapter;
 import com.logonbox.vpn.drivers.lib.VpnInterfaceInformation;
 import com.logonbox.vpn.drivers.lib.util.Keys;
 import com.logonbox.vpn.drivers.lib.util.Util;
+import com.sshtools.jaul.ArtifactVersion;
 import com.sshtools.jini.INIReader;
 import com.sshtools.jini.INIReader.MultiValueMode;
 import com.sshtools.liftlib.OS;
@@ -1231,7 +1232,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		context.getScheduler().scheduleWithFixedDelay(() -> {
 			try {
 				resolveRemoteDependencies(context.getCertManager(), Util.checkEndsWithSlash(getExtensionStoreRoot()) + "api/store/repos2",
-						new String[] { "jad-vpn-client" }, AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-service"), AppVersion.getSerial(),
+						new String[] { "jad-vpn-client" }, ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-service"), AppVersion.getSerial(),
 						"VPN Client", getCustomerInfo(), "CLIENT_SERVICE");
 			} catch (Exception e) {
 				if (log.isDebugEnabled()) {

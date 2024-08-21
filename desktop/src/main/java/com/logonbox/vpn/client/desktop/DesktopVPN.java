@@ -3,7 +3,6 @@ package com.logonbox.vpn.client.desktop;
 import com.install4j.api.launcher.StartupNotification;
 import com.install4j.api.launcher.StartupNotification.Listener;
 import com.logonbox.vpn.client.app.SimpleLoggingConfig;
-import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ClientPromptingCertManager;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.LoggingConfig.Audience;
@@ -14,6 +13,7 @@ import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
 import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
 import com.logonbox.vpn.client.gui.jfx.JfxAppContext;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
+import com.sshtools.jaul.ArtifactVersion;
 import com.sshtools.jaul.NoUpdateService;
 import com.sshtools.jaul.UpdateService;
 import com.sshtools.liftlib.OS;
@@ -50,8 +50,8 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {
-                "GUI: " + AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop"),
-                "DBus Java: " + AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
+                "GUI: " + ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop"),
+                "DBus Java: " + ArtifactVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
             };
         }
     }
@@ -158,8 +158,8 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
 
         log = initApp();
 
-        log.info("Desktop App Version: {}", AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop"));
-        log.info("DBus Version: {}", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core"));
+        log.info("Desktop App Version: {}", getVersion());
+        log.info("DBus Version: {}", ArtifactVersion.getVersion("com.github.hypfvieh", "dbus-java-core"));
         log.info("OS: {}", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " (" + System.getProperty("os.version") + ")");
         try {
             log.info("CWD: {}", new File(".").getCanonicalPath());
@@ -184,11 +184,6 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
     @Override
 	public String getUri() {
 		return uri;
-	}
-
-	@Override
-	public String getVersion() {
-		return AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop");
 	}
 
 	public boolean isAlwaysOnTop() {
@@ -320,4 +315,8 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
 			return new NoUpdateService(this);
 		}
 	}
+
+    protected String getArtifactVersion() {
+        return ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop");
+    }
 }

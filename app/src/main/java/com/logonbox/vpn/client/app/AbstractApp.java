@@ -250,7 +250,7 @@ public abstract class AbstractApp<CONX extends IVpnConnection> implements AppCon
 	}
 
 	protected abstract PromptingCertManager createCertManager();
-
+	
     private Optional<App> locateApp() {
         try {
             return Optional.of(AppRegistry.get().launch(this.getClass()));

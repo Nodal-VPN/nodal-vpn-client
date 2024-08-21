@@ -19,8 +19,6 @@ package com.logonbox.vpn.client.gui.swt;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Arrays;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.PaintEvent;
@@ -37,6 +35,8 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.IkonHandler;
+
+import java.util.Arrays;
 
 /**
  */

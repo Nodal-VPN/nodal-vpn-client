@@ -13,6 +13,7 @@ import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IRemoteUI;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
+import com.sshtools.jaul.ArtifactVersion;
 import com.sshtools.liftlib.OS;
 import com.sshtools.twoslices.Slice;
 import com.sshtools.twoslices.Toast;
@@ -50,8 +51,8 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {
-                "Tray: " + AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-tray"),
-                "DBus Java: " + AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
+                "Tray: " + AppVersion.getVersion(TrayDaemon.class, "com.logonbox", "client-logonbox-vpn-tray"),
+                "DBus Java: " + ArtifactVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
             };
         }
     }
@@ -82,8 +83,8 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 
         initApp();
         
-		log.info("System Tray Version: {}", AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-tray"));
-        log.info("DBus Version: {}", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core"));
+		log.info("System Tray Version: {}", getVersion());
+        log.info("DBus Version: {}", ArtifactVersion.getVersion("com.github.hypfvieh", "dbus-java-core"));
 		log.info("OS: {}", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " ("
 				+ System.getProperty("os.version") + ")");
 		try {
@@ -205,11 +206,6 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
     protected void afterExit() {
         System.exit(0);
     }
-
-	@Override
-	public String getVersion() {
-		return AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-tray");
-	}
 
 	@Override
 	public boolean isConsole() {

@@ -1,7 +1,6 @@
 package com.logonbox.vpn.client.gui.swt;
 
 import com.logonbox.vpn.client.app.SimpleLoggingConfig;
-import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ClientPromptingCertManager;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.LoggingConfig.Audience;
@@ -9,6 +8,7 @@ import com.logonbox.vpn.client.common.PlatformUtilities;
 import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
 import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
+import com.sshtools.jaul.ArtifactVersion;
 import com.sshtools.jaul.NoUpdateService;
 import com.sshtools.jaul.UpdateService;
 import com.sshtools.liftlib.OS;
@@ -93,8 +93,8 @@ public class Main extends AbstractDBusApp {
 
         log = initApp();
 
-        log.info("Desktop App Version: {}", AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop"));
-        log.info("DBus Version: {}", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core"));
+        log.info("Desktop App Version: {}", getVersion());
+        log.info("DBus Version: {}", ArtifactVersion.getVersion("com.github.hypfvieh", "dbus-java-core"));
         log.info("OS: {}", System.getProperty("os.name") + " / " + System.getProperty("os.arch") + " (" + System.getProperty("os.version") + ")");
         try {
             log.info("CWD: {}", new File(".").getCanonicalPath());
@@ -221,10 +221,10 @@ public class Main extends AbstractDBusApp {
         return builder.withAuthorization();
     }
 
-	@Override
-	public String getVersion() {
-		return AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-gui-swt");
-	}
+    @Override
+    protected String getArtifactVersion() {
+        return ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-swt-gui");
+    }
 
 	@Override
 	public boolean isConsole() {

@@ -55,15 +55,15 @@ public abstract class AbstractDBusApp extends AbstractApp<VpnConnection> {
     }
 
     @Override
-    public String getVersion() {
+    public final String getVersion() {
         return app().map(app -> {
             try {
                 return new LocalAppDef(app).getVersion();
             }
             catch(Exception e) {
-                return getArtificatVersion();
+                return getArtifactVersion();
             }
-        }).orElseGet(() -> getArtificatVersion());
+        }).orElseGet(() -> getArtifactVersion());
     }
 
     @Override
@@ -145,7 +145,7 @@ public abstract class AbstractDBusApp extends AbstractApp<VpnConnection> {
         return log;
     }
 
-    private String getArtificatVersion() {
+    protected String getArtifactVersion() {
         return ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-dbus-app");
     }
 

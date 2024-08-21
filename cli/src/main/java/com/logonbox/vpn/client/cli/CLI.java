@@ -13,7 +13,6 @@ import com.logonbox.vpn.client.cli.commands.Remove;
 import com.logonbox.vpn.client.cli.commands.Show;
 import com.logonbox.vpn.client.cli.commands.Shutdown;
 import com.logonbox.vpn.client.cli.commands.Update;
-import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ClientPromptingCertManager;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.LoggingConfig.Audience;
@@ -22,6 +21,7 @@ import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
 import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
 import com.logonbox.vpn.drivers.lib.util.Util;
+import com.sshtools.jaul.ArtifactVersion;
 
 import org.slf4j.event.Level;
 
@@ -58,8 +58,8 @@ public class CLI extends AbstractDBusApp implements CLIContext {
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {
-                "CLI: " + AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-cli"),
-                "DBus Java: " + AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
+                "CLI: " + ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-cli"),
+                "DBus Java: " + ArtifactVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
             };
         }
     }
@@ -115,7 +115,7 @@ public class CLI extends AbstractDBusApp implements CLIContext {
 		var console = getConsole();
 		var writer = console.out();
 		writer.println(String.format("CLI Version: %s", getVersion()));
-        writer.println(String.format("DBus Version: %s", AppVersion.getVersion("com.github.hypfvieh", "dbus-java-core")));
+        writer.println(String.format("DBus Version: %s", ArtifactVersion.getVersion("com.github.hypfvieh", "dbus-java-core")));
 		getVpn().ifPresentOrElse(vpn -> {
 			writer.println(String.format("Service Version: %s", vpn.getVersion()));
 			writer.println(String.format("Device Name: %s", vpn.getDeviceName()));
@@ -287,7 +287,7 @@ public class CLI extends AbstractDBusApp implements CLIContext {
 
 	@Override
 	public String getVersion() {
-		return AppVersion.getVersion("com.logonbox", "client-logonbox-vpn-cli");
+		return app().map((app) -> app.asLocalApp().getVersion()).orElseGet(() -> ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-cli"));
 	}
 
 	@Override
