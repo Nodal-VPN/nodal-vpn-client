@@ -108,12 +108,14 @@ public abstract class AbstractApp<CONX extends IVpnConnection> implements AppCon
             return 0;
         }
         else {
-            app = locateApp();
             return onCall();
         }
     }
 	
 	protected Optional<App> app() {
+	    if(app == null) {
+	        app = locateApp();
+	    }
 	    return app;
 	}
 	
