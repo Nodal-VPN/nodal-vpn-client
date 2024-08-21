@@ -368,7 +368,7 @@ public class ConnectionImpl implements Connection, Serializable {
                 setPort(l.getInt("Port"));
                 l.getIntOr("MTU").ifPresent(this::setMtu);
                 setLastKnownServerIpAddress(l.get("LastKnownServerIpAddress", null));
-                setInstance(l.get("Instance", null));
+                setInstance(l.get("Instance", UUID.randomUUID().toString()));
     		});
     
     		/* Peer (them) */
