@@ -931,6 +931,18 @@ return console.askYesNo(message, true);
               </action>
               <action id="2179" beanClass="com.install4j.runtime.beans.actions.misc.CheckRunningProcessesAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <serializedBean>
+                  <property name="additionalExecutables" type="array" class="java.io.File" length="2">
+                    <element index="0">
+                      <object class="java.io.File">
+                        <string>jad-vpn-tray${compiler:build.exe.suffix}</string>
+                      </object>
+                    </element>
+                    <element index="1">
+                      <object class="java.io.File">
+                        <string>jad-vpn${compiler:build.exe.suffix}</string>
+                      </object>
+                    </element>
+                  </property>
                   <property name="closeStrategy" type="enum" class="com.install4j.runtime.beans.actions.misc.CloseStrategy" value="TERMINATE" />
                 </serializedBean>
               </action>
