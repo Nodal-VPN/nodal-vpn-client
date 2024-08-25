@@ -5,7 +5,7 @@ import com.logonbox.vpn.client.cli.CLIContext;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
-import com.logonbox.vpn.drivers.lib.util.OsUtil;
+import com.sshtools.liftlib.OS;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +47,7 @@ public class ListConnections implements Callable<Integer> {
         var width = spec.commandLine().getUsageHelpWidth(); 
         
 		if(all)  {
-		    if(!OsUtil.isAdministrator())
+		    if(!OS.isAdministrator())
 		        throw new IllegalStateException(CLI.BUNDLE.getString("error.notAdministrator"));
 	        var connections = sortConnections(cli, cli.getVpnManager().getVpnOrFail().getAllConnections());
 		    if(longFormat) {

@@ -11,7 +11,6 @@ import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
-import com.logonbox.vpn.drivers.lib.util.OsUtil;
 import com.sshtools.jaul.AppCategory;
 import com.sshtools.jaul.AppRegistry;
 import com.sshtools.jaul.AppRegistry.App;
@@ -23,6 +22,7 @@ import com.sshtools.jaul.JaulApp;
 import com.sshtools.jaul.NoUpdateService;
 import com.sshtools.jaul.UpdateDescriptor.MediaType;
 import com.sshtools.jaul.UpdateService;
+import com.sshtools.liftlib.OS;
 
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
@@ -149,7 +149,7 @@ public abstract class AbstractApp<CONX extends IVpnConnection> implements AppCon
                     System.exit(0);
                 }));
 			}
-			if("false" .equals(instanceProperties.get("userUpdates")) && !OsUtil.isAdministrator()) {
+			if("false" .equals(instanceProperties.get("userUpdates")) && !OS.isAdministrator()) {
 				throw new Exception("Not an administrator, and userUpdates=false");
 			}
             var app = locateApp().orElseThrow(() -> new IllegalStateException("Could not locate registered app."));
@@ -244,7 +244,7 @@ public abstract class AbstractApp<CONX extends IVpnConnection> implements AppCon
 		if (Utils.isBlank(asUser)) {
 		    return PlatformUtilities.get().getCurrentUser();
 		} else {
-			if (OsUtil.isAdministrator())
+			if (OS.isAdministrator())
 				return asUser;
 			else
 				throw new IllegalStateException("Cannot impersonate a user if not an administrator.");
