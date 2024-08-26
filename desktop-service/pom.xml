@@ -56,7 +56,7 @@
         <dependency>
             <groupId>com.sshtools</groupId>
             <artifactId>liftlib</artifactId>
-            <version>0.9.11</version>
+            <version>0.9.12</version>
         </dependency>
         <dependency>
             <groupId>com.logonbox</groupId>
@@ -130,6 +130,9 @@
 	                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                                         <!--TODO This should not be necessary! For some reason native-image-annotations is not working for these -->
                                         <buildArg>-H:IncludeResources=.*win32.*</buildArg>
+                                    <buildArg>--enable-http</buildArg>
+                                    <buildArg>--enable-https</buildArg>
+                                    <buildArg>--enable-url-protocols=http,https</buildArg>
 	                            </buildArgs>
 	                        </configuration>
 	                    </plugin>
@@ -168,6 +171,9 @@
                                     <buildArgs>-march=compatibility</buildArgs>
 	                                <buildArg>--no-fallback</buildArg>
 	                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
+                                    <buildArg>--enable-http</buildArg>
+                                    <buildArg>--enable-https</buildArg>
+                                    <buildArg>--enable-url-protocols=http,https</buildArg>
 	                            </buildArgs>
 	                        </configuration>
 	                    </plugin>
@@ -206,6 +212,9 @@
                                     <buildArgs>-march=compatibility</buildArgs>
 	                                <buildArg>--no-fallback</buildArg>
 	                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
+                                    <buildArg>--enable-http</buildArg>
+                                    <buildArg>--enable-https</buildArg>
+                                    <buildArg>--enable-url-protocols=http,https</buildArg>
 	                            </buildArgs>
 	                        </configuration>
 	                    </plugin>
