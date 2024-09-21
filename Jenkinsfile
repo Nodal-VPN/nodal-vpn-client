@@ -111,7 +111,7 @@ pipeline {
 		}
 		stage ('Deploy') {
 			agent {
-				label 'linux'
+				label 'linux && x86_64'
 			}
 			steps {
 			
