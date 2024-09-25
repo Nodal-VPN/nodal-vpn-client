@@ -4,6 +4,13 @@ pipeline {
         maven 'Maven 3.9.0' 
         jdk 'Graal JDK 21' 
     }
+    
+    environment {
+        /* Constants / Configuration */
+        BUILD_PROPERTIES_ID = "b60f3998-d8fd-434b-b3c8-ed52aa52bc2e"
+        BUILD_PROPERTIES_NAME = "jadaptive.build.properties"
+        MAVEN_CONFIG_ID = "14324b85-c597-44e8-a575-61f925dba528"
+    }
 
     stages {
         stage ('LogonBox VPN Client Native Installers') {
@@ -18,14 +25,14 @@ pipeline {
                     steps {
                         configFileProvider([
                                 configFile(
-                                    fileId: 'bb62be43-6246-4ab5-9d7a-e1f35e056d69',  
+                                    fileId: "${env.BUILD_PROPERTIES_ID}",  
                                     replaceTokens: true,
-                                    targetLocation: 'hypersocket.build.properties',
+                                    targetLocation: "${env.BUILD_PROPERTIES_NAME}",
                                     variable: 'BUILD_PROPERTIES'
                                 )
                             ]) {
                             withMaven(
-                                globalMavenSettingsConfig: '4bc608a8-6e52-4765-bd72-4763f45bfbde'
+                                globalMavenSettingsConfig: "${env.MAVEN_CONFIG_ID}"
                             ) {
                                 sh 'mvn -U -Dbuild.mediaTypes=unixInstaller,unixArchive,linuxRPM,linuxDeb ' +
                                    '-Dinstall4j.disableSigning=true ' +
@@ -59,14 +66,14 @@ pipeline {
                     steps {
                         configFileProvider([
                                 configFile(
-                                    fileId: 'bb62be43-6246-4ab5-9d7a-e1f35e056d69',  
+                                    fileId: "${env.BUILD_PROPERTIES_ID}",  
                                     replaceTokens: true,
-                                    targetLocation: 'hypersocket.build.properties',
+                                    targetLocation: "${env.BUILD_PROPERTIES_NAME}",
                                     variable: 'BUILD_PROPERTIES'
                                 )
                             ]) {
                             withMaven(
-                                globalMavenSettingsConfig: '4bc608a8-6e52-4765-bd72-4763f45bfbde'
+                                globalMavenSettingsConfig: "${env.MAVEN_CONFIG_ID}"
                             ) {
                                 sh 'mvn -U -Dbuild.mediaTypes=unixInstaller,unixArchive,linuxRPM,linuxDeb ' +
                                    '-Dinstall4j.disableSigning=true ' + 
@@ -90,37 +97,77 @@ pipeline {
                 }
                 
                 /*
-                 * MacOS installers
+                 * MacOS Intel installers
                  */
-                stage ('MacOS LogonBox VPN Client Native Installers') {
+                stage ('MacOS Intel LogonBox VPN Client Native Installers') {
                     agent {
-                        label 'install4j && macos'
+                        label 'install4j && macos && x86_64'
                     }
                     steps {
                         configFileProvider([
                                 configFile(
-                                    fileId: 'bb62be43-6246-4ab5-9d7a-e1f35e056d69',  
+                                    fileId: "${env.BUILD_PROPERTIES_ID}",  
                                     replaceTokens: true,
-                                    targetLocation: 'hypersocket.build.properties',
+                                    targetLocation: "${env.BUILD_PROPERTIES_NAME}",
                                     variable: 'BUILD_PROPERTIES'
                                 )
                             ]) {
                             withMaven(
-                                globalMavenSettingsConfig: '4bc608a8-6e52-4765-bd72-4763f45bfbde'
+                                globalMavenSettingsConfig: "${env.MAVEN_CONFIG_ID}"
                             ) {
                                 // -Dinstall4j.disableNotarization=true
                                 sh 'mvn -U -Dbuild.mediaTypes=macos,macosFolder,macosFolderArchive ' +
                                    '"-Dbuild.projectProperties=$BUILD_PROPERTIES" ' +
                                    '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +
                                    '-P installers,native-image ' +
+                                   '-Dbuild.buildIds=1553 ' +
                                    'clean package'
                                 
                                 /* Stash installers */
-                                stash includes: 'installer/target/media/*', name: 'macos-vpn-client'
+                                stash includes: 'installer/target/media/*', name: 'macos-amd64-vpn-client'
                                 
                                 /* Stash updates.xml */
                                 dir('installer/target/media') {
-                                    stash includes: 'updates.xml', name: 'macos-updates-xml'
+                                    stash includes: 'updates.xml', name: 'macos-amd64-updates-xml'
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                /*
+                 * MacOS Intel installers
+                 */
+                stage ('MacOS Arm LogonBox VPN Client Native Installers') {
+                    agent {
+                        label 'install4j && macos && aarch64'
+                    }
+                    steps {
+                        configFileProvider([
+                                configFile(
+                                    fileId: "${env.BUILD_PROPERTIES_ID}",  
+                                    replaceTokens: true,
+                                    targetLocation: "${env.BUILD_PROPERTIES_NAME}",
+                                    variable: 'BUILD_PROPERTIES'
+                                )
+                            ]) {
+                            withMaven(
+                                globalMavenSettingsConfig: "${env.MAVEN_CONFIG_ID}"
+                            ) {
+                                // -Dinstall4j.disableNotarization=true
+                                sh 'mvn -U -Dbuild.mediaTypes=macos,macosFolder,macosFolderArchive ' +
+                                   '"-Dbuild.projectProperties=$BUILD_PROPERTIES" ' +
+                                   '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +
+                                   '-P installers,native-image ' +
+                                   '-Dbuild.buildIds=2173 ' +
+                                   'clean package'
+                                
+                                /* Stash installers */
+                                stash includes: 'installer/target/media/*', name: 'macos-aarch64-vpn-client'
+                                
+                                /* Stash updates.xml */
+                                dir('installer/target/media') {
+                                    stash includes: 'updates.xml', name: 'macos-aarch64-updates-xml'
                                 }
                             }
                         }
@@ -137,18 +184,18 @@ pipeline {
                     steps {
                         configFileProvider([
                                 configFile(
-                                    fileId: 'bb62be43-6246-4ab5-9d7a-e1f35e056d69',  
+                                    fileId: "${env.BUILD_PROPERTIES_ID}",  
                                     replaceTokens: true,
-                                    targetLocation: 'hypersocket.build.properties',
+                                    targetLocation: "${env.BUILD_PROPERTIES_NAME}",
                                     variable: 'BUILD_PROPERTIES'
                                 )
                             ]) {
                             withMaven(
-                                globalMavenSettingsConfig: '4bc608a8-6e52-4765-bd72-4763f45bfbde'
+                                globalMavenSettingsConfig: "${env.MAVEN_CONFIG_ID}"
                             ) {
                                 bat 'mvn -U -Dinstall4j.verbose=true ' +
                                     '-Dbuild.mediaTypes=windows,windowsArchive ' +
-                                    '-Dbuild.exe.suffix=.exe ' +
+                                    '-Dinstall4j.exe.suffix=.exe ' +
                                     '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +
                                     '"-Dbuild.projectProperties=%BUILD_PROPERTIES%" ' +
                                     '-P installers,native-image ' +
@@ -187,11 +234,15 @@ pipeline {
                 unstash 'windows-vpn-client'
                 unstash 'linux-amd64-vpn-client'
                 unstash 'linux-aarch64-vpn-client'
-                unstash 'macos-vpn-client'
+                unstash 'macos-amd64-vpn-client'
+                unstash 'macos-aarch64-vpn-client'
                 
                 /* Unstash updates.xml */
-                dir('installer/target/media-macos') {
-                    unstash 'macos-updates-xml'
+                dir('installer/target/media-macos-amd64') {
+                    unstash 'macos-amd64-updates-xml'
+                }
+                dir('installer/target/media-macos-aarch64') {
+                    unstash 'macos-aarch64-updates-xml'
                 }
                 dir('installer/target/media-windows') {
                     unstash 'windows-updates-xml'
@@ -205,7 +256,7 @@ pipeline {
                 
                 /* Merge all updates.xml into one */
                 withMaven(
-                    globalMavenSettingsConfig: '4bc608a8-6e52-4765-bd72-4763f45bfbde',
+                    globalMavenSettingsConfig: "${env.MAVEN_CONFIG_ID}",
                 ) {
                     sh 'mvn -P merge-installers -pl installer com.sshtools:updatesxmlmerger-maven-plugin:merge'
                 }

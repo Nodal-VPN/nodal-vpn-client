@@ -6,18 +6,19 @@
       <directory location=".install4j/jre.bundle" />
     </searchSequence>
     <variables>
-      <variable name="build.phase" value="continuous" />
-      <variable name="build.exe.suffix" />
+      <variable name="install4j.phase" value="continuous" />
+      <variable name="install4j.exe.suffix" />
       <variable name="jfx.archdir" value="gui/win" description="The location of the architecture specific jars for JavaFX" />
       <variable name="install4j.appleId" value="unset@logonbox.com" description="The apple ID to use for notarisation" />
       <variable name="install4j.jaulUpdaterId" value="999" description="The ID (in this install4j project) of the updater application. Its a bit annoying we can't get this automatically!" />
       <variable name="install4j.jaulAppId" value="UNSET" description="The Jaul update system app Id, e.g. com.sshtools.MyApp" />
       <variable name="install4j.updatesBase" value="http://localhost" description="The base folder (on S3 usually) where updates are" />
-      <variable name="install4j.macPkcs12File" value="${user.home}/.logonbox-developer-id.p12" description="Location of Mac developer certificate" />
+      <variable name="install4j.macPkcs12File" value="${user.home}/.jadaptive-developer-id.p12" description="Location of Mac developer certificate" />
       <variable name="install4j.windowsSigning" value="false" description="Whether to sig for Windows" />
       <variable name="install4j.windowsKeystoreIssuer" value="Sectigo Public Code Signing CA EV R36" description="Windows key store issuer" />
       <variable name="install4j.windowsKeystoreSerial" value="6a2d74c3e24c71aa08000ead302fbd46" description="Windows key store serial" />
       <variable name="install4j.windowsKeystoreSubject" value="Jadaptive Limited" description="Windows key store subject" />
+      <variable name="install4j.branches" value="" description="Branches" />
     </variables>
     <codeSigning macEnabled="true" macPkcs12File="${compiler:install4j.macPkcs12File}" windowsEnabled="true" windowsKeySource="windows" macNotarize="true" appleId="${compiler:install4j.appleId}">
       <windowsKeystoreIdentifier issuer="${compiler:install4j.windowsKeystoreIssuer}" serial="${compiler:install4j.windowsKeystoreSerial}" subject="${compiler:install4j.windowsKeystoreSubject}" />
@@ -28,6 +29,8 @@
         <entry>grpc-netty-*</entry>
         <entry>pty4j-*</entry>
         <entry>install4j-*</entry>
+        <entry>junixsocket*</entry>
+        <entry>jna.*</entry>
       </macSearchedJars>
     </codeSigning>
     <jreBundles jdkProviderId="Adoptium" release="21/jdk-21.0.1+12" />
@@ -64,9 +67,9 @@
       <fileEntry mountPoint="2032" file="./WireGuardNT-LICENSE.txt" />
       <fileEntry mountPoint="2032" file="target/CHANGES.md" />
       <fileEntry mountPoint="2032" file="./WIREGUARD-LICENSE.txt" />
-      <fileEntry mountPoint="2032" file="../cli/target/jad-vpn${compiler:build.exe.suffix}" fileMode="755" overrideFileMode="true" />
-      <fileEntry mountPoint="2032" file="../desktop-service/target/jad-vpn-service${compiler:build.exe.suffix}" fileMode="755" overrideFileMode="true" />
-      <fileEntry mountPoint="2032" file="../tray/target/jad-vpn-tray${compiler:build.exe.suffix}" fileMode="755" overrideFileMode="true" />
+      <fileEntry mountPoint="2032" file="../cli/target/jad-vpn${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
+      <fileEntry mountPoint="2032" file="../desktop-service/target/jad-vpn-service${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
+      <fileEntry mountPoint="2032" file="../tray/target/jad-vpn-tray${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
       <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/jad-vpn-client-service.exe" />
       <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/jad-vpn-client-service.xml" />
       <fileEntry mountPoint="2037" file="./os/linux/dbus/jad-vpn-service.conf" />
@@ -81,7 +84,7 @@
           <entry location="WireGuardNT-LICENSE.txt" />
           <entry location="CHANGES.md" />
           <entry location="WIREGUARD-LICENSE.txt" />
-          <entry location="jad-vpn-service${compiler:build.exe.suffix}" />
+          <entry location="jad-vpn-service${compiler:install4j.exe.suffix}" />
           <entry location="jad-vpn-client-service.exe" />
           <entry location="jad-vpn-client-service.xml" />
           <entry rootId="2036" location="jad-vpn-service.conf" />
@@ -104,7 +107,7 @@
         <include>
           <entry location="EULA.txt" />
           <entry location="WIREGUARD-LICENSE.txt" />
-          <entry location="jad-vpn${compiler:build.exe.suffix}" />
+          <entry location="jad-vpn${compiler:install4j.exe.suffix}" />
         </include>
         <dependencies>
           <component id="1676" />
@@ -113,7 +116,7 @@
       <component name="Tray Icon" id="2259">
         <include>
           <entry location="tray" />
-          <entry location="jad-vpn-tray${compiler:build.exe.suffix}" />
+          <entry location="jad-vpn-tray${compiler:install4j.exe.suffix}" />
         </include>
         <dependencies>
           <component id="1676" />
@@ -178,11 +181,11 @@
         <file path="./images/logo128px.png" />
       </iconImageFiles>
     </launcher>
-    <launcher name="jad-vpn-service" id="2266" external="true" excludeFromMenu="true" externalFile="jad-vpn-service${compiler:build.exe.suffix}" />
-    <launcher name="jad-vpn" id="2268" external="true" excludeFromMenu="true" externalFile="jad-vpn${compiler:build.exe.suffix}" />
-    <launcher name="jad-vpn-tray" id="2271" external="true" menuName="JADAPTIVE VPN Tray Icon" externalFile="jad-vpn-tray${compiler:build.exe.suffix}" />
+    <launcher name="jad-vpn-service" id="2266" external="true" excludeFromMenu="true" externalFile="jad-vpn-service${compiler:install4j.exe.suffix}" />
+    <launcher name="jad-vpn" id="2268" external="true" excludeFromMenu="true" externalFile="jad-vpn${compiler:install4j.exe.suffix}" />
+    <launcher name="jad-vpn-tray" id="2271" external="true" menuName="JADAPTIVE VPN Tray Icon" externalFile="jad-vpn-tray${compiler:install4j.exe.suffix}" />
   </launchers>
-  <installerGui autoUpdateDescriptorUrl="${compiler:install4j.updatesBase}/${compiler:build.phase}/updates.xml" useAutoUpdateBaseUrl="true" autoUpdateBaseUrl="${compiler:install4j.updatesBase}/${compiler:sys.version}/">
+  <installerGui autoUpdateDescriptorUrl="${compiler:install4j.updatesBase}/${compiler:install4j.phase}/updates.xml" useAutoUpdateBaseUrl="true" autoUpdateBaseUrl="${compiler:install4j.updatesBase}/${compiler:sys.version}/">
     <customCode>
       <scanDirectory location="./target/jaul" />
     </customCode>
@@ -508,7 +511,7 @@ return path.replace('\\', '/');</property>
                   <property name="description" type="string">Manages VPN connections on behalf of users</property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-service${compiler:build.exe.suffix}</string>
+                      <string>jad-vpn-service${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="launcherId" type="null" />
@@ -541,7 +544,7 @@ return path.replace('\\', '/');</property>
                 <serializedBean>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-service${compiler:build.exe.suffix}</string>
+                      <string>jad-vpn-service${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="launcherId" type="null" />
@@ -584,12 +587,12 @@ return path.replace('\\', '/');</property>
                 <serializedBean>
                   <property name="file">
                     <object class="java.io.File">
-                      <string>jad-vpn${compiler:build.exe.suffix}</string>
+                      <string>jad-vpn${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="linkFile">
                     <object class="java.io.File">
-                      <string>/usr/bin/jad-vpn${compiler:build.exe.suffix}</string>
+                      <string>/usr/bin/jad-vpn${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                 </serializedBean>
@@ -599,12 +602,12 @@ return path.replace('\\', '/');</property>
                 <serializedBean>
                   <property name="file">
                     <object class="java.io.File">
-                      <string>jad-vpn-tray${compiler:build.exe.suffix}</string>
+                      <string>jad-vpn-tray${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="linkFile">
                     <object class="java.io.File">
-                      <string>/usr/bin/jad-vpn-tray${compiler:build.exe.suffix}</string>
+                      <string>/usr/bin/jad-vpn-tray${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                 </serializedBean>
@@ -668,7 +671,7 @@ X-GNOME-Autostart-enabled=true</property>
                 <serializedBean>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-tray${compiler:build.exe.suffix}</string>
+                      <string>jad-vpn-tray${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="name" type="string">JADAPTIVE VPN Tray Icon</property>
@@ -852,7 +855,7 @@ return console.askYesNo(message, true);
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn${compiler:build.exe.suffix}</string>
+                      <string>jad-vpn${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="timeout" type="int" value="20" />
@@ -885,7 +888,7 @@ return console.askYesNo(message, true);
                 <serializedBean>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-service${compiler:build.exe.suffix}</string>
+                      <string>jad-vpn-service${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="launcherId" type="null" />
@@ -934,12 +937,12 @@ return console.askYesNo(message, true);
                   <property name="additionalExecutables" type="array" class="java.io.File" length="2">
                     <element index="0">
                       <object class="java.io.File">
-                        <string>jad-vpn-tray${compiler:build.exe.suffix}</string>
+                        <string>jad-vpn-tray${compiler:install4j.exe.suffix}</string>
                       </object>
                     </element>
                     <element index="1">
                       <object class="java.io.File">
-                        <string>jad-vpn${compiler:build.exe.suffix}</string>
+                        <string>jad-vpn${compiler:install4j.exe.suffix}</string>
                       </object>
                     </element>
                   </property>
@@ -1876,7 +1879,7 @@ return true;</property>
     </styles>
   </installerGui>
   <mediaSets>
-    <macosFolder name="Mac OS X Folder" id="1553" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}">
+    <macosFolder name="Mac OS X Folder (Intel)" id="1553" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}">
       <exclude>
         <entry location="conf/jad-vpn-service.conf" />
         <entry location="gui/mac-aarch64" />
@@ -1904,7 +1907,7 @@ return true;</property>
         <entry rootId="2036" />
       </exclude>
       <variables>
-        <variable name="build.exe.suffix" value=".exe" />
+        <variable name="install4j.exe.suffix" value=".exe" />
       </variables>
     </windows>
     <unixInstaller name="Linux AMD64 Installer" id="1555" mediaFileName="${compiler:sys.shortName}-linux-amd64-${compiler:sys.version}">
@@ -1986,7 +1989,7 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <entry rootId="2036" />
       </exclude>
       <variables>
-        <variable name="build.exe.suffix" value=".exe" />
+        <variable name="install4j.exe.suffix" value=".exe" />
       </variables>
       <jreBundle usePack200="false" includedJre="windows-amd64-1.8.0_121" />
     </windows>

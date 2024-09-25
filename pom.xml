@@ -54,7 +54,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
-        <javafx.version>23-ea+22</javafx.version>
+        <javafx.version>23</javafx.version>
 		
 		<!-- When you change this, remember to also change hypersocket-framework, hypersocket-enterprise, hypersocket-ui  -->
 		<hypersocket.languages>da,nl,fi,fr,de,it,no,pl,ru,sv,es,ja,he,pt,tr</hypersocket.languages>
@@ -68,14 +68,20 @@
         <logonbox.vpn.drivers.version>0.9.0-SNAPSHOT</logonbox.vpn.drivers.version>
         <native.image.annotations.version>0.9.3-SNAPSHOT</native.image.annotations.version>
         
-        <build.projectProperties>${project.basedir}/hypersocket.build.properties</build.projectProperties>
-        <build.userProperties>${user.home}/.hypersocket.build.properties</build.userProperties>
+        <build.arch>${os.arch}</build.arch>
+        <build.platform>${build.os.family}-${os.arch}</build.platform>
+        <build.projectProperties>${project.basedir}/jadaptive.build.properties</build.projectProperties>
+        <build.userProperties>${user.home}/.jadaptive.build.properties</build.userProperties>
         <build.mediaTypes>windows,unixInstaller,macos,macosFolder,windowsArchive,unixArchive,linuxRPM,linuxDeb,macosArchive,macosFolderArchive</build.mediaTypes>
         <build.buildIds></build.buildIds>
         
+        <install4j.phase>continuous</install4j.phase>
+        <install4j.exe.suffix></install4j.exe.suffix>
+        <install4j.branches></install4j.branches>
         <install4j.updatesBase>https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client</install4j.updatesBase>
         <install4j.jaulAppId>com.jadaptive.VPNClient</install4j.jaulAppId>
         <install4j.jaulUpdaterId>2103</install4j.jaulUpdaterId>
+        
 	</properties>
 	
 	<profiles>
