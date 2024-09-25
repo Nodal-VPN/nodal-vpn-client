@@ -13,7 +13,7 @@
     </parent>
     
     <properties>
-        <swt.version>3.119.0</swt.version>
+        <swt.version>3.127.0</swt.version>
     </properties>
 
     <dependencies>
@@ -304,6 +304,33 @@
                 <dependency>
                     <groupId>org.eclipse.platform</groupId>
                     <artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
+                    <version>${swt.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.eclipse.platform</groupId>
+                            <artifactId>org.eclipse.swt</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>tray-swt-mac-aarch64</id>
+            <activation>
+                <os>
+                    <arch>aarch64</arch>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.logonbox</groupId>
+                    <artifactId>client-logonbox-vpn-macos</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.eclipse.platform</groupId>
+                    <artifactId>org.eclipse.swt.cocoa.macosx.aarch64</artifactId>
                     <version>${swt.version}</version>
                     <exclusions>
                         <exclusion>
