@@ -7,7 +7,6 @@ import com.sshtools.jajafx.TitleBar;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
@@ -18,8 +17,8 @@ public class DesktopVPNAppWindow extends JajaFXAppWindow<DesktopVPNApp> implemen
     private static final double DEFAULT_WIDTH = 457;
     private FontIcon back;
 
-    public DesktopVPNAppWindow(Stage stage, Node content, DesktopVPNApp app) {
-        super(stage, content, app, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    public DesktopVPNAppWindow(Stage stage, DesktopVPNApp app) {
+        super(stage, app, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     @Override

@@ -393,7 +393,9 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
     @Override
     protected DesktopVPNAppWindow createAppWindow(Stage stage) {
         if(vpnWindow == null) {
-            vpnWindow = new DesktopVPNAppWindow(stage, createContent(stage), this);
+            vpnWindow = new DesktopVPNAppWindow(stage, this);
+            var cnt = createContent(stage, vpnWindow);
+            vpnWindow.setContent(cnt);
             stage.setOnCloseRequest(evt -> {
                 evt.consume();
                 maybeExit();
@@ -403,7 +405,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
     }
 
     @Override
-    protected Node createContent(Stage stage) {
+    protected Node createContent(Stage stage, DesktopVPNAppWindow vpnWindow2) {
         ui = new UI<>(this);
         ui.getBrandingManager().addBrandingChangeListener((bd) -> {
            runLater(() -> reapplyBranding());

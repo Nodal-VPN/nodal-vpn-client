@@ -62,7 +62,7 @@
         <native.maven.plugin.version>0.9.23</native.maven.plugin.version>
         <gluonfx.maven.plugin.version>1.0.22-SNAPSHOT</gluonfx.maven.plugin.version>
         <jna.version>5.13.0</jna.version>
-        <jaul.version>0.9.11-SNAPSHOT</jaul.version>
+        <jaul.version>0.9.12-SNAPSHOT</jaul.version>
         
         <dbus.version>5.1.0</dbus.version>
         <logonbox.vpn.drivers.version>0.9.0-SNAPSHOT</logonbox.vpn.drivers.version>
