@@ -6,6 +6,12 @@
     "pattern":"\\QMETA-INF/services/java.time.zone.ZoneRulesProvider\\E"
   }, {
     "pattern":"\\QMETA-INF/services/java.util.prefs.PreferencesFactory\\E"
+  }, {
+    "pattern":".*\\.so"
+  }, {
+    "pattern":".*\\.jnilib"
+  }, {
+    "pattern":".*\\.dll"
   }]},
   "bundles":[]
 }
