@@ -18,7 +18,7 @@
       <variable name="install4j.windowsKeystoreIssuer" value="Sectigo Public Code Signing CA EV R36" description="Windows key store issuer" />
       <variable name="install4j.windowsKeystoreSerial" value="6a2d74c3e24c71aa08000ead302fbd46" description="Windows key store serial" />
       <variable name="install4j.windowsKeystoreSubject" value="Jadaptive Limited" description="Windows key store subject" />
-      <variable name="install4j.branches" value="" description="Branches" />
+      <variable name="install4j.jaulBranches" description="Branches" />
     </variables>
     <codeSigning macEnabled="true" macPkcs12File="${compiler:install4j.macPkcs12File}" windowsEnabled="true" windowsKeySource="windows" macNotarize="true" appleId="${compiler:install4j.appleId}">
       <windowsKeystoreIdentifier issuer="${compiler:install4j.windowsKeystoreIssuer}" serial="${compiler:install4j.windowsKeystoreSerial}" subject="${compiler:install4j.windowsKeystoreSubject}" />
@@ -125,7 +125,7 @@
     </components>
   </files>
   <launchers>
-    <launcher name="jad-vpn-gui" id="783" menuName="JADAPTIVE VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui">
+    <launcher name="jad-vpn-gui" id="783" menuName="JADAPTIVE VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui" useCustomMacosExecutableName="true" customMacosExecutableName="JADAPTIVE VPN Client">
       <executable name="jad-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.config/jad-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/jad-vpn-client/gui-app.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true">
         <versionInfo include="true" fileDescription="Graphical front end for the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
@@ -627,7 +627,7 @@ return path.replace('\\', '/');</property>
                   <property name="scheme" type="string">lbvpn</property>
                 </serializedBean>
               </action>
-              <action id="2283" beanClass="com.sshtools.jaul.RegisterJaulAppAction" rollbackBarrierExitCode="0">
+              <action id="2283" beanClass="com.sshtools.jaul.RegisterJaulAppAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="appCategory" type="enum" class="com.sshtools.jaul.AppCategory" value="HYBRID" />
                 </serializedBean>
@@ -1927,7 +1927,7 @@ return true;</property>
       </variables>
       <jreBundle usePack200="false" />
     </unixInstaller>
-    <linuxRPM name="Linux RPM X86_64" id="1560" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-x84_64-${compiler:sys.version}" arch="amd64">
+    <linuxRPM name="Linux RPM X86_64" id="1560" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-x84_64-${compiler:sys.version}" arch="x86_64">
       <exclude>
         <entry location="gui/mac-aarch64" />
         <entry location="gui/mac" />
