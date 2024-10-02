@@ -90,6 +90,10 @@
             <groupId>com.github.hypfvieh</groupId>
             <artifactId>dbus-java-transport-native-unixsocket</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.install4j</groupId>
+            <artifactId>install4j-runtime</artifactId>
+        </dependency>
     </dependencies>
 
 
@@ -249,12 +253,6 @@
                     </plugin>
                 </plugins>
             </build>
-            <dependencies>
-                <dependency>
-                    <groupId>com.install4j</groupId>
-                    <artifactId>install4j-runtime</artifactId>
-                </dependency>
-            </dependencies>
         </profile>
     </profiles>
 </project>
