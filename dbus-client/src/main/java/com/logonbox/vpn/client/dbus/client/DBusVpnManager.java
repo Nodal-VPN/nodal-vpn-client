@@ -269,12 +269,12 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
             bldr.withAddress(busAddress);
         }
         else {
-            sessionBus.ifPresent(sb -> {
+            sessionBus.ifPresentOrElse(sb -> {
                 if(sb)
                     bldr.withSessionBus();
                 else
                     bldr.withSystemBus();
-            });
+            }, () -> bldr.withSystemBus());
         }
 		
         return bldr.
