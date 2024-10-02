@@ -45,7 +45,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
     
     public final static class Builder {
         private Optional<String> busAddress = Optional.empty();
-        private boolean sessionBus;
+        private Optional<Boolean> sessionBus = Optional.empty();
         private boolean supportsAuthorization;
         private final AppContext<VpnConnection> app;
         
@@ -67,7 +67,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
         }
         
         public Builder withSessionBus(boolean sessionBus) {
-            this.sessionBus = sessionBus;
+            this.sessionBus = Optional.of(sessionBus);
             return this;
         }
 
@@ -91,7 +91,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 	private static final String ROOT_OBJECT_PATH = "/com/logonbox/vpn";
 
 	private final String busAddress;
-	private final boolean sessionBus;
+	private final Optional<Boolean> sessionBus;
     private final boolean supportsAuthorization;
     private final AppContext<VpnConnection> app;
 	
@@ -269,12 +269,12 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
             bldr.withAddress(busAddress);
         }
         else {
-    		if(sessionBus) {
-    		    bldr.withSessionBus();
-    		}
-    		else {
-	            bldr.withSystemBus();
-    		}
+            sessionBus.ifPresent(sb -> {
+                if(sb)
+                    bldr.withSessionBus();
+                else
+                    bldr.withSystemBus();
+            });
         }
 		
         return bldr.
