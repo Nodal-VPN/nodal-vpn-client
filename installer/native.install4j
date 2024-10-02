@@ -4,6 +4,7 @@
   <application name="JADAPTIVE VPN Client" applicationId="0033-1388-2645-1798" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="jadaptive-vpn-client" publisher="JADAPTIVE Limited" publisherWeb="https://jadaptive.com" version="4.0.0" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
+      <directory location="jre" />
     </searchSequence>
     <variables>
       <variable name="install4j.phase" value="continuous" />
@@ -33,7 +34,7 @@
         <entry>jna.*</entry>
       </macSearchedJars>
     </codeSigning>
-    <jreBundles jdkProviderId="Adoptium" release="21/jdk-21.0.1+12" />
+    <jreBundles jdkProviderId="Adoptium" release="21/jdk-21.0.4+7" />
   </application>
   <files keepModificationTimes="true" globalExcludeSuffixes="*.ser" defaultOverwriteMode="1" defaultUninstallMode="2">
     <roots>
