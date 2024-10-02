@@ -1,0 +1,55 @@
+{
+  "resources":{
+  "includes":[{
+    "pattern":"\\QMETA-INF/maven/com.github.hypfvieh/dbus-java-core/pom.properties\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.net.spi.InetAddressResolverProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.net.spi.URLStreamHandlerProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.nio.channels.spi.SelectorProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.util.prefs.PreferencesFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.util.spi.ResourceBundleControlProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.parsers.DocumentBuilderFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/org.freedesktop.dbus.spi.message.ISocketProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/org.freedesktop.dbus.spi.transport.ITransportProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/org.slf4j.spi.SLF4JServiceProvider\\E"
+  }, {
+    "pattern":"\\Qcom/logonbox/vpn/client/tray/Tray.properties\\E"
+  }, {
+    "pattern":"\\Qcom/logonbox/vpn/client/tray/Tray_en.properties\\E"
+  }, {
+    "pattern":"\\Qcom/logonbox/vpn/client/tray/Tray_en_GB.properties\\E"
+  }, {
+    "pattern":"\\Qdefault-log-tray-developer.properties\\E"
+  }, {
+    "pattern":"\\Qimages/idle-48.png\\E"
+  }, {
+    "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt74b/nfc.nrm\\E"
+  }, {
+    "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt74b/nfkc.nrm\\E"
+  }, {
+    "pattern":"java.xml:\\Qjdk/xml/internal/jdkcatalog/JDKCatalog.xml\\E"
+  }]},
+  "bundles":[{
+    "name":"com.logonbox.vpn.client.tray.Tray",
+    "locales":["en-GB"]
+  }, {
+    "name":"sun.text.resources.CollationData",
+    "locales":["und"]
+  }, {
+    "name":"sun.text.resources.cldr.FormatData",
+    "locales":["en", "en-001", "en-GB", "und"]
+  }, {
+    "name":"sun.util.resources.cldr.CalendarData",
+    "locales":["und"]
+  }]
+}

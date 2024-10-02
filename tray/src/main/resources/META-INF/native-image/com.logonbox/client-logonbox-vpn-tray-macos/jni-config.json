@@ -1,0 +1,54 @@
+[
+{
+  "name":"com.logonbox.vpn.client.tray.TrayDaemon",
+  "methods":[{"name":"main","parameterTypes":["java.lang.String[]"] }]
+},
+{
+  "name":"com.sun.security.auth.module.UnixSystem",
+  "fields":[{"name":"gid"}, {"name":"groups"}, {"name":"uid"}, {"name":"username"}]
+},
+{
+  "name":"java.lang.Boolean",
+  "methods":[{"name":"getBoolean","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.String",
+  "methods":[{"name":"lastIndexOf","parameterTypes":["int"] }, {"name":"substring","parameterTypes":["int"] }]
+},
+{
+  "name":"java.lang.System",
+  "methods":[{"name":"getProperty","parameterTypes":["java.lang.String"] }, {"name":"setProperty","parameterTypes":["java.lang.String","java.lang.String"] }]
+},
+{
+  "name":"java.lang.Throwable",
+  "methods":[{"name":"addSuppressed","parameterTypes":["java.lang.Throwable"] }]
+},
+{
+  "name":"org.eclipse.swt.internal.cocoa.NSOperatingSystemVersion",
+  "fields":[{"name":"majorVersion"}, {"name":"minorVersion"}, {"name":"patchVersion"}]
+},
+{
+  "name":"org.eclipse.swt.internal.cocoa.NSPoint",
+  "fields":[{"name":"x"}, {"name":"y"}]
+},
+{
+  "name":"org.eclipse.swt.internal.cocoa.NSRect",
+  "fields":[{"name":"height"}, {"name":"width"}, {"name":"x"}, {"name":"y"}]
+},
+{
+  "name":"org.eclipse.swt.internal.cocoa.NSSize",
+  "fields":[{"name":"height"}, {"name":"width"}]
+},
+{
+  "name":"org.eclipse.swt.internal.cocoa.objc_super",
+  "fields":[{"name":"receiver"}, {"name":"super_class"}]
+},
+{
+  "name":"org.eclipse.swt.widgets.Display",
+  "methods":[{"name":"applicationProc","parameterTypes":["long","long"] }, {"name":"applicationProc","parameterTypes":["long","long","long"] }, {"name":"applicationProc","parameterTypes":["long","long","long","long"] }, {"name":"applicationProc","parameterTypes":["long","long","long","long","long","long"] }, {"name":"cursorSetProc","parameterTypes":["long","long"] }, {"name":"dialogProc","parameterTypes":["long","long","long"] }, {"name":"dialogProc","parameterTypes":["long","long","long","long"] }, {"name":"dialogProc","parameterTypes":["long","long","long","long","long"] }, {"name":"observerProc","parameterTypes":["long","long","long"] }, {"name":"windowProc","parameterTypes":["long","long"] }, {"name":"windowProc","parameterTypes":["long","long","long"] }, {"name":"windowProc","parameterTypes":["long","long","long","long"] }, {"name":"windowProc","parameterTypes":["long","long","long","long","long"] }, {"name":"windowProc","parameterTypes":["long","long","long","long","long","long"] }]
+},
+{
+  "name":"sun.management.VMManagementImpl",
+  "fields":[{"name":"compTimeMonitoringSupport"}, {"name":"currentThreadCpuTimeSupport"}, {"name":"objectMonitorUsageSupport"}, {"name":"otherThreadCpuTimeSupport"}, {"name":"remoteDiagnosticCommandsSupport"}, {"name":"synchronizerUsageSupport"}, {"name":"threadAllocatedMemorySupport"}, {"name":"threadContentionMonitoringSupport"}]
+}
+]
