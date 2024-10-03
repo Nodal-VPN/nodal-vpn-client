@@ -719,7 +719,6 @@ X-GNOME-Autostart-enabled=true</property>
       <application id="uninstaller" beanClass="com.install4j.runtime.beans.applications.UninstallerApplication" actionElevationType="elevated" styleId="1792" launchInNewProcess="false">
         <serializedBean>
           <property name="customMacosExecutableName" type="string">${i18n:UninstallerMenuEntry(${compiler:sys.fullName})}</property>
-          <property name="useCustomMacosExecutableName" type="boolean" value="true" />
         </serializedBean>
         <styleOverrides>
           <styleOverride name="Customize banner image" enabled="true">
