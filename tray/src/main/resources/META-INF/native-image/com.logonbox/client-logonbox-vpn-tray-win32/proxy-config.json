@@ -1,2 +1,17 @@
 [
+  {
+    "interfaces":["com.logonbox.vpn.client.common.dbus.RemoteUI"]
+  },
+  {
+    "interfaces":["com.logonbox.vpn.client.common.dbus.VPN"]
+  },
+  {
+    "interfaces":["com.logonbox.vpn.client.common.dbus.VpnConnection"]
+  },
+  {
+    "interfaces":["org.freedesktop.dbus.interfaces.DBus"]
+  },
+  {
+    "interfaces":["org.freedesktop.dbus.interfaces.Introspectable"]
+  }
 ]
