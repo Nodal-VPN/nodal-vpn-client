@@ -221,7 +221,6 @@
                     <property name="bottom" type="boolean" value="true" />
                   </object>
                 </property>
-                <property name="imageAnchor" type="enum" class="com.install4j.api.beans.Anchor" value="WEST" />
                 <property name="imageEdgeBackgroundColor">
                   <object class="java.awt.Color">
                     <int>0</int>
@@ -749,7 +748,6 @@ X-GNOME-Autostart-enabled=true</property>
                     <property name="bottom" type="boolean" value="true" />
                   </object>
                 </property>
-                <property name="imageAnchor" type="enum" class="com.install4j.api.beans.Anchor" value="WEST" />
                 <property name="imageEdgeBackgroundColor">
                   <object class="java.awt.Color">
                     <int>0</int>
