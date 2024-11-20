@@ -223,19 +223,11 @@
                 </property>
                 <property name="imageAnchor" type="enum" class="com.install4j.api.beans.Anchor" value="NORTH" />
                 <property name="imageEdgeBackgroundColor">
-                  <object class="com.install4j.runtime.beans.LightOrDarkColor">
-                    <object class="java.awt.Color">
-                      <int>0</int>
-                      <int>0</int>
-                      <int>0</int>
-                      <int>255</int>
-                    </object>
-                    <object class="java.awt.Color">
-                      <int>255</int>
-                      <int>255</int>
-                      <int>255</int>
-                      <int>255</int>
-                    </object>
+                  <object class="java.awt.Color">
+                    <int>0</int>
+                    <int>0</int>
+                    <int>0</int>
+                    <int>255</int>
                   </object>
                 </property>
                 <property name="imageEdgeBorder" type="boolean" value="true" />
@@ -705,14 +697,6 @@ X-GNOME-Autostart-enabled=true</property>
                 </serializedBean>
                 <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
               </action>
-              <action id="1219" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" actionElevationType="none">
-                <serializedBean>
-                  <property name="launcherId" type="string">783</property>
-                </serializedBean>
-                <condition>!context.getBooleanVariable("preventExecuteLauncherAction") &amp;&amp;
-( context.getBooleanVariable("executeLauncherAction") || context.isUpdateInstallation())  &amp;&amp; 
-(Util.isLinux() || Util.isWindows() || ( Util.isMacOS() &amp;&amp;  Float.parseFloat(System.getProperty("os.version").split("\\.")[0] + "." + System.getProperty("os.version").split("\\.")[1]) &gt;= 10.16f))</condition>
-              </action>
               <action id="2282" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="launcherId" type="string">2271</property>
@@ -730,14 +714,6 @@ X-GNOME-Autostart-enabled=true</property>
                 <serializedBean>
                   <property name="labelText" type="string">${form:finishedMessage}</property>
                 </serializedBean>
-              </formComponent>
-              <formComponent name="Execute launcher" id="1220" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
-                <serializedBean>
-                  <property name="checkboxText" type="string">${i18n:RunEntryExec("${compiler:sys.fullName}")}</property>
-                  <property name="initiallySelected" type="boolean" value="true" />
-                  <property name="variableName" type="string">executeLauncherAction</property>
-                </serializedBean>
-                <visibilityScript>Util.isWindows() || ( Util.isMacOS() &amp;&amp;  Float.parseFloat(System.getProperty("os.version").split("\\.")[0] + "." + System.getProperty("os.version").split("\\.")[1]) &gt;= 10.16f)</visibilityScript>
               </formComponent>
             </formComponents>
           </screen>
