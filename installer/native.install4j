@@ -723,6 +723,7 @@ X-GNOME-Autostart-enabled=true</property>
         <serializedBean>
           <property name="customMacosExecutableName" type="string">${i18n:UninstallerMenuEntry(${compiler:sys.fullName})}</property>
           <property name="frameSizeClientArea" type="boolean" value="false" />
+          <property name="frameWidth" type="int" value="575" />
         </serializedBean>
         <styleOverrides>
           <styleOverride name="Customize banner image" enabled="true">
