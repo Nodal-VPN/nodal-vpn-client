@@ -1678,6 +1678,7 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
                             authUrl += "pubkey=" + URLEncoder.encode(connection.getUserPublicKey(), "UTF-8");
                             authUrl += "&instance=" + URLEncoder.encode(connection.getInstance(), "UTF-8");
                             authUrl += "&name=" + URLEncoder.encode(Util.getDeviceName(), "UTF-8");
+                            authUrl += "&mac=" + URLEncoder.encode(Util.getBestLocalhostMAC(), "UTF-8");
                             authUrl += "&os=" + URLEncoder.encode(OsUtil.getOS().toUpperCase(), "UTF-8");
                             setHtmlPage(authUrl);
                             break;
