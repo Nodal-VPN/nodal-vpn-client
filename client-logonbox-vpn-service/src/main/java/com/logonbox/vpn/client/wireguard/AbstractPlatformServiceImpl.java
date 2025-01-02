@@ -508,6 +508,8 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 		cmd.redirectErrorStream(true);
 		Connection connection = session.getConnection();
 		Map<String, String> env = cmd.environment();
+        env.put("LBVPN_LOCAL_MAC", Util.getBestLocalhostMAC());
+        env.put("LBVPN_LOCAL_DEVICE_NAME", Util.getDeviceName());
 		if(connection != null) {
 			env.put("LBVPN_ADDRESS", connection.getAddress());
 			env.put("LBVPN_DEFAULT_DISPLAY_NAME", connection.getDefaultDisplayName());

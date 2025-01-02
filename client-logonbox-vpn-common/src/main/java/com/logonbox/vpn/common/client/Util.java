@@ -1,12 +1,7 @@
 package com.logonbox.vpn.common.client;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
-import org.ini4j.Profile.Section;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -23,6 +18,12 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
+import org.ini4j.Profile.Section;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Util {
     static Logger log = LoggerFactory.getLogger(Util.class);
@@ -101,6 +102,22 @@ public class Util {
 		} catch (Exception e) {
 			throw new IllegalStateException("Failed to hash.", e);
 		}
+	}
+	
+	public static String getBestLocalhostMAC() {
+	    try {
+    	    var localHost = InetAddress.getLocalHost();
+    	    var ni = NetworkInterface.getByInetAddress(localHost);
+    	    var hardwareAddress = ni.getHardwareAddress();
+    	    var hexadecimal = new String[hardwareAddress.length];
+    	    for (var i = 0; i < hardwareAddress.length; i++) {
+    	        hexadecimal[i] = String.format("%02X", hardwareAddress[i]);
+    	    }
+    	    return String.join(":", hexadecimal);
+	    }
+	    catch(Exception e) {
+	        return "00:00:00:00:00:00";
+	    }
 	}
 
 	public static List<String> toStringList(Section section, String key) {
