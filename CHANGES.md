@@ -3,7 +3,7 @@
 ## 3.0.6-SNAPSHOT
 
  * Compatibility with JADAPTIVE VPN server.
- * Additional environment variavbles added to hook scripts (`LBVPN_LOCAL_MAC` and `LBVPN_LOCAL_DEVICE_NAME`).
+ * Additional environment variables added to hook scripts (`LBVPN_LOCAL_MAC` and `LBVPN_LOCAL_DEVICE_NAME`).
 
 ## 3.0.5-459
 
