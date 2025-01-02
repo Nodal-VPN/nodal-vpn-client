@@ -501,7 +501,7 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 		if(LOG.isDebugEnabled()) {
 			LOG.debug("Executing hook");
 			for(String arg : args) {
-				LOG.debug(String.format("    %s", arg));
+				LOG.debug("    {}", arg);
 			}
 		}
 		ForkerBuilder cmd = new ForkerBuilder(args);
@@ -541,7 +541,7 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 		if(LOG.isDebugEnabled()) {
 			LOG.debug("Environment:-");
 			for(Map.Entry<String, String> en : env.entrySet()) {
-				LOG.debug("    %s = %s", en.getKey(), en.getValue());
+				LOG.debug("    {} = {}", en.getKey(), en.getValue());
 			}
 		}
  		cmd.effectiveUser(DefaultEffectiveUserFactory.getDefault().administrator());
@@ -551,14 +551,14 @@ public abstract class AbstractPlatformServiceImpl<I extends VirtualInetAddress<?
 		String line = null;
 		LOG.debug("Command Output: ");
 		while ((line = reader.readLine()) != null) {
-			LOG.debug(String.format("    %s", line));
+			LOG.debug("    {}", line);
 			if(line.startsWith("[ERROR] ")) {
 				errorMessage = line.substring(8);
 			}
 		}
 		try {
 			int ret = p.waitFor();
-			LOG.debug(String.format("Exit: %d", ret));
+			LOG.debug("Exit: {}", ret);
 			if(ret != 0) {
 				if(errorMessage == null)
 					throw new IOException(String.format("Hook exited with non-zero status of %d.", ret));
