@@ -789,7 +789,18 @@ public class WindowsPlatformServiceImpl extends AbstractPlatformServiceImpl<Wind
 
 	@Override
 	public void runHook(VPNSession session, String hookScript) throws IOException {
-		runHookViaPipeToShell(session, OsUtil.getPathOfCommandInPathOrFail("cmd.exe").toString(), "/c", hookScript);
+		var args = new ArrayList<String>();
+		var firstLine = hookScript.split("\n")[0];
+		if(firstLine.startsWith("REM !")) {
+			args.addAll(Arrays.asList(firstLine.substring(5).split("\\s+")));			 
+		}
+		else {
+			args.addAll(Arrays.asList(
+					OsUtil.getPathOfCommandInPathOrFail("cmd.exe").toString(), "/c", hookScript
+				)
+			);
+		}
+		runHookViaPipeToShell(session, args.toArray(new String[0]));
 	}
 
 	@Override
