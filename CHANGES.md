@@ -4,6 +4,8 @@
 
  * Compatibility with JADAPTIVE VPN server.
  * Additional environment variables added to hook scripts (`LBVPN_LOCAL_MAC` and `LBVPN_LOCAL_DEVICE_NAME`).
+ * Catch and log errors in DNS tear-down instead of failing.
+ * Allow custom shell to be used on Windows for Post/Pre Up/Down scripts. Line starts with `REM !` followed by arguments.
 
 ## 3.0.5-459
 
