@@ -1,5 +1,7 @@
 # Changes
 
+## 3.0.7-SNAPSHOT
+
 ## 3.0.6-778
 
  * Compatibility with JADAPTIVE VPN server.
