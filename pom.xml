@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
     <groupId>com.logonbox</groupId>
 	<artifactId>logonbox-desktop-vpn-clients</artifactId>
-	<version>3.0.6-SNAPSHOT</version>
+	<version>3.0.7-SNAPSHOT</version>
 	<url>http://www.hypersocket.com/</url>
 	<packaging>pom</packaging>
 	<name>Hypersocket Client</name>
