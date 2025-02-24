@@ -123,7 +123,7 @@ public abstract class AbstractDBusClient implements DBusClient {
 			if("true".equals(System.getProperty("logonbox.vpn.dummyUpdates"))) {
 				return new DummyUpdateService(this);
 			}
-			if("false" .equals(instanceProperties.get("userUpdates")) && !Util.isAdministrator()) {
+			if(isUserUpdatesPrevented() && !Util.isAdministrator()) {
 				throw new Exception("Not an administrator, and userUpdates=false");
 			}
 			return new Install4JUpdateServiceImpl(this);
@@ -134,6 +134,10 @@ public abstract class AbstractDBusClient implements DBusClient {
 				getLog().info("Failed to create Install4J update service, using dummy service. {}", t.getMessage());
 			return new NoUpdateService(this);
 		}
+	}
+
+	protected boolean isUserUpdatesPrevented() {
+		return "false" .equals(instanceProperties.get("userUpdates"));
 	}
 
 	public CookieStore getCookieStore() {

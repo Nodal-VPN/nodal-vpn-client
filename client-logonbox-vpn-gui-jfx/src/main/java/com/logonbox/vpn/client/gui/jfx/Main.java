@@ -241,7 +241,7 @@ public class Main extends AbstractDBusClient implements Callable<Integer>, Liste
 
 	@Override
 	protected UpdateService createUpdateService() {
-		if(isElevatableToAdministrator())
+		if(!isUserUpdatesPrevented() || isElevatableToAdministrator())
 			return super.createUpdateService();
 		else
 			return new NoUpdateService(this);
