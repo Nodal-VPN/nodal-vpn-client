@@ -193,7 +193,7 @@ public class ServiceClient {
 					 */
 					var configPayload = mapper.readValue(doPost(connection, "acquire-vpn", 
 						new NameValuePair[] {
-							new NameValuePair("Authentication", response.token_type + " " + response.access_token)
+							new NameValuePair("Authorization", response.token_type + " " + response.access_token)
 						}, 
 						new NameValuePair("os", Util.getOS().toUpperCase()),
 						new NameValuePair("pubkey", connection.getUserPublicKey()),

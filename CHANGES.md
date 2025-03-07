@@ -2,6 +2,8 @@
 
 ## 3.0.7-SNAPSHOT
 
+ * Using incorrect header name for JAD VPN authentication.
+
 ## 3.0.6-778
 
  * Compatibility with JADAPTIVE VPN server.
