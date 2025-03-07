@@ -163,7 +163,7 @@ public class BrandingManager<CONX extends IVpnConnection> {
                                 var args = sl.split(";");
                                 if(args.length > 1) {
                                     if(args[args.length - 1].equals("base64")) {
-                                        var data = pl.substring(1);
+                                        var data = pl.substring(1); // TODO hrm ... check this 
                                         try (OutputStream out = Files.newOutputStream(newLogoFile)) {
                                             out.write(Base64.getDecoder().decode(data));
                                         }
