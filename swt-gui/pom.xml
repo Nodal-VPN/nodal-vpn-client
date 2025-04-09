@@ -290,7 +290,7 @@
                 </dependency>
                 <dependency>
                     <groupId>com.equo</groupId>
-                    <artifactId>com.equo.chromium.cef.cocoa.macosx.aarch64</artifactId>
+                    <artifactId>com.equo.chromium.cef.cocoa.macosx.x86_64</artifactId>
                     <version>${equo.chromium.version}</version>
                 </dependency>
                 <dependency>
