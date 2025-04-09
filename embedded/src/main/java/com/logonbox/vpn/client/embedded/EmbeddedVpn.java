@@ -71,7 +71,7 @@ public class EmbeddedVpn implements IVpn<EmbeddedVpnConnection> {
 
     @Override
     public String getVersion() {
-        return ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-mobile");
+        return ArtifactVersion.getVersion("com.jadaptive", "nodal-vpn-client-mobile");
     }
 
     @Override

@@ -163,7 +163,7 @@ public abstract class AbstractDBusApp extends AbstractApp<VpnConnection> {
     }
 
     protected String getArtifactVersion() {
-        return ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-dbus-app");
+        return ArtifactVersion.getVersion("com.jadaptive", "nodal-vpn-client-dbus-app");
     }
 
     private final void initManager() {

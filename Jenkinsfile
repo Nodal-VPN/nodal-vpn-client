@@ -13,12 +13,12 @@ pipeline {
     }
 
     stages {
-        stage ('LogonBox VPN Client Installers') {
+        stage ('Nodal VPN Client Installers') {
             parallel {
                 /*
                  * Linux AMD64 Installers and Packages
                  */
-                stage ('Linux AMD64 LogonBox VPN Client Installers') {
+                stage ('Linux AMD64 Nodal VPN Client Installers') {
                     agent {
                         label 'install4j && linux && x86_64'
                     }
@@ -55,7 +55,7 @@ pipeline {
                 /*
                  * Linux AARCH64 Installers and Packages
                  */
-                stage ('Linux AARCH64 LogonBox VPN Client Installers') {
+                stage ('Linux AARCH64 Nodal VPN Client Installers') {
                     agent {
                         label 'install4j && linux && aarch64'
                     }
@@ -93,7 +93,7 @@ pipeline {
                 /*
                  * MacOS Intel installers
                  */
-                stage ('MacOS Intel LogonBox VPN Client Installers') {
+                stage ('MacOS Intel Nodal VPN Client Installers') {
                     agent {
                         label 'install4j && macos && x86_64'
                     }
@@ -131,7 +131,7 @@ pipeline {
                 /*
                  * MacOS Arm installers
                  */
-                stage ('MacOS Arm LogonBox VPN Client Installers') {
+                stage ('MacOS Arm Nodal VPN Client Installers') {
                     agent {
                         label 'install4j && macos && aarch64'
                     }
@@ -169,7 +169,7 @@ pipeline {
                 /*
                  * Windows installers
                  */
-                stage ('Windows LogonBox VPN Client Installers') {
+                stage ('Windows Nodal VPN Client Installers') {
                     agent {
                         label 'install4j && windows'
                     }
@@ -257,14 +257,14 @@ pipeline {
                     dontSetBuildResultOnFailure: false, 
                     dontWaitForConcurrentBuildCompletion: false, 
                     entries: [[
-                        bucket: 'logonbox-packages/logonbox-vpn-client/' + env.FULL_VERSION, 
+                        bucket: 'sshtools-public/nodal-vpn-client/' + env.FULL_VERSION, 
                         noUploadOnFailure: true, 
                         selectedRegion: 'eu-west-1', 
                         sourceFile: 'installer/target/media/*', 
                         storageClass: 'STANDARD', 
                         useServerSideEncryption: false]], 
                         pluginFailureResultConstraint: 'FAILURE', 
-                        profileName: 'LogonBox Buckets', 
+                        profileName: 'JADAPTIVE Buckets', 
                         userMetadata: []
                 )
                 
@@ -275,14 +275,14 @@ pipeline {
                     dontSetBuildResultOnFailure: false, 
                     dontWaitForConcurrentBuildCompletion: false, 
                     entries: [[
-                        bucket: 'logonbox-packages/logonbox-vpn-client/continuous', 
+                        bucket: 'sshtools-public/nodal-vpn-client/continuous', 
                         noUploadOnFailure: true, 
                         selectedRegion: 'eu-west-1', 
                         sourceFile: 'installer/target/media/updates.xml', 
                         storageClass: 'STANDARD', 
                         useServerSideEncryption: false]], 
                         pluginFailureResultConstraint: 'FAILURE', 
-                        profileName: 'LogonBox Buckets', 
+                        profileName: 'JADAPTIVE Buckets', 
                         userMetadata: []
                 )
             }                   

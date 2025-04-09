@@ -1249,7 +1249,7 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		context.getScheduler().scheduleWithFixedDelay(() -> {
 			try {
 				resolveRemoteDependencies(context.getCertManager(), Util.checkEndsWithSlash(getExtensionStoreRoot()) + "api/store/repos2",
-						new String[] { "jad-vpn-client" }, ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-service"), AppVersion.getSerial(),
+						new String[] { "nodal-vpn-client" }, ArtifactVersion.getVersion("com.jadaptive", "nodal-vpn-client-service"), AppVersion.getSerial(),
 						"VPN Client", getCustomerInfo(), "CLIENT_SERVICE");
 			} catch (Exception e) {
 				if (log.isDebugEnabled()) {

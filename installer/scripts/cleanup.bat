@@ -21,6 +21,6 @@ REM Clean up LogonBox VPN Services
 ECHO Removing VPN Interfaces
 FOR /L %%x IN (1,1,255) DO (
 	ECHO|SET /p="."
-	SC STOP LogonBoxVPNTunnel$net%%x > nul 2>&1
-	SC DELETE LogonBoxVPNTunnel$net%%x > nul 2>&1
+	SC STOP NodalVPNTunnel$net%%x > nul 2>&1
+	SC DELETE NodalVPNTunnel$net%%x > nul 2>&1
 )

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.8" transformSequenceNumber="10">
   <directoryPresets config="./images" />
-  <application name="JADAPTIVE VPN Client" applicationId="1745-6092-8088-5288" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="jad-vpn-client" publisher="JADAPTIVE Limited" publisherWeb="https://jadaptive.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="22" javaMaxVersion="22" jdkMode="jdk" jdkName="JDK 17.0">
+  <application name="Nodal VPN Client" applicationId="1833-6143-0948-0544" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="nodal-vpn-client" publisher="JADAPTIVE Limited" publisherWeb="https://jadaptive.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="22" javaMaxVersion="22" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
       <directory location="jre" />
@@ -9,7 +9,7 @@
     <variables>
       <variable name="install4j.phase" value="continuous" />
       <variable name="jfx.archdir" value="gui/win" description="The location of the architecture specific jars for JavaFX" />
-      <variable name="install4j.appleId" value="unset@logonbox.com" description="The apple ID to use for notarisation" />
+      <variable name="install4j.appleId" value="unset@jadaptive.com" description="The apple ID to use for notarisation" />
       <variable name="install4j.macPkcs12File" value="${user.home}/.jadaptive-developer-id.p12" description="Location of Mac developer certificate" />
       <variable name="install4j.windowsSigning" value="false" description="Whether to sig for Windows" />
       <variable name="install4j.windowsKeystoreIssuer" value="Sectigo Public Code Signing CA EV R36" description="Windows key store issuer" />
@@ -52,7 +52,7 @@
     </mountPoints>
     <entries>
       <dirEntry mountPoint="82" file="./conf" subDirectory="conf" excludeSuffixes=".svn" />
-      <fileEntry mountPoint="82" file="./os/linux/dbus/jad-vpn-service.conf" />
+      <fileEntry mountPoint="82" file="./os/linux/dbus/nodal-vpn-client-service.conf" />
       <dirEntry mountPoint="858" file="./target/service" subDirectory="service" />
       <dirEntry mountPoint="859" file="./target/gui" subDirectory="gui">
         <exclude>
@@ -72,12 +72,12 @@
       <fileEntry mountPoint="2032" file="./WireGuardNT-LICENSE.txt" />
       <fileEntry mountPoint="2032" file="target/CHANGES.md" />
       <fileEntry mountPoint="2032" file="./WIREGUARD-LICENSE.txt" />
-      <fileEntry mountPoint="2037" file="./os/linux/dbus/jad-vpn-service.conf" />
+      <fileEntry mountPoint="2037" file="./os/linux/dbus/nodal-vpn-client-service.conf" />
     </entries>
     <components>
       <component name="Client Service" id="1676" changeable="false">
         <include>
-          <entry location="conf/jad-vpn-service.conf" />
+          <entry location="conf/nodal-vpn-client-service.conf" />
           <entry location="service" />
           <entry location="logs" />
           <entry location="converter" />
@@ -86,10 +86,10 @@
           <entry location="WireGuardNT-LICENSE.txt" />
           <entry location="CHANGES.md" />
           <entry location="WIREGUARD-LICENSE.txt" />
-          <entry location="jad-vpn-service" fileType="launcher" />
-          <entry location="jad-vpn-service-console" fileType="launcher" />
+          <entry location="nodal-vpn-client-service" fileType="launcher" />
+          <entry location="nodal-vpn-client-service-console" fileType="launcher" />
           <entry location="dbconvert" fileType="launcher" />
-          <entry rootId="2036" location="jad-vpn-service.conf" />
+          <entry rootId="2036" location="nodal-vpn-client-service.conf" />
         </include>
       </component>
       <component name="Client App" id="1677">
@@ -98,8 +98,8 @@
           <entry location="images" />
           <entry location="EULA.txt" />
           <entry location="WIREGUARD-LICENSE.txt" />
-          <entry location="jad-vpn-gui" fileType="launcher" />
-          <entry location="jad-vpn-gui-remote" fileType="launcher" />
+          <entry location="nodal-vpn-client-gui" fileType="launcher" />
+          <entry location="nodal-vpn-client-gui-remote" fileType="launcher" />
         </include>
         <dependencies>
           <component id="1676" />
@@ -113,7 +113,7 @@
           <entry location="cli" />
           <entry location="EULA.txt" />
           <entry location="WIREGUARD-LICENSE.txt" />
-          <entry location="jad-vpn" fileType="launcher" />
+          <entry location="nodal-vpn-client" fileType="launcher" />
         </include>
         <dependencies>
           <component id="1676" />
@@ -122,7 +122,7 @@
       <component name="Tray Icon" id="2259">
         <include>
           <entry location="tray" />
-          <entry location="jad-vpn-tray" fileType="launcher" />
+          <entry location="nodal-vpn-client-tray" fileType="launcher" />
         </include>
         <dependencies>
           <component id="1676" />
@@ -131,8 +131,8 @@
     </components>
   </files>
   <launchers>
-    <launcher name="jad-vpn-service" id="583" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientService">
-      <executable name="jad-vpn-service" stderrFile="logs/service-app.log" redirectStdout="true" stdoutFile="logs/service-app.log" failOnStderrOutput="false" executableMode="service" dpiAware="false">
+    <launcher name="nodal-vpn-client-service" id="583" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.jadaptive.nodal.vpn.ClientService">
+      <executable name="nodal-vpn-client-service" stderrFile="logs/service-app.log" redirectStdout="true" stdoutFile="logs/service-app.log" failOnStderrOutput="false" executableMode="service" dpiAware="false">
         <versionInfo include="true" fileDescription="Privileged service for the VPN" legalCopyright="JADAPTIVE Limited" internalName="VPN Client" />
       </executable>
       <java mainClass="com.jadaptive.nodal.vpn.client.desktop.service/com.logonbox.vpn.client.desktop.service.Main" mainMode="module" vmParameters="-Xmx64m">
@@ -148,22 +148,22 @@
 -Djdk.internal.httpclient.disableHostnameVerification=true</content>
       </vmOptionsFile>
     </launcher>
-    <launcher name="jad-vpn-gui" id="783" menuName="JADAPTIVE VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui">
-      <executable name="jad-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.config/jad-vpnent/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/jad-vpnent/gui-app.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true">
-        <versionInfo include="true" fileDescription="Graphical front end for the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
+    <launcher name="nodal-vpn-client-gui" id="783" menuName="Nodal VPN Client" customMacBundleIdentifier="true" macBundleIdentifier="com.jadaptive.nodal.vpn.ClientGui">
+      <executable name="nodal-vpn-client-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.config/nodal-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/nodal-vpn-client/gui-app.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true">
+        <versionInfo include="true" fileDescription="Graphical front end for the Nodal VPN Client Service" legalCopyright="JADAPTIVE Limited" internalName="Nodal VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
-      <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module">
+      <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.jadaptive.nodal.vpn.client.desktop.DesktopVPN" mainMode="module">
         <modulePath>
           <directory location="gui" failOnError="false" />
           <directory location="${compiler:jfx.archdir}" failOnError="false" />
         </modulePath>
       </java>
       <vmOptionsFile mode="content" overwriteMode="2">
-        <content>-include-options ${HOME}/.config/jad-vpnent/gui.vmoptions
+        <content>-include-options ${HOME}/.config/nodal-vpn-client/gui.vmoptions
 -Xmx128m
 -Djdk.internal.httpclient.disableHostnameVerification=true
--Dlogonbox.vpn.logConfiguration=conf/gui.log.properties
+-Dnodal.vpn.logConfiguration=conf/gui.log.properties
 -Djna.nosys=true
 -Djna_tmpdir="${launcher:sys.tempDir}"
 -Djava.net.preferIPv4Stack=true</content>
@@ -177,9 +177,9 @@
         <file path="./images/logo128px.png" />
       </iconImageFiles>
     </launcher>
-    <launcher name="jad-vpn" id="1488" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientCLI">
-      <executable name="jad-vpn" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false">
-        <versionInfo include="true" fileDescription="Command Line Interface to the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
+    <launcher name="nodal-vpn-client" id="1488" customMacBundleIdentifier="true" macBundleIdentifier="com.jadaptive.nodal.vpn.ClientCLI">
+      <executable name="nodal-vpn-client" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false">
+        <versionInfo include="true" fileDescription="Command Line Interface to the Nodal VPN Client Service" legalCopyright="JADAPTIVE Limited" internalName="Nodal VPN Client" />
       </executable>
       <java mainClass="com.jadaptive.nodal.vpn.client.cli/com.logonbox.vpn.client.cli.CLI" mainMode="module" vmParameters="-Xmx32m">
         <modulePath>
@@ -203,9 +203,9 @@
         <urlHandler scheme="lbvpn" />
       </macStaticAssociations>
     </launcher>
-    <launcher name="jad-vpn-service-console" id="2029" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientServiceConsole">
-      <executable name="jad-vpn-service-console" redirectStderr="false" stderrFile="logs/service-forker-launcher.err" stdoutFile="logs/service-forker-launcher.out" failOnStderrOutput="false" executableMode="console" dpiAware="false">
-        <versionInfo include="true" fileDescription="Console variant of the JADAPTIVE VPN service used for troubleshooting" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
+    <launcher name="nodal-vpn-client-service-console" id="2029" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.jadaptive.nodal.vpn.ClientServiceConsole">
+      <executable name="nodal-vpn-client-console" redirectStderr="false" stderrFile="logs/service-forker-launcher.err" stdoutFile="logs/service-forker-launcher.out" failOnStderrOutput="false" executableMode="console" dpiAware="false">
+        <versionInfo include="true" fileDescription="Console variant of the Nodal VPN Client Service used for troubleshooting" legalCopyright="JADAPTIVE Limited" internalName="NOdal VPN Client" />
       </executable>
       <java mainClass="com.jadaptive.nodal.vpn.client.desktop.service/com.logonbox.vpn.client.desktop.service.Main" mainMode="module" vmParameters="-Xmx64m">
         <modulePath>
@@ -220,8 +220,8 @@
 -Djdk.internal.httpclient.disableHostnameVerification=true</content>
       </vmOptionsFile>
     </launcher>
-    <launcher name="jad-vpn-gui-remote" id="2035" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGuiRemote">
-      <executable name="jad-vpn-gui-remote" iconSet="true" stderrFile="${installer:sys.userHome}/.config/jad-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/jad-vpn-client/gui-app.log" executableMode="console" dpiAware="false">
+    <launcher name="nodal-vpn-client-gui-remote" id="2035" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.jadaptive.nodal.vpn.ClientGuiRemote">
+      <executable name="nodal-vpn-client-gui-remote" iconSet="true" stderrFile="${installer:sys.userHome}/.config/nodal-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/nodal-vpn-client/gui-app.log" executableMode="console" dpiAware="false">
         <versionInfo include="true" fileDescription="Remote control for the graphical front end to the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
@@ -232,10 +232,10 @@
         </modulePath>
       </java>
       <vmOptionsFile mode="content" overwriteMode="2">
-        <content>-include-options ${HOME}/.config/jad-vpn-client/gui.vmoptions
+        <content>-include-options ${HOME}/.config/nodal-vpn-client/gui.vmoptions
 -Xmx128m
 -Djdk.internal.httpclient.disableHostnameVerification=true
--Dlogonbox.vpn.logConfiguration=conf/gui.log.properties
+-Dnodal.vpn.logConfiguration=conf/gui.log.properties
 -Djna.nosys=true
 -Djna_tmpdir="${launcher:sys.tempDir}"
 -Djava.net.preferIPv4Stack=true</content>
@@ -247,9 +247,9 @@
         <file path="./images/logo128px.png" />
       </iconImageFiles>
     </launcher>
-    <launcher name="jad-vpn-tray" id="2257" menuName="JADAPTIVE VPN Tray Icon" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.TrayIcon" swtApp="true">
-      <executable name="jad-vpn-tray" iconSet="true" stderrFile="${installer:sys.userHome}/.config/jad-vpn-client/tray-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/jad-vpn-client/tray-app.log" executableMode="gui" singleInstance="true" dpiAware="true">
-        <versionInfo include="true" fileDescription="Tray icon for the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
+    <launcher name="nodal-vpn-client-tray" id="2257" menuName="Nodal VPN Tray Icon" customMacBundleIdentifier="true" macBundleIdentifier="com.jadaptive.nodal.vpn.TrayIcon" swtApp="true">
+      <executable name="nodal-vpn-client-tray" iconSet="true" stderrFile="${installer:sys.userHome}/.config/nodal-vpn-client/tray-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/nodal-vpn-client/tray-app.log" executableMode="gui" singleInstance="true" dpiAware="true">
+        <versionInfo include="true" fileDescription="Tray icon for the NOdal VPN Client Service" legalCopyright="JADAPTIVE Limited" internalName="Nodal VPN Client" />
       </executable>
       <splashScreen bitmapFile="./images/splash.png" />
       <java mainClass="com.jadaptive.nodal.vpn.client.tray.TrayDaemon">
@@ -258,10 +258,10 @@
         </classPath>
       </java>
       <vmOptionsFile mode="content" overwriteMode="2">
-        <content>-include-options ${HOME}/.config/jad-vpn-client/tray.vmoptions
+        <content>-include-options ${HOME}/.config/nodal-vpn-client/tray.vmoptions
 -Xmx32m
 -Djdk.internal.httpclient.disableHostnameVerification=true
--Dlogonbox.vpn.logConfiguration=conf/tray.log.properties
+-Dnodal.vpn.logConfiguration=conf/tray.log.properties
 -Djna.nosys=true
 -Djna_tmpdir="${launcher:sys.tempDir}"
 -Djava.net.preferIPv4Stack=true</content>
@@ -635,7 +635,7 @@ return path.replace('\\', '/');</property>
                   <property name="launcherId" type="string">583</property>
                   <property name="macosIdentifier" type="string">com.jadaptive.VPNClientService</property>
                   <property name="restartOnFailure" type="boolean" value="true" />
-                  <property name="windowsDisplayName" type="string">JADAPTIVE VPN Client Service</property>
+                  <property name="windowsDisplayName" type="string">Nodal VPN Client Service</property>
                 </serializedBean>
               </action>
               <action id="856" beanClass="com.install4j.runtime.beans.actions.services.StartServiceAction" actionElevationType="elevated">
@@ -658,7 +658,7 @@ return path.replace('\\', '/');</property>
               </action>
               <action id="2030" beanClass="com.install4j.runtime.beans.actions.registry.SetRegistryValueAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
-                  <property name="keyName" type="string">Software\JADAPTIVE\VPN</property>
+                  <property name="keyName" type="string">Software\JADAPTIVE\NodalVPNClient</property>
                   <property name="registryRoot" type="enum" class="com.install4j.api.windows.RegistryRoot" value="HKEY_LOCAL_MACHINE" />
                   <property name="value" type="string">${installer:sys.installationDir}</property>
                   <property name="valueName" type="string">InstallDir</property>
@@ -695,15 +695,15 @@ return path.replace('\\', '/');</property>
                 <serializedBean>
                   <property name="file">
                     <object class="java.io.File">
-                      <string>/etc/xdg/autostart/jad-vpn-client-tray-icon.desktop</string>
+                      <string>/etc/xdg/autostart/nodal-vpn-client-tray-icon.desktop</string>
                     </object>
                   </property>
                   <property name="text" type="string">[Desktop Entry]
 Type=Application
-Name=JADAPTIVE VPN Tray Icon
-Comment=JADAPTIVE VPN Tray Icon
-Exec=${installer:sys.installationDir}/jad-vpn-tray
-Icon=${installer:sys.installationDir}/.install4j/jad-vpn-tray.png
+Name=Nodal VPN Client Tray Icon
+Comment=Nodal VPN Client Tray Icon
+Exec=${installer:sys.installationDir}/nodal-vpn-client-tray
+Icon=${installer:sys.installationDir}/.install4j/nodal-vpn-client-tray.png
 X-GNOME-AutoRestart=false
 X-GNOME-Autostart-Notify=false
 X-GNOME-Autostart-enabled=true</property>
@@ -714,10 +714,10 @@ X-GNOME-Autostart-enabled=true</property>
                 <serializedBean>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-tray</string>
+                      <string>nodal-vpn-client-tray</string>
                     </object>
                   </property>
-                  <property name="name" type="string">JADAPTIVE VPN Tray Icon</property>
+                  <property name="name" type="string">Nodal VPN Client Tray Icon</property>
                 </serializedBean>
               </action>
               <action id="1219" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" actionElevationType="none">
@@ -891,7 +891,7 @@ return console.askYesNo(message, true);
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn</string>
+                      <string>nodal-vpn-client</string>
                     </object>
                   </property>
                   <property name="timeout" type="int" value="20" />
@@ -913,7 +913,7 @@ return console.askYesNo(message, true);
                   <property name="files" type="array" class="java.io.File" length="1">
                     <element index="0">
                       <object class="java.io.File">
-                        <string>/etc/xdg/autostart/jad-vpn-tray.desktop</string>
+                        <string>/etc/xdg/autostart/nodal-vpn-client-tray.desktop</string>
                       </object>
                     </element>
                   </property>
@@ -930,7 +930,7 @@ return console.askYesNo(message, true);
                   <property name="additionalExecutables" type="array" class="java.io.File" length="1">
                     <element index="0">
                       <object class="java.io.File">
-                        <string>jad-vpn-tray</string>
+                        <string>nodal-vpn-client-tray</string>
                       </object>
                     </element>
                   </property>
@@ -1050,7 +1050,7 @@ return console.askYesNo(message, true);
           </property>
           <property name="executableName" type="string">updater</property>
           <property name="executionMode" type="enum" class="com.install4j.runtime.beans.applications.ExecutionMode" value="UNATTENDED_WITH_PROGRESS" />
-          <property name="splashMessage" type="string">Downloading JADAPTIVE VPN Client</property>
+          <property name="splashMessage" type="string">Downloading Nodal VPN Client</property>
           <property name="unattendedAlerts" type="boolean" value="true" />
           <property name="useCustomIcon" type="boolean" value="true" />
           <property name="windowTitle" type="string">${i18n:updater.WindowTitle("${compiler:sys.fullName}")}</property>
@@ -1869,7 +1869,7 @@ return true;</property>
   <mediaSets>
     <macosFolder name="Mac OS X Folder" id="1553" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}">
       <exclude>
-        <entry location="conf/jad-vpn-service.conf" />
+        <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux-aarch64" />
         <entry location="gui/linux" />
@@ -1883,9 +1883,9 @@ return true;</property>
       </variables>
       <jreBundle release="21/jdk-21.0.1+12" usePack200="false" includedJre="macosx-amd64-1.8.0_121" />
     </macosFolder>
-    <windows name="Windows x64" id="1554" installDir="JADAPTIVE\VPN Client" architecture="64">
+    <windows name="Windows x64" id="1554" installDir="JADAPTIVE\Nodal VPN Client" architecture="64">
       <exclude>
-        <entry location="conf/jad-vpn-service.conf" />
+        <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux-aarch64" />
         <entry location="gui/linux" />
@@ -1895,7 +1895,7 @@ return true;</property>
     </windows>
     <unixInstaller name="Linux Installer" id="1555" mediaFileName="${compiler:sys.shortName}-linux-amd64-${compiler:sys.version}">
       <exclude>
-        <entry location="conf/jad-vpn-service.conf" />
+        <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux-aarch64" />
         <entry location="gui/win" />
@@ -1925,18 +1925,18 @@ return true;</property>
         <variable name="jfx.archdir" value="gui/linux" />
       </variables>
       <postInstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
-cp -f conf/jad-vpn-service.conf /etc/dbus-1/system.d
+cp -f conf/nodal-vpn-client-service.conf /etc/dbus-1/system.d
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
-systemctl enable jad-vpn-service
-systemctl start jad-vpn-service</postInstallScript>
+systemctl enable nodal-vpn-client-service
+systemctl start nodal-vpn-client-service</postInstallScript>
       <preUninstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
 
-systemctl stop jad-vpn-service
-rm -f /etc/dbus-1/system.d/jad-vpn-service.conf
+systemctl stop nodal-vpn-client-service
+rm -f /etc/dbus-1/system.d/nodal-vpn-client-service.conf
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
 </preUninstallScript>
     </linuxRPM>
-    <linuxDeb name="Linux Deb Archive" id="1561" overwriteNeverAsConfigFiles="true" dependencies="dbus" description="JADAPTIVE VPN Client, the ideal companion to the JADAPTIVE VPN" maintainerEmail="brett@logonbox.com" architectureSet="true" architecture="amd64">
+    <linuxDeb name="Linux Deb Archive" id="1561" overwriteNeverAsConfigFiles="true" dependencies="dbus" description="Nodal VPN Client, the ideal companion to the JADAPTIVE Nodal Cloud VPN" maintainerEmail="brett@logonbox.com" architectureSet="true" architecture="amd64">
       <exclude>
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux-aarch64" />
@@ -1953,20 +1953,20 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <variable name="jfx.archdir" value="gui/linux" />
       </variables>
       <postInstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
-cp -f conf/jad-vpn-service.conf /etc/dbus-1/system.d
+cp -f conf/nodal-vpn-client-service.conf /etc/dbus-1/system.d
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
-systemctl enable jad-vpn-service
-systemctl start jad-vpn-service</postInstallScript>
+systemctl enable nodal-vpn-client-service
+systemctl start nodal-vpn-client-service</postInstallScript>
       <preUninstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
 
-systemctl stop jad-vpn-service
-rm -f /etc/dbus-1/system.d/jad-vpn-service.conf
+systemctl stop nodal-vpn-client-service
+rm -f /etc/dbus-1/system.d/nodal-vpn-client-service.conf
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
 </preUninstallScript>
     </linuxDeb>
-    <windows name="MSI Windows x64" id="2047" installDir="JADAPTIVE\VPN Client" msi="true" msiScope="selectable" msiProductIdType="custom" msiCustomProductId="0DC151EE-7A26-4A19-BD41-2581369651B3" architecture="64">
+    <windows name="MSI Windows x64" id="2047" installDir="JADAPTIVE\Nodal VPN Client" msi="true" msiScope="selectable" msiProductIdType="custom" msiCustomProductId="0DC151EE-7A26-4A19-BD41-2581369651B3" architecture="64">
       <exclude>
-        <entry location="conf/jad-vpn-service.conf" />
+        <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux-aarch64" />
         <entry location="gui/linux" />
@@ -1977,7 +1977,7 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
     </windows>
     <unixInstaller name="Arm64 Linux Installer" id="2166" mediaFileName="${compiler:sys.shortName}-linux-aarch64-${compiler:sys.version}" require64BitVm="true">
       <exclude>
-        <entry location="conf/jad-vpn-service.conf" />
+        <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux" />
         <entry location="gui/win" />
@@ -2009,7 +2009,7 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
     </unixArchive>
     <macosFolder name="Mac OS X Folder (Arm)" id="2173" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}" architecture="aarch64">
       <exclude>
-        <entry location="conf/jad-vpn-service.conf" />
+        <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/linux-aarch64" />
         <entry location="gui/linux" />
         <entry location="gui/win" />

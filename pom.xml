@@ -21,9 +21,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
     <groupId>com.jadaptive</groupId>
-	<artifactId>logonbox-desktop-vpn-clients</artifactId>
+	<artifactId>nodal-vpn-client</artifactId>
 	<version>4.0.0-SNAPSHOT</version>
-	<url>http://www.hypersocket.com/</url>
+	<url>https://jadaptive.com/</url>
 	<packaging>pom</packaging>
 	<name>JADAPTIVE VPN - Group</name>
 	<description>Desktop VPN Clients (Linux, OS X and Windows).</description>
@@ -48,9 +48,9 @@
 	</licenses>
 
 	<scm>
-		<url>http://github.com/nervepoint/logonbox-desktop-vpn-clients</url>
-		<connection>scm:git:https://github.com/nervepoint/logonbox-desktop-vpn-clients</connection>
-		<developerConnection>scm:git:https://github.com/nervepoint/logonbox-desktop-vpn-clients</developerConnection>
+		<url>https://github.com/Nodal-VPN/nodal-vpn-client</url>
+		<connection>scm:git:https://github.com/Nodal-VPN/nodal-vpn-client.git</connection>
+		<developerConnection>scm:git:https://github.com/Nodal-VPN/nodal-vpn-client.git</developerConnection>
 	</scm>
 	
     <organization>
@@ -97,8 +97,8 @@
         <install4j.phase>continuous</install4j.phase>
         <install4j.exe.suffix></install4j.exe.suffix>
         <install4j.branches></install4j.branches>
-        <install4j.updatesBase>https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client</install4j.updatesBase>
-        <install4j.jaulAppId>com.jadaptive.VPNClient</install4j.jaulAppId>
+        <install4j.updatesBase>https://sshtools-public.s3.eu-west-1.amazonaws.com/nodal-vpn-client</install4j.updatesBase>
+        <install4j.jaulAppId>com.jadaptive.NodalVPNClient</install4j.jaulAppId>
         <install4j.jaulUpdaterId>2103</install4j.jaulUpdaterId>
         
 	</properties>

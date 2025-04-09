@@ -78,7 +78,7 @@ public final class EmbeddedService extends AbstractService<EmbeddedVpnConnection
     
     @Override
     public String getVersion() {
-        return ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-embedded");
+        return ArtifactVersion.getVersion("com.jadaptive", "nodal-vpn-client-embedded");
     }
 
     @Override

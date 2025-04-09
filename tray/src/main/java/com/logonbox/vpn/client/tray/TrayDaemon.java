@@ -56,7 +56,7 @@ import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 import uk.co.bithatch.nativeimage.annotations.TypeReflect;
 
-@Command(name = "jad-vpn-tray", mixinStandardHelpOptions = true, description = "Start the VPN Client system tray.", versionProvider = TrayDaemon.VersionProvider.class)
+@Command(name = "nodal-vpn-client-tray", mixinStandardHelpOptions = true, description = "Start the VPN Client system tray.", versionProvider = TrayDaemon.VersionProvider.class)
 @Resource(siblings = true, value = { "default-log4j-tray\\.properties" })
 @Reflectable
 @TypeReflect(classes = true, fields = true, methods = true)
@@ -68,7 +68,7 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {
-                "Tray: " + AppVersion.getVersion(TrayDaemon.class, "com.logonbox", "client-logonbox-vpn-tray"),
+                "Tray: " + AppVersion.getVersion(TrayDaemon.class, "com.jadaptive", "nodal-vpn-client-tray"),
                 "DBus Java: " + ArtifactVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
             };
         }
@@ -96,7 +96,7 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 	@Override
 	protected int onCall() throws Exception {
 	    
-	    Utils.applicationLock("jad-vpn-tray");
+	    Utils.applicationLock("nodal-vpn-client-tray");
 
         initApp();
         
@@ -278,7 +278,7 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 				try {
 				    getLog().info("Starting GUI");
 				    
-				    var cmd = Utils.findCommandPath("jad-vpn-gui");
+				    var cmd = Utils.findCommandPath("nodal-vpn-client-gui");
 				    var bldr = options ?  new ProcessBuilder(cmd, "--options") : new ProcessBuilder(cmd);
 				    
 					bldr.redirectError(Redirect.INHERIT);

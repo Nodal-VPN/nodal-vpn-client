@@ -22,8 +22,8 @@ import java.nio.file.Paths;
 
 public class AppConstants {
 
-    public final static String CLIENT_NAME = "jad-vpn-client";
-    public final static String CLIENT_SERVICE_NAME = "jad-vpn-client-service";
+    public final static String CLIENT_NAME = "nodal-vpn-client";
+    public final static String CLIENT_SERVICE_NAME = "nodal-vpn-client-service";
     public final static Path CLIENT_HOME = Paths.get(System.getProperty("user.home"), ".config", CLIENT_NAME);
     public final static Path CLIENT_CONFIG_HOME = CLIENT_HOME.resolve("conf");
 }

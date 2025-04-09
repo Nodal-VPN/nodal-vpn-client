@@ -13,12 +13,12 @@ pipeline {
     }
 
     stages {
-        stage ('LogonBox VPN Client Native Installers') {
+        stage ('Nodal VPN Client Native Installers') {
             parallel {
                 /*
                  * Linux AMD64 Installers and Packages
                  */
-                stage ('Linux AMD64 LogonBox VPN Client Native Installers') {
+                stage ('Linux AMD64 Nodal VPN Client Native Installers') {
                     agent {
                         label 'install4j && linux && x86_64'
                     }
@@ -38,7 +38,7 @@ pipeline {
                                    '-Dinstall4j.disableSigning=true ' +
                                    '-Dbuild.buildIds=1555,1560,1561,2167 ' +  
                                    '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
-                                   '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +
+                                   '-Dinstall4j.updatesBase=https://sshtools-public.s3.eu-west-1.amazonaws.com/nodal-vpn-client-native ' +
                                    '-P translate,installers,native-image ' +
                                    'clean package'
                                 
@@ -57,7 +57,7 @@ pipeline {
                  * Linux AARC64 Installers and Packages
                  *
                  */
-                stage ('Linux AARCH64 LogonBox VPN Client Native Installers') {
+                stage ('Linux AARCH64 Nodal VPN Client Native Installers') {
                     agent {
                         label 'install4j && linux && aarch64'
                     }
@@ -76,7 +76,7 @@ pipeline {
                                 sh 'mvn -U -Dbuild.mediaTypes=unixInstaller,unixArchive,linuxRPM,linuxDeb ' +
                                    '-Dinstall4j.disableSigning=true ' + 
                                    '-Dbuild.buildIds=2166,2300,2304,2308 ' +
-                                   '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +  
+                                   '-Dinstall4j.updatesBase=https://sshtools-public.s3.eu-west-1.amazonaws.com/nodal-vpn-client-native ' +
                                    '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
                                    '-P translate,installers,native-image ' +
                                    'clean package'
@@ -96,7 +96,7 @@ pipeline {
                 /*
                  * MacOS Intel installers
                  */
-                stage ('MacOS Intel LogonBox VPN Client Native Installers') {
+                stage ('MacOS Intel Nodal VPN Client Native Installers') {
                     agent {
                         label 'install4j && macos && x86_64'
                     }
@@ -115,7 +115,7 @@ pipeline {
                                 // -Dinstall4j.disableNotarization=true
                                 sh 'mvn -U -Dbuild.mediaTypes=macos,macosFolder,macosFolderArchive ' +
                                    '"-Dbuild.projectProperties=$BUILD_PROPERTIES" ' +
-                                   '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +
+                                   '-Dinstall4j.updatesBase=https://sshtools-public.s3.eu-west-1.amazonaws.com/nodal-vpn-client-native ' +
                                    '-P translate,installers,native-image ' +
                                    '-Dbuild.buildIds=1553 ' +
                                    'clean package'
@@ -135,7 +135,7 @@ pipeline {
                 /*
                  * MacOS Intel installers
                  */
-                stage ('MacOS Arm LogonBox VPN Client Native Installers') {
+                stage ('MacOS Arm Nodal VPN Client Native Installers') {
                     agent {
                         label 'install4j && macos && aarch64'
                     }
@@ -154,7 +154,7 @@ pipeline {
                                 // -Dinstall4j.disableNotarization=true
                                 sh 'mvn -U -Dbuild.mediaTypes=macos,macosFolder,macosFolderArchive ' +
                                    '"-Dbuild.projectProperties=$BUILD_PROPERTIES" ' +
-                                   '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +
+                                   '-Dinstall4j.updatesBase=https://sshtools-public.s3.eu-west-1.amazonaws.com/nodal-vpn-client-native ' +
                                    '-P translate,installers,native-image ' +
                                    '-Dbuild.buildIds=2173 ' +
                                    'clean package'
@@ -174,7 +174,7 @@ pipeline {
                 /*
                  * Windows installers
                  */
-                stage ('Windows LogonBox VPN Client Native Installers') {
+                stage ('Windows Nodal VPN Client Native Installers') {
                     agent {
                         label 'install4j && windows'
                     }
@@ -193,7 +193,7 @@ pipeline {
                                 bat 'mvn -U -Dinstall4j.verbose=true ' +
                                     '-Dbuild.mediaTypes=windows,windowsArchive ' +
                                     '-Dinstall4j.exe.suffix=.exe ' +
-                                    '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +
+                                    '-Dinstall4j.updatesBase=https://sshtools-public.s3.eu-west-1.amazonaws.com/nodal-vpn-client-native ' +
                                     '"-Dbuild.projectProperties=%BUILD_PROPERTIES%" ' +
                                     '-P translate,installers,native-image ' +
                                     'clean package'
@@ -264,14 +264,14 @@ pipeline {
                     dontSetBuildResultOnFailure: false, 
                     dontWaitForConcurrentBuildCompletion: false, 
                     entries: [[
-                        bucket: 'logonbox-packages/logonbox-vpn-client-native/' + env.FULL_VERSION, 
+                        bucket: 'sshtools-pubic/nodal-vpn-client-native/' + env.FULL_VERSION, 
                         noUploadOnFailure: true, 
                         selectedRegion: 'eu-west-1', 
                         sourceFile: 'installer/target/media/*', 
                         storageClass: 'STANDARD', 
                         useServerSideEncryption: false]], 
                         pluginFailureResultConstraint: 'FAILURE', 
-                        profileName: 'LogonBox Buckets', 
+                        profileName: 'JADAPTIVE Buckets', 
                         userMetadata: []
                 )
                 
@@ -282,14 +282,14 @@ pipeline {
                     dontSetBuildResultOnFailure: false, 
                     dontWaitForConcurrentBuildCompletion: false, 
                     entries: [[
-                        bucket: 'logonbox-packages/logonbox-vpn-client-native/continuous', 
+                        bucket: 'sshtools-public/nodal-vpn-client-native/continuous', 
                         noUploadOnFailure: true, 
                         selectedRegion: 'eu-west-1', 
                         sourceFile: 'installer/target/media/updates.xml', 
                         storageClass: 'STANDARD', 
                         useServerSideEncryption: false]], 
                         pluginFailureResultConstraint: 'FAILURE', 
-                        profileName: 'LogonBox Buckets', 
+                        profileName: 'JADAPTIVE Buckets', 
                         userMetadata: []
                 )
             }                   

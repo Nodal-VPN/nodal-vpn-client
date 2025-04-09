@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 public abstract class AbstractVpnManager<CONX extends IVpnConnection> implements VpnManager<CONX> {
 
     public final static File CLIENT_HOME = new File(
-            System.getProperty("user.home") + File.separator + ".config" + File.separator + "jad-vpn-client");
+            System.getProperty("user.home") + File.separator + ".config" + File.separator + "nodal-vpn-client");
     public final static File CLIENT_CONFIG_HOME = new File(CLIENT_HOME, "conf");
     
     protected final List<Runnable> onConnectionAdding = Collections.synchronizedList(new ArrayList<>());

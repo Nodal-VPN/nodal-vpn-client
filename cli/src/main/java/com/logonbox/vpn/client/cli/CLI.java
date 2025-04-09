@@ -65,7 +65,7 @@ import uk.co.bithatch.nativeimage.annotations.Resource;
 @Resource({"default-log4j-cli\\.properties"})
 public class CLI extends AbstractDBusApp implements CLIContext {
     
-    public final static String COMMAND_NAME = "jad-vpn";
+    public final static String COMMAND_NAME = "nodal-vpn-client";
 
     @Reflectable
 	public final static class VersionProvider implements IVersionProvider {
@@ -75,7 +75,7 @@ public class CLI extends AbstractDBusApp implements CLIContext {
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {
-                "CLI: " + ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-cli"),
+                "CLI: " + ArtifactVersion.getVersion("com.jadaptive", "nodal-vpn-client-cli"),
                 "DBus Java: " + ArtifactVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
             };
         }
@@ -304,7 +304,7 @@ public class CLI extends AbstractDBusApp implements CLIContext {
 
 	@Override
 	public String getArtifactVersion() {
-		return ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-cli");
+		return ArtifactVersion.getVersion("com.jadaptive", "nodal-vpn-client-cli");
 	}
 
 	@Override

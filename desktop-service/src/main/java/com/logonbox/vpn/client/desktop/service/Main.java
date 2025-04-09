@@ -82,7 +82,7 @@ import uk.co.bithatch.nativeimage.annotations.Bundle;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 
-@Command(name = "jad-vpn-service", mixinStandardHelpOptions = true, description = "VPN Client service. Manages VPN connections on behalf of users.", versionProvider =  Main.VersionProvider.class)
+@Command(name = "nodal-vpn-client-service", mixinStandardHelpOptions = true, description = "VPN Client service. Manages VPN connections on behalf of users.", versionProvider =  Main.VersionProvider.class)
 @Bundle
 @Resource({"default-log-service\\.properties", "default-log4j-service-console\\.properties"})
 @JaulApp(id = AbstractApp.TOOLBOX_APP_ID)
@@ -98,8 +98,8 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {
-                "Service: " + AppVersion.getVersion(Main.class, "com.logonbox", "client-logonbox-vpn-desktop-service"),
-                "VPN Library: " + ArtifactVersion.getVersion("com.logonbox", "logonbox-vpn-lib"),
+                "Service: " + AppVersion.getVersion(Main.class, "com.jadaptive", "nodal-vpn-client-desktop-service"),
+                "VPN Library: " + ArtifactVersion.getVersion("com.jadaptive", "nodal-core-lib"),
                 "DBus Java: " +ArtifactVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
             };
         }

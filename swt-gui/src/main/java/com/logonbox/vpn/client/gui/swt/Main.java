@@ -42,7 +42,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "jad-vpn-gui-swt", mixinStandardHelpOptions = true, description = "Start the VPN Client graphical user interface.")
+@Command(name = "nodal-vpn-client-gui-swt", mixinStandardHelpOptions = true, description = "Start the VPN Client graphical user interface.")
 public class Main extends AbstractDBusApp {
 
 	/**
@@ -240,7 +240,7 @@ public class Main extends AbstractDBusApp {
 
     @Override
     protected String getArtifactVersion() {
-        return ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-swt-gui");
+        return ArtifactVersion.getVersion("com.jadaptive", "nodal-vpn-client-swt-gui");
     }
 
 	@Override

@@ -56,7 +56,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;
 
-@Command(name = "jad-vpn-gui", mixinStandardHelpOptions = true, description = "Start the VPN client graphical user interface.", versionProvider = DesktopVPN.VersionProvider.class
+@Command(name = "nodal-vpn-client-gui", mixinStandardHelpOptions = true, description = "Start the VPN client graphical user interface.", versionProvider = DesktopVPN.VersionProvider.class
 ) 
 public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppContext<VpnConnection> {
 	@Reflectable
@@ -67,7 +67,7 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
         @Override
         public String[] getVersion() throws Exception {
             return new String[] {
-                "GUI: " + ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop"),
+                "GUI: " + ArtifactVersion.getVersion("com.jadaptive", "nodal-vpn-client-desktop"),
                 "DBus Java: " + ArtifactVersion.getVersion("com.github.hypfvieh", "dbus-java-core")
             };
         }
@@ -334,6 +334,6 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
 	}
 
     protected String getArtifactVersion() {
-        return ArtifactVersion.getVersion("com.logonbox", "client-logonbox-vpn-desktop");
+        return ArtifactVersion.getVersion("com.jadaptive", "nodal-vpn-client-desktop");
     }
 }

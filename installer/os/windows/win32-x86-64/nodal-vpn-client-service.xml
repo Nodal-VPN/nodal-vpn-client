@@ -1,0 +1,10 @@
+<service>
+  <id>nodal-vpn-client-service</id>
+  <name>JADAPTIVE Nodal VPN Client Service</name>
+  <description>A service that manages connections for the JADAPTIVE Nodal VPN Client</description>
+  <executable>%BASE%\nodal-vpn-client-service.exe</executable>
+  <depend>jadbus-daemon</depend>
+  <log mode="reset">
+    <logpath>%BASE%\logs</logpath>
+  </log>
+</service>

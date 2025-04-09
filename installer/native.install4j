@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.8" transformSequenceNumber="10">
-  <directoryPresets config="./os/windows/win32-x86-64/jad-vpn-client-service.xml" />
-  <application name="JADAPTIVE VPN Client" applicationId="0033-1388-2645-1798" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="jadaptive-vpn-client" publisher="JADAPTIVE Limited" publisherWeb="https://jadaptive.com" version="4.0.0" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
+  <directoryPresets config="./os/windows/win32-x86-64/nodal-vpn-client-client-service.xml" />
+  <application name="Nodal VPN Client" applicationId="8341-5005-2778-2431" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="jadaptive-vpn-client" publisher="JADAPTIVE Limited" publisherWeb="https://jadaptive.com" version="4.0.0" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
       <directory location="jre" />
@@ -10,7 +10,7 @@
       <variable name="install4j.phase" value="continuous" />
       <variable name="install4j.exe.suffix" />
       <variable name="jfx.archdir" value="gui/win" description="The location of the architecture specific jars for JavaFX" />
-      <variable name="install4j.appleId" value="unset@logonbox.com" description="The apple ID to use for notarisation" />
+      <variable name="install4j.appleId" value="unset@jadaptive.com" description="The apple ID to use for notarisation" />
       <variable name="install4j.jaulUpdaterId" value="999" description="The ID (in this install4j project) of the updater application. Its a bit annoying we can't get this automatically!" />
       <variable name="install4j.jaulAppId" value="UNSET" description="The Jaul update system app Id, e.g. com.sshtools.MyApp" />
       <variable name="install4j.updatesBase" value="http://localhost" description="The base folder (on S3 usually) where updates are" />
@@ -50,7 +50,7 @@
     </mountPoints>
     <entries>
       <dirEntry mountPoint="82" file="./conf" subDirectory="conf" excludeSuffixes=".svn" />
-      <fileEntry mountPoint="82" file="./os/linux/dbus/jad-vpn-service.conf" />
+      <fileEntry mountPoint="82" file="./os/linux/dbus/nodal-vpn-client-service.conf" />
       <fileEntry mountPoint="82" file="./instance.properties" />
       <dirEntry mountPoint="859" file="./target/gui" subDirectory="gui">
         <exclude>
@@ -68,27 +68,27 @@
       <fileEntry mountPoint="2032" file="./WireGuardNT-LICENSE.txt" />
       <fileEntry mountPoint="2032" file="target/CHANGES.md" />
       <fileEntry mountPoint="2032" file="./WIREGUARD-LICENSE.txt" />
-      <fileEntry mountPoint="2032" file="../cli/target/jad-vpn${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
-      <fileEntry mountPoint="2032" file="../desktop-service/target/jad-vpn-service${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
-      <fileEntry mountPoint="2032" file="../tray/target/jad-vpn-tray${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
-      <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/jad-vpn-client-service.exe" />
-      <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/jad-vpn-client-service.xml" />
-      <fileEntry mountPoint="2037" file="./os/linux/dbus/jad-vpn-service.conf" />
+      <fileEntry mountPoint="2032" file="../cli/target/nodal-vpn-client${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
+      <fileEntry mountPoint="2032" file="../desktop-service/target/nodal-vpn-client-service${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
+      <fileEntry mountPoint="2032" file="../tray/target/nodal-vpn-client-tray${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
+      <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/nodal-vpn-client-service.exe" />
+      <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/nodal-vpn-client-service.xml" />
+      <fileEntry mountPoint="2037" file="./os/linux/dbus/nodal-vpn-client-service.conf" />
     </entries>
     <components>
       <component name="Client Service" id="1676" changeable="false">
         <include>
-          <entry location="conf/jad-vpn-service.conf" />
+          <entry location="conf/nodal-vpn-client-service.conf" />
           <entry location="logs" />
           <entry location="cleanup.bat" />
           <entry location="EULA.txt" />
           <entry location="WireGuardNT-LICENSE.txt" />
           <entry location="CHANGES.md" />
           <entry location="WIREGUARD-LICENSE.txt" />
-          <entry location="jad-vpn-service${compiler:install4j.exe.suffix}" />
-          <entry location="jad-vpn-client-service.exe" />
-          <entry location="jad-vpn-client-service.xml" />
-          <entry rootId="2036" location="jad-vpn-service.conf" />
+          <entry location="nodal-vpn-client-service${compiler:install4j.exe.suffix}" />
+          <entry location="nodal-vpn-client.exe" />
+          <entry location="nodal-vpn-client-service.xml" />
+          <entry rootId="2036" location="nodal-vpn-client-service.conf" />
         </include>
       </component>
       <component name="Client App" id="1677">
@@ -97,8 +97,8 @@
           <entry location="images" />
           <entry location="EULA.txt" />
           <entry location="WIREGUARD-LICENSE.txt" />
-          <entry location="jad-vpn-gui" fileType="launcher" />
-          <entry location="jad-vpn-gui-remote" fileType="launcher" />
+          <entry location="nodal-vpn-client-gui" fileType="launcher" />
+          <entry location="nodal-vpn-client-gui-remote" fileType="launcher" />
         </include>
         <dependencies>
           <component id="1676" />
@@ -108,7 +108,7 @@
         <include>
           <entry location="EULA.txt" />
           <entry location="WIREGUARD-LICENSE.txt" />
-          <entry location="jad-vpn${compiler:install4j.exe.suffix}" />
+          <entry location="nodal-vpn-client${compiler:install4j.exe.suffix}" />
         </include>
         <dependencies>
           <component id="1676" />
@@ -117,7 +117,7 @@
       <component name="Tray Icon" id="2259">
         <include>
           <entry location="tray" />
-          <entry location="jad-vpn-tray${compiler:install4j.exe.suffix}" />
+          <entry location="nodal-vpn-client-tray${compiler:install4j.exe.suffix}" />
         </include>
         <dependencies>
           <component id="1676" />
@@ -126,9 +126,9 @@
     </components>
   </files>
   <launchers>
-    <launcher name="jad-vpn-gui" id="783" menuName="JADAPTIVE VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGui" useCustomMacosExecutableName="true" customMacosExecutableName="JADAPTIVE VPN Client">
-      <executable name="jad-vpn-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.config/jad-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/jad-vpn-client/gui-app.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true">
-        <versionInfo include="true" fileDescription="Graphical front end for the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
+    <launcher name="nodal-vpn-client-gui" id="783" menuName="Nodal VPN" customMacBundleIdentifier="true" macBundleIdentifier="com.jadaptive.nodal.vpn.ClientGui" useCustomMacosExecutableName="true" customMacosExecutableName="Nodal VPN Client">
+      <executable name="nodal-vpn-client-gui" iconSet="true" stderrFile="${installer:sys.userHome}/.config/nodal-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/nodal-vpn-client/gui-app.log" executableMode="gui" singleInstance="true" checkConsoleParameter="true" dpiAware="true">
+        <versionInfo include="true" fileDescription="Graphical front end for the Nodal VPN Client Service" legalCopyright="JADAPTIVE Limited" internalName="Nodal VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
       <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module">
@@ -138,10 +138,10 @@
         </modulePath>
       </java>
       <vmOptionsFile mode="content" overwriteMode="2">
-        <content>-include-options ${HOME}/.config/jad-vpn-client/gui.vmoptions
+        <content>-include-options ${HOME}/.config/nodal-vpn-client/gui.vmoptions
 -Xmx128m
 -Djdk.internal.httpclient.disableHostnameVerification=true
--Dlogonbox.vpn.logConfiguration=conf/gui.log.properties
+-Dnodal.vpn.logConfiguration=conf/gui.log.properties
 -Djna.nosys=true
 -Djna_tmpdir="${launcher:sys.tempDir}"
 -Djava.net.preferIPv4Stack=true</content>
@@ -155,9 +155,9 @@
         <file path="./images/logo128px.png" />
       </iconImageFiles>
     </launcher>
-    <launcher name="jad-vpn-gui-remote" id="2035" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.logonbox.vpn.ClientGuiRemote">
-      <executable name="jad-vpn-gui-remote" iconSet="true" stderrFile="${installer:sys.userHome}/.config/jad-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/jad-vpn-client/gui-app.log" executableMode="console" dpiAware="false">
-        <versionInfo include="true" fileDescription="Remote control for the graphical front end to the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
+    <launcher name="nodal-vpn-client-gui-remote" id="2035" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.jadaptive.nodal.vpn.ClientGuiRemote">
+      <executable name="nodal-vpn-client-gui-remote" iconSet="true" stderrFile="${installer:sys.userHome}/.config/nodal-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/nodal-vpn-client/gui-app.log" executableMode="console" dpiAware="false">
+        <versionInfo include="true" fileDescription="Remote control for the graphical front end to the Nodal VPN Client Service" legalCopyright="JADAPTIVE Limited" internalName="Nodal VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
       <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module" allowVMPassthroughParameters="false">
@@ -167,10 +167,10 @@
         </modulePath>
       </java>
       <vmOptionsFile mode="content" overwriteMode="2">
-        <content>-include-options ${HOME}/.config/jad-vpn-client/gui.vmoptions
+        <content>-include-options ${HOME}/.config/nodal-vpn-client/gui.vmoptions
 -Xmx128m
 -Djdk.internal.httpclient.disableHostnameVerification=true
--Dlogonbox.vpn.logConfiguration=conf/gui.log.properties
+-Dnodal.vpn.logConfiguration=conf/gui.log.properties
 -Djna.nosys=true
 -Djna_tmpdir="${launcher:sys.tempDir}"
 -Djava.net.preferIPv4Stack=true</content>
@@ -182,9 +182,9 @@
         <file path="./images/logo128px.png" />
       </iconImageFiles>
     </launcher>
-    <launcher name="jad-vpn-service" id="2266" external="true" excludeFromMenu="true" externalFile="jad-vpn-service${compiler:install4j.exe.suffix}" />
-    <launcher name="jad-vpn" id="2268" external="true" excludeFromMenu="true" externalFile="jad-vpn${compiler:install4j.exe.suffix}" />
-    <launcher name="jad-vpn-tray" id="2271" external="true" menuName="JADAPTIVE VPN Tray Icon" externalFile="jad-vpn-tray${compiler:install4j.exe.suffix}" />
+    <launcher name="nodal-vpn-client-service" id="2266" external="true" excludeFromMenu="true" externalFile="nodal-vpn-client-service${compiler:install4j.exe.suffix}" />
+    <launcher name="nodal-vpn-client" id="2268" external="true" excludeFromMenu="true" externalFile="nodal-vpn-client${compiler:install4j.exe.suffix}" />
+    <launcher name="nodal-vpn-client-tray" id="2271" external="true" menuName="Nodal VPN Tray Icon" externalFile="nodal-vpn-client-tray${compiler:install4j.exe.suffix}" />
   </launchers>
   <installerGui autoUpdateDescriptorUrl="${compiler:install4j.updatesBase}/${compiler:install4j.phase}/updates.xml" useAutoUpdateBaseUrl="true" autoUpdateBaseUrl="${compiler:install4j.updatesBase}/${compiler:sys.version}/">
     <customCode>
@@ -504,14 +504,14 @@ return path.replace('\\', '/');</property>
                   <property name="description" type="string">Manages VPN connections on behalf of users</property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-service${compiler:install4j.exe.suffix}</string>
+                      <string>nodal-vpn-client-service${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="launcherId" type="null" />
                   <property name="macosIdentifier" type="string">com.jadaptive.VPNClientService</property>
                   <property name="restartOnFailure" type="boolean" value="true" />
-                  <property name="serviceName" type="string">jad-vpn-service</property>
-                  <property name="windowsDisplayName" type="string">JADAPTIVE VPN Client Service</property>
+                  <property name="serviceName" type="string">nodal-vpn-client-service</property>
+                  <property name="windowsDisplayName" type="string">Nodal VPN Client Service</property>
                 </serializedBean>
                 <condition>!Util.isWindows()</condition>
               </action>
@@ -522,7 +522,7 @@ return path.replace('\\', '/');</property>
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-client-service.exe</string>
+                      <string>nodal-vpn-client-client-service.exe</string>
                     </object>
                   </property>
                   <property name="workingDirectory">
@@ -537,11 +537,11 @@ return path.replace('\\', '/');</property>
                 <serializedBean>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-service${compiler:install4j.exe.suffix}</string>
+                      <string>nodal-vpn-client-service${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="launcherId" type="null" />
-                  <property name="serviceName" type="string">jad-vpn-service</property>
+                  <property name="serviceName" type="string">nodal-vpn-client-service</property>
                 </serializedBean>
                 <condition>!Util.isWindows()</condition>
               </action>
@@ -552,7 +552,7 @@ return path.replace('\\', '/');</property>
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-client-service.exe</string>
+                      <string>nodal-vpn-client-service.exe</string>
                     </object>
                   </property>
                   <property name="workingDirectory">
@@ -580,12 +580,12 @@ return path.replace('\\', '/');</property>
                 <serializedBean>
                   <property name="file">
                     <object class="java.io.File">
-                      <string>jad-vpn${compiler:install4j.exe.suffix}</string>
+                      <string>nodal-vpn-client${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="linkFile">
                     <object class="java.io.File">
-                      <string>/usr/bin/jad-vpn${compiler:install4j.exe.suffix}</string>
+                      <string>/usr/bin/nodal-vpn-client${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                 </serializedBean>
@@ -595,12 +595,12 @@ return path.replace('\\', '/');</property>
                 <serializedBean>
                   <property name="file">
                     <object class="java.io.File">
-                      <string>jad-vpn-tray${compiler:install4j.exe.suffix}</string>
+                      <string>nodal-vpn-client-tray${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="linkFile">
                     <object class="java.io.File">
-                      <string>/usr/bin/jad-vpn-tray${compiler:install4j.exe.suffix}</string>
+                      <string>/usr/bin/nodal-vpn-client-tray${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                 </serializedBean>
@@ -645,15 +645,15 @@ return path.replace('\\', '/');</property>
                 <serializedBean>
                   <property name="file">
                     <object class="java.io.File">
-                      <string>/etc/xdg/autostart/jad-vpn-client-tray-icon.desktop</string>
+                      <string>/etc/xdg/autostart/nodal-vpn-client-tray-icon.desktop</string>
                     </object>
                   </property>
                   <property name="text" type="string">[Desktop Entry]
 Type=Application
-Name=JADAPTIVE VPN Tray Icon
-Comment=JADAPTIVE VPN Tray Icon
-Exec=${installer:sys.installationDir}/jad-vpn-tray
-Icon=${installer:sys.installationDir}/.install4j/jad-vpn-tray.png
+Name=Nodal VPN Tray Icon
+Comment=Nodal VPN Tray Icon
+Exec=${installer:sys.installationDir}/nodal-vpn-client-tray
+Icon=${installer:sys.installationDir}/.install4j/nodal-vpn-client-tray.png
 X-GNOME-AutoRestart=false
 X-GNOME-Autostart-Notify=false
 X-GNOME-Autostart-enabled=true</property>
@@ -664,10 +664,10 @@ X-GNOME-Autostart-enabled=true</property>
                 <serializedBean>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-tray${compiler:install4j.exe.suffix}</string>
+                      <string>nodal-vpn-client-tray${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
-                  <property name="name" type="string">JADAPTIVE VPN Tray Icon</property>
+                  <property name="name" type="string">Nodal VPN Tray Icon</property>
                 </serializedBean>
                 <condition>Util.isWindows()</condition>
               </action>
@@ -677,10 +677,10 @@ X-GNOME-Autostart-enabled=true</property>
                     <element index="0">-Dapple.awt.UIElement=true</element>
                   </property>
                   <property name="hideDock" type="boolean" value="true" />
-                  <property name="name" type="string">JADAPTIVE VPN Tray Icon</property>
+                  <property name="name" type="string">NOdal VPN Tray Icon</property>
                   <property name="target">
                     <object class="java.io.File">
-                      <string>jad-vpn-tray${compiler:install4j.exe.suffix}</string>
+                      <string>nodal-vpn-client-tray${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                 </serializedBean>
@@ -690,10 +690,10 @@ X-GNOME-Autostart-enabled=true</property>
                 <serializedBean>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>JADAPTIVE VPN Tray Icon.app</string>
+                      <string>Nodal VPN Tray Icon.app</string>
                     </object>
                   </property>
-                  <property name="name" type="string">JADAPTIVE VPN Tray Icon</property>
+                  <property name="name" type="string">Nodal VPN Tray Icon</property>
                 </serializedBean>
                 <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
               </action>
@@ -852,7 +852,7 @@ return console.askYesNo(message, true);
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn${compiler:install4j.exe.suffix}</string>
+                      <string>nodal-vpn-client${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="timeout" type="int" value="20" />
@@ -874,7 +874,7 @@ return console.askYesNo(message, true);
                   <property name="files" type="array" class="java.io.File" length="1">
                     <element index="0">
                       <object class="java.io.File">
-                        <string>/etc/xdg/autostart/jad-vpn-tray.desktop</string>
+                        <string>/etc/xdg/autostart/nodal-vpn-client-tray.desktop</string>
                       </object>
                     </element>
                   </property>
@@ -885,11 +885,11 @@ return console.askYesNo(message, true);
                 <serializedBean>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-service${compiler:install4j.exe.suffix}</string>
+                      <string>nodal-vpn-client-service${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="launcherId" type="null" />
-                  <property name="serviceName" type="string">jad-vpn-service</property>
+                  <property name="serviceName" type="string">nodal-vpn-client-service</property>
                 </serializedBean>
                 <condition>!Util.isWindows()</condition>
               </action>
@@ -900,7 +900,7 @@ return console.askYesNo(message, true);
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-client-service.exe</string>
+                      <string>nodal-vpn-client-client-service.exe</string>
                     </object>
                   </property>
                   <property name="workingDirectory">
@@ -918,7 +918,7 @@ return console.askYesNo(message, true);
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>jad-vpn-client-service.exe</string>
+                      <string>nodal-vpn-client-client-service.exe</string>
                     </object>
                   </property>
                   <property name="workingDirectory">
@@ -934,12 +934,12 @@ return console.askYesNo(message, true);
                   <property name="additionalExecutables" type="array" class="java.io.File" length="2">
                     <element index="0">
                       <object class="java.io.File">
-                        <string>jad-vpn-tray${compiler:install4j.exe.suffix}</string>
+                        <string>nodal-vpn-client-tray${compiler:install4j.exe.suffix}</string>
                       </object>
                     </element>
                     <element index="1">
                       <object class="java.io.File">
-                        <string>jad-vpn${compiler:install4j.exe.suffix}</string>
+                        <string>nodal-vpn-client${compiler:install4j.exe.suffix}</string>
                       </object>
                     </element>
                   </property>
@@ -1878,15 +1878,15 @@ return true;</property>
   <mediaSets>
     <macosFolder name="Mac OS X Folder (Intel)" id="1553" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}">
       <exclude>
-        <entry location="conf/jad-vpn-service.conf" />
+        <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux" />
         <entry location="gui/win" />
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="jad-vpn-client-service.exe" />
-        <entry location="jad-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service.exe" />
+        <entry location="nodal-vpn-client-service.xml" />
         <entry rootId="2036" />
       </exclude>
       <variables>
@@ -1896,7 +1896,7 @@ return true;</property>
     </macosFolder>
     <windows name="Windows x64" id="1554" installDir="JADAPTIVE\VPN Client" architecture="64">
       <exclude>
-        <entry location="conf/jad-vpn-service.conf" />
+        <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux-aarch64" />
         <entry location="gui/linux" />
@@ -1909,15 +1909,15 @@ return true;</property>
     </windows>
     <unixInstaller name="Linux AMD64 Installer" id="1555" mediaFileName="${compiler:sys.shortName}-linux-amd64-${compiler:sys.version}">
       <exclude>
-        <entry location="conf/jad-vpn-service.conf" />
+        <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac-aarch64" />
         <entry location="gui/mac" />
         <entry location="gui/win" />
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="jad-vpn-client-service.exe" />
-        <entry location="jad-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service.exe" />
+        <entry location="nodal-vpn-client-service.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
@@ -1932,25 +1932,25 @@ return true;</property>
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="jad-vpn-client-service.exe" />
-        <entry location="jad-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service.exe" />
+        <entry location="nodal-vpn-client-service.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
       </variables>
       <postInstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
-cp -f conf/jad-vpn-service.conf /etc/dbus-1/system.d
+cp -f conf/nodal-vpn-service.conf /etc/dbus-1/system.d
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
-systemctl enable jad-vpn-service
-systemctl start jad-vpn-service</postInstallScript>
+systemctl enable nodal-vpn-client-service
+systemctl start nodal-vpn-client-service</postInstallScript>
       <preUninstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
 
-systemctl stop jad-vpn-service
-rm -f /etc/dbus-1/system.d/jad-vpn-service.conf
+systemctl stop nodal-vpn-client-service
+rm -f /etc/dbus-1/system.d/nodal-vpn-client-service.conf
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
 </preUninstallScript>
     </linuxRPM>
-    <linuxDeb name="Linux Deb AMD64" id="1561" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}" overwriteNeverAsConfigFiles="true" dependencies="dbus" description="JADAPTIVE VPN Client, the ideal companion to the JADAPTIVE VPN Server" maintainerEmail="brett@logonbox.com" architectureSet="true" architecture="amd64">
+    <linuxDeb name="Linux Deb AMD64" id="1561" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}" overwriteNeverAsConfigFiles="true" dependencies="dbus" description="Nodal VPN Client, the ideal companion to the JADAPTIVE Nodal Cloud VPN Server" maintainerEmail="brett@logonbox.com" architectureSet="true" architecture="amd64">
       <exclude>
         <entry location="gui/mac-aarch64" />
         <entry location="gui/mac" />
@@ -1958,27 +1958,27 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="jad-vpn-client-service.exe" />
-        <entry location="jad-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service.exe" />
+        <entry location="nodal-vpn-client-service.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
       </variables>
       <postInstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
-cp -f conf/jad-vpn-service.conf /etc/dbus-1/system.d
+cp -f conf/nodal-vpn-client-service.conf /etc/dbus-1/system.d
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
-systemctl enable jad-vpn-service
-systemctl start jad-vpn-service</postInstallScript>
+systemctl enable nodal-vpn-client-service
+systemctl start nodal-vpn-client-service</postInstallScript>
       <preUninstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
 
-systemctl stop jad-vpn-service
-rm -f /etc/dbus-1/system.d/jad-vpn-service.conf
+systemctl stop nodal-vpn-client-service
+rm -f /etc/dbus-1/system.d/nodal-vpn-client-service.conf
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
 </preUninstallScript>
     </linuxDeb>
     <windows name="MSI Windows x64" id="2047" installDir="JADAPTIVE\VPN Client" msi="true" msiScope="selectable" msiProductIdType="custom" msiCustomProductId="0DC151EE-7A26-4A19-BD41-2581369651B3" architecture="64">
       <exclude>
-        <entry location="conf/jad-vpn-service.conf" />
+        <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac-aarch64" />
         <entry location="gui/linux-aarch64" />
         <entry location="gui/linux" />
@@ -1992,15 +1992,15 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
     </windows>
     <unixInstaller name="Linux AARCH64 Installer" id="2166" mediaFileName="${compiler:sys.shortName}-linux-aarch64-${compiler:sys.version}" require64BitVm="true">
       <exclude>
-        <entry location="conf/jad-vpn-service.conf" />
+        <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac-aarch64" />
         <entry location="gui/mac" />
         <entry location="gui/linux" />
         <entry location="gui/win" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="jad-vpn-client-service.exe" />
-        <entry location="jad-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service.exe" />
+        <entry location="nodal-vpn-client-service.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux-aarch64" />
@@ -2015,8 +2015,8 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="jad-vpn-client-service.exe" />
-        <entry location="jad-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service.exe" />
+        <entry location="nodal-vpn-client-service.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
@@ -2025,15 +2025,15 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
     </unixArchive>
     <macosFolder name="Mac OS X Folder (Arm)" id="2173" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}" architecture="aarch64">
       <exclude>
-        <entry location="conf/jad-vpn-service.conf" />
+        <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac" />
         <entry location="gui/linux" />
         <entry location="gui/win" />
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="jad-vpn-client-service.exe" />
-        <entry location="jad-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service.exe" />
+        <entry location="nodal-vpn-client-service.xml" />
         <entry rootId="2036" />
       </exclude>
       <variables>
@@ -2049,26 +2049,26 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="jad-vpn-client-service.exe" />
-        <entry location="jad-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service.exe" />
+        <entry location="nodal-vpn-client-service.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
       </variables>
       <jreBundle platform="linux-aarch64" />
       <postInstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
-cp -f conf/jad-vpn-service.conf /etc/dbus-1/system.d
+cp -f conf/nodal-vpn-client-service.conf /etc/dbus-1/system.d
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
-systemctl enable jad-vpn-service
-systemctl start jad-vpn-service</postInstallScript>
+systemctl enable nodal-vpn-client-service
+systemctl start nodal-vpn-client-service</postInstallScript>
       <preUninstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
 
-systemctl stop jad-vpn-service
-rm -f /etc/dbus-1/system.d/jad-vpn-service.conf
+systemctl stop nodal-vpn-client-service
+rm -f /etc/dbus-1/system.d/nodal-vpn-client-service.conf
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
 </preUninstallScript>
     </linuxRPM>
-    <linuxDeb name="Linux Deb AARCH64" id="2304" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}" overwriteNeverAsConfigFiles="true" dependencies="dbus" description="JADAPTIVE VPN Client, the ideal companion to the JADAPTIVE VPN Server" maintainerEmail="brett@logonbox.com" architectureSet="true" architecture="aarch64">
+    <linuxDeb name="Linux Deb AARCH64" id="2304" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}" overwriteNeverAsConfigFiles="true" dependencies="dbus" description="Nodal VPN Client, the ideal companion to the JADAPTIVE Nodal Cloud VPN Server" maintainerEmail="brett@logonbox.com" architectureSet="true" architecture="aarch64">
       <exclude>
         <entry location="gui/mac-aarch64" />
         <entry location="gui/mac" />
@@ -2076,22 +2076,22 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="jad-vpn-client-service.exe" />
-        <entry location="jad-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service.exe" />
+        <entry location="nodal-vpn-client-service.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
       </variables>
       <jreBundle platform="linux-aarch64" />
       <postInstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
-cp -f conf/jad-vpn-service.conf /etc/dbus-1/system.d
+cp -f conf/nodal-vpn-client-service.conf /etc/dbus-1/system.d
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
-systemctl enable jad-vpn-service
-systemctl start jad-vpn-service</postInstallScript>
+systemctl enable nodal-vpn-client-service
+systemctl start nodal-vpn-client-service</postInstallScript>
       <preUninstallScript># NOTE: This is because I cannot find out how to install files outside of primary directory in debs
 
-systemctl stop jad-vpn-service
-rm -f /etc/dbus-1/system.d/jad-vpn-service.conf
+systemctl stop nodal-vpn-client-service
+rm -f /etc/dbus-1/system.d/nodal-vpn-client-service.conf
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
 </preUninstallScript>
     </linuxDeb>
@@ -2103,8 +2103,8 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="jad-vpn-client-service.exe" />
-        <entry location="jad-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service.exe" />
+        <entry location="nodal-vpn-client-service.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />

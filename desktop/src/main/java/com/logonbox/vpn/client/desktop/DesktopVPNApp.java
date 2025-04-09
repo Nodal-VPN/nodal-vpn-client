@@ -510,7 +510,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
             public void run() {
                 try {
                     LOG.info("Starting tray");
-                    var bldr = new ProcessBuilder(Utils.findCommandPath("jad-vpn-tray"));
+                    var bldr = new ProcessBuilder(Utils.findCommandPath("nodal-vpn-client-tray"));
                     bldr.redirectError(Redirect.INHERIT);
                     bldr.redirectOutput(Redirect.INHERIT);
                     bldr.start();
