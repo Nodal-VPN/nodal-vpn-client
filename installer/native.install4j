@@ -71,8 +71,8 @@
       <fileEntry mountPoint="2032" file="../cli/target/nodal-vpn-client${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
       <fileEntry mountPoint="2032" file="../desktop-service/target/nodal-vpn-client-service${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
       <fileEntry mountPoint="2032" file="../tray/target/nodal-vpn-client-tray${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
-      <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/nodal-vpn-client-service.exe" />
-      <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/nodal-vpn-client-service.xml" />
+      <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/nodal-vpn-client-service-win.exe" />
+      <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/nodal-vpn-client-service-win.xml" />
       <fileEntry mountPoint="2037" file="./os/linux/dbus/nodal-vpn-client-service.conf" />
     </entries>
     <components>
@@ -552,7 +552,7 @@ return path.replace('\\', '/');</property>
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>nodal-vpn-client-service.exe</string>
+                      <string>nodal-vpn-client-service-win.exe</string>
                     </object>
                   </property>
                   <property name="workingDirectory">
@@ -1885,8 +1885,8 @@ return true;</property>
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="nodal-vpn-client-service.exe" />
-        <entry location="nodal-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service-win.exe" />
+        <entry location="nodal-vpn-client-service-win.xml" />
         <entry rootId="2036" />
       </exclude>
       <variables>
@@ -1916,8 +1916,8 @@ return true;</property>
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="nodal-vpn-client-service.exe" />
-        <entry location="nodal-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service-win.exe" />
+        <entry location="nodal-vpn-client-service-win.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
@@ -1932,8 +1932,8 @@ return true;</property>
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="nodal-vpn-client-service.exe" />
-        <entry location="nodal-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service-win.exe" />
+        <entry location="nodal-vpn-client-service-win.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
@@ -1958,8 +1958,8 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="nodal-vpn-client-service.exe" />
-        <entry location="nodal-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service-win.exe" />
+        <entry location="nodal-vpn-client-service-win.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
@@ -1999,8 +1999,8 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <entry location="gui/win" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="nodal-vpn-client-service.exe" />
-        <entry location="nodal-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service-win.exe" />
+        <entry location="nodal-vpn-client-service-win.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux-aarch64" />
@@ -2015,8 +2015,8 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="nodal-vpn-client-service.exe" />
-        <entry location="nodal-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service-win.exe" />
+        <entry location="nodal-vpn-client-service-win.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
@@ -2032,8 +2032,8 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="nodal-vpn-client-service.exe" />
-        <entry location="nodal-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service-win.exe" />
+        <entry location="nodal-vpn-client-service-win.xml" />
         <entry rootId="2036" />
       </exclude>
       <variables>
@@ -2049,8 +2049,8 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="nodal-vpn-client-service.exe" />
-        <entry location="nodal-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service-win.exe" />
+        <entry location="nodal-vpn-client-service-win.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
@@ -2076,8 +2076,8 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="nodal-vpn-client-service.exe" />
-        <entry location="nodal-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service-win.exe" />
+        <entry location="nodal-vpn-client-service-win.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
@@ -2103,8 +2103,8 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
         <entry location="gui/linux-aarch64" />
         <entry location="cleanup.bat" />
         <entry location="WireGuardNT-LICENSE.txt" />
-        <entry location="nodal-vpn-client-service.exe" />
-        <entry location="nodal-vpn-client-service.xml" />
+        <entry location="nodal-vpn-client-service-win.exe" />
+        <entry location="nodal-vpn-client-service-win.xml" />
       </exclude>
       <variables>
         <variable name="jfx.archdir" value="gui/linux" />
