@@ -260,7 +260,7 @@
                     
                     <!-- Generate target/extensions etc -->
                     <plugin>
-                        <groupId>com.jadaptive</groupId>
+                        <groupId>com.logonbox</groupId>
                         <artifactId>logonbox-plugin-generator</artifactId>
                         <executions>
                             <execution>
@@ -473,7 +473,7 @@
 
                     <!-- Generate target/extensions etc -->
                     <plugin>
-                        <groupId>com.jadaptive</groupId>
+                        <groupId>com.logonbox</groupId>
                         <artifactId>logonbox-plugin-generator</artifactId>
                         <executions>
                             <execution>
