@@ -149,7 +149,7 @@
                         <metadataRepository>
                             <enabled>true</enabled>
                         </metadataRepository>
-                        <imageName>jad-vpn-tray</imageName>
+                        <imageName>nodal-vpn-client-tray</imageName>
                         <mainClass>com.logonbox.vpn.client.tray.TrayDaemon</mainClass>
                         <buildArgs>
                             <buildArg>--no-fallback</buildArg>

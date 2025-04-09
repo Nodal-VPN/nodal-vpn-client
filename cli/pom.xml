@@ -227,7 +227,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <imageName>jad-vpn</imageName>
+                            <imageName>nodal-vpn-client</imageName>
                             <mainClass>com.logonbox.vpn.client.cli.CLI</mainClass>
                             <buildArgs>
                                 <buildArgs>-march=compatibility</buildArgs>

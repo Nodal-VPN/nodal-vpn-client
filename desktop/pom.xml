@@ -313,7 +313,7 @@
                             <metadataRepository>
                                 <enabled>true</enabled>
                             </metadataRepository>
-                            <imageName>logonbox-vpn-gui</imageName>
+                            <imageName>nodal-vpn-client-gui</imageName>
                             <mainClass>com.logonbox.vpn.client.desktop.Main</mainClass>
                             <buildArgs>
                                 <buildArgs>-march=compatibility</buildArgs>

@@ -148,7 +148,7 @@
 	                            <metadataRepository>
 	                                <enabled>true</enabled>
 	                            </metadataRepository>
-	                            <imageName>jad-vpn-service</imageName>
+	                            <imageName>nodal-vpn-client-service</imageName>
 	                            <mainClass>com.logonbox.vpn.client.desktop.service.Main</mainClass>
 	                            <buildArgs>
 	                                <buildArg>-H:+UnlockExperimentalVMOptions</buildArg>
@@ -194,7 +194,7 @@
 	                            <metadataRepository>
 	                                <enabled>true</enabled>
 	                            </metadataRepository>
-	                            <imageName>jad-vpn-service</imageName>
+	                            <imageName>nodal-vpn-client-service</imageName>
 	                            <mainClass>com.logonbox.vpn.client.desktop.service.Main</mainClass>
 	                            <buildArgs>
                                     <buildArgs>-march=compatibility</buildArgs>
@@ -235,7 +235,7 @@
 	                            <metadataRepository>
 	                                <enabled>true</enabled>
 	                            </metadataRepository>
-	                            <imageName>jad-vpn-service</imageName>
+	                            <imageName>nodal-vpn-client-service</imageName>
 	                            <mainClass>com.logonbox.vpn.client.desktop.service.Main</mainClass>
 	                            <buildArgs>
                                     <buildArgs>-march=compatibility</buildArgs>
