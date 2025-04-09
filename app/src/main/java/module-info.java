@@ -1,4 +1,4 @@
-import com.logonbox.vpn.drivers.lib.DNSProvider;
+import com.jadaptive.nodal.core.lib.DNSProvider;
 
 open module com.logonbox.vpn.client.app {
 

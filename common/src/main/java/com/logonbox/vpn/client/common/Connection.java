@@ -1,6 +1,6 @@
 package com.logonbox.vpn.client.common;
 
-import com.logonbox.vpn.drivers.lib.VpnConfiguration;
+import com.jadaptive.nodal.core.lib.VpnConfiguration;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;

@@ -9,7 +9,7 @@ import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
 module com.logonbox.vpn.client.attach.lbvpn {
 
     requires com.gluonhq.attach.util;
-    requires transitive com.logonbox.vpn.drivers.lib;
+    requires transitive com.jadaptive.nodal.core.lib;
     //requires static com.logonbox.vpn.drivers.os;
 
     exports com.logonbox.vpn.client.attach.wireguard;

@@ -1,6 +1,6 @@
 package com.logonbox.vpn.client.common;
 
-import com.logonbox.vpn.drivers.lib.util.Util;
+import com.jadaptive.nodal.core.lib.util.Util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

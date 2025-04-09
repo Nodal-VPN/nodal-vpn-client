@@ -1,9 +1,9 @@
 package com.logonbox.vpn.client.embedded;
 
+import com.jadaptive.nodal.core.lib.PlatformServiceFactory;
 import com.logonbox.vpn.client.common.Api;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.api.IVpn;
-import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
 
 import java.util.Arrays;
 import java.util.ResourceBundle;

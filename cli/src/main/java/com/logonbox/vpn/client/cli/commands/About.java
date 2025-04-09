@@ -1,6 +1,6 @@
 package com.logonbox.vpn.client.cli.commands;
 
-import static com.logonbox.vpn.drivers.lib.util.Util.toHumanSize;
+import static com.jadaptive.nodal.core.lib.util.Util.toHumanSize;
 
 import com.logonbox.vpn.client.cli.CLIContext;
 import com.sshtools.jaul.ArtifactVersion;

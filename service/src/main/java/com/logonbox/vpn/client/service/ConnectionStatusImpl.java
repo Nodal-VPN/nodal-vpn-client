@@ -1,8 +1,8 @@
 package com.logonbox.vpn.client.service;
 
+import com.jadaptive.nodal.core.lib.VpnInterfaceInformation;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.ConnectionStatus;
-import com.logonbox.vpn.drivers.lib.VpnInterfaceInformation;
 
 public class ConnectionStatusImpl implements ConnectionStatus {
 

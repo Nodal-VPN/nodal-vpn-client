@@ -17,8 +17,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>logonbox-vpn-windows</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-core-windows</artifactId>
         </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>

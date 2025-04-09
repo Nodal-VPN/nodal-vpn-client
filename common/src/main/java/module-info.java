@@ -1,6 +1,6 @@
+import com.jadaptive.nodal.core.lib.DNSProvider;
 import com.logonbox.vpn.client.common.Api;
 import com.logonbox.vpn.client.common.PlatformUtilities;
-import com.logonbox.vpn.drivers.lib.DNSProvider;
 
 open module com.logonbox.vpn.client.common {
 
@@ -8,7 +8,7 @@ open module com.logonbox.vpn.client.common {
     exports com.logonbox.vpn.client.common.api;
     exports com.logonbox.vpn.client.common.lbapi;
 
-    requires transitive com.logonbox.vpn.drivers.lib;
+    requires transitive com.jadaptive.nodal.core.lib;
     requires transitive java.net.http;
     requires java.naming;
     requires java.prefs;

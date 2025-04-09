@@ -1,5 +1,6 @@
 package com.logonbox.vpn.client.desktop.service.dbus;
 
+import com.jadaptive.nodal.core.lib.util.Keys;
 import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
@@ -8,7 +9,6 @@ import com.logonbox.vpn.client.common.ConnectionUtil;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.desktop.service.DesktopServiceContext;
-import com.logonbox.vpn.drivers.lib.util.Keys;
 import com.sshtools.jini.INIReader;
 import com.sshtools.jini.INIReader.MultiValueMode;
 

@@ -3,12 +3,12 @@ package com.logonbox.vpn.client.gui.swt;
 import static com.logonbox.vpn.client.common.Utils.isBlank;
 
 import com.google.gson.JsonObject;
+import com.jadaptive.nodal.core.lib.util.OsUtil;
+import com.jadaptive.nodal.core.lib.util.Util;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
-import com.logonbox.vpn.drivers.lib.util.OsUtil;
-import com.logonbox.vpn.drivers.lib.util.Util;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;

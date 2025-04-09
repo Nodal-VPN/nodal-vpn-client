@@ -1,5 +1,6 @@
 package com.logonbox.vpn.client.embedded;
 
+import com.jadaptive.nodal.core.lib.PlatformServiceFactory;
 import com.logonbox.vpn.client.AbstractService;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection;
@@ -7,7 +8,6 @@ import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.api.IVpn;
-import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
 import com.sshtools.jaul.ArtifactVersion;
 
 import org.slf4j.Logger;

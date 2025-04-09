@@ -1,0 +1,23 @@
+23:58:17 [main             ] INFO TrayDaemon        - System Tray Version: 4.0.0-0
+23:58:17 [main             ] INFO TrayDaemon        - DBus Version: 5.1.0
+23:58:17 [main             ] INFO TrayDaemon        - OS: Linux / amd64 (6.8.0-56-generic)
+23:58:17 [main             ] INFO TrayDaemon        - CWD: /home/SOUTHPARK/tanktarta/Documents/Git/logonbox-desktop-vpn-clients/desktop
+23:58:18 [main             ] INFO TrayDaemon        - JVM Mode: Native
+23:58:18 [main             ] INFO DBusVpnManager    - Trying to obtain Vpn Manager
+23:58:18 [main             ] INFO DBusVpnManager    - Trying connect to DBus
+23:58:18 [main             ] INFO BusFactory        - In developer mode (pom.xml exists), looking for side-by-side `dbus-daemon` running instance.
+23:58:18 [main             ] INFO BusFactory        - No side-by-side daemon, using default algorithm to determine bus address
+23:58:18 [main             ] INFO BusFactory        - Looking for DBus
+23:58:18 [main             ] INFO BusFactory        - Connecting to System DBus
+23:58:18 [main             ] INFO TransportBuilder  - Using transport dbus-java-transport-native-unixsocket for address unix:path=/var/run/dbus/system_bus_socket
+23:58:18 [main             ] INFO BusFactory        - Connected to unix:path=/var/run/dbus/system_bus_socket
+23:58:18 [main             ] INFO DBusVpnManager    - Got remote object, registering with DBus.
+23:58:18 [main             ] INFO DBusVpnManager    - Registering with VPN service.
+23:58:18 [main             ] INFO DBusVpnManager    - Registered with VPN service.
+23:58:18 [main             ] INFO BusFactory        - In developer mode (pom.xml exists), looking for side-by-side `dbus-daemon` running instance.
+23:58:18 [main             ] INFO BusFactory        - No side-by-side daemon, using default algorithm to determine bus address
+23:58:18 [main             ] INFO BusFactory        - Looking for DBus
+23:58:18 [main             ] INFO BusFactory        - Per configuration, connecting to Session DBus
+23:58:18 [main             ] INFO TransportBuilder  - Using transport dbus-java-transport-native-unixsocket for address unix:path=/run/user/20000/bus
+23:58:18 [main             ] INFO BusFactory        - Connected to unix:path=/run/user/20000/bus
+23:58:18 [main             ] INFO DBusVpnManager    - Cert manager: null

@@ -1,6 +1,6 @@
 package com.logonbox.vpn.client.common;
 
-import com.logonbox.vpn.drivers.lib.VpnInterfaceInformation;
+import com.jadaptive.nodal.core.lib.VpnInterfaceInformation;
 
 public interface ConnectionStatus {
 

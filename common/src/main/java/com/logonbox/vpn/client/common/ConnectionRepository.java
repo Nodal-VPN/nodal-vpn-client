@@ -1,6 +1,6 @@
 package com.logonbox.vpn.client.common;
 
-import com.logonbox.vpn.drivers.lib.PlatformService;
+import com.jadaptive.nodal.core.lib.PlatformService;
 
 import java.io.Closeable;
 import java.net.URI;

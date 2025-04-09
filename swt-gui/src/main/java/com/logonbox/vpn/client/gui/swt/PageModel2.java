@@ -1,7 +1,7 @@
 package com.logonbox.vpn.client.gui.swt;
 
+import static com.jadaptive.nodal.core.lib.util.Util.toHumanSize;
 import static com.logonbox.vpn.client.common.Utils.isBlank;
-import static com.logonbox.vpn.drivers.lib.util.Util.toHumanSize;
 
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConnectionStatus;

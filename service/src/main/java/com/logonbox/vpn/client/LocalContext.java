@@ -1,11 +1,11 @@
 package com.logonbox.vpn.client;
 
+import com.jadaptive.nodal.core.lib.PlatformService;
 import com.logonbox.vpn.client.common.ComponentContext;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.client.service.ClientService;
-import com.logonbox.vpn.drivers.lib.PlatformService;
 
 import java.io.Closeable;
 

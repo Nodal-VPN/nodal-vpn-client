@@ -1,6 +1,7 @@
 package com.logonbox.vpn.client.gui.jfx;
 
-import static com.logonbox.vpn.drivers.lib.util.Util.toHumanSize;
+
+import static com.jadaptive.nodal.core.lib.util.Util.toHumanSize;
 
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.ConnectionStatus;

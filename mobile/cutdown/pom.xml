@@ -90,8 +90,8 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>logonbox-vpn-windows</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-core-windows</artifactId>
                 </dependency>
                 <dependency>
                     <groupId>com.logonbox</groupId>
@@ -109,8 +109,8 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>logonbox-vpn-linux</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-core-linux</artifactId>
                 </dependency>
                 <dependency>
                     <groupId>com.github.hypfvieh</groupId>
@@ -132,8 +132,8 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>logonbox-vpn-macos</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-core-macos</artifactId>
                     <version>${project.version}</version>
                 </dependency>
                 <dependency>

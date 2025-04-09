@@ -1,6 +1,6 @@
+import com.jadaptive.nodal.core.lib.PlatformServiceFactory;
 import com.logonbox.vpn.client.common.Api;
 import com.logonbox.vpn.client.embedded.EmbedderApi;
-import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
 
 open module com.logonbox.vpn.client.embedded {
     exports com.logonbox.vpn.client.embedded;

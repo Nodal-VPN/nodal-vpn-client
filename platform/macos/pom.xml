@@ -17,8 +17,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>logonbox-vpn-macos</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-core-macos</artifactId>
         </dependency>
     </dependencies>
 </project>

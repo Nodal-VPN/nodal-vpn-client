@@ -1,12 +1,12 @@
 package com.logonbox.vpn.client.common;
 
+import com.jadaptive.nodal.core.lib.util.OsUtil;
+import com.jadaptive.nodal.core.lib.util.Util;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
 import com.logonbox.vpn.client.common.lbapi.InputField;
 import com.logonbox.vpn.client.common.lbapi.LogonResult;
 import com.logonbox.vpn.client.common.lbapi.PeerResponse;
 import com.logonbox.vpn.client.common.lbapi.Session;
-import com.logonbox.vpn.drivers.lib.util.OsUtil;
-import com.logonbox.vpn.drivers.lib.util.Util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

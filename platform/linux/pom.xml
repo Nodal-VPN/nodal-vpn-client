@@ -17,8 +17,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>logonbox-vpn-linux</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-core-linux</artifactId>
         </dependency>
     </dependencies>
 </project>

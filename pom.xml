@@ -65,7 +65,7 @@
         <jaul.version>0.9.12-SNAPSHOT</jaul.version>
         
         <dbus.version>5.1.0</dbus.version>
-        <logonbox.vpn.drivers.version>0.9.0-SNAPSHOT</logonbox.vpn.drivers.version>
+        <nodal-core.version>0.9.1-SNAPSHOT</nodal-core.version>
         <native.image.annotations.version>0.9.3</native.image.annotations.version>
         
         <build.arch>${os.arch}</build.arch>
@@ -114,11 +114,11 @@
 		<module>embedded</module>
 		<module>gui</module>
 		<module>gui-debugger</module>
-		<!--<module>swt-gui</module>-->
+		<module>swt-gui</module>
 		<module>desktop</module>
 		<module>desktop-service</module>
 		<module>cli</module>
-        <!--<module>mobile</module>-->
+        <module>mobile</module>
 		<module>installer</module>
 	</modules>
 
@@ -172,24 +172,24 @@
                 <version>12.0.0</version>
             </dependency>
             <dependency>
-                <groupId>com.logonbox</groupId>
-                <artifactId>logonbox-vpn-lib</artifactId>
-                <version>${logonbox.vpn.drivers.version}</version>
+                <groupId>com.jadaptive</groupId>
+                <artifactId>nodal-core-lib</artifactId>
+                <version>${nodal-core.version}</version>
             </dependency>   
             <dependency>
-                <groupId>com.logonbox</groupId>
-                <artifactId>logonbox-vpn-linux</artifactId>
-                <version>${logonbox.vpn.drivers.version}</version>
+                <groupId>com.jadaptive</groupId>
+                <artifactId>nodal-core-linux</artifactId>
+                <version>${nodal-core.version}</version>
             </dependency>   
             <dependency>
-                <groupId>com.logonbox</groupId>
-                <artifactId>logonbox-vpn-macos</artifactId>
-                <version>${logonbox.vpn.drivers.version}</version>
+                <groupId>com.jadaptive</groupId>
+                <artifactId>nodal-core-macos</artifactId>
+                <version>${nodal-core.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.logonbox</groupId>
-                <artifactId>logonbox-vpn-windows</artifactId>
-                <version>${logonbox.vpn.drivers.version}</version>
+                <groupId>com.jadaptive</groupId>
+                <artifactId>nodal-core-windows</artifactId>
+                <version>${nodal-core.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.install4j</groupId>
@@ -362,6 +362,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>3.1.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.8.1</version>
                 </plugin>
                 <plugin>
                     <groupId>com.install4j</groupId>

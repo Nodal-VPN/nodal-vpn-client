@@ -1,5 +1,6 @@
 package com.logonbox.vpn.client.cli;
 
+import com.jadaptive.nodal.core.lib.util.Util;
 import com.logonbox.vpn.client.app.SimpleLoggingConfig;
 import com.logonbox.vpn.client.cli.commands.About;
 import com.logonbox.vpn.client.cli.commands.Change;
@@ -20,7 +21,6 @@ import com.logonbox.vpn.client.common.PromptingCertManager;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
 import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
-import com.logonbox.vpn.drivers.lib.util.Util;
 import com.sshtools.jaul.ArtifactVersion;
 
 import org.slf4j.event.Level;

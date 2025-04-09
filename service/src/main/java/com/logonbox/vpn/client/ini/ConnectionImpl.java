@@ -1,13 +1,13 @@
 package com.logonbox.vpn.client.ini;
 
-import static com.logonbox.vpn.drivers.lib.util.Util.isBlank;
+import static com.jadaptive.nodal.core.lib.util.Util.isBlank;
 
+import com.jadaptive.nodal.core.lib.VpnPeer;
+import com.jadaptive.nodal.core.lib.util.Keys;
+import com.jadaptive.nodal.core.lib.util.Util;
 import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.Utils;
-import com.logonbox.vpn.drivers.lib.VpnPeer;
-import com.logonbox.vpn.drivers.lib.util.Keys;
-import com.logonbox.vpn.drivers.lib.util.Util;
 import com.sshtools.jini.INI;
 import com.sshtools.jini.INIReader;
 import com.sshtools.jini.INIReader.MultiValueMode;

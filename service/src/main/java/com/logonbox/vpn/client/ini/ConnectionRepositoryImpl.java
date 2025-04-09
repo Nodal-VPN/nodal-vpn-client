@@ -1,9 +1,9 @@
 package com.logonbox.vpn.client.ini;
 
+import com.jadaptive.nodal.core.lib.PlatformService;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.ConnectionRepository;
 import com.logonbox.vpn.client.common.ConnectionUtil;
-import com.logonbox.vpn.drivers.lib.PlatformService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

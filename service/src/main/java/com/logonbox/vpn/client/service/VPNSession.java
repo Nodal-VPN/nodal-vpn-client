@@ -1,13 +1,13 @@
 package com.logonbox.vpn.client.service;
 
+import com.jadaptive.nodal.core.lib.NoHandshakeException;
+import com.jadaptive.nodal.core.lib.StartRequest;
+import com.jadaptive.nodal.core.lib.VpnAdapter;
 import com.logonbox.vpn.client.LocalContext;
 import com.logonbox.vpn.client.common.Agent;
 import com.logonbox.vpn.client.common.Agent.AgentCommand;
 import com.logonbox.vpn.client.common.Connection;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
-import com.logonbox.vpn.drivers.lib.NoHandshakeException;
-import com.logonbox.vpn.drivers.lib.StartRequest;
-import com.logonbox.vpn.drivers.lib.VpnAdapter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -14,8 +14,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>logonbox-vpn-lib</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-core-lib</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.parsson</groupId>

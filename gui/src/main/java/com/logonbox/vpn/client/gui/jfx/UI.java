@@ -3,6 +3,8 @@ package com.logonbox.vpn.client.gui.jfx;
 import static com.logonbox.vpn.client.common.Utils.isNotBlank;
 import static javafx.application.Platform.runLater;
 
+import com.jadaptive.nodal.core.lib.util.OsUtil;
+import com.jadaptive.nodal.core.lib.util.Util;
 import com.logonbox.vpn.client.common.AuthMethod;
 import com.logonbox.vpn.client.common.BrandingManager;
 import com.logonbox.vpn.client.common.ConfigurationItem;
@@ -18,8 +20,6 @@ import com.logonbox.vpn.client.common.TrayMode;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.VpnManager;
 import com.logonbox.vpn.client.common.api.IVpnConnection;
-import com.logonbox.vpn.drivers.lib.util.OsUtil;
-import com.logonbox.vpn.drivers.lib.util.Util;
 import com.sshtools.jaul.Phase;
 import com.sshtools.jaul.UpdateService;
 

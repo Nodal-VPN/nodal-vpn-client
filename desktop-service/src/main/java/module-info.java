@@ -1,5 +1,5 @@
-import com.logonbox.vpn.drivers.lib.DNSProvider;
-import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
+import com.jadaptive.nodal.core.lib.DNSProvider;
+import com.jadaptive.nodal.core.lib.PlatformServiceFactory;
 
 open module com.logonbox.vpn.client.desktop.service {
     exports com.logonbox.vpn.client.desktop.service;

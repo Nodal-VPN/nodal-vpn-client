@@ -1,7 +1,7 @@
 package com.logonbox.vpn.client.gui.swt;
 
+import static com.jadaptive.nodal.core.lib.util.Util.toHumanSize;
 import static com.logonbox.vpn.client.common.Utils.isBlank;
-import static com.logonbox.vpn.drivers.lib.util.Util.toHumanSize;
 
 import com.equo.chromium.swt.Browser;
 import com.logonbox.vpn.client.common.ConfigurationItem;
@@ -14,7 +14,6 @@ import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.common.lbapi.Branding;
 import com.sshtools.jaul.UpdateService;
 
-//import org.eclipse.swt.browser.Browser;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;

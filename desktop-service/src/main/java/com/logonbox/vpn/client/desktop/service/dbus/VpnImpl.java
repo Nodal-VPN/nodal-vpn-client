@@ -1,5 +1,6 @@
 package com.logonbox.vpn.client.desktop.service.dbus;
 
+import com.jadaptive.nodal.core.lib.DNSProvider;
 import com.logonbox.vpn.client.common.ConfigurationItem;
 import com.logonbox.vpn.client.common.Connection.Mode;
 import com.logonbox.vpn.client.common.ConnectionStatus;
@@ -8,7 +9,6 @@ import com.logonbox.vpn.client.common.dbus.VPN;
 import com.logonbox.vpn.client.common.dbus.VPNFrontEnd;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.desktop.service.DesktopServiceContext;
-import com.logonbox.vpn.drivers.lib.DNSProvider;
 
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
 import org.freedesktop.dbus.exceptions.DBusException;
