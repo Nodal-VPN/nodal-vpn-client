@@ -2,11 +2,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>client-logonbox-vpn-app</artifactId>
+    <artifactId>nodal-vpn-client-app</artifactId>
     <name>JADAPTIVE VPN - Application Classes</name>
 
     <parent>
-        <groupId>com.logonbox</groupId>
+        <groupId>com.jadaptive</groupId>
         <artifactId>logonbox-desktop-vpn-clients</artifactId>
         <version>4.0.0-SNAPSHOT</version>
         <relativePath>..</relativePath>
@@ -14,13 +14,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-common</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-vpn-client-common</artifactId>
             <version>4.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-logging</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-vpn-client-logging</artifactId>
             <version>4.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -62,19 +62,28 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>com.nervepoint</groupId>
-                <artifactId>google-translate-v2-java-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>translate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
     <description>Library for all applications in the VPN client suite.</description>
+     <profiles>
+        <profile>
+            <id>translate</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.nervepoint</groupId>
+                        <artifactId>google-translate-v2-java-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>translate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

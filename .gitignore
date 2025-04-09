@@ -5,3 +5,7 @@
 /tmp/
 /conf/
 /logs/
+**/.project
+**/.classpath
+**/.settings
+**/target

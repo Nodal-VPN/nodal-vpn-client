@@ -2,11 +2,11 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>client-logonbox-vpn-cli</artifactId>
+	<artifactId>nodal-vpn-client-cli</artifactId>
 	<name>JADAPTIVE VPN - Command Line Tool</name>
 
 	<parent>
-	    <groupId>com.logonbox</groupId>
+	    <groupId>com.jadaptive</groupId>
 	    <artifactId>logonbox-desktop-vpn-clients</artifactId>
         <version>4.0.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>
@@ -36,59 +36,27 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
-			<plugin>
-				<groupId>com.nervepoint</groupId>
-				<artifactId>google-translate-v2-java-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>translate</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
             </plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution> 
-						<id>copy-cli-dependencies</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<excludeScope>provided</excludeScope>
-							<outputDirectory>${project.build.directory}/dependencies</outputDirectory>
-							<overWriteReleases>false</overWriteReleases>
-							<overWriteSnapshots>true</overWriteSnapshots>
-							<overWriteIfNewer>true</overWriteIfNewer>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 
 	<dependencies>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-common-dbus</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-vpn-client-common-dbus</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-dbus-app</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-vpn-client-dbus-app</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-app</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-vpn-client-app</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -96,8 +64,8 @@
             <artifactId>jul-to-slf4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-logging</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-vpn-client-logging</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -168,7 +136,53 @@
 		</repository>
 	</repositories>
 	
-	 <profiles>
+    <profiles>
+        <profile>
+            <id>installers</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-cli-dependencies</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <excludeScope>provided</excludeScope>
+                                    <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                    <overWriteIfNewer>true</overWriteIfNewer>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>translate</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.nervepoint</groupId>
+                        <artifactId>google-translate-v2-java-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>translate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>native-image</id>
             <build>
@@ -224,8 +238,8 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>client-logonbox-vpn-windows</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-vpn-client-windows</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
@@ -239,8 +253,8 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>client-logonbox-vpn-linux</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-vpn-client-linux</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
@@ -254,8 +268,8 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>client-logonbox-vpn-macos</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-vpn-client-macos</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>

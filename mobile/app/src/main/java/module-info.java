@@ -1,4 +1,4 @@
-import com.logonbox.vpn.drivers.lib.PlatformServiceFactory;
+import com.jadaptive.nodal.core.lib.PlatformServiceFactory;
 
 open module com.logonbox.vpn.client.mobile {
     exports com.logonbox.vpn.client.mobile;

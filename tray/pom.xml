@@ -2,11 +2,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>client-logonbox-vpn-tray</artifactId>
+    <artifactId>nodal-vpn-client-tray</artifactId>
     <name>JADAPTIVE VPN - Client Tray</name>
 
     <parent>
-        <groupId>com.logonbox</groupId>
+        <groupId>com.jadaptive</groupId>
         <artifactId>logonbox-desktop-vpn-clients</artifactId>
         <version>4.0.0-SNAPSHOT</version>
         <relativePath>..</relativePath>
@@ -22,13 +22,13 @@
             <artifactId>jini-config</artifactId> 
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-dbus-app</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-vpn-client-dbus-app</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-logging</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-vpn-client-logging</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -170,8 +170,8 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>client-logonbox-vpn-linux</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-vpn-client-linux</artifactId>
                     <version>${project.version}</version>
                 </dependency>
                 <dependency>
@@ -197,8 +197,8 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>client-logonbox-vpn-windows</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-vpn-client-windows</artifactId>
                     <version>${project.version}</version>
                 </dependency>
                 <dependency>
@@ -247,8 +247,8 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>client-logonbox-vpn-windows</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-vpn-client-windows</artifactId>
                     <version>${project.version}</version>
                 </dependency>
                 <dependency>
@@ -297,8 +297,8 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>client-logonbox-vpn-macos</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-vpn-client-macos</artifactId>
                     <version>${project.version}</version>
                 </dependency>
                 <dependency>
@@ -324,8 +324,8 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>client-logonbox-vpn-macos</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-vpn-client-macos</artifactId>
                     <version>${project.version}</version>
                 </dependency>
                 <dependency>

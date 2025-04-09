@@ -38,7 +38,7 @@ pipeline {
                                    '-Dinstall4j.disableSigning=true ' + 
                                    '-Dbuild.buildIds=1555,1560,1561,2167 ' +  
                                    '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
-                                   '-P installers,cross-platform ' +
+                                   '-P translate,installers,cross-platform ' +
                                    'clean package'
                                 
                                 /* Stash installers */
@@ -75,7 +75,7 @@ pipeline {
                                    '-Dinstall4j.disableSigning=true ' + 
                                    '-Dbuild.buildIds=2166,2300,2304,2308 ' +  
                                    '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
-                                   '-P installers,cross-platform ' +
+                                   '-P translate,installers,cross-platform ' +
                                    'clean package'
                                 
                                 /* Stash installers */
@@ -112,7 +112,7 @@ pipeline {
                                 // -Dinstall4j.disableNotarization=true
                                 sh 'mvn -U -Dbuild.mediaTypes=macos,macosFolder,macosFolderArchive ' +
                                    '"-Dbuild.projectProperties=$BUILD_PROPERTIES" ' +
-                                   '-P installers,cross-platform ' +
+                                   '-P translate,installers,cross-platform ' +
                                    '-Dbuild.buildIds=1553 ' +
                                    'clean package'
                                 
@@ -150,7 +150,7 @@ pipeline {
                                 // -Dinstall4j.disableNotarization=true
                                 sh 'mvn -U -Dbuild.mediaTypes=macos,macosFolder,macosFolderArchive ' +
                                    '"-Dbuild.projectProperties=$BUILD_PROPERTIES" ' +
-                                   '-P installers,cross-platform ' +
+                                   '-P translate,installers,cross-platform ' +
                                    '-Dbuild.buildIds=2173 ' +
                                    'clean package'
                                 
@@ -188,7 +188,7 @@ pipeline {
                                 bat 'mvn -U -Dinstall4j.verbose=true ' +
                                     '-Dbuild.mediaTypes=windows,windowsArchive ' +
                                     '"-Dbuild.projectProperties=%BUILD_PROPERTIES%" ' +
-                                    '-P installers,cross-platform ' +
+                                    '-P translate,installers,cross-platform ' +
                                     'clean package'
                                 
                                 /* Stash installers */

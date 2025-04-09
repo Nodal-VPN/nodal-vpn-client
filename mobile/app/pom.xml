@@ -4,13 +4,13 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>client-logonbox-vpn-mobile</artifactId>
-        <groupId>com.logonbox</groupId>
+        <artifactId>nodal-vpn-client-mobile</artifactId>
+        <groupId>com.jadaptive</groupId>
         <version>4.0.0-SNAPSHOT</version>
         <relativePath>../</relativePath>
     </parent>
 
-    <artifactId>client-logonbox-vpn-mobile-app</artifactId>
+    <artifactId>nodal-vpn-client-mobile-app</artifactId>
     <packaging>jar</packaging>
 
     <!-- TODO Dont really want this name, but can't see how to set the final executable name for native image build -->
@@ -25,18 +25,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-logging</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-vpn-client-logging</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-app</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-vpn-client-app</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-embedded</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-vpn-client-embedded</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -55,8 +55,8 @@
             <version>${glisten.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-gui-jfx</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-vpn-client-gui-jfx</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -81,12 +81,12 @@
             <version>${attach.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
-            <artifactId>client-logonbox-vpn-service</artifactId>
+            <groupId>com.jadaptive</groupId>
+            <artifactId>nodal-vpn-client-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.logonbox</groupId>
+            <groupId>com.jadaptive</groupId>
             <artifactId>lbvpn</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
@@ -201,8 +201,8 @@
                     <artifactId>nodal-core-windows</artifactId>
                 </dependency>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>client-logonbox-vpn-windows</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-vpn-client-windows</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
@@ -224,8 +224,8 @@
                     <artifactId>dbus-java-transport-native-unixsocket</artifactId>
                 </dependency>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>client-logonbox-vpn-linux</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-vpn-client-linux</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
@@ -243,8 +243,8 @@
                     <artifactId>nodal-core-macos</artifactId>
                 </dependency>
                 <dependency>
-                    <groupId>com.logonbox</groupId>
-                    <artifactId>client-logonbox-vpn-macos</artifactId>
+                    <groupId>com.jadaptive</groupId>
+                    <artifactId>nodal-vpn-client-macos</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>

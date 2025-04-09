@@ -4,7 +4,8 @@
 
 A major new release with many architectural changes.
 
- * Now uses `logonbox-vpn-drivers` for low level VPN support.
+ * Now uses `nodal-core` for low level VPN support.
+ * Rebranding to Nodal VPN Client
  * Experimental Android and iOS builds.
  * New stand-alone version that does not require a system service.
  * Now natively compiled for much faster startup and better resource usage.

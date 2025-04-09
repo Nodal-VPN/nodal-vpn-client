@@ -39,7 +39,7 @@ pipeline {
                                    '-Dbuild.buildIds=1555,1560,1561,2167 ' +  
                                    '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
                                    '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +
-                                   '-P installers,native-image ' +
+                                   '-P translate,installers,native-image ' +
                                    'clean package'
                                 
                                 /* Stash installers */
@@ -78,7 +78,7 @@ pipeline {
                                    '-Dbuild.buildIds=2166,2300,2304,2308 ' +
                                    '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +  
                                    '-Dbuild.projectProperties=$BUILD_PROPERTIES ' +
-                                   '-P installers,native-image ' +
+                                   '-P translate,installers,native-image ' +
                                    'clean package'
                                 
                                 /* Stash installers */
@@ -116,7 +116,7 @@ pipeline {
                                 sh 'mvn -U -Dbuild.mediaTypes=macos,macosFolder,macosFolderArchive ' +
                                    '"-Dbuild.projectProperties=$BUILD_PROPERTIES" ' +
                                    '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +
-                                   '-P installers,native-image ' +
+                                   '-P translate,installers,native-image ' +
                                    '-Dbuild.buildIds=1553 ' +
                                    'clean package'
                                 
@@ -155,7 +155,7 @@ pipeline {
                                 sh 'mvn -U -Dbuild.mediaTypes=macos,macosFolder,macosFolderArchive ' +
                                    '"-Dbuild.projectProperties=$BUILD_PROPERTIES" ' +
                                    '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +
-                                   '-P installers,native-image ' +
+                                   '-P translate,installers,native-image ' +
                                    '-Dbuild.buildIds=2173 ' +
                                    'clean package'
                                 
@@ -195,7 +195,7 @@ pipeline {
                                     '-Dinstall4j.exe.suffix=.exe ' +
                                     '-Dinstall4j.updatesBase=https://logonbox-packages.s3.eu-west-1.amazonaws.com/logonbox-vpn-client-native ' +
                                     '"-Dbuild.projectProperties=%BUILD_PROPERTIES%" ' +
-                                    '-P installers,native-image ' +
+                                    '-P translate,installers,native-image ' +
                                     'clean package'
                                 
                                 /* Stash installers */
