@@ -264,7 +264,7 @@ pipeline {
                     dontSetBuildResultOnFailure: false, 
                     dontWaitForConcurrentBuildCompletion: false, 
                     entries: [[
-                        bucket: 'sshtools-pubic/nodal-vpn-client-native/' + env.FULL_VERSION, 
+                        bucket: 'sshtools-public/nodal-vpn-client-native/' + env.FULL_VERSION, 
                         noUploadOnFailure: true, 
                         selectedRegion: 'eu-west-1', 
                         sourceFile: 'installer/target/media/*', 
