@@ -16,7 +16,7 @@
     <name>JADAPTIVE VPN - Cutdown Client (Native Compilation Experiment)</name>
 
     <properties>
-        <mainClassName>com.logonbox.vpn.client.mobile/com.logonbox.vpn.client.mobile.Client</mainClassName>
+        <mainClassName>com.jadaptive.nodal.vpn.client.mobile/com.logonbox.vpn.client.mobile.Client</mainClassName>
         <attach.extended.classifier>desktop</attach.extended.classifier>
     </properties>
 

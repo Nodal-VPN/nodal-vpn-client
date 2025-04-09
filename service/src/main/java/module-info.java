@@ -1,11 +1,11 @@
 import com.jadaptive.nodal.core.lib.PlatformServiceFactory;
 
-module com.logonbox.vpn.client.service {
+module com.jadaptive.nodal.vpn.client.service {
     exports com.logonbox.vpn.client;
     exports com.logonbox.vpn.client.ini;
     exports com.logonbox.vpn.client.service;
     
-    requires transitive com.logonbox.vpn.client.common;
+    requires transitive com.jadaptive.nodal.vpn.client.common;
     requires org.slf4j;
     requires java.net.http;
     

@@ -2,7 +2,7 @@ import com.jadaptive.nodal.core.lib.DNSProvider;
 import com.logonbox.vpn.client.common.Api;
 import com.logonbox.vpn.client.common.PlatformUtilities;
 
-open module com.logonbox.vpn.client.common {
+open module com.jadaptive.nodal.vpn.client.common {
 
     exports com.logonbox.vpn.client.common;
     exports com.logonbox.vpn.client.common.api;

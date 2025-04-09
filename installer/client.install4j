@@ -135,7 +135,7 @@
       <executable name="jad-vpn-service" stderrFile="logs/service-app.log" redirectStdout="true" stdoutFile="logs/service-app.log" failOnStderrOutput="false" executableMode="service" dpiAware="false">
         <versionInfo include="true" fileDescription="Privileged service for the VPN" legalCopyright="JADAPTIVE Limited" internalName="VPN Client" />
       </executable>
-      <java mainClass="com.logonbox.vpn.client.desktop.service/com.logonbox.vpn.client.desktop.service.Main" mainMode="module" vmParameters="-Xmx64m">
+      <java mainClass="com.jadaptive.nodal.vpn.client.desktop.service/com.logonbox.vpn.client.desktop.service.Main" mainMode="module" vmParameters="-Xmx64m">
         <modulePath>
           <directory location="service" failOnError="false" />
         </modulePath>
@@ -153,7 +153,7 @@
         <versionInfo include="true" fileDescription="Graphical front end for the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
-      <java mainClass="com.logonbox.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module">
+      <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module">
         <modulePath>
           <directory location="gui" failOnError="false" />
           <directory location="${compiler:jfx.archdir}" failOnError="false" />
@@ -181,7 +181,7 @@
       <executable name="jad-vpn" iconSet="true" redirectStderr="false" stderrFile="${installer:sys.userHome}/.hypersocket/error.log" stdoutFile="${installer:sys.userHome}/.hypersocket/output.log" executableMode="console" dpiAware="false">
         <versionInfo include="true" fileDescription="Command Line Interface to the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
-      <java mainClass="com.logonbox.vpn.client.cli/com.logonbox.vpn.client.cli.CLI" mainMode="module" vmParameters="-Xmx32m">
+      <java mainClass="com.jadaptive.nodal.vpn.client.cli/com.logonbox.vpn.client.cli.CLI" mainMode="module" vmParameters="-Xmx32m">
         <modulePath>
           <directory location="cli" failOnError="false" />
         </modulePath>
@@ -207,7 +207,7 @@
       <executable name="jad-vpn-service-console" redirectStderr="false" stderrFile="logs/service-forker-launcher.err" stdoutFile="logs/service-forker-launcher.out" failOnStderrOutput="false" executableMode="console" dpiAware="false">
         <versionInfo include="true" fileDescription="Console variant of the JADAPTIVE VPN service used for troubleshooting" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
-      <java mainClass="com.logonbox.vpn.client.desktop.service/com.logonbox.vpn.client.desktop.service.Main" mainMode="module" vmParameters="-Xmx64m">
+      <java mainClass="com.jadaptive.nodal.vpn.client.desktop.service/com.logonbox.vpn.client.desktop.service.Main" mainMode="module" vmParameters="-Xmx64m">
         <modulePath>
           <directory location="service" failOnError="false" />
         </modulePath>
@@ -225,7 +225,7 @@
         <versionInfo include="true" fileDescription="Remote control for the graphical front end to the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
-      <java mainClass="com.logonbox.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module" allowVMPassthroughParameters="false">
+      <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module" allowVMPassthroughParameters="false">
         <modulePath>
           <directory location="gui" failOnError="false" />
           <directory location="${compiler:jfx.archdir}" failOnError="false" />
@@ -252,7 +252,7 @@
         <versionInfo include="true" fileDescription="Tray icon for the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
       <splashScreen bitmapFile="./images/splash.png" />
-      <java mainClass="com.logonbox.vpn.client.tray.TrayDaemon">
+      <java mainClass="com.jadaptive.nodal.vpn.client.tray.TrayDaemon">
         <classPath>
           <scanDirectory location="tray" failOnError="false" />
         </classPath>

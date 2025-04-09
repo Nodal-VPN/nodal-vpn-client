@@ -131,7 +131,7 @@
         <versionInfo include="true" fileDescription="Graphical front end for the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
-      <java mainClass="com.logonbox.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module">
+      <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module">
         <modulePath>
           <directory location="gui" failOnError="false" />
           <directory location="${compiler:jfx.archdir}" failOnError="false" />
@@ -160,7 +160,7 @@
         <versionInfo include="true" fileDescription="Remote control for the graphical front end to the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
-      <java mainClass="com.logonbox.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module" allowVMPassthroughParameters="false">
+      <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module" allowVMPassthroughParameters="false">
         <modulePath>
           <directory location="gui" failOnError="false" />
           <directory location="${compiler:jfx.archdir}" failOnError="false" />

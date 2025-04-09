@@ -1,5 +1,5 @@
 
-open module com.logonbox.vpn.client.gui.jfx {
+open module com.jadaptive.nodal.vpn.client.gui.jfx {
     exports com.logonbox.vpn.client.gui.jfx;
     
     requires transitive javafx.controls;
@@ -13,7 +13,7 @@ open module com.logonbox.vpn.client.gui.jfx {
     requires com.sshtools.liftlib;
     requires jakarta.json;
     requires static uk.co.bithatch.nativeimage.annotations;
-    requires transitive com.logonbox.vpn.client.common;
+    requires transitive com.jadaptive.nodal.vpn.client.common;
     requires transitive com.sshtools.jini.config;
     
 }

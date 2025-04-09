@@ -1,16 +1,16 @@
-open module com.logonbox.vpn.client.cli {
+open module com.jadaptive.nodal.vpn.client.cli {
 
     exports com.logonbox.vpn.client.cli;
     exports com.logonbox.vpn.client.cli.commands;
     requires transitive org.freedesktop.dbus;
-    requires transitive com.logonbox.vpn.client.dbus.client;
-    requires transitive com.logonbox.vpn.client.logging;
-    requires transitive com.logonbox.vpn.client.dbus.app;
+    requires transitive com.jadaptive.nodal.vpn.client.dbus.client;
+    requires transitive com.jadaptive.nodal.vpn.client.logging;
+    requires transitive com.jadaptive.nodal.vpn.client.dbus.app;
     requires static uk.co.bithatch.nativeimage.annotations;
     requires transitive info.picocli;
     requires com.sshtools.liftlib;
     requires jakarta.json;
     requires jul.to.slf4j;
-    requires com.logonbox.vpn.client.app;
+    requires com.jadaptive.nodal.vpn.client.app;
     
 }
