@@ -273,7 +273,7 @@
                                     <output>${project.build.directory}/gui</output>
                                     <includeVersion>false</includeVersion>
                                     <artifacts>
-                                        <artifact>com.logonbox:client-logonbox-vpn-desktop:${project.version}</artifact>
+                                        <artifact>com.jadaptive:nodal-vpn-client-desktop:${project.version}</artifact>
                                     </artifacts>
 
                                     <!-- Copy these to separate directories -->
@@ -500,7 +500,7 @@
                                     <includeVersion>false</includeVersion>
                                     <output>${project.build.directory}/cli</output>
                                     <artifacts>
-                                        <artifact>com.logonbox:client-logonbox-vpn-cli:${project.version}</artifact>
+                                        <artifact>com.jadaptive:node-vpn-client-cli:${project.version}</artifact>
                                     </artifacts>
                                 </configuration>
                             </execution>
@@ -514,7 +514,7 @@
                                     <includeVersion>false</includeVersion>
                                     <output>${project.build.directory}/service</output>
                                     <artifacts>
-                                        <artifact>com.logonbox:client-logonbox-vpn-desktop-service:${project.version}</artifact>
+                                        <artifact>com.jadaptive:nodal-vpn-client-desktop-service:${project.version}</artifact>
                                     </artifacts>
                                 </configuration>
                             </execution>
@@ -528,7 +528,7 @@
                                     <includeVersion>false</includeVersion>
                                     <output>${project.build.directory}/tray</output>
                                     <artifacts>
-                                        <artifact>com.logonbox:client-logonbox-vpn-tray:${project.version}</artifact>
+                                        <artifact>com.jadaptive:nodal-vpn-client-tray:${project.version}</artifact>
                                     </artifacts>
                                 </configuration>
                             </execution>
