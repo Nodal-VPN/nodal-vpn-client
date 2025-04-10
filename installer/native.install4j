@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.8" transformSequenceNumber="10">
   <directoryPresets config="./os/windows/win32-x86-64/nodal-vpn-client-client-service.xml" />
-  <application name="Nodal VPN Client" applicationId="8341-5005-2778-2431" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="jadaptive-vpn-client" publisher="JADAPTIVE Limited" publisherWeb="https://jadaptive.com" version="4.0.0" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
+  <application name="Nodal VPN Client" applicationId="8341-5005-2778-2431" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="nodal-vpn-client" publisher="JADAPTIVE Limited" publisherWeb="https://jadaptive.com" version="4.0.0" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
       <directory location="jre" />
