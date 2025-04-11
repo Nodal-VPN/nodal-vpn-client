@@ -211,7 +211,7 @@ public class CLI extends AbstractDBusApp implements CLIContext {
 
     @Override
     protected DBusVpnManager.Builder buildVpnManager(DBusVpnManager.Builder builder) {
-        return builder.withAuthorization(true);
+        return super.buildVpnManager(builder.withAuthorization(true));
     }
 
     @Override

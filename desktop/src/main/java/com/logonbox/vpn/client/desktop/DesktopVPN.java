@@ -76,7 +76,7 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
 	/**
 	 * Used to get version from Maven meta-data
 	 */
-	public static final String ARTIFACT_COORDS = "com.logonbox/client-logonbox-vpn-gui-jfx";
+	public static final String ARTIFACT_COORDS = "com.jadaptive/nodal-vpn-client-gui-jfx";
 
 	private static DesktopVPN instance;
 
@@ -286,7 +286,7 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
 
 	@Override
     protected DBusVpnManager.Builder buildVpnManager(DBusVpnManager.Builder builder) {
-        return builder.withAuthorization();
+        return super.buildVpnManager(builder.withAuthorization());
     }
 
 	@Override
