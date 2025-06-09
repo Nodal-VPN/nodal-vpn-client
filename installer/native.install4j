@@ -86,8 +86,8 @@
           <entry location="CHANGES.md" />
           <entry location="WIREGUARD-LICENSE.txt" />
           <entry location="nodal-vpn-client-service${compiler:install4j.exe.suffix}" />
-          <entry location="nodal-vpn-client.exe" />
-          <entry location="nodal-vpn-client-service.xml" />
+          <entry location="nodal-vpn-client-service-win.exe" />
+          <entry location="nodal-vpn-client-service-win.xml" />
           <entry rootId="2036" location="nodal-vpn-client-service.conf" />
         </include>
       </component>
@@ -522,7 +522,7 @@ return path.replace('\\', '/');</property>
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>nodal-vpn-client-service.exe</string>
+                      <string>nodal-vpn-client-service-win.exe</string>
                     </object>
                   </property>
                   <property name="workingDirectory">
@@ -1894,7 +1894,7 @@ return true;</property>
       </variables>
       <jreBundle release="21/jdk-21.0.1+12" usePack200="false" includedJre="macosx-amd64-1.8.0_121" />
     </macosFolder>
-    <windows name="Windows x64" id="1554" installDir="JADAPTIVE\Nodall VPN Client" architecture="64">
+    <windows name="Windows x64" id="1554" installDir="JADAPTIVE\Nodal VPN Client" architecture="64">
       <exclude>
         <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac-aarch64" />
@@ -1976,7 +1976,7 @@ rm -f /etc/dbus-1/system.d/nodal-vpn-client-service.conf
 dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
 </preUninstallScript>
     </linuxDeb>
-    <windows name="MSI Windows x64" id="2047" installDir="JADAPTIVE\VPN Client" msi="true" msiScope="selectable" msiProductIdType="custom" msiCustomProductId="0DC151EE-7A26-4A19-BD41-2581369651B3" architecture="64">
+    <windows name="MSI Windows x64" id="2047" installDir="JADAPTIVE\Nodal VPN Client" msi="true" msiScope="selectable" msiProductIdType="custom" msiCustomProductId="0DC151EE-7A26-4A19-BD41-2581369651B3" architecture="64">
       <exclude>
         <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac-aarch64" />
