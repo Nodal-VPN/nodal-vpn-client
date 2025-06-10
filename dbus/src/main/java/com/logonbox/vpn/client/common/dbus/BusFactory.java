@@ -127,19 +127,21 @@ public final class BusFactory {
                 });
                 if (useJadbus) {
                     if (useSystemBus) {
-                        log.info("Connecting to Jadbus System DBus");
-                        conn = configureBuilder(DBusConnectionBuilder.forAddress(JadbusAddress.systemBus())).build();
+                        var jadbusSystemBusAddr = JadbusAddress.systemBus();
+                        log.info("Connecting to Jadbus System DBus at {}", jadbusSystemBusAddr);
+                        conn = configureBuilder(DBusConnectionBuilder.forAddress(jadbusSystemBusAddr)).build();
                     } else {
-                        log.info("Per configuration, connecting to Jadbus Session DBus");
-                        conn = configureBuilder(DBusConnectionBuilder.forAddress(JadbusAddress.sessionBus(false)))
+                        var jadbusSessionBusAddr = JadbusAddress.sessionBus(false);
+                        log.info("Per configuration, connecting to Jadbus Session DBus at {}", jadbusSessionBusAddr);
+                        conn = configureBuilder(DBusConnectionBuilder.forAddress(jadbusSessionBusAddr))
                                 .build();
                     }
                 } else {
                     if (useSystemBus) {
-                        log.info("Connecting to System DBus");
+                        log.info("Connecting to default System DBus");
                         conn = configureBuilder(DBusConnectionBuilder.forSystemBus()).build();
                     } else {
-                        log.info("Per configuration, connecting to Session DBus");
+                        log.info("Per configuration, connecting to default Session DBus");
                         conn = configureBuilder(DBusConnectionBuilder.forSessionBus()).build();
                     }
                 }
