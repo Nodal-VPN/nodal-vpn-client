@@ -388,6 +388,10 @@ for more details. Accepting this license implies you also accept all others.  </
             </formComponents>
           </screen>
           <screen id="6" beanClass="com.install4j.runtime.beans.screens.ComponentsScreen">
+            <preActivation>if(context.isConsole())  {
+    context.getInstallationComponentById("1677").setSelected(false);
+    context.getInstallationComponentById("2259").setSelected(false);
+}</preActivation>
             <formComponents>
               <formComponent id="1703" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent">
                 <serializedBean>
