@@ -1886,14 +1886,17 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 
     @Override
     public void addScriptEnvironmentVariables(VpnAdapter session, Map<String, String> env) {
-        Connection connection = connectionRepository.getConnectionByPublicKey(session.configuration().publicKey());
+        session.configuration().firstPeer().ifPresent(fp -> {
 
-        env.put("LBVPN_DEFAULT_DISPLAY_NAME", connection.getDefaultDisplayName());
-        env.put("LBVPN_DISPLAY_NAME", connection.getDisplayName());
-        env.put("LBVPN_HOSTNAME", connection.getHostname());
-        env.put("LBVPN_NAME", connection.getName() == null ? "": connection.getName());
-        env.put("LBVPN_ID", String.valueOf(connection.getId()));
-        env.put("LBVPN_PORT", String.valueOf(connection.getPort()));
+            Connection connection = connectionRepository.getConnectionByPublicKey(fp.publicKey());
+
+            env.put("LBVPN_DEFAULT_DISPLAY_NAME", connection.getDefaultDisplayName());
+            env.put("LBVPN_DISPLAY_NAME", connection.getDisplayName());
+            env.put("LBVPN_HOSTNAME", connection.getHostname());
+            env.put("LBVPN_NAME", connection.getName() == null ? "": connection.getName());
+            env.put("LBVPN_ID", String.valueOf(connection.getId()));
+            env.put("LBVPN_PORT", String.valueOf(connection.getPort())); 
+        });
 
     }
 
