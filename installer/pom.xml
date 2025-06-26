@@ -27,7 +27,7 @@
 	</parent>
 	<artifactId>nodal-vpn-client-installer</artifactId>
 	<packaging>pom</packaging>
-	<name>JADAPTIVE VPN - Client Installer</name>
+	<name>Nodal VPN - Client Installer</name>
 	<properties>
 		<build.mediaTypes>windows,unixInstaller,macos,macosFolder,windowsArchive,unixArchive,linuxRPM,linuxDeb,macosArchive,macosFolderArchive</build.mediaTypes>
         <build.buildIds></build.buildIds>

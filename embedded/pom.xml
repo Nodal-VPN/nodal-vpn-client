@@ -31,7 +31,7 @@
 
     <artifactId>nodal-vpn-client-embedded</artifactId>
     <packaging>jar</packaging>
-    <name>JADAPTIVE VPN - Embedding Library</name>
+    <name>Nodal VPN - Embedding Library</name>
 
     <dependencies>
         <dependency>

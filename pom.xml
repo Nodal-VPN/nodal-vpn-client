@@ -25,7 +25,7 @@
 	<version>4.0.0-SNAPSHOT</version>
 	<url>https://jadaptive.com/</url>
 	<packaging>pom</packaging>
-	<name>JADAPTIVE VPN - Group</name>
+	<name>Nodal VPN - Group</name>
 	<description>Desktop VPN Clients (Linux, OS X and Windows).</description>
 
 	<distributionManagement>
@@ -81,7 +81,7 @@
         <native.maven.plugin.version>0.9.23</native.maven.plugin.version>
         <gluonfx.maven.plugin.version>1.0.22-SNAPSHOT</gluonfx.maven.plugin.version>
         <jna.version>5.13.0</jna.version>
-        <jaul.version>0.9.12-SNAPSHOT</jaul.version>
+        <jaul.version>0.9.19</jaul.version>
         
         <dbus.version>5.1.0</dbus.version>
         <nodal-core.version>0.9.1-SNAPSHOT</nodal-core.version>

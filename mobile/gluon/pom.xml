@@ -32,7 +32,7 @@
     <artifactId>nodal-vpn-client-gluon</artifactId>
     <packaging>pom</packaging>
 
-    <name>JADAPTIVE VPN - Gluon Attach Libraries</name>
+    <name>Nodal VPN - Gluon Attach Libraries</name>
     
     <dependencies>
         <dependency>

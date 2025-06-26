@@ -28,7 +28,7 @@
         <relativePath>../</relativePath>
     </parent>
     <artifactId>nodal-vpn-client-mobile</artifactId>
-    <name>JADAPTIVE VPN - Mobile Specific Modules</name>
+    <name>Nodal VPN - Mobile Specific Modules</name>
     <packaging>pom</packaging>
     <modules>
        <!-- <module>gluon</module>

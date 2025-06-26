@@ -32,7 +32,7 @@
     <artifactId>nodal-vpn-client-cutdown-app</artifactId>
     <packaging>jar</packaging>
 
-    <name>JADAPTIVE VPN - Cutdown Client (Native Compilation Experiment)</name>
+    <name>Nodal VPN - Cutdown Client (Native Compilation Experiment)</name>
 
     <properties>
         <mainClassName>com.jadaptive.nodal.vpn.client.mobile/com.logonbox.vpn.client.mobile.Client</mainClassName>

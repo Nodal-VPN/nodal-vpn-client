@@ -28,7 +28,7 @@
         <relativePath>../</relativePath>
     </parent>
     <artifactId>nodal-vpn-client-macos</artifactId>
-    <name>JADAPTIVE VPN - Mac OS Platform Utilities</name>
+    <name>Nodal VPN - Mac OS Platform Utilities</name>
     <dependencies>
         <dependency>
             <groupId>com.jadaptive</groupId>
