@@ -91,7 +91,7 @@
         <build.platform>${build.os.family}-${os.arch}</build.platform>
         <build.projectProperties>${project.basedir}/jadaptive.build.properties</build.projectProperties>
         <build.userProperties>${user.home}/.jadaptive.build.properties</build.userProperties>
-        <build.mediaTypes>windows,unixInstaller,macos,macosFolder,windowsArchive,unixArchive,linuxRPM,linuxDeb,macosArchive,macosFolderArchive</build.mediaTypes>
+        <build.mediaTypes>windows,unixInstaller,macos,macosFolder,windowsArchive,unixArchive,linuxRPM,linuxDeb</build.mediaTypes>
         <build.buildIds></build.buildIds>
         
         <install4j.phase>continuous</install4j.phase>
@@ -100,6 +100,11 @@
         <install4j.updatesBase>https://sshtools-public.s3.eu-west-1.amazonaws.com/nodal-vpn-client</install4j.updatesBase>
         <install4j.jaulAppId>com.jadaptive.NodalVPNClient</install4j.jaulAppId>
         <install4j.jaulUpdaterId>2103</install4j.jaulUpdaterId>
+        <install4j.appleIdPassword>UNSET</install4j.appleIdPassword>
+        <install4j.appleIssuerId>UNSET</install4j.appleIssuerId>
+        <install4j.appleKeyId>UNSET</install4j.appleKeyId>
+        <install4j.applePrivateKeyFile>UNSET</install4j.applePrivateKeyFile>
+                                    
         
 	</properties>
 	
@@ -213,7 +218,7 @@
             <dependency>
                 <groupId>com.install4j</groupId>
                 <artifactId>install4j-runtime</artifactId>
-                <version>10.0.8</version>
+                <version>11.0.4</version>
             </dependency>
             <dependency>
                 <groupId>com.github.hypfvieh</groupId>
@@ -394,7 +399,7 @@
                 <plugin>
                     <groupId>com.install4j</groupId>
                     <artifactId>install4j-maven</artifactId>
-                    <version>10.0.8</version>
+                    <version>11.0.4</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -506,6 +511,15 @@
 	</build>
 
 	<repositories>
+	
+        <repository>
+            <id>central-snapshots</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots</url>
+            <snapshots/>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
         
         <repository>
             <id>oss-snapshots</id>
@@ -514,15 +528,6 @@
             <releases>
                 <enabled>false</enabled>
             </releases>
-        </repository>
-        
-        <repository>
-            <id>ej</id>
-            <url>https://maven.ej-technologies.com/repository/</url>
-            <releases />
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </repository>
         
         <repository>
@@ -561,10 +566,6 @@
 	</repositories>
 
 	<pluginRepositories>
-        <pluginRepository>
-            <id>ej-technologies</id>
-            <url>https://maven.ej-technologies.com/repository</url>
-        </pluginRepository>
 		<pluginRepository>
 			<id>libs-releases</id>
 			<url>https://artifactory.jadaptive.com/libs-releases-local</url>
@@ -605,6 +606,14 @@
 				<enabled>false</enabled>
 			</releases>
 		</pluginRepository>
+        <pluginRepository>
+            <id>central-snapshots</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots</url>
+            <snapshots/>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
 	</pluginRepositories>
 </project>
 

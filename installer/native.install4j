@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="10.0.9" transformSequenceNumber="10">
+<install4j version="11.0.3" transformSequenceNumber="11">
   <directoryPresets config="./os/windows/win32-x86-64/nodal-vpn-client-client-service.xml" />
   <application name="Nodal VPN Client" applicationId="8341-5005-2778-2431" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="nodal-vpn-client" publisher="JADAPTIVE Limited" publisherWeb="https://jadaptive.com" version="4.0.0" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
@@ -20,8 +20,12 @@
       <variable name="install4j.windowsKeystoreSerial" value="6a2d74c3e24c71aa08000ead302fbd46" description="Windows key store serial" />
       <variable name="install4j.windowsKeystoreSubject" value="Jadaptive Limited" description="Windows key store subject" />
       <variable name="install4j.jaulBranches" description="Branches" />
+      <variable name="install4j.appleIdPassword" />
+      <variable name="install4j.appleIssuerId" />
+      <variable name="install4j.appleKeyId" />
+      <variable name="install4j.applePrivateKeyFile" />
     </variables>
-    <codeSigning macEnabled="true" macPkcs12File="${compiler:install4j.macPkcs12File}" windowsEnabled="true" windowsKeySource="windows" macNotarize="true" appleId="${compiler:install4j.appleId}">
+    <codeSigning macEnabled="true" macPkcs12File="${compiler:install4j.macPkcs12File}" windowsEnabled="true" windowsKeySource="windows" macNotarize="true" macApiIssuer="${compiler:install4j.appleIssuerId}" macApiKey="${compiler:install4j.appleKeyId}" macApiPrivateKey="${compiler:install4j.applePrivateKeyFile}">
       <windowsKeystoreIdentifier issuer="${compiler:install4j.windowsKeystoreIssuer}" serial="${compiler:install4j.windowsKeystoreSerial}" subject="${compiler:install4j.windowsKeystoreSubject}" />
       <macSearchedJars>
         <entry>*.zip</entry>
@@ -194,7 +198,6 @@
       <application id="installer" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" actionElevationType="elevated" styleId="1792" launchInNewProcess="false">
         <serializedBean>
           <property name="frameWidth" type="int" value="575" />
-          <property name="useCustomIcon" type="boolean" value="false" />
         </serializedBean>
         <styleOverrides>
           <styleOverride name="Customize banner image" enabled="true">
@@ -442,7 +445,7 @@ for more details. Accepting this license implies you also accept all others.  </
               <action id="2280" beanClass="com.sshtools.jaul.InstallJaulAppAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="jaulAppId" type="string">com.sshtools.Jadbus</property>
-                  <property name="updatesXmlLocation" type="string">https://sshtools-public.s3.eu-west-1.amazonaws.com/jadbus/ea/updates.xml</property>
+                  <property name="updatesXmlLocation" type="string">https://sshtools-public.s3.eu-west-1.amazonaws.com/jadbus/continuous/updates.xml</property>
                 </serializedBean>
                 <condition>!Util.isLinux()</condition>
               </action>
@@ -503,7 +506,7 @@ return path.replace('\\', '/');</property>
                 </serializedBean>
                 <condition>Util.isLinux()</condition>
               </action>
-              <action name="Install service (non windows)" id="584" beanClass="com.install4j.runtime.beans.actions.services.InstallServiceAction" actionElevationType="elevated" failureStrategy="askRetryQuit">
+              <action name="Install service (non windows)" id="584" beanClass="com.install4j.runtime.beans.actions.services.InstallServiceAction" actionElevationType="elevated" failureStrategy="ask">
                 <serializedBean>
                   <property name="description" type="string">Manages VPN connections on behalf of users</property>
                   <property name="executable">
@@ -675,29 +678,42 @@ X-GNOME-Autostart-enabled=true</property>
                 </serializedBean>
                 <condition>Util.isWindows()</condition>
               </action>
-              <action name="Mac OS Tray Icon App" id="2310" beanClass="com.sshtools.jaul.CreateMacAppAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+              <action name="Tray Icon  Autostart" id="2311" beanClass="com.install4j.runtime.beans.actions.text.WriteTextFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
-                  <property name="arguments" type="array" elementType="string" length="1">
-                    <element index="0">-Dapple.awt.UIElement=true</element>
-                  </property>
-                  <property name="hideDock" type="boolean" value="true" />
-                  <property name="name" type="string">NOdal VPN Tray Icon</property>
-                  <property name="target">
+                  <property name="file">
                     <object class="java.io.File">
-                      <string>nodal-vpn-client-tray${compiler:install4j.exe.suffix}</string>
+                      <string>/Library/LaunchAgents /com.jadaptive.nodal.vpn.Tray.plist</string>
                     </object>
                   </property>
-                </serializedBean>
-                <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
-              </action>
-              <action name="Tray Icon Autostart (MacOS)" id="2309" beanClass="com.install4j.runtime.beans.actions.desktop.AddStartupItemAction" commentSet="true" actionElevationType="elevated" rollbackBarrierExitCode="0">
-                <serializedBean>
-                  <property name="executable">
-                    <object class="java.io.File">
-                      <string>Nodal VPN Tray Icon.app</string>
-                    </object>
-                  </property>
-                  <property name="name" type="string">Nodal VPN Tray Icon</property>
+                  <property name="text" type="string">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
+&lt;plist version="1.0"&gt;
+&lt;dict&gt;
+    &lt;key&gt;Label&lt;/key&gt;
+    &lt;string&gt;com.jadaptive.nodal.vpn.Tray&lt;/string&gt;
+
+    &lt;key&gt;ProgramArguments&lt;/key&gt;
+    &lt;array&gt;
+        &lt;string&gt;${installer:sys.installationDir}/nodal-vpn-client-tray&lt;/string&gt;
+        &lt;/array&gt;
+
+    &lt;key&gt;RunAtLoad&lt;/key&gt;
+    &lt;true/&gt;
+
+    &lt;key&gt;KeepAlive&lt;/key&gt;
+    &lt;true/&gt;
+
+&lt;!--
+    &lt;key&gt;StandardOutPath&lt;/key&gt;
+    &lt;string&gt;/var/log/myservice.log&lt;/string&gt;
+    &lt;key&gt;StandardErrorPath&lt;/key&gt;
+    &lt;string&gt;/var/log/myservice_error.log&lt;/string&gt;
+    --&gt;
+
+    &lt;key&gt;WorkingDirectory&lt;/key&gt;
+    &lt;string&gt;${installer:sys.installationDir}&lt;/string&gt;
+
+&lt;/dict&gt;</property>
                 </serializedBean>
                 <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
               </action>
@@ -1880,7 +1896,7 @@ return true;</property>
     </styles>
   </installerGui>
   <mediaSets>
-    <macosFolder name="Mac OS X Folder (Intel)" id="1553" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}">
+    <macosFolder name="Mac OS X Folder (Intel)" id="1553" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}" architecture="amd64">
       <exclude>
         <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac-aarch64" />
@@ -2027,7 +2043,7 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
       </variables>
       <jreBundle jreBundleSource="none" />
     </unixArchive>
-    <macosFolder name="Mac OS X Folder (Arm)" id="2173" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}" architecture="aarch64">
+    <macosFolder name="Mac OS X Folder (Arm)" id="2173" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}">
       <exclude>
         <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac" />
