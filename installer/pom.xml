@@ -547,6 +547,7 @@
                                     <goal>compile</goal>
                                 </goals>
                                 <configuration>
+                                    <installDir>${install4j11.home}</installDir>
                                     <projectFile>${project.basedir}/client.install4j</projectFile>
                                     <variables>
                                         <install4j.phase>${install4j.phase}</install4j.phase>
