@@ -530,6 +530,22 @@ return path.replace('\\', '/');</property>
                 </serializedBean>
                 <condition>!Util.isWindows()</condition>
               </action>
+              <action name="Hack MacOS Again" id="2313" beanClass="com.install4j.runtime.beans.actions.xml.InsertXmlFragmentAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="files" type="array" class="java.io.File" length="1">
+                    <element index="0">
+                      <object class="java.io.File">
+                        <string>/Library/LaunchDaemons/com.jadaptive.VPNClientService.plist</string>
+                      </object>
+                    </element>
+                  </property>
+                  <property name="fragmentInsertMode" type="enum" class="com.install4j.runtime.beans.actions.xml.FragmentInsertMode" value="LAST_CHILD" />
+                  <property name="fragmentText" type="string">&lt;key&gt;WorkingDirectory&lt;/key&gt;
+&lt;string&gt;${installer:sys.installationDir}&lt;/string&gt;</property>
+                  <property name="xpathExpression" type="string">/dict</property>
+                </serializedBean>
+                <condition>!context.isUpdateInstallation()</condition>
+              </action>
               <action name="Install service (windows)" id="2289" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="arguments" type="array" elementType="string" length="1">
