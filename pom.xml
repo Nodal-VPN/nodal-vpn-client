@@ -91,7 +91,7 @@
         <build.platform>${build.os.family}-${os.arch}</build.platform>
         <build.projectProperties>${project.basedir}/jadaptive.build.properties</build.projectProperties>
         <build.userProperties>${user.home}/.jadaptive.build.properties</build.userProperties>
-        <build.mediaTypes>windows,unixInstaller,macos,macosFolder,windowsArchive,unixArchive,linuxRPM,linuxDeb</build.mediaTypes>
+        <build.mediaTypes>windows,unixInstaller,macosFolder,windowsArchive,unixArchive,linuxRPM,linuxDeb</build.mediaTypes>
         <build.buildIds></build.buildIds>
         
         <install4j.phase>continuous</install4j.phase>
