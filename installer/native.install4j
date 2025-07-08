@@ -645,7 +645,7 @@ return path.replace('\\', '/');</property>
                 <serializedBean>
                   <property name="file">
                     <object class="java.io.File">
-                      <string>nodal-vpn-client-gui${compiler:install4j.exe.suffix}</string>
+                      <string>nodal-vpn-client-gui-remote${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                   <property name="linkFile">
