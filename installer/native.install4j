@@ -804,14 +804,13 @@ X-GNOME-Autostart-enabled=true</property>
               </action>
               <action name="Start Tray (Mac OS)" id="2312" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <serializedBean>
-                  <property name="arguments" type="array" elementType="string" length="3">
-                    <element index="0">load</element>
-                    <element index="1"> -w</element>
-                    <element index="2">/Library/LaunchAgents/com.jadaptive.nodal.vpn.Tray.plist</element>
+                  <property name="arguments" type="array" elementType="string" length="2">
+                    <element index="0">start</element>
+                    <element index="1">com.jadaptive.nodal.vpn.Tray</element>
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>launchctl</string>
+                      <string>/bin/launchctl</string>
                     </object>
                   </property>
                   <property name="workingDirectory">
