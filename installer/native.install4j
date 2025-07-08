@@ -480,7 +480,25 @@ return path.replace('\\', '/');</property>
                   <property name="variableName" type="string">custom.jrePath</property>
                 </serializedBean>
               </action>
-              <action id="2199" beanClass="com.install4j.runtime.beans.actions.properties.WritePropertiesFileAction" rollbackBarrierExitCode="0" failureStrategy="ask">
+              <action name="MacOS Hack" id="2316" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="arguments" type="array" elementType="string" length="2">
+                    <element index="0">-p</element>
+                    <element index="1">${installer:sys.installationDir}/conf</element>
+                  </property>
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>mkdir</string>
+                    </object>
+                  </property>
+                  <property name="workingDirectory">
+                    <object class="java.io.File">
+                      <string>.</string>
+                    </object>
+                  </property>
+                </serializedBean>
+              </action>
+              <action id="2199" beanClass="com.install4j.runtime.beans.actions.properties.WritePropertiesFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="ask">
                 <serializedBean>
                   <property name="file">
                     <object class="java.io.File">
@@ -542,9 +560,9 @@ return path.replace('\\', '/');</property>
                   <property name="fragmentInsertMode" type="enum" class="com.install4j.runtime.beans.actions.xml.FragmentInsertMode" value="LAST_CHILD" />
                   <property name="fragmentText" type="string">&lt;key&gt;WorkingDirectory&lt;/key&gt;
 &lt;string&gt;${installer:sys.installationDir}&lt;/string&gt;</property>
-                  <property name="xpathExpression" type="string">/dict</property>
+                  <property name="xpathExpression" type="string">/plist/dict[0]</property>
                 </serializedBean>
-                <condition>!context.isUpdateInstallation()</condition>
+                <condition>!context.isUpdateInstallation() &amp;&amp; ( Util.isMacOS() || Util.isMacosInstaller() )</condition>
               </action>
               <action name="Install service (windows)" id="2289" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
@@ -1056,6 +1074,18 @@ return console.askYesNo(message, true);
                   </property>
                   <property name="recursive" type="boolean" value="true" />
                 </serializedBean>
+              </action>
+              <action name="Delete Mac OS Tray LaunchAgent" id="2314" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="files" type="array" class="java.io.File" length="1">
+                    <element index="0">
+                      <object class="java.io.File">
+                        <string>/Library/LaunchAgents/com.jadaptive.nodal.vpn.Tray.plist</string>
+                      </object>
+                    </element>
+                  </property>
+                </serializedBean>
+                <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
               </action>
               <action name="Delete configuration" id="2034" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated">
                 <serializedBean>
