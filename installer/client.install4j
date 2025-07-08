@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="10.0.8" transformSequenceNumber="10">
+<install4j version="11.0.3" transformSequenceNumber="11">
   <directoryPresets config="./images" />
   <application name="Nodal VPN Client" applicationId="1833-6143-0948-0544" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="nodal-vpn-client" publisher="JADAPTIVE Limited" publisherWeb="https://jadaptive.com" version="2.0.4-LOCAL" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="22" javaMaxVersion="22" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
@@ -19,8 +19,12 @@
       <variable name="install4j.jaulAppId" value="UNSET" description="The Jaul update system app Id, e.g. com.sshtools.MyApp" />
       <variable name="install4j.jaulUpdaterId" value="999" description="The ID (in this install4j project) of the updater application. Its a bit annoying we can't get this automatically!" />
       <variable name="install4j.jaulBranches" description="Description" />
+      <variable name="install4j.appleIdPassword" />
+      <variable name="install4j.appleIssuerId" />
+      <variable name="install4j.appleKeyId" />
+      <variable name="install4j.applePrivateKeyFile" />
     </variables>
-    <codeSigning macEnabled="true" macPkcs12File="${compiler:install4j.macPkcs12File}" windowsEnabled="true" windowsKeySource="windows" macNotarize="true" appleId="${compiler:install4j.appleId}">
+    <codeSigning macEnabled="true" macPkcs12File="${compiler:install4j.macPkcs12File}" windowsEnabled="true" windowsKeySource="windows" macNotarize="true" macApiIssuer="${compiler:install4j.appleIssuerId}" macApiKey="${compiler:install4j.appleKeyId}" macApiPrivateKey="${compiler:install4j.applePrivateKeyFile}">
       <windowsKeystoreIdentifier issuer="${compiler:install4j.windowsKeystoreIssuer}" serial="${compiler:install4j.windowsKeystoreSerial}" subject="${compiler:install4j.windowsKeystoreSubject}" />
       <macSearchedJars>
         <entry>*.zip</entry>
@@ -630,7 +634,7 @@ return path.replace('\\', '/');</property>
                 </serializedBean>
                 <condition>Util.isLinux()</condition>
               </action>
-              <action id="584" beanClass="com.install4j.runtime.beans.actions.services.InstallServiceAction" actionElevationType="elevated" failureStrategy="askRetryQuit">
+              <action id="584" beanClass="com.install4j.runtime.beans.actions.services.InstallServiceAction" actionElevationType="elevated" failureStrategy="ask">
                 <serializedBean>
                   <property name="launcherId" type="string">583</property>
                   <property name="macosIdentifier" type="string">com.jadaptive.VPNClientService</property>
@@ -691,6 +695,47 @@ return path.replace('\\', '/');</property>
                   <property name="sleepTimeMs" type="int" value="5000" />
                 </serializedBean>
               </action>
+              <action name="Tray Icon Autostart (Mac OS)" id="2283" beanClass="com.install4j.runtime.beans.actions.text.WriteTextFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="file">
+                    <object class="java.io.File">
+                      <string>/Library/LaunchAgents/com.sshtools.jadbus.plist</string>
+                    </object>
+                  </property>
+                  <property name="text" type="string">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
+&lt;plist version="1.0"&gt;
+&lt;dict&gt;
+    &lt;key&gt;Label&lt;/key&gt;
+    &lt;string&gt;com.sshtools.jadbus&lt;/string&gt;
+
+    &lt;key&gt;ProgramArguments&lt;/key&gt;
+    &lt;array&gt;
+        &lt;string&gt;${installer:sys.installationDir}/jadbus-daemon&lt;/string&gt;
+        &lt;/array&gt;
+
+    &lt;key&gt;RunAtLoad&lt;/key&gt;
+    &lt;true/&gt;
+
+    &lt;key&gt;KeepAlive&lt;/key&gt;
+    &lt;true/&gt;
+
+&lt;!--
+    &lt;key&gt;StandardOutPath&lt;/key&gt;
+    &lt;string&gt;/var/log/myservice.log&lt;/string&gt;
+    &lt;key&gt;StandardErrorPath&lt;/key&gt;
+    &lt;string&gt;/var/log/myservice_error.log&lt;/string&gt;
+    --&gt;
+
+    &lt;key&gt;WorkingDirectory&lt;/key&gt;
+    &lt;string&gt;${installer:sys.installationDir}&lt;/string&gt;
+
+&lt;/dict&gt;
+&lt;/plist&gt;
+</property>
+                </serializedBean>
+                <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
+              </action>
               <action name="Tray Icon Autostart (Linux)" id="2277" beanClass="com.install4j.runtime.beans.actions.text.WriteTextFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="file">
@@ -710,7 +755,7 @@ X-GNOME-Autostart-enabled=true</property>
                 </serializedBean>
                 <condition>Util.isLinux()</condition>
               </action>
-              <action name="Tray Icon Autostart (Windows / MacOS)" id="2278" beanClass="com.install4j.runtime.beans.actions.desktop.AddStartupItemAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+              <action name="Tray Icon Autostart (Windows)" id="2278" beanClass="com.install4j.runtime.beans.actions.desktop.AddStartupItemAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="executable">
                     <object class="java.io.File">
@@ -719,6 +764,7 @@ X-GNOME-Autostart-enabled=true</property>
                   </property>
                   <property name="name" type="string">Nodal VPN Client Tray Icon</property>
                 </serializedBean>
+                <condition>Util.isWindows() || Util.isWindowsInstaller()</condition>
               </action>
               <action id="1219" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" actionElevationType="none">
                 <serializedBean>
@@ -1867,7 +1913,7 @@ return true;</property>
     </styles>
   </installerGui>
   <mediaSets>
-    <macosFolder name="Mac OS X Folder" id="1553" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}">
+    <macosFolder name="Mac OS X Folder" id="1553" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-amd64-${compiler:sys.version}" architecture="amd64">
       <exclude>
         <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/mac-aarch64" />
@@ -2007,7 +2053,7 @@ dbus-send --system --type=method_call --dest=org.freedesktop.DBus / org.freedesk
       </variables>
       <jreBundle jreBundleSource="none" />
     </unixArchive>
-    <macosFolder name="Mac OS X Folder (Arm)" id="2173" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}" architecture="aarch64">
+    <macosFolder name="Mac OS X Folder (Arm)" id="2173" mediaFileName="${compiler:sys.shortName}-${compiler:sys.platform}-aarch64-${compiler:sys.version}">
       <exclude>
         <entry location="conf/nodal-vpn-client-service.conf" />
         <entry location="gui/linux-aarch64" />

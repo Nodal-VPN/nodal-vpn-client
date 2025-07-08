@@ -445,7 +445,7 @@ for more details. Accepting this license implies you also accept all others.  </
               <action id="2280" beanClass="com.sshtools.jaul.InstallJaulAppAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="jaulAppId" type="string">com.sshtools.Jadbus</property>
-                  <property name="updatesXmlLocation" type="string">https://sshtools-public.s3.eu-west-1.amazonaws.com/jadbus/continuous/updates.xml</property>
+                  <property name="updatesXmlLocation" type="string">https://sshtools-public.s3.eu-west-1.amazonaws.com/jadbus/stable/updates.xml</property>
                 </serializedBean>
                 <condition>!Util.isLinux()</condition>
               </action>
@@ -713,7 +713,8 @@ X-GNOME-Autostart-enabled=true</property>
     &lt;key&gt;WorkingDirectory&lt;/key&gt;
     &lt;string&gt;${installer:sys.installationDir}&lt;/string&gt;
 
-&lt;/dict&gt;</property>
+&lt;/dict&gt;
+&lt;/plist&gt;</property>
                 </serializedBean>
                 <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
               </action>

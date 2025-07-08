@@ -632,11 +632,15 @@
                                     <release>${product.version}-${build.number}</release>
                                     <mediaTypes>${build.mediaTypes}</mediaTypes>
                                     <buildIds>${build.buildIds}</buildIds>
+                                    <installDir>${install4j11.home}</installDir>
                                     <variables>
                                         <build.phase>${build.phase}</build.phase>
                                         <build.exeSuffix>${build.exe.suffix}</build.exeSuffix>
                                         <install4j.appleId>${install4j.appleId}</install4j.appleId>
                                         <install4j.appleIdPassword>${install4j.appleIdPassword}</install4j.appleIdPassword>
+                                        <install4j.appleIssuerId>${install4j.appleIssuerId}</install4j.appleIssuerId>
+                                        <install4j.appleKeyId>${install4j.appleKeyId}</install4j.appleKeyId>
+                                        <install4j.applePrivateKeyFile>${install4j.applePrivateKeyFile}</install4j.applePrivateKeyFile>
                                         <install4j.macPkcs12File>${install4j.macPkcs12File}</install4j.macPkcs12File>
                                         <install4j.windowsKeystoreIssuer>${install4j.windowsKeystoreIssuer}</install4j.windowsKeystoreIssuer>>
                                         <install4j.windowsKeystoreSerial>${install4j.windowsKeystoreSerial}</install4j.windowsKeystoreSerial>>
@@ -644,6 +648,7 @@
                                         <install4j.updatesBase>${install4j.updatesBase}</install4j.updatesBase>
                                         <install4j.jaulAppId>${install4j.jaulAppId}</install4j.jaulAppId>
                                         <install4j.jaulUpdaterId>${install4j.jaulUpdaterId}</install4j.jaulUpdaterId>
+                                        <install4j.jaulBranches>${install4j.jaulBranches}</install4j.jaulBranches>
                                     </variables>
                                     <verbose>true</verbose>
                                     <jvmArguments>
