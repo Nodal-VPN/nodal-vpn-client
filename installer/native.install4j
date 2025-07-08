@@ -736,7 +736,7 @@ X-GNOME-Autostart-enabled=true</property>
                 </serializedBean>
                 <condition>Util.isWindows() || Util.isWindowsInstaller()</condition>
               </action>
-              <action name="Tray Icon  Autostart" id="2311" beanClass="com.install4j.runtime.beans.actions.text.WriteTextFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+              <action name="Tray Icon  Autostart (MacOS)" id="2311" beanClass="com.install4j.runtime.beans.actions.text.WriteTextFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="file">
                     <object class="java.io.File">
@@ -759,17 +759,33 @@ X-GNOME-Autostart-enabled=true</property>
     &lt;true/&gt;
 
     &lt;key&gt;KeepAlive&lt;/key&gt;
-    &lt;false/&gt;
-
-&lt;!--
+    &lt;dict&gt;
+          &lt;key&gt;PathState&lt;/key&gt;
+          &lt;dict&gt;
+              &lt;key&gt;${installer:sys.installationDir}/nodal-vpn-client-tray&lt;/key&gt;
+                &lt;true/&gt;
+          &lt;/dict&gt;
+          &lt;key&gt;SuccessfulExit&lt;/key&gt;
+          &lt;false/&gt;
+    &lt;/dict&gt;
+    
     &lt;key&gt;StandardOutPath&lt;/key&gt;
-    &lt;string&gt;/var/log/myservice.log&lt;/string&gt;
+    &lt;string&gt;/dev/null&lt;/string&gt;
+    
     &lt;key&gt;StandardErrorPath&lt;/key&gt;
-    &lt;string&gt;/var/log/myservice_error.log&lt;/string&gt;
-    --&gt;
-
-    &lt;key&gt;WorkingDirectory&lt;/key&gt;
-    &lt;string&gt;${installer:sys.installationDir}&lt;/string&gt;
+    &lt;string&gt;/dev/null&lt;/string&gt;
+    
+    &lt;key&gt;ProcessType&lt;/key&gt;
+    &lt;string&gt;Interactive&lt;/string&gt;
+        
+    &lt;key&gt;AssociatedBundleIdentifiers&lt;/key&gt;
+    &lt;string&gt;com.jadaptive.nodal.vpn.ClientGui&lt;/string&gt;
+    
+    &lt;key&gt;EnvironmentVariables&lt;/key&gt;
+    &lt;dict&gt;
+          &lt;key&gt;PATH&lt;/key&gt;
+          &lt;string&gt;/usr/bin:/usr/local/bin:/bin&lt;/string&gt;
+    &lt;/dict&gt;
 
 &lt;/dict&gt;
 &lt;/plist&gt;</property>
