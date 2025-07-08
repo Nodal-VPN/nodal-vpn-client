@@ -744,7 +744,7 @@ X-GNOME-Autostart-enabled=true</property>
     &lt;true/&gt;
 
     &lt;key&gt;KeepAlive&lt;/key&gt;
-    &lt;true/&gt;
+    &lt;false/&gt;
 
 &lt;!--
     &lt;key&gt;StandardOutPath&lt;/key&gt;
