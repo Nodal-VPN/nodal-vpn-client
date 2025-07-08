@@ -488,7 +488,7 @@ return path.replace('\\', '/');</property>
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>mkdir</string>
+                      <string>/bin/mkdir</string>
                     </object>
                   </property>
                   <property name="workingDirectory">
@@ -497,6 +497,7 @@ return path.replace('\\', '/');</property>
                     </object>
                   </property>
                 </serializedBean>
+                <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
               </action>
               <action id="2199" beanClass="com.install4j.runtime.beans.actions.properties.WritePropertiesFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="ask">
                 <serializedBean>
@@ -560,7 +561,7 @@ return path.replace('\\', '/');</property>
                   <property name="fragmentInsertMode" type="enum" class="com.install4j.runtime.beans.actions.xml.FragmentInsertMode" value="LAST_CHILD" />
                   <property name="fragmentText" type="string">&lt;key&gt;WorkingDirectory&lt;/key&gt;
 &lt;string&gt;${installer:sys.installationDir}&lt;/string&gt;</property>
-                  <property name="xpathExpression" type="string">/plist/dict[0]</property>
+                  <property name="xpathExpression" type="string">/plist/dict</property>
                 </serializedBean>
                 <condition>!context.isUpdateInstallation() &amp;&amp; ( Util.isMacOS() || Util.isMacosInstaller() )</condition>
               </action>
