@@ -472,7 +472,7 @@ return path.replace('\\', '/');</property>
                   <property name="variableName" type="string">custom.jrePath</property>
                 </serializedBean>
               </action>
-              <action id="2199" beanClass="com.install4j.runtime.beans.actions.properties.WritePropertiesFileAction" rollbackBarrierExitCode="0">
+              <action id="2199" beanClass="com.install4j.runtime.beans.actions.properties.WritePropertiesFileAction" rollbackBarrierExitCode="0" failureStrategy="ask">
                 <serializedBean>
                   <property name="file">
                     <object class="java.io.File">
@@ -544,7 +544,7 @@ return path.replace('\\', '/');</property>
                 <serializedBean>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>nodal-vpn-client-service${compiler:install4j.exe.suffix}</string>
+                      <string>nodal-vpn-client-service</string>
                     </object>
                   </property>
                   <property name="launcherId" type="null" />
@@ -676,13 +676,13 @@ X-GNOME-Autostart-enabled=true</property>
                   </property>
                   <property name="name" type="string">Nodal VPN Tray Icon</property>
                 </serializedBean>
-                <condition>Util.isWindows()</condition>
+                <condition>Util.isWindows() || Util.isWindowsInstaller()</condition>
               </action>
               <action name="Tray Icon  Autostart" id="2311" beanClass="com.install4j.runtime.beans.actions.text.WriteTextFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="file">
                     <object class="java.io.File">
-                      <string>/Library/LaunchAgents /com.jadaptive.nodal.vpn.Tray.plist</string>
+                      <string>/Library/LaunchAgents/com.jadaptive.nodal.vpn.Tray.plist</string>
                     </object>
                   </property>
                   <property name="text" type="string">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -718,13 +718,37 @@ X-GNOME-Autostart-enabled=true</property>
                 </serializedBean>
                 <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
               </action>
-              <action id="2282" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" actionElevationType="none" rollbackBarrierExitCode="0">
+              <action name="Start Tray (Windows and Linux)" id="2282" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="launcherId" type="string">2271</property>
                 </serializedBean>
                 <condition>!context.getBooleanVariable("preventExecuteLauncherAction") &amp;&amp;
 ( context.getBooleanVariable("executeLauncherAction") || context.isUpdateInstallation())  &amp;&amp; 
-(Util.isLinux() || Util.isWindows() || ( Util.isMacOS() &amp;&amp;  Float.parseFloat(System.getProperty("os.version").split("\\.")[0] + "." + System.getProperty("os.version").split("\\.")[1]) &gt;= 10.16f))</condition>
+(Util.isLinux() || Util.isWindows() || Util.isWindowsInstaller() )
+
+</condition>
+              </action>
+              <action name="Start Tray (Mac OS)" id="2312" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="none" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="arguments" type="array" elementType="string" length="3">
+                    <element index="0"> load</element>
+                    <element index="1"> -w</element>
+                    <element index="2">/Library/LaunchAgents/com.jadaptive.nodal.vpn.Tray.plist</element>
+                  </property>
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>launchctl</string>
+                    </object>
+                  </property>
+                  <property name="workingDirectory">
+                    <object class="java.io.File">
+                      <string>.</string>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>!context.getBooleanVariable("preventExecuteLauncherAction") &amp;&amp;
+( context.getBooleanVariable("executeLauncherAction") || context.isUpdateInstallation())  &amp;&amp; 
+( Util.isMacOS() || Util.isMacosInstaller() ) </condition>
               </action>
               <action id="2043" beanClass="com.install4j.runtime.beans.actions.finish.RebootAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <condition>Util.isMacOS() &amp;&amp; Float.parseFloat(System.getProperty("os.version").split("\\.")[0] + "." + System.getProperty("os.version").split("\\.")[1]) &lt; 10.16f</condition>
