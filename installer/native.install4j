@@ -641,6 +641,21 @@ return path.replace('\\', '/');</property>
                 </serializedBean>
                 <condition>!Util.isWindows()</condition>
               </action>
+              <action name="Link GUI command" id="2317" beanClass="com.install4j.runtime.beans.actions.files.CreateSymlinkAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="file">
+                    <object class="java.io.File">
+                      <string>nodal-vpn-client-gui${compiler:install4j.exe.suffix}</string>
+                    </object>
+                  </property>
+                  <property name="linkFile">
+                    <object class="java.io.File">
+                      <string>/usr/local/bin/nodal-vpn-client-gui${compiler:install4j.exe.suffix}</string>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>!Util.isWindows()</condition>
+              </action>
               <action name="Link Tray command" id="2286" beanClass="com.install4j.runtime.beans.actions.files.CreateSymlinkAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="file">
