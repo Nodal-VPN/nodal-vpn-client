@@ -81,6 +81,14 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 	}
 
 	public static void main(String[] args) throws Exception {
+
+        if(OS.isMacOs()) {
+            System.setProperty("java.awt.headless", "true");
+            System.setProperty("apple.awt.BackgroundOnly", "true");
+            System.setProperty("apple.awt.UIElement", "true");
+            java.awt.Toolkit.getDefaultToolkit();
+        }
+        
 		var cli = new TrayDaemon();
 		System.exit(new CommandLine(cli).execute(args));
 	}
