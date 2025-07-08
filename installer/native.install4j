@@ -592,7 +592,7 @@ return path.replace('\\', '/');</property>
                   </property>
                   <property name="linkFile">
                     <object class="java.io.File">
-                      <string>/usr/bin/nodal-vpn-client${compiler:install4j.exe.suffix}</string>
+                      <string>/usr/local/bin/nodal-vpn-client${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                 </serializedBean>
@@ -607,7 +607,7 @@ return path.replace('\\', '/');</property>
                   </property>
                   <property name="linkFile">
                     <object class="java.io.File">
-                      <string>/usr/bin/nodal-vpn-client-tray${compiler:install4j.exe.suffix}</string>
+                      <string>/usr/local/bin/nodal-vpn-client-tray${compiler:install4j.exe.suffix}</string>
                     </object>
                   </property>
                 </serializedBean>
@@ -731,7 +731,7 @@ X-GNOME-Autostart-enabled=true</property>
               <action name="Start Tray (Mac OS)" id="2312" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="arguments" type="array" elementType="string" length="3">
-                    <element index="0"> load</element>
+                    <element index="0">load</element>
                     <element index="1"> -w</element>
                     <element index="2">/Library/LaunchAgents/com.jadaptive.nodal.vpn.Tray.plist</element>
                   </property>
