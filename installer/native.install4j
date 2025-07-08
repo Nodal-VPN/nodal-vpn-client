@@ -27,6 +27,14 @@
     </variables>
     <codeSigning macEnabled="true" macPkcs12File="${compiler:install4j.macPkcs12File}" windowsEnabled="true" windowsKeySource="windows" macNotarize="true" macApiIssuer="${compiler:install4j.appleIssuerId}" macApiKey="${compiler:install4j.appleKeyId}" macApiPrivateKey="${compiler:install4j.applePrivateKeyFile}">
       <windowsKeystoreIdentifier issuer="${compiler:install4j.windowsKeystoreIssuer}" serial="${compiler:install4j.windowsKeystoreSerial}" subject="${compiler:install4j.windowsKeystoreSubject}" />
+      <macAdditionalBinaries>
+        <entry>*.dylib</entry>
+        <entry>*.so</entry>
+        <entry>*.jnilib</entry>
+        <entry>nodal-vpn-client-service</entry>
+        <entry>nodal-vpn-client-tray</entry>
+        <entry>nodal-vpn-client</entry>
+      </macAdditionalBinaries>
       <macSearchedJars>
         <entry>*.zip</entry>
         <entry>jna-*</entry>
