@@ -967,6 +967,18 @@ return console.askYesNo(message, true);
                   </property>
                 </serializedBean>
               </action>
+              <action name="Delete Mac OS Tray LaunchAgent" id="2314" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="files" type="array" class="java.io.File" length="1">
+                    <element index="0">
+                      <object class="java.io.File">
+                        <string>/Library/LaunchAgents/com.jadaptive.nodal.vpn.Tray.plist</string>
+                      </object>
+                    </element>
+                  </property>
+                </serializedBean>
+                <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
+              </action>
               <action id="2180" beanClass="com.install4j.runtime.beans.actions.control.SleepAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="sleepTimeMs" type="int" value="5000" />
@@ -1090,18 +1102,6 @@ return console.askYesNo(message, true);
                   </property>
                   <property name="recursive" type="boolean" value="true" />
                 </serializedBean>
-              </action>
-              <action name="Delete Mac OS Tray LaunchAgent" id="2314" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
-                <serializedBean>
-                  <property name="files" type="array" class="java.io.File" length="1">
-                    <element index="0">
-                      <object class="java.io.File">
-                        <string>/Library/LaunchAgents/com.jadaptive.nodal.vpn.Tray.plist</string>
-                      </object>
-                    </element>
-                  </property>
-                </serializedBean>
-                <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
               </action>
               <action name="Delete configuration" id="2034" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated">
                 <serializedBean>
