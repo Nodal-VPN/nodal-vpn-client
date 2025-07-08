@@ -547,6 +547,7 @@
                                     <goal>compile</goal>
                                 </goals>
                                 <configuration>
+                                    <license>${install4j.testing.license}</license>
                                     <installDir>${install4j11.home}</installDir>
                                     <projectFile>${project.basedir}/client.install4j</projectFile>
                                     <variables>
@@ -632,6 +633,7 @@
                                     <release>${product.version}-${build.number}</release>
                                     <mediaTypes>${build.mediaTypes}</mediaTypes>
                                     <buildIds>${build.buildIds}</buildIds>
+                                    <license>${install4j.testing.license}</license>
                                     <installDir>${install4j11.home}</installDir>
                                     <variables>
                                         <build.phase>${build.phase}</build.phase>
