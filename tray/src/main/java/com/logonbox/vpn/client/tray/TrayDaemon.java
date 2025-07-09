@@ -19,7 +19,6 @@ package com.logonbox.vpn.client.tray;
 
 
 import com.logonbox.vpn.client.app.SimpleLoggingConfig;
-import com.logonbox.vpn.client.common.AppConstants;
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.LoggingConfig;
@@ -43,6 +42,7 @@ import org.slf4j.event.Level;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -288,7 +288,7 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 				    
 				    ProcessBuilder bldr;
 				    if(OS.isMacOs()) {
-				        var appDir = AppConstants.CLIENT_HOME.resolve("Nodal VPN Client.app");
+				        var appDir = Paths.get(Utils.findCommandPath("nodal-vpn-client-trap")).getParent().resolve("Nodal VPN Client.app");
                         bldr = options ? new ProcessBuilder("open", appDir.toAbsolutePath().toString(), 
                                 "--args", "--options") : new ProcessBuilder("open", appDir.toAbsolutePath().toString());
 				    }
