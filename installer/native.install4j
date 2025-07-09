@@ -480,24 +480,14 @@ return path.replace('\\', '/');</property>
                   <property name="variableName" type="string">custom.jrePath</property>
                 </serializedBean>
               </action>
-              <action name="MacOS Hack" id="2316" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+              <action name="Create Conf Dir Hack" id="2319" beanClass="com.install4j.runtime.beans.actions.control.RunScriptAction" rollbackBarrierExitCode="0">
                 <serializedBean>
-                  <property name="arguments" type="array" elementType="string" length="2">
-                    <element index="0">-p</element>
-                    <element index="1">${installer:sys.installationDir}/conf</element>
-                  </property>
-                  <property name="executable">
-                    <object class="java.io.File">
-                      <string>/bin/mkdir</string>
-                    </object>
-                  </property>
-                  <property name="workingDirectory">
-                    <object class="java.io.File">
-                      <string>.</string>
+                  <property name="script">
+                    <object class="com.install4j.api.beans.ScriptProperty">
+                      <property name="value" type="string">new java.io.File(new java.io.File("${installer:sys.installationDir}"), "conf").mkdirs()</property>
                     </object>
                   </property>
                 </serializedBean>
-                <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
               </action>
               <action id="2199" beanClass="com.install4j.runtime.beans.actions.properties.WritePropertiesFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="ask">
                 <serializedBean>
