@@ -19,6 +19,7 @@ package com.logonbox.vpn.client.tray;
 
 
 import com.logonbox.vpn.client.app.SimpleLoggingConfig;
+import com.logonbox.vpn.client.common.AppConstants;
 import com.logonbox.vpn.client.common.AppVersion;
 import com.logonbox.vpn.client.common.ConnectionStatus.Type;
 import com.logonbox.vpn.client.common.LoggingConfig;
@@ -285,8 +286,16 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 				try {
 				    getLog().info("Starting GUI");
 				    
-				    var cmd = Utils.findCommandPath("nodal-vpn-client-gui");
-				    var bldr = options ?  new ProcessBuilder(cmd, "--options") : new ProcessBuilder(cmd);
+				    ProcessBuilder bldr;
+				    if(OS.isMacOs()) {
+				        var appDir = AppConstants.CLIENT_HOME.resolve("Nodal VPN Client.app");
+                        bldr = options ? new ProcessBuilder("open", appDir.toAbsolutePath().toString(), 
+                                "--args", "--options") : new ProcessBuilder("open", appDir.toAbsolutePath().toString());
+				    }
+				    else {
+				        var cmd = Utils.findCommandPath("nodal-vpn-client-gui");
+				        bldr = options ?  new ProcessBuilder(cmd, "--options") : new ProcessBuilder(cmd);
+				    }
 				    
 					bldr.redirectError(Redirect.INHERIT);
                     bldr.redirectOutput(Redirect.INHERIT);
