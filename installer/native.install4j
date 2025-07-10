@@ -1107,7 +1107,7 @@ return console.askYesNo(message, true);
               </action>
               <action name="Delete configuration" id="2034" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated">
                 <serializedBean>
-                  <property name="files" type="array" class="java.io.File" length="2">
+                  <property name="files" type="array" class="java.io.File" length="3">
                     <element index="0">
                       <object class="java.io.File">
                         <string>${installer:sys.installationDir}/conf</string>
@@ -1116,6 +1116,11 @@ return console.askYesNo(message, true);
                     <element index="1">
                       <object class="java.io.File">
                         <string>${installer:sys.installationDir}/data</string>
+                      </object>
+                    </element>
+                    <element index="2">
+                      <object class="java.io.File">
+                        <string>${installer:sys.installationDir}/com.jadaptibve.nodal.vpn.Trap.app</string>
                       </object>
                     </element>
                   </property>
