@@ -91,6 +91,7 @@
       <component name="Client Service" id="1676" changeable="false">
         <include>
           <entry location="conf/nodal-vpn-client-service.conf" />
+          <entry location="conf/instance.properties" />
           <entry location="logs" />
           <entry location="cleanup.bat" />
           <entry location="EULA.txt" />
@@ -478,15 +479,6 @@ return path.replace('\\', '/');</property>
                     </object>
                   </property>
                   <property name="variableName" type="string">custom.jrePath</property>
-                </serializedBean>
-              </action>
-              <action name="Create Conf Dir Hack" id="2319" beanClass="com.install4j.runtime.beans.actions.control.RunScriptAction" rollbackBarrierExitCode="0">
-                <serializedBean>
-                  <property name="script">
-                    <object class="com.install4j.api.beans.ScriptProperty">
-                      <property name="value" type="string">new java.io.File(new java.io.File("${installer:sys.installationDir}"), "conf").mkdirs()</property>
-                    </object>
-                  </property>
                 </serializedBean>
               </action>
               <action id="2199" beanClass="com.install4j.runtime.beans.actions.properties.WritePropertiesFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="ask">
