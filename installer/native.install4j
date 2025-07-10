@@ -539,6 +539,18 @@ return path.replace('\\', '/');</property>
                 </serializedBean>
                 <condition>!Util.isWindows()</condition>
               </action>
+              <action id="2320" beanClass="com.sshtools.jaul.CreateMacAppAction" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="hideDock" type="boolean" value="true" />
+                  <property name="name" type="string">com.jadaptive.nodal.vpn.Tray</property>
+                  <property name="target">
+                    <object class="java.io.File">
+                      <string>nodal-vpn-client-tray${compiler:install4j.exe.suffix}</string>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
+              </action>
               <action name="Hack MacOS Again" id="2313" beanClass="com.install4j.runtime.beans.actions.xml.InsertXmlFragmentAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="files" type="array" class="java.io.File" length="1">
@@ -742,8 +754,9 @@ X-GNOME-Autostart-enabled=true</property>
 
     &lt;key&gt;ProgramArguments&lt;/key&gt;
     &lt;array&gt;
-        &lt;string&gt;${installer:sys.installationDir}/nodal-vpn-client-tray&lt;/string&gt;
-        &lt;/array&gt;
+         &lt;string&gt;/usr/bin/open&lt;/string&gt;
+         &lt;string&gt;/Applications/Nodal VPN Client/com.jadaptive.nodal.vpn.Tray.app&lt;/string&gt; 
+    &lt;/array&gt;
 
     &lt;key&gt;RunAtLoad&lt;/key&gt;
     &lt;true/&gt;
