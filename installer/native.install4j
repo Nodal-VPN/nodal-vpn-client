@@ -361,6 +361,41 @@ for more details. Accepting this license implies you also accept all others.  </
               </formComponent>
             </formComponents>
           </screen>
+          <screen name="JADBUS on Mac Warning" id="2321" beanClass="com.install4j.runtime.beans.screens.FormScreen" rollbackBarrierExitCode="0">
+            <serializedBean>
+              <property name="scrollable" type="boolean" value="false" />
+              <property name="subTitle" type="string">Companion Application installation required</property>
+              <property name="title" type="string">Download Required Component</property>
+            </serializedBean>
+            <condition>!(new java.io.File("/Applications/Jadbus/jadbus-daemon")).exists() &amp;&amp; ( Util.isMacOS() || Util.isMacosInstaller() )</condition>
+            <validation>(new java.io.File("/Applications/Jadbus/jadbus-daemon")).exists()</validation>
+            <actions>
+              <action id="2326" beanClass="com.sshtools.jaul.LocateJaulAppAction" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="jaulAppId" type="string">com.sshtools.Jadbus</property>
+                  <property name="updatesXmlLocation" type="string">https://sshtools-public.s3.eu-west-1.amazonaws.com/jadbus/stable/updates.xml</property>
+                </serializedBean>
+              </action>
+            </actions>
+            <formComponents>
+              <formComponent id="2322" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent" useExternalParametrization="true" externalParametrizationName="Header" externalParametrizationMode="include">
+                <serializedBean>
+                  <property name="hideIfBlank" type="boolean" value="true" />
+                  <property name="labelText" type="string">Nodal VPN Client requires our companion application JADBUS to operate, but it is not currently available. It cannot be automatically installed on this operating system, so please download from the link below and click Next. </property>
+                </serializedBean>
+                <visibilityScript>!context.isConsole()</visibilityScript>
+                <externalParametrizationPropertyNames>
+                  <propertyName>labelText</propertyName>
+                </externalParametrizationPropertyNames>
+              </formComponent>
+              <formComponent id="2325" beanClass="com.install4j.runtime.beans.formcomponents.HyperlinkLabelComponent">
+                <serializedBean>
+                  <property name="hyperlinkText" type="string">Download JADBUS (v${appVersion})</property>
+                  <property name="url" type="string">${appUrl}</property>
+                </serializedBean>
+              </formComponent>
+            </formComponents>
+          </screen>
           <screen id="4" beanClass="com.install4j.runtime.beans.screens.InstallationDirectoryScreen">
             <condition>!context.getBooleanVariable("sys.confirmedUpdateInstallation")</condition>
             <actions>
@@ -456,7 +491,7 @@ for more details. Accepting this license implies you also accept all others.  </
                   <property name="jaulAppId" type="string">com.sshtools.Jadbus</property>
                   <property name="updatesXmlLocation" type="string">https://sshtools-public.s3.eu-west-1.amazonaws.com/jadbus/stable/updates.xml</property>
                 </serializedBean>
-                <condition>!Util.isLinux()</condition>
+                <condition>!Util.isLinux() &amp;&amp; !Util.isMacOS() &amp;&amp; !Util.isMacosInstaller()</condition>
               </action>
               <action id="10" beanClass="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction" actionElevationType="elevated">
                 <serializedBean>
