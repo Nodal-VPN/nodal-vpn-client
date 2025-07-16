@@ -390,8 +390,8 @@ for more details. Accepting this license implies you also accept all others.  </
               </formComponent>
               <formComponent id="2325" beanClass="com.install4j.runtime.beans.formcomponents.HyperlinkLabelComponent">
                 <serializedBean>
-                  <property name="hyperlinkText" type="string">Download JADBUS (v${appVersion})</property>
-                  <property name="url" type="string">${appUrl}</property>
+                  <property name="hyperlinkText" type="string">Download JADBUS (v${installer:appVersion})</property>
+                  <property name="url" type="string">${installer:appUrl}</property>
                 </serializedBean>
               </formComponent>
             </formComponents>
