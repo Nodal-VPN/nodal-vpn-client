@@ -265,6 +265,10 @@
             </group>
           </styleOverride>
         </styleOverrides>
+        <variables>
+          <variable name="appUrl" value="UNSET" valueClass="string" />
+          <variable name="appVersion" value="UNSET" valueClass="string" />
+        </variables>
         <startup>
           <screen id="1" beanClass="com.install4j.runtime.beans.screens.StartupScreen" rollbackBarrierExitCode="0">
             <actions>
