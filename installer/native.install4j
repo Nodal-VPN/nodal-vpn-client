@@ -282,6 +282,12 @@
                   <property name="obtainIfNormalWin" type="boolean" value="true" />
                 </serializedBean>
               </action>
+              <action id="2326" beanClass="com.sshtools.jaul.LocateJaulAppAction" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="jaulAppId" type="string">com.sshtools.Jadbus</property>
+                  <property name="updatesXmlLocation" type="string">https://sshtools-public.s3.eu-west-1.amazonaws.com/jadbus/stable/updates.xml</property>
+                </serializedBean>
+              </action>
             </actions>
           </screen>
         </startup>
@@ -373,14 +379,6 @@ for more details. Accepting this license implies you also accept all others.  </
             </serializedBean>
             <condition>!(new java.io.File("/Applications/Jadbus/jadbus-daemon")).exists() &amp;&amp; ( Util.isMacOS() || Util.isMacosInstaller() )</condition>
             <validation>(new java.io.File("/Applications/Jadbus/jadbus-daemon")).exists()</validation>
-            <actions>
-              <action id="2326" beanClass="com.sshtools.jaul.LocateJaulAppAction" rollbackBarrierExitCode="0">
-                <serializedBean>
-                  <property name="jaulAppId" type="string">com.sshtools.Jadbus</property>
-                  <property name="updatesXmlLocation" type="string">https://sshtools-public.s3.eu-west-1.amazonaws.com/jadbus/stable/updates.xml</property>
-                </serializedBean>
-              </action>
-            </actions>
             <formComponents>
               <formComponent id="2322" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent" useExternalParametrization="true" externalParametrizationName="Header" externalParametrizationMode="include">
                 <serializedBean>
