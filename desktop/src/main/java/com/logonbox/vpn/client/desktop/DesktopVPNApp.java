@@ -39,6 +39,7 @@ import com.logonbox.vpn.client.gui.jfx.UI;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
 import com.sshtools.jajafx.JajaFXApp;
 import com.sshtools.jajafx.JajaFXAppWindow;
+import com.sshtools.liftlib.OS;
 
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.slf4j.Logger;
@@ -53,6 +54,7 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -515,7 +517,14 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
             public void run() {
                 try {
                     LOG.info("Starting tray");
-                    var bldr = new ProcessBuilder(Utils.findCommandPath("nodal-vpn-client-tray"));
+                    ProcessBuilder bldr;
+                    if(OS.isMacOs()) {
+                        var appDir = Paths.get(Utils.findCommandPath("nodal-vpn-client-gui")).toRealPath().getParent().resolve("Nodal VPN Client.app").resolve("com.jadaptive.nodal.vpn.Tray.app");
+                        bldr = new ProcessBuilder("open", appDir.toAbsolutePath().toString());
+                    }
+                    else {
+                        bldr = new ProcessBuilder(Utils.findCommandPath("nodal-vpn-client-tray"));
+                    }
                     bldr.redirectError(Redirect.INHERIT);
                     bldr.redirectOutput(Redirect.INHERIT);
                     bldr.start();
