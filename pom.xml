@@ -173,12 +173,12 @@
             <dependency>
                 <groupId>com.sshtools</groupId>
                 <artifactId>jini-config</artifactId>
-                <version>0.3.3</version>
+                <version>0.5.5</version>
             </dependency>
             <dependency>
                 <groupId>com.sshtools</groupId>
                 <artifactId>jini-lib</artifactId>
-                <version>0.3.3</version>
+                <version>0.5.5</version>
             </dependency>
             <dependency>
                 <groupId>org.kordamp.ikonli</groupId>

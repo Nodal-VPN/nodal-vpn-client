@@ -13,14 +13,19 @@ or a distributed application that is made up of several parts. The former is int
 on mobile platforms, while the latter more fully feature arrangement is intended for use on the
 desktop. 
 
- * `nodal-vpn-client-desktop-service`, that runs as a privileged server and manages VPN configurations for
+ * `desktop-service`, that runs as a privileged server and manages VPN configurations for
    all of the computers users.
- * `nodal-vpn-client-cli`, a command line application for creating and managing connections to VPN servers
- * `nodal-vpn-client-gui`, a desktop application with similar functionality to the CLI. This is required 
+ * `cli`, a command line application for creating and managing connections to VPN servers
+ * `desktop`, a desktop application with similar functionality to the CLI. This is required 
    if the web server uses web based authentication.
- * `nodal-vpn-client-tray`, a simple system tray application that provides quick access to VPN features. 
+ * `tray`, a simple system tray application that provides quick access to VPN features. 
 
-In both cases, `logonbox-vpn-drivers` will be used for low level VPN functionality.
+In both cases, `nodal-core` will be used for low level VPN functionality.
+
+There are also two other experimental clients that arrange things in a slightly different way. 
+
+ * `swt-gui`  is a partial implementation of the client in SWT instead of JavaFX.
+ * `mobile` contains some experimental mobile related code (in progress).
 
 ### The VPN Manager Desktop Service
 
