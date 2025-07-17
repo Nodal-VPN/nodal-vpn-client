@@ -1009,10 +1009,15 @@ return console.askYesNo(message, true);
               </action>
               <action name="Delete Mac OS Tray LaunchAgent" id="2314" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
-                  <property name="files" type="array" class="java.io.File" length="1">
+                  <property name="files" type="array" class="java.io.File" length="2">
                     <element index="0">
                       <object class="java.io.File">
                         <string>/Library/LaunchAgents/com.jadaptive.nodal.vpn.Tray.plist</string>
+                      </object>
+                    </element>
+                    <element index="1">
+                      <object class="java.io.File">
+                        <string>./com.jadaptive.nodal.vpn.Tray.app</string>
                       </object>
                     </element>
                   </property>
