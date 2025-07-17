@@ -31,6 +31,7 @@ import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
 import com.logonbox.vpn.client.gui.jfx.JfxAppContext;
 import com.logonbox.vpn.client.gui.jfx.UIContext;
 import com.sshtools.jaul.ArtifactVersion;
+import com.sshtools.jaul.JaulApp;
 import com.sshtools.jaul.NoUpdateService;
 import com.sshtools.jaul.UpdateService;
 import com.sshtools.liftlib.OS;
@@ -56,6 +57,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;
 
+@JaulApp(id = "com.jadaptive.NodalVPNClient")
 @Command(name = "nodal-vpn-client-gui", mixinStandardHelpOptions = true, description = "Start the VPN client graphical user interface.", versionProvider = DesktopVPN.VersionProvider.class
 ) 
 public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppContext<VpnConnection> {

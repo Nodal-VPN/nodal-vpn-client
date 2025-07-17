@@ -39,6 +39,7 @@ import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.dbus.app.AbstractDBusApp;
 import com.logonbox.vpn.client.dbus.client.DBusVpnManager;
 import com.sshtools.jaul.ArtifactVersion;
+import com.sshtools.jaul.JaulApp;
 
 import org.slf4j.event.Level;
 
@@ -63,6 +64,7 @@ import uk.co.bithatch.nativeimage.annotations.Resource;
 		About.class, Change.class, Update.class, Debug.class, Options.class, Shutdown.class })
 @Bundle
 @Resource({"default-log4j-cli\\.properties"})
+@JaulApp(id = "com.jadaptive.NodalVPNClient")
 public class CLI extends AbstractDBusApp implements CLIContext {
     
     public final static String COMMAND_NAME = "nodal-vpn-client";
