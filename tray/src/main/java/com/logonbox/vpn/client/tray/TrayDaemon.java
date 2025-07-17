@@ -44,15 +44,18 @@ import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.IVersionProvider;
+import picocli.CommandLine.Option;
 import uk.co.bithatch.nativeimage.annotations.Reflectable;
 import uk.co.bithatch.nativeimage.annotations.Resource;
 import uk.co.bithatch.nativeimage.annotations.TypeReflect;
@@ -97,12 +100,22 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 
 	private Map<Long, Slice> notificationsForConnections = new HashMap<>();
     
+    @Option(names = { "--delay" }, description = "Wait for a while before doing anything.", hidden = true)
+    private Optional<Integer> delaySeconds;
+    
     public TrayDaemon() {
 		instance = this;
 	}
 
 	@Override
 	protected int onCall() throws Exception {
+	    delaySeconds.or(() -> Optional.ofNullable(System.getenv("TRAY_DELAY")).map(Integer::parseInt)).ifPresent(scnds -> {
+	        /* Hack for mac (jadbus session bus dependency) */
+	        try {
+                Thread.sleep(Duration.ofSeconds(scnds));
+            } catch (InterruptedException e) {
+            }
+	    });
 	    
 	    Utils.applicationLock("nodal-vpn-client-tray");
 
@@ -326,13 +339,16 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 	}
 
     private void requestAuthorize(VpnConnection connection) {
-        putNotificationForConnection(connection.getId(),
-                Toast.builder().title(Tray.bundle.getString("appName"))
-                        .content(MessageFormat.format(Tray.bundle.getString("authorize"), connection.getDisplayName(),
-                                connection.getHostname()))
-                        .type(ToastType.INFO).defaultAction(() -> open()).action(Tray.bundle.getString("open"), () -> {
-                            open();
-                            getScheduler().execute(() -> getVpnManager().getVpnOrFail().getConnection(connection.getId()).connect());
-                        }).timeout(0).toast());
+        var ui = getVpnManager().getUserInterface();
+        if(ui.isEmpty() || !ui.get().isVisible()) {
+            putNotificationForConnection(connection.getId(),
+                    Toast.builder().title(Tray.bundle.getString("appName"))
+                            .content(MessageFormat.format(Tray.bundle.getString("authorize"), connection.getDisplayName(),
+                                    connection.getHostname()))
+                            .type(ToastType.INFO).defaultAction(() -> open()).action(Tray.bundle.getString("open"), () -> {
+                                open();
+                                getScheduler().execute(() -> getVpnManager().getVpnOrFail().getConnection(connection.getId()).connect());
+                            }).timeout(0).toast());
+        }
     }
 }

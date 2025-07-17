@@ -147,6 +147,11 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
     }
     
     @Override
+    public boolean isVisible() {
+        return vpnWindow.stage().isShowing();
+    }
+
+    @Override
     protected DarkMode getDarkMode() {
         return DarkMode.valueOf(JavaFXUiConfiguration.getDefault().darkModeProperty().get().name());
     }

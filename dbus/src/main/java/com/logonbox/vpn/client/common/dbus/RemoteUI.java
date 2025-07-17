@@ -19,6 +19,7 @@ package com.logonbox.vpn.client.common.dbus;
 
 import com.logonbox.vpn.client.common.api.IRemoteUI;
 
+import org.freedesktop.dbus.annotations.DBusBoundProperty;
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
 import org.freedesktop.dbus.annotations.DBusMemberName;
 import org.freedesktop.dbus.exceptions.DBusException;
@@ -52,6 +53,9 @@ public interface RemoteUI extends DBusInterface, IRemoteUI {
 
     @DBusMemberName("ExitApp")
     void exitApp();
+
+    @DBusBoundProperty
+    boolean isVisible();
     
 	@Reflectable
 	@TypeReflect(methods = true, constructors = true)

@@ -123,6 +123,12 @@ public class Client implements RemoteUI {
 	}
 
 	@Override
+    public boolean isVisible() {
+	    /* TODO enough? */
+        return shell.isVisible();
+    }
+
+    @Override
 	public void confirmExit() {
 		display.asyncExec(() -> {
 			int active = 0;

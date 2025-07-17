@@ -29,4 +29,6 @@ public interface IRemoteUI {
 
     void exitApp();
 
+    boolean isVisible();
+
 }

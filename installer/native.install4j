@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="11.0.3" transformSequenceNumber="11">
-  <directoryPresets config="./os/windows/win32-x86-64/nodal-vpn-client-client-service.xml" />
+  <directoryPresets config="./images" />
   <application name="Nodal VPN Client" applicationId="8341-5005-2778-2431" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="nodal-vpn-client" publisher="JADAPTIVE Limited" publisherWeb="https://jadaptive.com" version="4.0.0" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
@@ -537,6 +537,9 @@ return path.replace('\\', '/');</property>
               </action>
               <action id="2320" beanClass="com.sshtools.jaul.CreateMacAppAction" rollbackBarrierExitCode="0">
                 <serializedBean>
+                  <property name="environment" type="array" elementType="string" length="1">
+                    <element index="0">TRAY_DELAY=10</element>
+                  </property>
                   <property name="hideDock" type="boolean" value="true" />
                   <property name="id" type="string">com.jadaptive.nodal.vpn.Tray</property>
                   <property name="name" type="string">com.jadaptive.nodal.vpn.Tray</property>
@@ -833,9 +836,37 @@ context.isUpdateInstallation()  &amp;&amp;
       </application>
       <application id="uninstaller" beanClass="com.install4j.runtime.beans.applications.UninstallerApplication" actionElevationType="elevated" styleId="1792" launchInNewProcess="false">
         <serializedBean>
+          <property name="customIconImageFiles">
+            <add>
+              <object class="com.install4j.api.beans.ExternalFile">
+                <string>./images/logo16px.png</string>
+              </object>
+            </add>
+            <add>
+              <object class="com.install4j.api.beans.ExternalFile">
+                <string>./images/logo24px.png</string>
+              </object>
+            </add>
+            <add>
+              <object class="com.install4j.api.beans.ExternalFile">
+                <string>./images/logo32px.png</string>
+              </object>
+            </add>
+            <add>
+              <object class="com.install4j.api.beans.ExternalFile">
+                <string>./images/logo64px.png</string>
+              </object>
+            </add>
+            <add>
+              <object class="com.install4j.api.beans.ExternalFile">
+                <string>./images/logo128px.png</string>
+              </object>
+            </add>
+          </property>
           <property name="customMacosExecutableName" type="string">${i18n:UninstallerMenuEntry(${compiler:sys.fullName})}</property>
           <property name="frameSizeClientArea" type="boolean" value="false" />
           <property name="frameWidth" type="int" value="575" />
+          <property name="useCustomIcon" type="boolean" value="true" />
         </serializedBean>
         <styleOverrides>
           <styleOverride name="Customize banner image" enabled="true">
