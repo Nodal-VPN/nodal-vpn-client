@@ -538,6 +538,7 @@ return path.replace('\\', '/');</property>
               <action id="2320" beanClass="com.sshtools.jaul.CreateMacAppAction" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="hideDock" type="boolean" value="true" />
+                  <property name="id" type="string">com.jadaptive.nodal.vpn.Tray</property>
                   <property name="name" type="string">com.jadaptive.nodal.vpn.Tray</property>
                   <property name="target">
                     <object class="java.io.File">
@@ -796,7 +797,7 @@ X-GNOME-Autostart-enabled=true</property>
               <action name="Start Tray (Mac OS)" id="2312" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="arguments" type="array" elementType="string" length="1">
-                    <element index="0">${installer:sys.installationDir}/com.jadaptive.nodal.vpn.Tray</element>
+                    <element index="0">${installer:sys.installationDir}/com.jadaptive.nodal.vpn.Tray.app</element>
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
