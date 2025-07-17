@@ -789,7 +789,7 @@ X-GNOME-Autostart-enabled=true</property>
                   <property name="launcherId" type="string">2271</property>
                 </serializedBean>
                 <condition>!context.getBooleanVariable("preventExecuteLauncherAction") &amp;&amp;
-( context.getBooleanVariable("executeLauncherAction") || context.isUpdateInstallation())  &amp;&amp; 
+context.isUpdateInstallation()  &amp;&amp; 
 (Util.isLinux() || Util.isWindows() || Util.isWindowsInstaller() )
 
 </condition>
@@ -814,7 +814,7 @@ X-GNOME-Autostart-enabled=true</property>
                   </property>
                 </serializedBean>
                 <condition>!context.getBooleanVariable("preventExecuteLauncherAction") &amp;&amp;
-( context.getBooleanVariable("executeLauncherAction") || context.isUpdateInstallation())  &amp;&amp; 
+context.isUpdateInstallation()  &amp;&amp; 
 ( Util.isMacOS() || Util.isMacosInstaller() ) </condition>
               </action>
               <action id="2043" beanClass="com.install4j.runtime.beans.actions.finish.RebootAction" actionElevationType="none" rollbackBarrierExitCode="0">
