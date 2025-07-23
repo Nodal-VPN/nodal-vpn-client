@@ -853,11 +853,19 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 				
 				/* Wait for a little while if pageBundle is null */
 
-                if(checkPayload()) {
-    				processDOM();
-    				processJavascript();
-    				setLoading(false);
-                }
+				try {
+                    if(checkPayload()) {
+        				processDOM();
+        				processJavascript();
+        				setLoading(false);
+                    }
+				}
+				catch(Exception e) {
+				    if(LOG.isDebugEnabled())
+				        LOG.error("State change update failed. ", ua);
+				    else
+				        LOG.warn("State change update failed. " + e.getMessage());
+				}
 			}
 		});
 		engine.getLoadWorker().exceptionProperty().addListener((o, old, value) -> {
