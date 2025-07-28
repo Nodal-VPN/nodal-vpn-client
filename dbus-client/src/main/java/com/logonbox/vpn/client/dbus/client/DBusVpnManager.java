@@ -55,6 +55,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
@@ -436,11 +437,19 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 
         onVpnAvailable.forEach(Runnable::run);
 		
-		pingTask = app.getScheduler().scheduleAtFixedRate(() -> {
+        var noReplies = new AtomicInteger();
+		pingTask = app.getScheduler().scheduleWithFixedDelay(() -> {
 			synchronized (initLock) {
 				if (isBackendAvailable()) {
 					try {
 						((VPN)getVpnOrFail()).ping();
+                        noReplies.set(0);
+					} catch(NoReply nr) {
+					    // Probably frozen (coming out of hibernate?)
+					    if(noReplies.addAndGet(1) > 20) {
+					        busGone();
+					        noReplies.set(0);
+					    }
 					} catch (Exception e) {
 						busGone();
 					}
@@ -487,12 +496,6 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 			
 			if(wasAvailable) {
                 if (altConn != null && !altConn.equals(conn)) {
-                    altHandles.forEach(h -> {
-                        try {
-                            h.close();
-                        } catch (Exception e) {
-                        }
-                    });
                     try {
                         altConn.disconnect();
                     }
@@ -501,13 +504,13 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
                     finally {
                         altConn = null;
                     }
+                    altHandles.forEach(h -> {
+                        try {
+                            h.close();
+                        } catch (Exception e) {
+                        }
+                    });
                 }
-                handles.forEach(h -> {
-                    try {
-                        h.close();
-                    } catch (Exception e) {
-                    }
-                });
 			}
 
             if (conn != null) {
@@ -521,6 +524,12 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
                     conn = null;
                 }
             }
+            handles.forEach(h -> {
+                try {
+                    h.close();
+                } catch (Exception e) {
+                }
+            });
 
 			/*
 			 * Only really likely to happen with the embedded bus. As the service itself
