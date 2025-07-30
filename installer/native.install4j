@@ -57,8 +57,8 @@
       <mountPoint id="859" location="gui" />
       <mountPoint id="1081" location="logs" />
       <mountPoint id="2041" location="images" />
-      <mountPoint id="2032" />
       <mountPoint id="2323" location=".install4j" />
+      <mountPoint id="2032" />
       <mountPoint id="2037" root="2036" />
     </mountPoints>
     <entries>
@@ -72,6 +72,7 @@
         </exclude>
       </dirEntry>
       <fileEntry mountPoint="2041" file="./images/splash.png" />
+      <fileEntry mountPoint="2323" file="./target/gui/install4j-runtime.jar" />
       <fileEntry mountPoint="2032" file="./scripts/cleanup.bat" />
       <fileEntry mountPoint="2032" file="./EULA.txt" />
       <fileEntry mountPoint="2032" file="./WireGuardNT-LICENSE.txt" />
@@ -82,7 +83,6 @@
       <fileEntry mountPoint="2032" file="../tray/target/nodal-vpn-client-tray${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
       <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/nodal-vpn-client-service-win.exe" />
       <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/nodal-vpn-client-service-win.xml" />
-      <fileEntry mountPoint="2323" file="./target/gui/install4j-runtime.jar" />
       <fileEntry mountPoint="2037" file="./os/linux/dbus/nodal-vpn-client-service.conf" />
     </entries>
     <components>
@@ -1638,15 +1638,14 @@ context.goForward(1, true, true);
                             <serializedBean>
                               <property name="script">
                                 <object class="com.install4j.api.beans.ScriptProperty">
-                                  <property name="value" type="string">import com.install4j.runtime.installer.frontend.SplashProgressInterface;
-
+                                  <property name="value" type="string">
 List&lt;String&gt; args = new ArrayList&lt;String&gt;();
 String installationDirectory = context.getInstallationDirectory().getPath();
 if (context.isUnattended()) {
     args.add("-q");
     args.add("-wait");
     args.add("20");
-    if (context.getProgressInterface() instanceof SplashProgressInterface) {
+    if (!context.isConsole()) {
         args.add("-splash");
         args.add("Installing");
     }
