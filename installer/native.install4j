@@ -729,6 +729,7 @@ X-GNOME-Autostart-enabled=true</property>
               </action>
               <action name="Tray Icon Autostart (Windows)" id="2277" beanClass="com.install4j.runtime.beans.actions.desktop.AddStartupItemAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
+                  <property name="allUsers" type="boolean" value="true" />
                   <property name="executable">
                     <object class="java.io.File">
                       <string>nodal-vpn-client-tray${compiler:install4j.exe.suffix}</string>
@@ -787,13 +788,12 @@ X-GNOME-Autostart-enabled=true</property>
                 </serializedBean>
                 <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
               </action>
-              <action name="Start Tray (Windows and Linux)" id="2282" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" actionElevationType="none" rollbackBarrierExitCode="0">
+              <action name="Start Tray (Linux)" id="2282" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="launcherId" type="string">2271</property>
                 </serializedBean>
                 <condition>!context.getBooleanVariable("preventExecuteLauncherAction") &amp;&amp;
-context.isUpdateInstallation()  &amp;&amp; 
-(Util.isLinux() || Util.isWindows() || Util.isWindowsInstaller() )
+Util.isLinux()
 
 </condition>
               </action>
@@ -817,8 +817,27 @@ context.isUpdateInstallation()  &amp;&amp;
                   </property>
                 </serializedBean>
                 <condition>!context.getBooleanVariable("preventExecuteLauncherAction") &amp;&amp;
-context.isUpdateInstallation()  &amp;&amp; 
 ( Util.isMacOS() || Util.isMacosInstaller() ) </condition>
+              </action>
+              <action name="Start Tray (Windows)" id="2322" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="none" rollbackBarrierExitCode="0" errorMessage="Failed to start user Nodal VPN Client system tray icon.">
+                <serializedBean>
+                  <property name="arguments" type="array" elementType="string" length="0" />
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>C:/ProgramData/Microsoft/Windows/Start Menu/Programs/StartUp/Nodal VPN Tray Icon.lnk</string>
+                    </object>
+                  </property>
+                  <property name="logArguments" type="boolean" value="true" />
+                  <property name="timeout" type="int" value="10" />
+                  <property name="wait" type="boolean" value="true" />
+                  <property name="workingDirectory">
+                    <object class="java.io.File">
+                      <string>.</string>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>!context.getBooleanVariable("preventExecuteLauncherAction") &amp;&amp;
+( Util.isWindows() || Util.isWindowsInstaller() ) </condition>
               </action>
               <action id="2043" beanClass="com.install4j.runtime.beans.actions.finish.RebootAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <condition>Util.isMacOS() &amp;&amp; Float.parseFloat(System.getProperty("os.version").split("\\.")[0] + "." + System.getProperty("os.version").split("\\.")[1]) &lt; 10.16f</condition>
