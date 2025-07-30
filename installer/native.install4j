@@ -58,6 +58,7 @@
       <mountPoint id="1081" location="logs" />
       <mountPoint id="2041" location="images" />
       <mountPoint id="2032" />
+      <mountPoint id="2323" location=".install4j" />
       <mountPoint id="2037" root="2036" />
     </mountPoints>
     <entries>
@@ -81,7 +82,7 @@
       <fileEntry mountPoint="2032" file="../tray/target/nodal-vpn-client-tray${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
       <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/nodal-vpn-client-service-win.exe" />
       <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/nodal-vpn-client-service-win.xml" />
-      <fileEntry mountPoint="2032" file="./target/gui/install4j-runtime.jar" />
+      <fileEntry mountPoint="2323" file="./target/gui/install4j-runtime.jar" />
       <fileEntry mountPoint="2037" file="./os/linux/dbus/nodal-vpn-client-service.conf" />
     </entries>
     <components>
@@ -98,7 +99,7 @@
           <entry location="nodal-vpn-client-service${compiler:install4j.exe.suffix}" />
           <entry location="nodal-vpn-client-service-win.exe" />
           <entry location="nodal-vpn-client-service-win.xml" />
-          <entry location="install4j-runtime.jar" />
+          <entry location=".install4j/install4j-runtime.jar" />
           <entry rootId="2036" location="nodal-vpn-client-service.conf" />
         </include>
       </component>
@@ -144,7 +145,7 @@
       <splashScreen show="true" bitmapFile="./images/splash.png" />
       <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module">
         <modulePath>
-          <archive location="install4j-runtime.jar" failOnError="false" />
+          <archive location=".install4j/install4j-runtime.jar" failOnError="false" />
           <directory location="gui" failOnError="false" />
           <directory location="${compiler:jfx.archdir}" failOnError="false" />
         </modulePath>
@@ -174,9 +175,9 @@
       <splashScreen show="true" bitmapFile="./images/splash.png" />
       <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module" allowVMPassthroughParameters="false">
         <modulePath>
-          <archive location="install4j-runtime.jar" failOnError="false" />
           <directory location="gui" failOnError="false" />
           <directory location="${compiler:jfx.archdir}" failOnError="false" />
+          <archive location=".install4j/install4j-runtime.jar" failOnError="false" />
         </modulePath>
       </java>
       <vmOptionsFile mode="content" overwriteMode="2">
