@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="11.0.3" transformSequenceNumber="11">
-  <directoryPresets config="./images" />
+  <directoryPresets config="./target/gui/install4j-runtime.jar" />
   <application name="Nodal VPN Client" applicationId="8341-5005-2778-2431" mediaDir="target" mediaFilePattern="${compiler:sys.shortName}-${compiler:sys.platform}-${compiler:sys.version}" lzmaCompression="true" shrinkRuntime="false" shortName="nodal-vpn-client" publisher="JADAPTIVE Limited" publisherWeb="https://jadaptive.com" version="4.0.0" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="6e58664707a0ffbd" javaMinVersion="21" javaMaxVersion="21" jdkMode="jdk" jdkName="JDK 17.0">
     <searchSequence>
       <directory location=".install4j/jre.bundle" />
@@ -66,12 +66,8 @@
       <fileEntry mountPoint="82" file="./instance.properties" />
       <dirEntry mountPoint="859" file="./target/gui" subDirectory="gui">
         <exclude>
-          <entry location="javafx-controls-17.jar" />
-          <entry location="javafx-base-17.jar" />
-          <entry location="javafx-graphics-17.jar" />
-          <entry location="javafx-web-17.jar" />
-          <entry location="javafx-media-17.jar" />
-          <entry location="javafx-fxml-17.jar" />
+          <entry location="install4j-runtime.jar" />
+          <entry location="install4j-maven.jar" />
         </exclude>
       </dirEntry>
       <fileEntry mountPoint="2041" file="./images/splash.png" />
@@ -85,6 +81,7 @@
       <fileEntry mountPoint="2032" file="../tray/target/nodal-vpn-client-tray${compiler:install4j.exe.suffix}" fileMode="755" overrideFileMode="true" />
       <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/nodal-vpn-client-service-win.exe" />
       <fileEntry mountPoint="2032" file="./os/windows/win32-x86-64/nodal-vpn-client-service-win.xml" />
+      <fileEntry mountPoint="2032" file="./target/gui/install4j-runtime.jar" />
       <fileEntry mountPoint="2037" file="./os/linux/dbus/nodal-vpn-client-service.conf" />
     </entries>
     <components>
@@ -101,6 +98,7 @@
           <entry location="nodal-vpn-client-service${compiler:install4j.exe.suffix}" />
           <entry location="nodal-vpn-client-service-win.exe" />
           <entry location="nodal-vpn-client-service-win.xml" />
+          <entry location="install4j-runtime.jar" />
           <entry rootId="2036" location="nodal-vpn-client-service.conf" />
         </include>
       </component>
@@ -144,8 +142,9 @@
         <versionInfo include="true" fileDescription="Graphical front end for the Nodal VPN Client Service" legalCopyright="JADAPTIVE Limited" internalName="Nodal VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
-      <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module" vmParameters="&quot;-Dinstall4j.runtimeDir=${installer:sys.installationDir}/.install4j&quot;">
+      <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module">
         <modulePath>
+          <archive location="install4j-runtime.jar" failOnError="false" />
           <directory location="gui" failOnError="false" />
           <directory location="${compiler:jfx.archdir}" failOnError="false" />
         </modulePath>
@@ -173,8 +172,9 @@
         <versionInfo include="true" fileDescription="Remote control for the graphical front end to the Nodal VPN Client Service" legalCopyright="JADAPTIVE Limited" internalName="Nodal VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
-      <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module" vmParameters="&quot;-Dinstall4j.runtimeDir=${installer:sys.installationDir}/.install4j&quot;" allowVMPassthroughParameters="false">
+      <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module" allowVMPassthroughParameters="false">
         <modulePath>
+          <archive location="install4j-runtime.jar" failOnError="false" />
           <directory location="gui" failOnError="false" />
           <directory location="${compiler:jfx.archdir}" failOnError="false" />
         </modulePath>
