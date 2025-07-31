@@ -226,7 +226,7 @@
     </launcher>
     <launcher name="nodal-vpn-client-gui-remote" id="2035" excludeFromMenu="true" customMacBundleIdentifier="true" macBundleIdentifier="com.jadaptive.nodal.vpn.ClientGuiRemote">
       <executable name="nodal-vpn-client-gui-remote" iconSet="true" stderrFile="${installer:sys.userHome}/.config/nodal-vpn-client/gui-app.log" redirectStdout="true" stdoutFile="${installer:sys.userHome}/.config/nodal-vpn-client/gui-app.log" executableMode="console" dpiAware="false">
-        <versionInfo include="true" fileDescription="Remote control for the graphical front end to the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="JADAPTIVE VPN Client" />
+        <versionInfo include="true" fileDescription="Remote control for the graphical front end to the JADAPTIVE VPN service" legalCopyright="JADAPTIVE Limited" internalName="Nodal VPN Client" />
       </executable>
       <splashScreen show="true" bitmapFile="./images/splash.png" />
       <java mainClass="com.jadaptive.nodal.vpn.client.desktop/com.logonbox.vpn.client.desktop.DesktopVPN" mainMode="module" allowVMPassthroughParameters="false">
