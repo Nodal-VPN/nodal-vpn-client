@@ -155,6 +155,9 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 			"--unix-domain-socket-bus" }, description = "Force use of UNIX DBus service. Usually it is enabled by default for operating systems other than Windows.")
 	private boolean unixBus;
 
+    @Option(names = { "--expect-ping" }, description = "Expect the client to ping.", hidden = true)
+    private boolean expectPing;
+
 	@Option(names = { "-u", "--auth" }, description = "Mask of SASL authentication method to use.")
 	private SaslAuthMode authMode = SaslAuthMode.AUTH_ANONYMOUS;
 	
@@ -539,22 +542,24 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
     @Override
     protected void onStartServices() {
 
-        getScheduler().scheduleWithFixedDelay(() -> {
-            long now = System.currentTimeMillis();
-            Set<VPNFrontEnd> toRemove = new LinkedHashSet<>();
-            synchronized (getFrontEnds()) {
-                for (VPNFrontEnd fe : getFrontEnds()) {
-                    if (fe.getLastPing() < now - PING_TIMEOUT) {
-                        toRemove.add(fe);
+        if(expectPing) {
+            getScheduler().scheduleWithFixedDelay(() -> {
+                long now = System.currentTimeMillis();
+                Set<VPNFrontEnd> toRemove = new LinkedHashSet<>();
+                synchronized (getFrontEnds()) {
+                    for (VPNFrontEnd fe : getFrontEnds()) {
+                        if (fe.getLastPing() < now - PING_TIMEOUT) {
+                            toRemove.add(fe);
+                        }
                     }
                 }
-            }
-            for (VPNFrontEnd fe : toRemove) {
-                log.warn(String.format("Front-end with source %s hasn't pinged for at least %dms", fe.getSource(),
-                        PING_TIMEOUT));
-                deregisterFrontEnd(fe.getSource());
-            }
-        }, 5, 5, TimeUnit.SECONDS);
+                for (VPNFrontEnd fe : toRemove) {
+                    log.warn(String.format("Front-end with source %s hasn't pinged for at least %dms", fe.getSource(),
+                            PING_TIMEOUT));
+                    deregisterFrontEnd(fe.getSource());
+                }
+            }, 5, 5, TimeUnit.SECONDS);
+        }
     }
 
     @Override

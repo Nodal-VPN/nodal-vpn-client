@@ -33,14 +33,14 @@ public class Shutdown implements Callable<Integer> {
 	private CommandSpec spec;
 
 	@Option(names = { "-r", "--restart" }, description = "Restart.")
-	private boolean delete;
+	private boolean restart;
 
 	@Override
 	public Integer call() throws Exception {
 		var cli = (CLIContext) spec.parent().userObject();
         cli.initConsoleAndManager();
         
-		cli.getVpnManager().getVpnOrFail().shutdown(false);
+		cli.getVpnManager().getVpnOrFail().shutdown(restart);
 		return 0;
 	}
 }

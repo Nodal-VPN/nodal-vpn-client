@@ -66,9 +66,15 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
         private Optional<Boolean> sessionBus = Optional.empty();
         private boolean supportsAuthorization;
         private final AppContext<VpnConnection> app;
+        private boolean ping;
         
         public Builder(AppContext<VpnConnection> app) {
             this.app = app;
+        }
+        
+        public Builder withPing(boolean ping) {
+            this.ping = ping;
+            return this;
         }
         
         public Builder withBusAddress(String busAddress) {
@@ -112,6 +118,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 	private final Optional<Boolean> sessionBus;
     private final boolean supportsAuthorization;
     private final AppContext<VpnConnection> app;
+    private final boolean ping;
 	
     private DBusConnection conn;
     private Object initLock = new Object();
@@ -124,6 +131,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
     private IVpn<VpnConnection> vpn;
     private boolean registered;
 
+
 	private DBusVpnManager(Builder bldr) {
 	    super();
 	    
@@ -131,6 +139,7 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 	    this.supportsAuthorization = bldr.supportsAuthorization;
 	    this.sessionBus = bldr.sessionBus;
 	    this.busAddress = bldr.busAddress.orElse(null);
+	    this.ping = bldr.ping;
 	    
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -437,25 +446,27 @@ public final class DBusVpnManager extends AbstractVpnManager<VpnConnection> {
 
         onVpnAvailable.forEach(Runnable::run);
 		
-        var noReplies = new AtomicInteger();
-		pingTask = app.getScheduler().scheduleWithFixedDelay(() -> {
-			synchronized (initLock) {
-				if (isBackendAvailable()) {
-					try {
-						((VPN)getVpnOrFail()).ping();
-                        noReplies.set(0);
-					} catch(NoReply nr) {
-					    // Probably frozen (coming out of hibernate?)
-					    if(noReplies.addAndGet(1) > 20) {
-					        busGone();
-					        noReplies.set(0);
-					    }
-					} catch (Exception e) {
-						busGone();
-					}
-				}
-			}
-		}, 5, 5, TimeUnit.SECONDS);
+        if(ping) {
+            var noReplies = new AtomicInteger();
+    		pingTask = app.getScheduler().scheduleWithFixedDelay(() -> {
+    			synchronized (initLock) {
+    				if (isBackendAvailable()) {
+    					try {
+    						((VPN)getVpnOrFail()).ping();
+                            noReplies.set(0);
+    					} catch(NoReply nr) {
+    					    // Probably frozen (coming out of hibernate?)
+    					    if(noReplies.addAndGet(1) > 20) {
+    					        busGone();
+    					        noReplies.set(0);
+    					    }
+    					} catch (Exception e) {
+    						busGone();
+    					}
+    				}
+    			}
+    		}, 5, 5, TimeUnit.SECONDS);
+        }
 	}
 
 	protected void handleCertPromptRequest(VPN.CertificatePrompt sig) {

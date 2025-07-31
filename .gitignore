@@ -10,3 +10,4 @@
 **/.settings
 **/target
 /installer/instance.properties
+/desktop/logs/tray-app.log

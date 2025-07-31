@@ -79,6 +79,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javafx.animation.KeyFrame;
@@ -865,6 +866,10 @@ public final class UI<CONX extends IVpnConnection> extends AnchorPane {
 				        LOG.error("State change update failed. ", ua);
 				    else
 				        LOG.warn("State change update failed. " + e.getMessage());
+				    
+				    uiContext.getAppContext().getScheduler().schedule(() -> {
+				        engine.reload();
+				    }, 5, TimeUnit.SECONDS);
 				}
 			}
 		});

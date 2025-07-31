@@ -525,8 +525,15 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
                     else {
                         bldr = new ProcessBuilder(Utils.findCommandPath("nodal-vpn-client-tray"));
                     }
-                    bldr.redirectError(Redirect.INHERIT);
-                    bldr.redirectOutput(Redirect.INHERIT);
+                    if(Boolean.getBoolean("nodal.vpn.debugTrayStart")) {
+                        /* NOTE: will hold up exiting the process until tray exits */
+                        bldr.redirectError(Redirect.INHERIT);
+                        bldr.redirectOutput(Redirect.INHERIT);
+                    }
+                    else {
+                        bldr.redirectError(Redirect.DISCARD);
+                        bldr.redirectOutput(Redirect.DISCARD);
+                    }
                     bldr.start();
                 } catch (IOException ioe) {
                     throw new IllegalStateException("Failed to start system tray icon app.", ioe);
