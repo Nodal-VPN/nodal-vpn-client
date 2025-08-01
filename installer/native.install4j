@@ -820,6 +820,24 @@ Util.isLinux()
                 <condition>!context.getBooleanVariable("preventExecuteLauncherAction") &amp;&amp;
 ( Util.isMacOS() || Util.isMacosInstaller() ) </condition>
               </action>
+              <action name="DumpContext" id="2329" beanClass="com.install4j.runtime.beans.actions.control.RunScriptAction" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="script">
+                    <object class="com.install4j.api.beans.ScriptProperty">
+                      <property name="value" type="string">Util.logInfo(this, "XXXXX Is Unattended : " + context.isUnattended());
+Util.logInfo(this, "XXXXX Is Gui : " + context.isGui());
+Util.logInfo(this, "XXXXX Is UpdateInstallation : " + context.isUpdateInstallation());
+Util.logInfo(this, "XXXXX Is Linux : " + Util.isLinux());
+Util.logInfo(this, "XXXXX Is Windows : " + Util.isWindows());
+Util.logInfo(this, "XXXXX Is WindowsInstaller : " + Util.isWindowsInstaller());
+Util.logInfo(this, "XXXXX Is MacOs : " + Util.isMacOS());
+Util.logInfo(this, "XXXXX Is MacOs Installer : " + Util.isMacosInstaller());
+
+return true;</property>
+                    </object>
+                  </property>
+                </serializedBean>
+              </action>
               <action name="Start Tray (Windows)" id="2322" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="none" rollbackBarrierExitCode="0" errorMessage="Failed to start user Nodal VPN Client system tray icon.">
                 <serializedBean>
                   <property name="arguments" type="array" elementType="string" length="0" />
