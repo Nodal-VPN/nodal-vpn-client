@@ -869,7 +869,7 @@ Util.isLinux()
               <action name="Start GUI (Mac OS)" id="2327" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="none" rollbackBarrierExitCode="0" errorMessage="Failed to start user Nodal VPN Client user interface">
                 <serializedBean>
                   <property name="arguments" type="array" elementType="string" length="1">
-                    <element index="0">${installer:sys.installationDir}</element>
+                    <element index="0">${installer:sys.installationDir}/Nodal VPN Client.app</element>
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
