@@ -1089,6 +1089,30 @@ return console.askYesNo(message, true);
                   </property>
                 </serializedBean>
               </action>
+              <action id="2177" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="arguments" type="array" elementType="string" length="1">
+                    <element index="0">shutdown</element>
+                  </property>
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>nodal-vpn-client${compiler:install4j.exe.suffix}</string>
+                    </object>
+                  </property>
+                  <property name="timeout" type="int" value="20" />
+                  <property name="wait" type="boolean" value="true" />
+                  <property name="workingDirectory">
+                    <object class="java.io.File">
+                      <string>.</string>
+                    </object>
+                  </property>
+                </serializedBean>
+              </action>
+              <action id="2180" beanClass="com.install4j.runtime.beans.actions.control.SleepAction" actionElevationType="none" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="sleepTimeMs" type="int" value="5000" />
+                </serializedBean>
+              </action>
               <action name="Killall Tray Daemon (Linux/Mac)" id="2324" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="arguments" type="array" elementType="string" length="1">
@@ -1136,10 +1160,10 @@ return console.askYesNo(message, true);
                 </serializedBean>
                 <condition>Util.isWindows()</condition>
               </action>
-              <action name="Killall Tray Daemon (Mac)" id="2331" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="none" rollbackBarrierExitCode="0">
+              <action name="Killall Tray Daemon (Mac)" id="2331" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="arguments" type="array" elementType="string" length="1">
-                    <element index="0">${installer:sys.installationDir}/com.jadaptive.nodal.vpn.Tray.app/Contents/MacOS/com.jadaptive.nodal.vpn.Tray</element>
+                    <element index="0">com.jadaptive.nodal.vpn.Tray</element>
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
@@ -1159,25 +1183,6 @@ return console.askYesNo(message, true);
                 <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
               </action>
               <action id="2284" beanClass="com.sshtools.jaul.DeregisterJaulAppAction" rollbackBarrierExitCode="0" />
-              <action id="2177" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
-                <serializedBean>
-                  <property name="arguments" type="array" elementType="string" length="1">
-                    <element index="0">shutdown</element>
-                  </property>
-                  <property name="executable">
-                    <object class="java.io.File">
-                      <string>nodal-vpn-client${compiler:install4j.exe.suffix}</string>
-                    </object>
-                  </property>
-                  <property name="timeout" type="int" value="20" />
-                  <property name="wait" type="boolean" value="true" />
-                  <property name="workingDirectory">
-                    <object class="java.io.File">
-                      <string>.</string>
-                    </object>
-                  </property>
-                </serializedBean>
-              </action>
               <action name="Delete Mac OS Tray LaunchAgent" id="2314" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="files" type="array" class="java.io.File" length="2">
@@ -1194,11 +1199,6 @@ return console.askYesNo(message, true);
                   </property>
                 </serializedBean>
                 <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
-              </action>
-              <action id="2180" beanClass="com.install4j.runtime.beans.actions.control.SleepAction" actionElevationType="none" rollbackBarrierExitCode="0">
-                <serializedBean>
-                  <property name="sleepTimeMs" type="int" value="5000" />
-                </serializedBean>
               </action>
               <action id="2278" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
@@ -1245,11 +1245,11 @@ return console.askYesNo(message, true);
               <action name="Hack Mac Yet Again" id="2332" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="arguments" type="array" elementType="string" length="1">
-                    <element index="0">${installer:sys.installationDir}/nodal-vpn-client-service</element>
+                    <element index="0">nodal-vpn-client-service</element>
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>killall</string>
+                      <string>/usr/bin/killall</string>
                     </object>
                   </property>
                   <property name="logArguments" type="boolean" value="true" />
@@ -1284,7 +1284,7 @@ return console.askYesNo(message, true);
               </action>
               <action id="2179" beanClass="com.install4j.runtime.beans.actions.misc.CheckRunningProcessesAction" actionElevationType="none" rollbackBarrierExitCode="0">
                 <serializedBean>
-                  <property name="additionalExecutables" type="array" class="java.io.File" length="2">
+                  <property name="additionalExecutables" type="array" class="java.io.File" length="4">
                     <element index="0">
                       <object class="java.io.File">
                         <string>nodal-vpn-client-tray${compiler:install4j.exe.suffix}</string>
@@ -1293,6 +1293,16 @@ return console.askYesNo(message, true);
                     <element index="1">
                       <object class="java.io.File">
                         <string>nodal-vpn-client${compiler:install4j.exe.suffix}</string>
+                      </object>
+                    </element>
+                    <element index="2">
+                      <object class="java.io.File">
+                        <string>nodal-vpn-client-gui${compiler:install4j.exe.suffix}</string>
+                      </object>
+                    </element>
+                    <element index="3">
+                      <object class="java.io.File">
+                        <string>nodal-vpn-client-gui-remote${compiler:install4j.exe.suffix}</string>
                       </object>
                     </element>
                   </property>
