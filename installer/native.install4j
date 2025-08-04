@@ -834,14 +834,20 @@ Util.isLinux()
                   <property name="arguments" type="array" elementType="string" length="1">
                     <element index="0">${installer:sys.installationDir}/com.jadaptive.nodal.vpn.Tray.app</element>
                   </property>
+                  <property name="environmentVariables">
+                    <entry>
+                      <string>PATH</string>
+                      <string>/usr/bin:/usr/local/bin:/bin</string>
+                    </entry>
+                  </property>
                   <property name="executable">
                     <object class="java.io.File">
                       <string>/usr/bin/open</string>
                     </object>
                   </property>
-                  <property name="stderrRedirectionMode" type="enum" class="com.install4j.runtime.installer.helper.launching.OutputRedirectionMode" value="INHERIT" />
-                  <property name="stdinRedirectionMode" type="enum" class="com.install4j.runtime.installer.helper.launching.InputRedirectionMode" value="INHERIT" />
-                  <property name="stdoutRedirectionMode" type="enum" class="com.install4j.runtime.installer.helper.launching.OutputRedirectionMode" value="INHERIT" />
+                  <property name="stderrRedirectionMode" type="enum" class="com.install4j.runtime.installer.helper.launching.OutputRedirectionMode" value="LOG_FILE" />
+                  <property name="stdoutRedirectionMode" type="enum" class="com.install4j.runtime.installer.helper.launching.OutputRedirectionMode" value="LOG_FILE" />
+                  <property name="wait" type="boolean" value="true" />
                   <property name="workingDirectory">
                     <object class="java.io.File">
                       <string>.</string>
