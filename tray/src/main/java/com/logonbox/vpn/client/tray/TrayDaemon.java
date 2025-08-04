@@ -302,8 +302,8 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 				    ProcessBuilder bldr;
 				    if(OS.isMacOs()) {
 				        var appDir = Paths.get(Utils.findCommandPath("nodal-vpn-client-tray")).toRealPath().getParent().resolve("Nodal VPN Client.app");
-                        bldr = options ? new ProcessBuilder("open", appDir.toAbsolutePath().toString(), 
-                                "--args", "--options") : new ProcessBuilder("open", appDir.toAbsolutePath().toString());
+                        bldr = options ? new ProcessBuilder("/usr/bin/open", appDir.toAbsolutePath().toString(), 
+                                "--args", "--options") : new ProcessBuilder("/usr/bin/open", appDir.toAbsolutePath().toString());
 				    }
 				    else {
 				        var cmd = Utils.findCommandPath("nodal-vpn-client-gui");
