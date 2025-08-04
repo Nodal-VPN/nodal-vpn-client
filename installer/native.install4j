@@ -1089,14 +1089,14 @@ return console.askYesNo(message, true);
                   </property>
                 </serializedBean>
               </action>
-              <action name="Killall Tray Daemon (Linux/Mac)" id="2324" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="none" rollbackBarrierExitCode="0">
+              <action name="Killall Tray Daemon (Linux/Mac)" id="2324" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="arguments" type="array" elementType="string" length="1">
                     <element index="0">nodal-vpn-client-tray</element>
                   </property>
                   <property name="executable">
                     <object class="java.io.File">
-                      <string>killall</string>
+                      <string>/usr/bin/killall</string>
                     </object>
                   </property>
                   <property name="logArguments" type="boolean" value="true" />
