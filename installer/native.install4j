@@ -552,6 +552,19 @@ return path.replace('\\', '/');</property>
                 </serializedBean>
                 <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
               </action>
+              <action name="Hack MacOS" id="2330" beanClass="com.install4j.runtime.beans.actions.xml.RemoveXPathAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="files" type="array" class="java.io.File" length="1">
+                    <element index="0">
+                      <object class="java.io.File">
+                        <string>/Library/LaunchDaemons/com.jadaptive.VPNClientService.plist</string>
+                      </object>
+                    </element>
+                  </property>
+                  <property name="xpathExpression" type="string">//key[text()="WorkingDirectory"] | //key[text()="WorkingDirectory"]/following-sibling::string[1]</property>
+                </serializedBean>
+                <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
+              </action>
               <action name="Hack MacOS Again" id="2313" beanClass="com.install4j.runtime.beans.actions.xml.InsertXmlFragmentAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="files" type="array" class="java.io.File" length="1">
@@ -566,7 +579,7 @@ return path.replace('\\', '/');</property>
 &lt;string&gt;${installer:sys.installationDir}&lt;/string&gt;</property>
                   <property name="xpathExpression" type="string">/plist/dict</property>
                 </serializedBean>
-                <condition>!context.isUpdateInstallation() &amp;&amp; ( Util.isMacOS() || Util.isMacosInstaller() )</condition>
+                <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
               </action>
               <action name="Install service (windows)" id="2289" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
@@ -1123,6 +1136,28 @@ return console.askYesNo(message, true);
                 </serializedBean>
                 <condition>Util.isWindows()</condition>
               </action>
+              <action name="Killall Tray Daemon (Mac)" id="2331" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="none" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="arguments" type="array" elementType="string" length="1">
+                    <element index="0">${installer:sys.installationDir}/com.jadaptive.nodal.vpn.Tray.app/Contents/MacOS/com.jadaptive.nodal.vpn.Tray</element>
+                  </property>
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>killall</string>
+                    </object>
+                  </property>
+                  <property name="logArguments" type="boolean" value="true" />
+                  <property name="stderrRedirectionMode" type="enum" class="com.install4j.runtime.installer.helper.launching.OutputRedirectionMode" value="INHERIT" />
+                  <property name="stdinRedirectionMode" type="enum" class="com.install4j.runtime.installer.helper.launching.InputRedirectionMode" value="INHERIT" />
+                  <property name="stdoutRedirectionMode" type="enum" class="com.install4j.runtime.installer.helper.launching.OutputRedirectionMode" value="INHERIT" />
+                  <property name="workingDirectory">
+                    <object class="java.io.File">
+                      <string>.</string>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
+              </action>
               <action id="2284" beanClass="com.sshtools.jaul.DeregisterJaulAppAction" rollbackBarrierExitCode="0" />
               <action id="2177" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
@@ -1206,6 +1241,28 @@ return console.askYesNo(message, true);
                   </property>
                 </serializedBean>
                 <condition>Util.isWindows()</condition>
+              </action>
+              <action name="Hack Mac Yet Again" id="2332" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="arguments" type="array" elementType="string" length="1">
+                    <element index="0">${installer:sys.installationDir}/nodal-vpn-client-service</element>
+                  </property>
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>killall</string>
+                    </object>
+                  </property>
+                  <property name="logArguments" type="boolean" value="true" />
+                  <property name="stderrRedirectionMode" type="enum" class="com.install4j.runtime.installer.helper.launching.OutputRedirectionMode" value="INHERIT" />
+                  <property name="stdinRedirectionMode" type="enum" class="com.install4j.runtime.installer.helper.launching.InputRedirectionMode" value="INHERIT" />
+                  <property name="stdoutRedirectionMode" type="enum" class="com.install4j.runtime.installer.helper.launching.OutputRedirectionMode" value="INHERIT" />
+                  <property name="workingDirectory">
+                    <object class="java.io.File">
+                      <string>.</string>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>Util.isMacOS() || Util.isMacosInstaller()</condition>
               </action>
               <action name="Uninstall service (windows)" id="2292" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
