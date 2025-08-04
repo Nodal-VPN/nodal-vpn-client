@@ -520,7 +520,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
                     ProcessBuilder bldr;
                     if(OS.isMacOs()) {
                         var appDir = Paths.get(Utils.findCommandPath("nodal-vpn-client-gui")).toRealPath().getParent().resolve("com.jadaptive.nodal.vpn.Tray.app");
-                        bldr = new ProcessBuilder("open", appDir.toAbsolutePath().toString());
+                        bldr = new ProcessBuilder("/usr/bin/open", appDir.toAbsolutePath().toString());
                     }
                     else {
                         bldr = new ProcessBuilder(Utils.findCommandPath("nodal-vpn-client-tray"));
