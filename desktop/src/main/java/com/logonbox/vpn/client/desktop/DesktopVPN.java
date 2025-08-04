@@ -291,6 +291,11 @@ public class DesktopVPN extends AbstractDBusApp implements Listener, JfxAppConte
         return super.buildVpnManager(builder.withAuthorization());
     }
 
+    @Override
+    protected void afterExit() {
+        System.exit(0);
+    }
+
 	@Override
 	protected PromptingCertManager createCertManager() {
 		return new ClientPromptingCertManager(DesktopVPNApp.RESOURCES, this) {
