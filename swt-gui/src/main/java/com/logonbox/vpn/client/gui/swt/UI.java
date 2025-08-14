@@ -1357,7 +1357,7 @@ public class UI {
 	private void reapplyLogo() {
 
 		// TODO dispose images
-		var defaultLogo = UI.class.getResource("logonbox-titlebar-logo.png");
+		var defaultLogo = UI.class.getResource("nodal-header-logo.png");
 		var branding = pageModel.getBranding();
 		if ((branding == null
 				|| isBlank(branding.logo()) && !defaultLogo.equals(titleBarImageViewUrl))) {

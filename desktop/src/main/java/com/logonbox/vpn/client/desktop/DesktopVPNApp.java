@@ -387,7 +387,7 @@ public class DesktopVPNApp extends JajaFXApp<DesktopVPN, DesktopVPNAppWindow> im
         var css = vpnAppCss();
         ss.add(css);
 
-        String defaultLogo = UI.class.getResource("logonbox-titlebar-logo.png").toExternalForm();
+        String defaultLogo = UI.class.getResource("nodal-header-logo.png").toExternalForm();
         if ((branding == null || branding.logo().isEmpty()) && !defaultLogo.equals(navigator().getImage() == null ? null : navigator().getImage().getUrl())) {
             navigator().setImage(new Image(defaultLogo, true));
         } else if (branding != null && branding.logo().isPresent()
