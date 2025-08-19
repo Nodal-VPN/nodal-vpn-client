@@ -548,13 +548,13 @@ public class ConnectionImpl implements Connection, Serializable {
 			interfaceSection.putAll("DNS", connection.getDns().toArray(new String[0]));
 		interfaceSection.put("PrivateKey", connection.getUserPrivateKey());
 		if (Utils.isNotBlank(connection.getPreUp()))
-			interfaceSection.putAll("PreUp", connection.getPreUp().split("\\n"));
+			interfaceSection.put("PreUp", connection.getPreUp());
 		if (Utils.isNotBlank(connection.getPostUp()))
-			interfaceSection.putAll("PostUp", connection.getPostUp().split("\\n"));
+			interfaceSection.put("PostUp", connection.getPostUp());
 		if (Utils.isNotBlank(connection.getPreDown()))
-			interfaceSection.putAll("PreDown", connection.getPreDown().split("\\n"));
+			interfaceSection.put("PreDown", connection.getPreDown());
 		if (Utils.isNotBlank(connection.getPostDown()))
-			interfaceSection.putAll("PostDown", connection.getPostDown().split("\\n"));
+			interfaceSection.put("PostDown", connection.getPostDown());
 		if(connection.getFwMark() > 0)
 		    interfaceSection.put("FwMark", connection.getFwMark());
 		if(connection.isSaveConfig())
@@ -656,22 +656,22 @@ public class ConnectionImpl implements Connection, Serializable {
 
     @Override
     public String[] preUp() {
-        return isBlank(preUp) ? new String[0] : preUp.split("\\n");
+        return isBlank(preUp) ? new String[0] : preUp.split("\\r?\\n");
     }
 
     @Override
     public String[] postUp() {
-        return isBlank(postUp) ? new String[0] : postUp.split("\\n");
+        return isBlank(postUp) ? new String[0] : postUp.split("\\r?\\n");
     }
 
     @Override
     public String[] preDown() {
-        return isBlank(preDown) ? new String[0] : preDown.split("\\n");
+        return isBlank(preDown) ? new String[0] : preDown.split("\\r?\\n");
     }
 
     @Override
     public String[] postDown() {
-        return isBlank(postDown) ? new String[0] : postDown.split("\\n");
+        return isBlank(postDown) ? new String[0] : postDown.split("\\r?\\n");
     }
 
     @Override

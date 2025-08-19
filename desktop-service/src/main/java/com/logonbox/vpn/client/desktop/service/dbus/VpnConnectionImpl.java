@@ -26,8 +26,10 @@ import com.logonbox.vpn.client.common.ConnectionUtil;
 import com.logonbox.vpn.client.common.Utils;
 import com.logonbox.vpn.client.common.dbus.VpnConnection;
 import com.logonbox.vpn.client.desktop.service.DesktopServiceContext;
+import com.sshtools.jini.INI.EscapeMode;
 import com.sshtools.jini.INIReader;
 import com.sshtools.jini.INIReader.MultiValueMode;
+import com.sshtools.jini.INIWriter.StringQuoteMode;
 
 import org.freedesktop.dbus.annotations.DBusInterfaceName;
 import org.slf4j.Logger;
@@ -55,6 +57,8 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
 		try {
 		    var rdr = new INIReader.Builder().
                     withMultiValueMode(MultiValueMode.SEPARATED).
+                    withEscapeMode(EscapeMode.ALWAYS).
+                    withoutMultilineStrings().
 		            build();
 		    
 		    var ini = rdr.read(configIniFile);
@@ -75,10 +79,10 @@ public class VpnConnectionImpl extends AbstractVPNComponent implements VpnConnec
 				throw new IllegalStateException(
 						"Did not receive private key from server, and we didn't generate one on the client. Connection impossible.");
 			}
-			setPreUp(interfaceSection.contains("PreUp") ?  String.join("\n", interfaceSection.getAll("PreUp")) : "");
-			setPostUp(interfaceSection.contains("PostUp") ? String.join("\n", interfaceSection.getAll("PostUp")) : "");
-			setPreDown(interfaceSection.contains("PreDown") ? String.join("\n", interfaceSection.getAll("PreDown")) : "");
-			setPostDown(interfaceSection.contains("PostDown") ? String.join("\n", interfaceSection.getAll("PostDown")) : "");
+			setPreUp(interfaceSection.get("PreUp", ""));
+            setPostUp(interfaceSection.get("PostUp", ""));
+            setPreDown(interfaceSection.get("PreDown", ""));
+            setPostDown(interfaceSection.get("PostDowm", ""));
 	
 			/* Custom */
 			ini.sectionOr("LogonBox").ifPresent(l -> {
