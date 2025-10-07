@@ -38,6 +38,11 @@
     <dependencies>
         <dependency>
             <groupId>com.sshtools</groupId>
+            <artifactId>dobbin</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sshtools</groupId>
             <artifactId>jini-config</artifactId> 
         </dependency>
         <dependency>

@@ -330,16 +330,16 @@ public class SWTTray extends AbstractTray {
 
                     TrayMode icon = UiConfiguration.get().getValue(null, UiConfiguration.TRAY_MODE);
                     if (TrayMode.LIGHT.equals(icon)) {
-                        disposableImage = image = overlay("light-logonbox-icon", 64, devs);
+                        disposableImage = image = loadImage("light-logonbox-icon", 64, devs);
                     } else if (TrayMode.DARK.equals(icon)) {
-                        disposableImage = image = overlay("dark-logonbox-icon", 64, devs);
+                        disposableImage = image = loadImage("dark-logonbox-icon", 64, devs);
                     } else if (TrayMode.COLOR.equals(icon)) {
-                        disposableImage = image = overlay("color-logonbox-icon", 64, devs);
+                        disposableImage = image = loadImage("color-logonbox-icon", 64, devs);
                     } else {
                         if (isDark())
-                            disposableImage = image = overlay("light-logonbox-icon", 64, devs);
+                            disposableImage = image = loadImage("light-logonbox-icon", 64, devs);
                         else
-                            disposableImage = image = overlay("dark-logonbox-icon", 64, devs);
+                            disposableImage = image = loadImage("dark-logonbox-icon", 64, devs);
                     }
 			    }
 			} else {
@@ -351,7 +351,7 @@ public class SWTTray extends AbstractTray {
 		}
 	}
 
-    protected Image overlay(String resource, int sz, List<VpnConnection> devs) {
+    protected Image loadImage(String resource, int sz, List<VpnConnection> devs) {
 
         try {
             resource += sz + "x" + sz;

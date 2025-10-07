@@ -131,7 +131,10 @@ public class TrayDaemon extends AbstractDBusApp implements Callable<Integer> {
 		}
         log.info("JVM Mode: {}", OS.isNativeImage() ? "Native" : "Interpreted");
 
-		tray = new SWTTray(this);
+        if(Boolean.getBoolean("vpn.tray.dobbin"))
+            tray = new DobbinTray(this);
+        else
+            tray = new SWTTray(this);
 
 		var settings = ToasterFactory.getSettings();
 		settings.setAppName(Tray.bundle.getString("appName"));
