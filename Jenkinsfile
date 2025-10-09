@@ -95,7 +95,7 @@ pipeline {
                  */
                 stage ('MacOS Intel Nodal VPN Client Installers') {
                     agent {
-                        label 'install4j && macos && x86_64 && ronald'
+                        label 'install4j && macos && x86_64 && macos14'
                     }
                     steps {
                         configFileProvider([
