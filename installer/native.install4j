@@ -24,8 +24,10 @@
       <variable name="install4j.appleIssuerId" />
       <variable name="install4j.appleKeyId" />
       <variable name="install4j.applePrivateKeyFile" />
+      <variable name="install4j.safeNet.pin" />
+      <variable name="install4j.timestamp.server" />
     </variables>
-    <codeSigning macEnabled="true" macPkcs12File="${compiler:install4j.macPkcs12File}" windowsEnabled="true" windowsKeySource="windows" macNotarize="true" macApiIssuer="${compiler:install4j.appleIssuerId}" macApiKey="${compiler:install4j.appleKeyId}" macApiPrivateKey="${compiler:install4j.applePrivateKeyFile}">
+    <codeSigning macEnabled="true" macPkcs12File="${compiler:install4j.macPkcs12File}" windowsEnabled="true" windowsKeySource="executable" windowsExecutable="scsigntool -pin &quot;${compiler:install4j.safeNet.pin}&quot; sign /tr &quot;${compiler:install4j.timestamp.server}&quot; /fd sha256 /td sha256 /a &quot;$EXECUTABLE&quot;" macNotarize="true" macApiIssuer="${compiler:install4j.appleIssuerId}" macApiKey="${compiler:install4j.appleKeyId}" macApiPrivateKey="${compiler:install4j.applePrivateKeyFile}">
       <windowsKeystoreIdentifier issuer="${compiler:install4j.windowsKeystoreIssuer}" serial="${compiler:install4j.windowsKeystoreSerial}" subject="${compiler:install4j.windowsKeystoreSubject}" />
       <macAdditionalBinaries>
         <entry>*.dylib</entry>
