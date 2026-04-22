@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import com.logonbox.vpn.client.common.PlatformUtilities;
+import com.logonbox.vpn.client.common.api.PowerManager;
 import com.logonbox.vpn.client.windows.WindowsPlatformUtilities;
 
 open module com.jadaptive.nodal.vpn.client.windows {
@@ -25,4 +26,5 @@ open module com.jadaptive.nodal.vpn.client.windows {
     requires com.sun.jna.platform;
     
     provides PlatformUtilities with WindowsPlatformUtilities;
+    provides PowerManager with com.logonbox.vpn.client.windows.WindowsPowerManager;
 }

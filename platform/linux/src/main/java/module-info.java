@@ -16,12 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import com.logonbox.vpn.client.common.PlatformUtilities;
+import com.logonbox.vpn.client.common.api.PowerManager;
 import com.logonbox.vpn.client.linux.LinuxPlatformUtilities;
 
 open module com.jadaptive.nodal.vpn.client.linux {
     exports com.logonbox.vpn.client.linux;
 
     requires transitive com.jadaptive.nodal.vpn.client.common;
+    requires org.freedesktop.dbus;
+    requires static uk.co.bithatch.nativeimage.annotations;
     
     provides PlatformUtilities with LinuxPlatformUtilities;
+    provides PowerManager with com.logonbox.vpn.client.linux.LinuxPowerManager;
 }

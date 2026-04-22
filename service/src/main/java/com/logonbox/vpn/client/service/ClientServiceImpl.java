@@ -391,6 +391,17 @@ public class ClientServiceImpl<CONX extends IVpnConnection> extends AbstractSyst
 		}
 	}
 
+    @Override
+    public void disconnectAll(String reason) {
+        List<Connection> connections;
+        synchronized (activeSessions) {
+            connections = new ArrayList<>(activeSessions.keySet());
+        }
+        for(var c : connections) {
+            disconnect(c, reason);
+        }
+    }
+
 	@Override
 	public void disconnect(Connection c, String reason) {
 

@@ -16,6 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import com.logonbox.vpn.client.common.PlatformUtilities;
+import com.logonbox.vpn.client.common.api.PowerManager;
+import com.logonbox.vpn.client.macos.MacOSPowerManager;
 import com.logonbox.vpn.client.macos.MacOsPlatformUtilities;
 
 open module com.jadaptive.nodal.vpn.client.macos {
@@ -24,4 +26,5 @@ open module com.jadaptive.nodal.vpn.client.macos {
     requires transitive com.jadaptive.nodal.vpn.client.common;
     
     provides PlatformUtilities with MacOsPlatformUtilities;
+    provides PowerManager with MacOSPowerManager;
 }

@@ -73,7 +73,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
-        <javafx.version>23</javafx.version>
+        <javafx.version>25</javafx.version>
 		
 		<!-- When you change this, remember to also change hypersocket-framework, hypersocket-enterprise, hypersocket-ui  -->
 		<hypersocket.languages>da,nl,fi,fr,de,it,no,pl,ru,sv,es,ja,he,pt,tr</hypersocket.languages>
@@ -132,7 +132,6 @@
 		<module>tray</module>
 		<module>embedded</module>
 		<module>gui</module>
-		<module>gui-debugger</module>
 		<module>swt-gui</module>
 		<module>desktop</module>
 		<module>desktop-service</module>
@@ -292,8 +291,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>21</source>
-					<target>21</target>
+					<source>25</source>
+					<target>25</target>
 					<encoding>UTF-8</encoding>
                     <annotationProcessorPaths>
                         <path>

@@ -17,6 +17,7 @@
  */
 import com.jadaptive.nodal.core.lib.DNSProvider;
 import com.jadaptive.nodal.core.lib.PlatformServiceFactory;
+import com.logonbox.vpn.client.common.api.PowerManager;
 
 open module com.jadaptive.nodal.vpn.client.desktop.service {
     exports com.logonbox.vpn.client.desktop.service;
@@ -34,5 +35,6 @@ open module com.jadaptive.nodal.vpn.client.desktop.service {
     requires com.sshtools.jadbus.lib;
     
     uses PlatformServiceFactory;
+    uses PowerManager;
     uses DNSProvider.Factory;
 }

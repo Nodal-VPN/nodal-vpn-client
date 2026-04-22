@@ -44,7 +44,9 @@ public interface ClientService<CONX extends IVpnConnection>  {
 	
 	String getDeviceName() ;
 	
-	UUID getUUID(String owner) ;
+	UUID getUUID(String owner);
+	
+	void disconnectAll(String reason);
 	
 	Connection save(Connection c) ;
 	

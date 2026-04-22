@@ -30,6 +30,7 @@ import com.logonbox.vpn.client.common.LoggingConfig;
 import com.logonbox.vpn.client.common.LoggingConfig.Audience;
 import com.logonbox.vpn.client.common.PromptingCertManager.PromptType;
 import com.logonbox.vpn.client.common.api.IVpn;
+import com.logonbox.vpn.client.common.api.PowerManager;
 import com.logonbox.vpn.client.common.dbus.BusFactory;
 import com.logonbox.vpn.client.common.dbus.VPN;
 import com.logonbox.vpn.client.common.dbus.VPNFrontEnd;
@@ -69,6 +70,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledFuture;
@@ -262,6 +264,20 @@ public class Main extends AbstractService<VpnConnection> implements Callable<Int
 			if (!createVpn()) {
 				System.exit(1);
 			}
+			
+			ServiceLoader.load(PowerManager.class).findFirst().ifPresent(pm -> {
+                log.info("Power manager service found, registering for suspend events.");
+                pm.onSuspend(shutdown -> {
+                    if (shutdown) {
+                        log.info("System is shutting down, shutting down VPN service.");
+                        shutdown(false);
+                    }
+                    else {
+                        log.info("System is suspending, disconnecting all VPN connections.");
+                        getClientService().disconnectAll("System is suspending");
+                    }
+                });
+            });
 			
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				public void run() {
